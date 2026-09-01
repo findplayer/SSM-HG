@@ -1,0 +1,54 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(operator != msg.sender,ERC777: revoking self as operator)
+
+IRs:
+TMP_57(bool) = operator != msg.sender
+TMP_58(None) = SOLIDITY_CALL require(bool,string)(TMP_57,ERC777: revoking self as operator)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+_defaultOperators[operator]
+
+IRs:
+REF_25(bool) -> _defaultOperators[operator]
+CONDITION REF_25"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_revokedDefaultOperators[msg.sender][operator] = true
+
+IRs:
+REF_26(mapping(address => bool)) -> _revokedDefaultOperators[msg.sender]
+REF_27(bool) -> REF_26[operator]
+REF_27(bool) (->_revokedDefaultOperators) := True(bool)"];
+3->5;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+delete _operators[msg.sender][operator]
+
+IRs:
+REF_28(mapping(address => bool)) -> _operators[msg.sender]
+REF_29(bool) -> REF_28[operator]
+REF_28 = delete REF_29 "];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+RevokedOperator(operator,msg.sender)
+
+IRs:
+Emit RevokedOperator(operator,msg.sender)"];
+}

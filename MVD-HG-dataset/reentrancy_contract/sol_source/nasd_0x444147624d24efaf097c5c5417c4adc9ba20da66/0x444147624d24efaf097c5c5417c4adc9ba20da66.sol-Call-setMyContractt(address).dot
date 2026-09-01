@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(owner == msg.sender)
+
+IRs:
+TMP_0(bool) = owner == msg.sender
+TMP_1(None) = SOLIDITY_CALL require(bool)(TMP_0)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+contr = HelloEx(addr)
+
+IRs:
+TMP_2 = CONVERT addr to HelloEx
+contr(HelloEx) := TMP_2(HelloEx)"];
+}

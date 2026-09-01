@@ -1,0 +1,38 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(member != address(0),approveTeam: invalid team address)
+
+IRs:
+TMP_317 = CONVERT 0 to address
+TMP_318(bool) = member != TMP_317
+TMP_319(None) = SOLIDITY_CALL require(bool,string)(TMP_318,approveTeam: invalid team address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_addTeam(member)
+
+IRs:
+INTERNAL_CALL, TeamRole._addTeam(address)(member)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+approveSwap(member)
+
+IRs:
+INTERNAL_CALL, SwapContract.approveSwap(address)(member)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyWhitelistAdmin()
+
+IRs:
+MODIFIER_CALL, WhitelistAdminRole.onlyWhitelistAdmin()()"];
+4->1;
+}

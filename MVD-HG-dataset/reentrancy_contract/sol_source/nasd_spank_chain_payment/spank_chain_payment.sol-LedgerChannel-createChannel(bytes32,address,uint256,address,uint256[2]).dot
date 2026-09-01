@@ -1,0 +1,198 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].partyAddresses[0] == address(0),Channel has already been created.)
+
+IRs:
+REF_54(LedgerChannel.Channel) -> Channels[_lcID]
+REF_55(address[2]) -> REF_54.partyAddresses
+REF_56(address) -> REF_55[0]
+TMP_113 = CONVERT 0 to address
+TMP_114(bool) = REF_56 == TMP_113
+TMP_115(None) = SOLIDITY_CALL require(bool,string)(TMP_114,Channel has already been created.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(_partyI != 0x0,No partyI address provided to LC creation)
+
+IRs:
+TMP_116(bool) = _partyI != 0
+TMP_117(None) = SOLIDITY_CALL require(bool,string)(TMP_116,No partyI address provided to LC creation)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(_balances[0] >= 0 && _balances[1] >= 0,Balances cannot be negative)
+
+IRs:
+REF_57(uint256) -> _balances[0]
+TMP_118(bool) = REF_57 >= 0
+REF_58(uint256) -> _balances[1]
+TMP_119(bool) = REF_58 >= 0
+TMP_120(bool) = TMP_118 && TMP_119
+TMP_121(None) = SOLIDITY_CALL require(bool,string)(TMP_120,Balances cannot be negative)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Channels[_lcID].partyAddresses[0] = msg.sender
+
+IRs:
+REF_59(LedgerChannel.Channel) -> Channels[_lcID]
+REF_60(address[2]) -> REF_59.partyAddresses
+REF_61(address) -> REF_60[0]
+REF_61(address) (->Channels) := msg.sender(address)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Channels[_lcID].partyAddresses[1] = _partyI
+
+IRs:
+REF_62(LedgerChannel.Channel) -> Channels[_lcID]
+REF_63(address[2]) -> REF_62.partyAddresses
+REF_64(address) -> REF_63[1]
+REF_64(address) (->Channels) := _partyI(address)"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+_balances[0] != 0
+
+IRs:
+REF_65(uint256) -> _balances[0]
+TMP_122(bool) = REF_65 != 0
+CONDITION TMP_122"];
+6->7[label="True"];
+6->9[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+require(bool,string)(msg.value == _balances[0],Eth balance does not match sent value)
+
+IRs:
+REF_66(uint256) -> _balances[0]
+TMP_123(bool) = msg.value == REF_66
+TMP_124(None) = SOLIDITY_CALL require(bool,string)(TMP_123,Eth balance does not match sent value)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Channels[_lcID].ethBalances[0] = msg.value
+
+IRs:
+REF_67(LedgerChannel.Channel) -> Channels[_lcID]
+REF_68(uint256[4]) -> REF_67.ethBalances
+REF_69(uint256) -> REF_68[0]
+REF_69(uint256) (->Channels) := msg.value(uint256)"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+9->10;
+10[label="Node Type: IF 10
+
+EXPRESSION:
+_balances[1] != 0
+
+IRs:
+REF_70(uint256) -> _balances[1]
+TMP_125(bool) = REF_70 != 0
+CONDITION TMP_125"];
+10->11[label="True"];
+10->14[label="False"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+Channels[_lcID].token = HumanStandardToken(_token)
+
+IRs:
+REF_71(LedgerChannel.Channel) -> Channels[_lcID]
+REF_72(HumanStandardToken) -> REF_71.token
+TMP_126 = CONVERT _token to HumanStandardToken
+REF_72(HumanStandardToken) (->Channels) := TMP_126(HumanStandardToken)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].token.transferFrom(msg.sender,this,_balances[1]),CreateChannel: token transfer failure)
+
+IRs:
+REF_73(LedgerChannel.Channel) -> Channels[_lcID]
+REF_74(HumanStandardToken) -> REF_73.token
+REF_76(uint256) -> _balances[1]
+TMP_127(bool) = HIGH_LEVEL_CALL, dest:REF_74(HumanStandardToken), function:transferFrom, arguments:['msg.sender', 'this', 'REF_76']  
+TMP_128(None) = SOLIDITY_CALL require(bool,string)(TMP_127,CreateChannel: token transfer failure)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[0] = _balances[1]
+
+IRs:
+REF_77(LedgerChannel.Channel) -> Channels[_lcID]
+REF_78(uint256[4]) -> REF_77.erc20Balances
+REF_79(uint256) -> REF_78[0]
+REF_80(uint256) -> _balances[1]
+REF_79(uint256) (->Channels) := REF_80(uint256)"];
+13->14;
+14[label="Node Type: END_IF 14
+"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+Channels[_lcID].sequence = 0
+
+IRs:
+REF_81(LedgerChannel.Channel) -> Channels[_lcID]
+REF_82(uint256) -> REF_81.sequence
+REF_82(uint256) (->Channels) := 0(uint256)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+Channels[_lcID].confirmTime = _confirmTime
+
+IRs:
+REF_83(LedgerChannel.Channel) -> Channels[_lcID]
+REF_84(uint256) -> REF_83.confirmTime
+REF_84(uint256) (->Channels) := _confirmTime(uint256)"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+Channels[_lcID].LCopenTimeout = now + _confirmTime
+
+IRs:
+REF_85(LedgerChannel.Channel) -> Channels[_lcID]
+REF_86(uint256) -> REF_85.LCopenTimeout
+TMP_129(uint256) = now + _confirmTime
+REF_86(uint256) (->Channels) := TMP_129(uint256)"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+Channels[_lcID].initialDeposit = _balances
+
+IRs:
+REF_87(LedgerChannel.Channel) -> Channels[_lcID]
+REF_88(uint256[2]) -> REF_87.initialDeposit
+REF_88(uint256[2]) (->Channels) := _balances(uint256[2])"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+DidLCOpen(_lcID,msg.sender,_partyI,_balances[0],_token,_balances[1],Channels[_lcID].LCopenTimeout)
+
+IRs:
+REF_89(uint256) -> _balances[0]
+REF_90(uint256) -> _balances[1]
+REF_91(LedgerChannel.Channel) -> Channels[_lcID]
+REF_92(uint256) -> REF_91.LCopenTimeout
+Emit DidLCOpen(_lcID,msg.sender,_partyI,REF_89,_token,REF_90,REF_92)"];
+}

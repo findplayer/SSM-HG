@@ -1,0 +1,59 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_value <= balances[msg.sender])
+
+IRs:
+REF_190(uint256) -> balances[msg.sender]
+TMP_222(bool) = _value <= REF_190
+TMP_223(None) = SOLIDITY_CALL require(bool)(TMP_222)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[msg.sender] = balances[msg.sender].sub(_value)
+
+IRs:
+REF_191(uint256) -> balances[msg.sender]
+REF_192(uint256) -> balances[msg.sender]
+TMP_224(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_192', '_value'] 
+REF_191(uint256) (->balances) := TMP_224(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+totalSupply_ = totalSupply_.sub(_value)
+
+IRs:
+TMP_225(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['totalSupply_', '_value'] 
+totalSupply_(uint256) := TMP_225(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Burn(msg.sender,_value)
+
+IRs:
+Emit Burn(msg.sender,_value)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Transfer(msg.sender,address(0),_value)
+
+IRs:
+TMP_227 = CONVERT 0 to address
+Emit Transfer(msg.sender,TMP_227,_value)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyBurner()
+
+IRs:
+MODIFIER_CALL, GambioToken.onlyBurner()()"];
+6->1;
+}

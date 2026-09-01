@@ -1,0 +1,24 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(! has(role,account),Roles: account already has role)
+
+IRs:
+TMP_177(bool) = INTERNAL_CALL, Roles.has(Roles.Role,address)(role,account)
+TMP_178 = UnaryType.BANG TMP_177 
+TMP_179(None) = SOLIDITY_CALL require(bool,string)(TMP_178,Roles: account already has role)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+role.bearer[account] = true
+
+IRs:
+REF_89(mapping(address => bool)) -> role.bearer
+REF_90(bool) -> REF_89[account]
+REF_90(bool) (->role) := True(bool)"];
+}

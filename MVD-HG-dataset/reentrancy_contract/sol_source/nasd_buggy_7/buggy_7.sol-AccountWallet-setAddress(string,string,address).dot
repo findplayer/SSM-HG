@@ -1,0 +1,57 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(bytes(account).length > 0)
+
+IRs:
+TMP_234 = CONVERT account to bytes
+REF_135 -> LENGTH TMP_234
+TMP_235(bool) = REF_135 > 0
+TMP_236(None) = SOLIDITY_CALL require(bool)(TMP_235)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+btc[account] = btcAddress
+
+IRs:
+REF_136(string) -> btc[account]
+REF_136(string) (->btc) := btcAddress(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+eth[account] = ethAddress
+
+IRs:
+REF_137(address) -> eth[account]
+REF_137(address) (->eth) := ethAddress(address)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+SetAddress(account,btcAddress,ethAddress)
+
+IRs:
+Emit SetAddress(account,btcAddress,ethAddress)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyMaster()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyMaster()()"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyWhenNotStopped()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyWhenNotStopped()()"];
+6->1;
+}

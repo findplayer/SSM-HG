@@ -1,0 +1,27 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_infos[msg.sender].availableTokens = _infos[msg.sender].availableTokens.sub(amountToSwap)
+
+IRs:
+REF_190(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_191(uint256) -> REF_190.availableTokens
+REF_192(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_193(uint256) -> REF_192.availableTokens
+TMP_361(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_193', 'amountToSwap'] 
+REF_191(uint256) (->_infos) := TMP_361(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_infos[msg.sender].lastSwapTimestamp = now
+
+IRs:
+REF_195(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_196(uint256) -> REF_195.lastSwapTimestamp
+REF_196(uint256) (->_infos) := now(uint256)"];
+}

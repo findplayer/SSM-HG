@@ -1,0 +1,104 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+feeTotal = fee()
+
+IRs:
+TMP_24(uint256) = INTERNAL_CALL, AbstractToken.fee()()
+feeTotal(uint256) := TMP_24(uint256)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+accounts[msg.sender] < _value
+
+IRs:
+REF_1(uint256) -> accounts[msg.sender]
+TMP_25(bool) = REF_1 < _value
+CONDITION TMP_25"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+4[label="Node Type: END_IF 4
+"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+_value > feeTotal && msg.sender != _to
+
+IRs:
+TMP_26(bool) = _value > feeTotal
+TMP_27(bool) = msg.sender != _to
+TMP_28(bool) = TMP_26 && TMP_27
+CONDITION TMP_28"];
+5->6[label="True"];
+5->10[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+accounts[msg.sender] = safeSub(accounts[msg.sender],_value)
+
+IRs:
+REF_2(uint256) -> accounts[msg.sender]
+REF_3(uint256) -> accounts[msg.sender]
+TMP_29(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_3,_value)
+REF_2(uint256) (->accounts) := TMP_29(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+accounts[_to] = safeAdd(accounts[_to],safeSub(_value,feeTotal))
+
+IRs:
+REF_4(uint256) -> accounts[_to]
+REF_5(uint256) -> accounts[_to]
+TMP_30(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(_value,feeTotal)
+TMP_31(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_5,TMP_30)
+REF_4(uint256) (->accounts) := TMP_31(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+processFee(feeTotal)
+
+IRs:
+TMP_32(bool) = INTERNAL_CALL, AbstractToken.processFee(uint256)(feeTotal)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+Transfer(msg.sender,_to,safeSub(_value,feeTotal))
+
+IRs:
+TMP_33(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(_value,feeTotal)
+Emit Transfer(msg.sender,_to,TMP_33)"];
+9->10;
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: RETURN 11
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+12[label="Node Type: RETURN 12
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

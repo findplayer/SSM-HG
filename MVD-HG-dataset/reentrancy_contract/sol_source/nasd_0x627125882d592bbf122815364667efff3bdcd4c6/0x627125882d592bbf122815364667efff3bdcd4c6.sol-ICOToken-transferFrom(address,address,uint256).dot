@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(value <= allowanceCollection[from][msg.sender],Amount to transfer is greater than allowance.)
+
+IRs:
+REF_5(mapping(address => uint256)) -> allowanceCollection[from]
+REF_6(uint256) -> REF_5[msg.sender]
+TMP_33(bool) = value <= REF_6
+TMP_34(None) = SOLIDITY_CALL require(bool,string)(TMP_33,Amount to transfer is greater than allowance.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+allowanceCollection[from][msg.sender] = allowanceCollection[from][msg.sender].sub(value)
+
+IRs:
+REF_7(mapping(address => uint256)) -> allowanceCollection[from]
+REF_8(uint256) -> REF_7[msg.sender]
+REF_9(mapping(address => uint256)) -> allowanceCollection[from]
+REF_10(uint256) -> REF_9[msg.sender]
+TMP_35(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_10', 'value'] 
+REF_8(uint256) (->allowanceCollection) := TMP_35(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_transfer(from,to,value)
+
+IRs:
+TMP_36(bool) = INTERNAL_CALL, ICOToken._transfer(address,address,uint256)(from,to,value)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

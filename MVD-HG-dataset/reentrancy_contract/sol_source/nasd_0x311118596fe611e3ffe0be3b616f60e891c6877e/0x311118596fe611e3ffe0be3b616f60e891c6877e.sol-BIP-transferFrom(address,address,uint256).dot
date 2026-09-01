@@ -1,0 +1,63 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0)
+
+IRs:
+REF_35(uint256) -> balances[_from]
+TMP_49(bool) = REF_35 >= _value
+REF_36(mapping(address => uint256)) -> allowed[_from]
+REF_37(uint256) -> REF_36[msg.sender]
+TMP_50(bool) = REF_37 >= _value
+TMP_51(bool) = TMP_49 && TMP_50
+TMP_52(bool) = _value > 0
+TMP_53(bool) = TMP_51 && TMP_52
+TMP_54(None) = SOLIDITY_CALL require(bool)(TMP_53)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[_to] = balances[_to].add(_value)
+
+IRs:
+REF_38(uint256) -> balances[_to]
+REF_39(uint256) -> balances[_to]
+TMP_55(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_39', '_value'] 
+REF_38(uint256) (->balances) := TMP_55(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[_from] = balances[_from].sub(_value)
+
+IRs:
+REF_41(uint256) -> balances[_from]
+REF_42(uint256) -> balances[_from]
+TMP_56(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_42', '_value'] 
+REF_41(uint256) (->balances) := TMP_56(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value)
+
+IRs:
+REF_44(mapping(address => uint256)) -> allowed[_from]
+REF_45(uint256) -> REF_44[msg.sender]
+REF_46(mapping(address => uint256)) -> allowed[_from]
+REF_47(uint256) -> REF_46[msg.sender]
+TMP_57(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_47', '_value'] 
+REF_45(uint256) (->allowed) := TMP_57(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Transfer(_from,_to,_value)
+
+IRs:
+Emit Transfer(_from,_to,_value)"];
+}

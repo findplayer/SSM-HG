@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+operators.add(account)
+
+IRs:
+LIBRARY_CALL, dest:Roles, function:Roles.add(Roles.Role,address), arguments:['operators', 'account'] "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+OperatorAdded(account)
+
+IRs:
+Emit OperatorAdded(account)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+3->1;
+}

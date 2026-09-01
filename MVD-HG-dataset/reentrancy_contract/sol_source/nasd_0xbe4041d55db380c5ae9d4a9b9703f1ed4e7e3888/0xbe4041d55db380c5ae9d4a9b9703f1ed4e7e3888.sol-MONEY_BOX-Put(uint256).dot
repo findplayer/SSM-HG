@@ -1,0 +1,55 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+acc = Acc[msg.sender]
+
+IRs:
+REF_0(MONEY_BOX.Holder) -> Acc[msg.sender]
+acc(MONEY_BOX.Holder) := REF_0(MONEY_BOX.Holder)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+acc.balance += msg.value
+
+IRs:
+REF_1(uint256) -> acc.balance
+REF_1(-> acc) = REF_1 + msg.value"];
+2->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+now + _lockTime > acc.unlockTime
+
+IRs:
+TMP_1(uint256) = now + _lockTime
+REF_2(uint256) -> acc.unlockTime
+TMP_2(bool) = TMP_1 > REF_2
+CONDITION TMP_2"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+acc.unlockTime = now + _lockTime
+
+IRs:
+REF_3(uint256) -> acc.unlockTime
+TMP_3(uint256) = now + _lockTime
+REF_3(uint256) (->acc) := TMP_3(uint256)"];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+LogFile.AddMessage(msg.sender,msg.value,Put)
+
+IRs:
+HIGH_LEVEL_CALL, dest:LogFile(Log), function:AddMessage, arguments:['msg.sender', 'msg.value', 'Put']  "];
+}

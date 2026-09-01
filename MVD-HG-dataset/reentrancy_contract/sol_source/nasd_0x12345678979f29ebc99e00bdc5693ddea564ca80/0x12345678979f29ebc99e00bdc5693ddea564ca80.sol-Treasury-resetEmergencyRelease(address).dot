@@ -1,0 +1,27 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+emergencyReleaseSince[traderAddr] != 0
+
+IRs:
+REF_6(uint256) -> emergencyReleaseSince[traderAddr]
+TMP_28(bool) = REF_6 != 0
+CONDITION TMP_28"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+emergencyReleaseSince[traderAddr] = 0
+
+IRs:
+REF_7(uint256) -> emergencyReleaseSince[traderAddr]
+REF_7(uint256) (->emergencyReleaseSince) := 0(uint256)"];
+2->3;
+3[label="Node Type: END_IF 3
+"];
+}

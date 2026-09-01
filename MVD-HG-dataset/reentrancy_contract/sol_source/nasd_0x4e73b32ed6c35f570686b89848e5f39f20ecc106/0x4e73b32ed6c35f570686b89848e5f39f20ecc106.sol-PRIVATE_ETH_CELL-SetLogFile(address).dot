@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(! intitalized)
+
+IRs:
+TMP_2 = UnaryType.BANG intitalized 
+TMP_3(None) = SOLIDITY_CALL require(bool)(TMP_2)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+Log = LogFile(_log)
+
+IRs:
+TMP_4 = CONVERT _log to LogFile
+Log(LogFile) := TMP_4(LogFile)"];
+}

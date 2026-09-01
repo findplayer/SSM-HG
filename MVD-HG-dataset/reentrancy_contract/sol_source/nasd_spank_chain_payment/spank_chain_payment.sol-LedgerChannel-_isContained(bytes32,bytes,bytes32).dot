@@ -1,0 +1,96 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+cursor = _hash
+
+IRs:
+cursor(bytes32) := _hash(bytes32)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->5;
+3[label="Node Type: BEGIN_LOOP 3
+"];
+3->6;
+4[label="Node Type: END_LOOP 4
+"];
+4->14;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+i = 64
+
+IRs:
+i(uint256) := 64(uint256)"];
+5->3;
+6[label="Node Type: IF_LOOP 6
+
+EXPRESSION:
+i <= _proof.length
+
+IRs:
+REF_598 -> LENGTH _proof
+TMP_319(bool) = i <= REF_598
+CONDITION TMP_319"];
+6->7[label="True"];
+6->4[label="False"];
+7[label="Node Type: INLINE ASM 7
+"];
+7->8;
+8[label="Node Type: END INLINE ASM 8
+"];
+8->9;
+9[label="Node Type: IF 9
+
+EXPRESSION:
+cursor < proofElem
+
+IRs:
+TMP_320(bool) = cursor < proofElem
+CONDITION TMP_320"];
+9->10[label="True"];
+9->11[label="False"];
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+cursor = keccak256()(abi.encodePacked(cursor,proofElem))
+
+IRs:
+TMP_321(bytes) = SOLIDITY_CALL abi.encodePacked()(cursor,proofElem)
+TMP_322(bytes32) = SOLIDITY_CALL keccak256()(TMP_321)
+cursor(bytes32) := TMP_322(bytes32)"];
+10->12;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+cursor = keccak256()(abi.encodePacked(proofElem,cursor))
+
+IRs:
+TMP_323(bytes) = SOLIDITY_CALL abi.encodePacked()(proofElem,cursor)
+TMP_324(bytes32) = SOLIDITY_CALL keccak256()(TMP_323)
+cursor(bytes32) := TMP_324(bytes32)"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+i += 32
+
+IRs:
+i(uint256) = i + 32"];
+13->6;
+14[label="Node Type: RETURN 14
+
+EXPRESSION:
+cursor == _root
+
+IRs:
+TMP_325(bool) = cursor == _root
+RETURN TMP_325"];
+}

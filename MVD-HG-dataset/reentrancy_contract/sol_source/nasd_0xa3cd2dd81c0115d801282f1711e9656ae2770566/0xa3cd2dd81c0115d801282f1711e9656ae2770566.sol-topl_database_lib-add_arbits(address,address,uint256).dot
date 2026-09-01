@@ -1,0 +1,46 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+c = database(db).get_participant_arbits(_a) + _v
+
+IRs:
+TMP_91 = CONVERT db to database
+TMP_92(uint256) = HIGH_LEVEL_CALL, dest:TMP_91(database), function:get_participant_arbits, arguments:['_a']  
+TMP_93(uint256) = TMP_92 + _v
+c(uint256) := TMP_93(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+assert(bool)(c >= database(db).get_participant_arbits(_a))
+
+IRs:
+TMP_94 = CONVERT db to database
+TMP_95(uint256) = HIGH_LEVEL_CALL, dest:TMP_94(database), function:get_participant_arbits, arguments:['_a']  
+TMP_96(bool) = c >= TMP_95
+TMP_97(None) = SOLIDITY_CALL assert(bool)(TMP_96)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+database(db).set_participant_arbits(_a,(database(db).get_participant_arbits(_a) + _v))
+
+IRs:
+TMP_98 = CONVERT db to database
+TMP_99 = CONVERT db to database
+TMP_100(uint256) = HIGH_LEVEL_CALL, dest:TMP_99(database), function:get_participant_arbits, arguments:['_a']  
+TMP_101(uint256) = TMP_100 + _v
+HIGH_LEVEL_CALL, dest:TMP_98(database), function:set_participant_arbits, arguments:['_a', 'TMP_101']  "];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+e_add_arbits(_a,_v)
+
+IRs:
+Emit e_add_arbits(_a,_v)"];
+}

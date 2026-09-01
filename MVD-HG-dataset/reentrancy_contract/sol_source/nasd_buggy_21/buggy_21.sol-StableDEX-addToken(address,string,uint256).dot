@@ -1,0 +1,55 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.sender == feeAddress && tokendetails[tokenAddress].status == false)
+
+IRs:
+TMP_83(bool) = msg.sender == feeAddress
+REF_41(StableDEX.tokens) -> tokendetails[tokenAddress]
+REF_42(bool) -> REF_41.status
+TMP_84(bool) = REF_42 == False
+TMP_85(bool) = TMP_83 && TMP_84
+TMP_86(None) = SOLIDITY_CALL require(bool)(TMP_85)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+tokendetails[tokenAddress].tokenSymbol = tokenSymbol
+
+IRs:
+REF_43(StableDEX.tokens) -> tokendetails[tokenAddress]
+REF_44(string) -> REF_43.tokenSymbol
+REF_44(string) (->tokendetails) := tokenSymbol(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokendetails[tokenAddress].decimals = decimal_
+
+IRs:
+REF_45(StableDEX.tokens) -> tokendetails[tokenAddress]
+REF_46(uint256) -> REF_45.decimals
+REF_46(uint256) (->tokendetails) := decimal_(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+tokendetails[tokenAddress].status = true
+
+IRs:
+REF_47(StableDEX.tokens) -> tokendetails[tokenAddress]
+REF_48(bool) -> REF_47.status
+REF_48(bool) (->tokendetails) := True(bool)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+isexist = searchWhitelist(msg.sender)
+
+IRs:
+TMP_36(string) = INTERNAL_CALL, KRCPreSaleContract.searchWhitelist(address)(msg.sender)
+isexist(string) := TMP_36(string)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+bytes(isexist).length > 0
+
+IRs:
+TMP_37 = CONVERT isexist to bytes
+REF_8 -> LENGTH TMP_37
+TMP_38(bool) = REF_8 > 0
+CONDITION TMP_38"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+buyTokens(msg.sender)
+
+IRs:
+INTERNAL_CALL, KRCPreSaleContract.buyTokens(address)(msg.sender)"];
+3->5;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+revert()()
+
+IRs:
+TMP_40(None) = SOLIDITY_CALL revert()()"];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+}

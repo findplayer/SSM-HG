@@ -1,0 +1,106 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(value <= _balances[from])
+
+IRs:
+REF_15(uint256) -> _balances[from]
+TMP_43(bool) = value <= REF_15
+TMP_44(None) = SOLIDITY_CALL require(bool)(TMP_43)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(value <= _allowed[from][msg.sender])
+
+IRs:
+REF_16(mapping(address => uint256)) -> _allowed[from]
+REF_17(uint256) -> REF_16[msg.sender]
+TMP_45(bool) = value <= REF_17
+TMP_46(None) = SOLIDITY_CALL require(bool)(TMP_45)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(! _frozenAccount[from])
+
+IRs:
+REF_18(bool) -> _frozenAccount[from]
+TMP_47 = UnaryType.BANG REF_18 
+TMP_48(None) = SOLIDITY_CALL require(bool)(TMP_47)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(! _frozenAccount[to])
+
+IRs:
+REF_19(bool) -> _frozenAccount[to]
+TMP_49 = UnaryType.BANG REF_19 
+TMP_50(None) = SOLIDITY_CALL require(bool)(TMP_49)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool)(to != address(0))
+
+IRs:
+TMP_51 = CONVERT 0 to address
+TMP_52(bool) = to != TMP_51
+TMP_53(None) = SOLIDITY_CALL require(bool)(TMP_52)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+_balances[from] = _balances[from].sub(value)
+
+IRs:
+REF_20(uint256) -> _balances[from]
+REF_21(uint256) -> _balances[from]
+TMP_54(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_21', 'value'] 
+REF_20(uint256) (->_balances) := TMP_54(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+_balances[to] = _balances[to].add(value)
+
+IRs:
+REF_23(uint256) -> _balances[to]
+REF_24(uint256) -> _balances[to]
+TMP_55(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_24', 'value'] 
+REF_23(uint256) (->_balances) := TMP_55(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+_allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value)
+
+IRs:
+REF_26(mapping(address => uint256)) -> _allowed[from]
+REF_27(uint256) -> REF_26[msg.sender]
+REF_28(mapping(address => uint256)) -> _allowed[from]
+REF_29(uint256) -> REF_28[msg.sender]
+TMP_56(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_29', 'value'] 
+REF_27(uint256) (->_allowed) := TMP_56(uint256)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+Transfer(from,to,value)
+
+IRs:
+Emit Transfer(from,to,value)"];
+9->10;
+10[label="Node Type: RETURN 10
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

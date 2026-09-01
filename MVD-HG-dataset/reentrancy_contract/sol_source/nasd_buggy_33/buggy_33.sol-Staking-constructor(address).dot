@@ -1,0 +1,32 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+token = Token(tokenContractAddress)
+
+IRs:
+TMP_111 = CONVERT tokenContractAddress to Token
+token(Token) := TMP_111(Token)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+owner = msg.sender
+
+IRs:
+owner(address) := msg.sender(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+minstakeTokens = 500 * 10 ** uint256(10)
+
+IRs:
+TMP_112 = CONVERT 10 to uint256
+TMP_113(uint256) = 10 ** TMP_112
+TMP_114(uint256) = 500 * TMP_113
+minstakeTokens(uint256) := TMP_114(uint256)"];
+}

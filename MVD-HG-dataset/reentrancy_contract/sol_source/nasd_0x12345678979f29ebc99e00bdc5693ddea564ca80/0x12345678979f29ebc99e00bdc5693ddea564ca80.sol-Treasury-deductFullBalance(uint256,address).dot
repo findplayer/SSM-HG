@@ -1,0 +1,42 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+tokenAccount = uint176(tokenCode) << 160 | uint176(addr)
+
+IRs:
+TMP_101 = CONVERT tokenCode to uint176
+TMP_102(uint176) = TMP_101 << 160
+TMP_103 = CONVERT addr to uint176
+TMP_104(uint176) = TMP_102 | TMP_103
+tokenAccount(uint176) := TMP_104(uint176)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+amount = tokenAmounts[tokenAccount]
+
+IRs:
+REF_15(uint256) -> tokenAmounts[tokenAccount]
+amount(uint256) := REF_15(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokenAmounts[tokenAccount] = 0
+
+IRs:
+REF_16(uint256) -> tokenAmounts[tokenAccount]
+REF_16(uint256) (->tokenAmounts) := 0(uint256)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+amount
+
+IRs:
+RETURN amount"];
+}

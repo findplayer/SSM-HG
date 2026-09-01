@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+addRole(addr,ROLE_REVIEWER)
+
+IRs:
+INTERNAL_CALL, RBAC.addRole(address,string)(addr,ROLE_REVIEWER)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyCOO()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyCOO()()"];
+2->1;
+}

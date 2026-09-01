@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+deprecated
+
+IRs:
+CONDITION deprecated"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+UpgradedStandardToken(upgradedAddress).totalSupplyByLegacy()
+
+IRs:
+TMP_691 = CONVERT upgradedAddress to UpgradedStandardToken
+TMP_692(uint256) = HIGH_LEVEL_CALL, dest:TMP_691(UpgradedStandardToken), function:totalSupplyByLegacy, arguments:[]  
+RETURN TMP_692"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+totalSupply_
+
+IRs:
+RETURN totalSupply_"];
+}

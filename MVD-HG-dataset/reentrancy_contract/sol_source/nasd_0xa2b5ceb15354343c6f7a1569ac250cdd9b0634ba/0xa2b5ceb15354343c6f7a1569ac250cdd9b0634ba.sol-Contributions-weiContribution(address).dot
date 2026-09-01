@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+_contributors[account].weiAmount
+
+IRs:
+REF_16(Contributions.Contributor) -> _contributors[account]
+REF_17(uint256) -> REF_16.weiAmount
+RETURN REF_17"];
+}

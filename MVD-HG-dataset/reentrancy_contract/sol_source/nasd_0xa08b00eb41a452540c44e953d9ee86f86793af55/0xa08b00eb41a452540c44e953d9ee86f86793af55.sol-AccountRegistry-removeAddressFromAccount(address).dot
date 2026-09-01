@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+delete accountByAddress[_addressToRemove]
+
+IRs:
+REF_4(uint256) -> accountByAddress[_addressToRemove]
+accountByAddress = delete REF_4 "];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyAccountRegistryLogic()
+
+IRs:
+MODIFIER_CALL, AccountRegistry.onlyAccountRegistryLogic()()"];
+2->1;
+}

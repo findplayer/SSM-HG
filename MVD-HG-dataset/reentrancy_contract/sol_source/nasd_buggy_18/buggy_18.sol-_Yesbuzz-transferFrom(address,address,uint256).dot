@@ -1,0 +1,103 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+toBurn = tokens.mul(burnPercent).div(1000)
+
+IRs:
+TMP_293(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['tokens', 'burnPercent'] 
+TMP_294(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_293', '1000'] 
+toBurn(uint256) := TMP_294(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+toSend = tokens.sub(toBurn)
+
+IRs:
+TMP_295(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['tokens', 'toBurn'] 
+toSend(uint256) := TMP_295(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[from] = balances[from].sub(tokens)
+
+IRs:
+REF_171(uint256) -> balances[from]
+REF_172(uint256) -> balances[from]
+TMP_296(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_172', 'tokens'] 
+REF_171(uint256) (->balances) := TMP_296(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+allowed[from][msg.sender] = allowed[from][msg.sender].sub(tokens)
+
+IRs:
+REF_174(mapping(address => uint256)) -> allowed[from]
+REF_175(uint256) -> REF_174[msg.sender]
+REF_176(mapping(address => uint256)) -> allowed[from]
+REF_177(uint256) -> REF_176[msg.sender]
+TMP_297(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_177', 'tokens'] 
+REF_175(uint256) (->allowed) := TMP_297(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+balances[to] = balances[to].add(toSend)
+
+IRs:
+REF_179(uint256) -> balances[to]
+REF_180(uint256) -> balances[to]
+TMP_298(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_180', 'toSend'] 
+REF_179(uint256) (->balances) := TMP_298(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Transfer(from,to,toSend)
+
+IRs:
+Emit Transfer(from,to,toSend)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+balances[address(0)] = balances[address(0)].add(toBurn)
+
+IRs:
+TMP_300 = CONVERT 0 to address
+REF_182(uint256) -> balances[TMP_300]
+TMP_301 = CONVERT 0 to address
+REF_183(uint256) -> balances[TMP_301]
+TMP_302(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_183', 'toBurn'] 
+REF_182(uint256) (->balances) := TMP_302(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Transfer(from,address(0),toBurn)
+
+IRs:
+TMP_303 = CONVERT 0 to address
+Emit Transfer(from,TMP_303,toBurn)"];
+8->9;
+9[label="Node Type: RETURN 9
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+10[label="Node Type: RETURN 10
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

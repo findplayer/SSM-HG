@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+Deposit(0,account,msg.value)
+
+IRs:
+Emit Deposit(0,account,msg.value)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+addBalance(0,account,msg.value)
+
+IRs:
+INTERNAL_CALL, Treasury.addBalance(uint256,address,uint256)(0,account,msg.value)"];
+}

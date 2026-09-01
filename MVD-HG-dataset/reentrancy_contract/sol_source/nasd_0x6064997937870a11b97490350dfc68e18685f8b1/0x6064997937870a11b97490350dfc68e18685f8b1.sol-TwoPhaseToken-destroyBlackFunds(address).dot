@@ -1,0 +1,56 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(isBlackListed[_blackListedUser])
+
+IRs:
+REF_239(bool) -> isBlackListed[_blackListedUser]
+TMP_447(None) = SOLIDITY_CALL require(bool)(REF_239)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+dirtyFunds = balanceOf(_blackListedUser)
+
+IRs:
+TMP_448(uint256) = INTERNAL_CALL, BasicToken.balanceOf(address)(_blackListedUser)
+dirtyFunds(uint256) := TMP_448(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[_blackListedUser] = 0
+
+IRs:
+REF_240(uint256) -> balances[_blackListedUser]
+REF_240(uint256) (->balances) := 0(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+totalSupply_ = totalSupply_.sub(dirtyFunds)
+
+IRs:
+TMP_449(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['totalSupply_', 'dirtyFunds'] 
+totalSupply_(uint256) := TMP_449(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+DestroyedBlackFunds(_blackListedUser,dirtyFunds)
+
+IRs:
+Emit DestroyedBlackFunds(_blackListedUser,dirtyFunds)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyCEO()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyCEO()()"];
+6->1;
+}

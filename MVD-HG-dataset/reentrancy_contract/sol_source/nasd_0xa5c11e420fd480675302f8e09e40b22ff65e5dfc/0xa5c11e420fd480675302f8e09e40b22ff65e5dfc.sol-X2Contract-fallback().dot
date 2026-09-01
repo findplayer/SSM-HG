@@ -1,0 +1,96 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+msg.value >= minimum
+
+IRs:
+TMP_27(bool) = msg.value >= minimum
+CONDITION TMP_27"];
+1->2[label="True"];
+1->10[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+promotionAddress.transfer(msg.value.mul(promotionPercent).div(100))
+
+IRs:
+TMP_28(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['msg.value', 'promotionPercent'] 
+TMP_29(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_28', '100'] 
+Transfer dest:promotionAddress value:TMP_29"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+adminAddress.transfer(msg.value.mul(adminPercent).div(100))
+
+IRs:
+TMP_31(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['msg.value', 'adminPercent'] 
+TMP_32(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_31', '100'] 
+Transfer dest:adminAddress value:TMP_32"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+withdraw(msg.sender)
+
+IRs:
+INTERNAL_CALL, X2Contract.withdraw(address)(msg.sender)"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+deposit[msg.sender] == 0
+
+IRs:
+REF_26(uint256) -> deposit[msg.sender]
+TMP_35(bool) = REF_26 == 0
+CONDITION TMP_35"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+countOfInvestors ++
+
+IRs:
+TMP_36(uint256) := countOfInvestors(uint256)
+countOfInvestors(uint256) = countOfInvestors + 1"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+deposit[msg.sender] = deposit[msg.sender].add(msg.value)
+
+IRs:
+REF_27(uint256) -> deposit[msg.sender]
+REF_28(uint256) -> deposit[msg.sender]
+TMP_37(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_28', 'msg.value'] 
+REF_27(uint256) (->deposit) := TMP_37(uint256)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+time[msg.sender] = now
+
+IRs:
+REF_30(uint256) -> time[msg.sender]
+REF_30(uint256) (->time) := now(uint256)"];
+9->11;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+withdraw(msg.sender)
+
+IRs:
+INTERNAL_CALL, X2Contract.withdraw(address)(msg.sender)"];
+10->11;
+11[label="Node Type: END_IF 11
+"];
+}

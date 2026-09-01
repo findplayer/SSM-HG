@@ -1,0 +1,19 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+role1_balance = INITIAL_SUPPLY.mul(4).div(100)
+
+IRs:
+TMP_120(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['INITIAL_SUPPLY', '4'] 
+TMP_121(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_120', '100'] 
+role1_balance(uint256) := TMP_121(uint256)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+beginTime = 1559361600
+
+IRs:
+beginTime(uint256) := 1559361600(uint256)"];
+}

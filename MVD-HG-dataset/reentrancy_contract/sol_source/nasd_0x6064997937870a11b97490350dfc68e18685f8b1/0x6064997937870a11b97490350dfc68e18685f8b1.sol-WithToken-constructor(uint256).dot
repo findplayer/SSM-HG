@@ -1,0 +1,62 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+basisPointsRate = 0
+
+IRs:
+basisPointsRate(uint256) := 0(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+maximumFee = 0
+
+IRs:
+maximumFee(uint256) := 0(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+totalSupply_ = _totalTokenAmount
+
+IRs:
+totalSupply_(uint256) := _totalTokenAmount(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+balances[msg.sender] = _totalTokenAmount
+
+IRs:
+REF_424(uint256) -> balances[msg.sender]
+REF_424(uint256) (->balances) := _totalTokenAmount(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+deprecated = false
+
+IRs:
+deprecated(bool) := False(bool)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+assetOwner = msg.sender
+
+IRs:
+assetOwner(address) := msg.sender(address)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+Transfer(address(0x0),msg.sender,_totalTokenAmount)
+
+IRs:
+TMP_689 = CONVERT 0 to address
+Emit Transfer(TMP_689,msg.sender,_totalTokenAmount)"];
+}

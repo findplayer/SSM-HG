@@ -1,0 +1,50 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_balances[from] >= amount)
+
+IRs:
+REF_29(uint256) -> _balances[from]
+TMP_61(bool) = REF_29 >= amount
+TMP_62(None) = SOLIDITY_CALL require(bool)(TMP_61)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_balances[from] = _balances[from].sub(amount)
+
+IRs:
+REF_30(uint256) -> _balances[from]
+REF_31(uint256) -> _balances[from]
+TMP_63(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_31', 'amount'] 
+REF_30(uint256) (->_balances) := TMP_63(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+supply = supply.sub(amount)
+
+IRs:
+TMP_64(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['supply', 'amount'] 
+supply(uint256) := TMP_64(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Burn(amount,from)
+
+IRs:
+Emit Burn(amount,from)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Owned.onlyOwner()()"];
+5->1;
+}

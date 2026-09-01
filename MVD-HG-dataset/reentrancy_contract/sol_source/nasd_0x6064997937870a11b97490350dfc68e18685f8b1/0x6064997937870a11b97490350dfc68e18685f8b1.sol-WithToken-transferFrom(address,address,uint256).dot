@@ -1,0 +1,49 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(! isBlackListed[_from])
+
+IRs:
+REF_430(bool) -> isBlackListed[_from]
+TMP_705 = UnaryType.BANG REF_430 
+TMP_706(None) = SOLIDITY_CALL require(bool)(TMP_705)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+deprecated
+
+IRs:
+CONDITION deprecated"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+UpgradedStandardToken(upgradedAddress).transferFromByLegacy(msg.sender,_from,_to,_value)
+
+IRs:
+TMP_707 = CONVERT upgradedAddress to UpgradedStandardToken
+TMP_708(bool) = HIGH_LEVEL_CALL, dest:TMP_707(UpgradedStandardToken), function:transferFromByLegacy, arguments:['msg.sender', '_from', '_to', '_value']  
+RETURN TMP_708"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+super.transferFrom(_from,_to,_value)
+
+IRs:
+TMP_709(bool) = INTERNAL_CALL, PausableToken.transferFrom(address,address,uint256)(_from,_to,_value)
+RETURN TMP_709"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+validDestination(_to)
+
+IRs:
+MODIFIER_CALL, WithToken.validDestination(address)(_to)"];
+6->1;
+}

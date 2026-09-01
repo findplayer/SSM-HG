@@ -1,0 +1,51 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+bonus = value / 100
+
+IRs:
+TMP_65(uint256) = value / 100
+bonus(uint256) := TMP_65(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[owner] = balances[owner].sub(bonus)
+
+IRs:
+REF_28(uint256) -> balances[owner]
+REF_29(uint256) -> balances[owner]
+TMP_66(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_29', 'bonus'] 
+REF_28(uint256) (->balances) := TMP_66(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[referrer] = balances[referrer].add(bonus)
+
+IRs:
+REF_31(uint256) -> balances[referrer]
+REF_32(uint256) -> balances[referrer]
+TMP_67(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_32', 'bonus'] 
+REF_31(uint256) (->balances) := TMP_67(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+rewardPool_ -= bonus
+
+IRs:
+rewardPool_(uint256) = rewardPool_ - bonus"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+ReferralRedeemed(referee,referrer,bonus)
+
+IRs:
+Emit ReferralRedeemed(referee,referrer,bonus)"];
+}

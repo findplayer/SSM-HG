@@ -1,0 +1,74 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->7;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(tokenAmount > 0 && tokendetails[tokenaddr].status == true)
+
+IRs:
+TMP_105(bool) = tokenAmount > 0
+REF_56(StableDEX.tokens) -> tokendetails[tokenaddr]
+REF_57(bool) -> REF_56.status
+TMP_106(bool) = REF_57 == True
+TMP_107(bool) = TMP_105 && TMP_106
+TMP_108(None) = SOLIDITY_CALL require(bool)(TMP_107)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(tokenallowance(tokenaddr,msg.sender) > 0)
+
+IRs:
+TMP_109(uint256) = INTERNAL_CALL, StableDEX.tokenallowance(address,address)(tokenaddr,msg.sender)
+TMP_110(bool) = TMP_109 > 0
+TMP_111(None) = SOLIDITY_CALL require(bool)(TMP_110)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+userDetails[msg.sender][tokenaddr] = userDetails[msg.sender][tokenaddr].add(tokenAmount)
+
+IRs:
+REF_58(mapping(address => uint256)) -> userDetails[msg.sender]
+REF_59(uint256) -> REF_58[tokenaddr]
+REF_60(mapping(address => uint256)) -> userDetails[msg.sender]
+REF_61(uint256) -> REF_60[tokenaddr]
+TMP_112(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_61', 'tokenAmount'] 
+REF_59(uint256) (->userDetails) := TMP_112(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Token(tokenaddr).transferFrom(msg.sender,address(this),tokenAmount)
+
+IRs:
+TMP_113 = CONVERT tokenaddr to Token
+TMP_114 = CONVERT this to address
+TMP_115(bool) = HIGH_LEVEL_CALL, dest:TMP_113(Token), function:transferFrom, arguments:['msg.sender', 'TMP_114', 'tokenAmount']  "];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+DepositandWithdraw(msg.sender,tokenaddr,tokenAmount,0)
+
+IRs:
+Emit DepositandWithdraw(msg.sender,tokenaddr,tokenAmount,0)"];
+5->6;
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+dexstatuscheck()
+
+IRs:
+MODIFIER_CALL, StableDEX.dexstatuscheck()()"];
+7->1;
+}

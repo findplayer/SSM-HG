@@ -1,0 +1,202 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->17;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(type_ == 0 || type_ == 1)
+
+IRs:
+TMP_119(bool) = type_ == 0
+TMP_120(bool) = type_ == 1
+TMP_121(bool) = TMP_119 || TMP_120
+TMP_122(None) = SOLIDITY_CALL require(bool)(TMP_121)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+type_ == 0
+
+IRs:
+TMP_123(bool) = type_ == 0
+CONDITION TMP_123"];
+2->3[label="True"];
+2->9[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(tokenaddr == address(0))
+
+IRs:
+TMP_124 = CONVERT 0 to address
+TMP_125(bool) = tokenaddr == TMP_124
+TMP_126(None) = SOLIDITY_CALL require(bool)(TMP_125)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(amount > 0 && amount <= userDetails[msg.sender][address(0)] && withdrawfee[address(0)] < amount)
+
+IRs:
+TMP_127(bool) = amount > 0
+REF_68(mapping(address => uint256)) -> userDetails[msg.sender]
+TMP_128 = CONVERT 0 to address
+REF_69(uint256) -> REF_68[TMP_128]
+TMP_129(bool) = amount <= REF_69
+TMP_130(bool) = TMP_127 && TMP_129
+TMP_131 = CONVERT 0 to address
+REF_70(uint256) -> withdrawfee[TMP_131]
+TMP_132(bool) = REF_70 < amount
+TMP_133(bool) = TMP_130 && TMP_132
+TMP_134(None) = SOLIDITY_CALL require(bool)(TMP_133)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool)(amount <= address(this).balance)
+
+IRs:
+TMP_135 = CONVERT this to address
+TMP_136(uint256) = SOLIDITY_CALL balance(address)(TMP_135)
+TMP_137(bool) = amount <= TMP_136
+TMP_138(None) = SOLIDITY_CALL require(bool)(TMP_137)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+msg.sender.transfer(amount.sub(withdrawfee[address(0)]))
+
+IRs:
+TMP_139 = CONVERT 0 to address
+REF_73(uint256) -> withdrawfee[TMP_139]
+TMP_140(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['amount', 'REF_73'] 
+Transfer dest:msg.sender value:TMP_140"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+userDetails[msg.sender][address(0)] = userDetails[msg.sender][address(0)].sub(amount)
+
+IRs:
+REF_74(mapping(address => uint256)) -> userDetails[msg.sender]
+TMP_142 = CONVERT 0 to address
+REF_75(uint256) -> REF_74[TMP_142]
+REF_76(mapping(address => uint256)) -> userDetails[msg.sender]
+TMP_143 = CONVERT 0 to address
+REF_77(uint256) -> REF_76[TMP_143]
+TMP_144(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_77', 'amount'] 
+REF_75(uint256) (->userDetails) := TMP_144(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+feeAmount[admin][address(0)] = feeAmount[admin][address(0)].add(withdrawfee[address(0)])
+
+IRs:
+REF_79(mapping(address => uint256)) -> feeAmount[admin]
+TMP_145 = CONVERT 0 to address
+REF_80(uint256) -> REF_79[TMP_145]
+REF_81(mapping(address => uint256)) -> feeAmount[admin]
+TMP_146 = CONVERT 0 to address
+REF_82(uint256) -> REF_81[TMP_146]
+TMP_147 = CONVERT 0 to address
+REF_84(uint256) -> withdrawfee[TMP_147]
+TMP_148(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_82', 'REF_84'] 
+REF_80(uint256) (->feeAmount) := TMP_148(uint256)"];
+8->14;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+require(bool)(tokenaddr != address(0) && tokendetails[tokenaddr].status == true)
+
+IRs:
+TMP_149 = CONVERT 0 to address
+TMP_150(bool) = tokenaddr != TMP_149
+REF_85(StableDEX.tokens) -> tokendetails[tokenaddr]
+REF_86(bool) -> REF_85.status
+TMP_151(bool) = REF_86 == True
+TMP_152(bool) = TMP_150 && TMP_151
+TMP_153(None) = SOLIDITY_CALL require(bool)(TMP_152)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+require(bool)(amount > 0 && amount <= userDetails[msg.sender][tokenaddr] && withdrawfee[tokenaddr] < amount)
+
+IRs:
+TMP_154(bool) = amount > 0
+REF_87(mapping(address => uint256)) -> userDetails[msg.sender]
+REF_88(uint256) -> REF_87[tokenaddr]
+TMP_155(bool) = amount <= REF_88
+TMP_156(bool) = TMP_154 && TMP_155
+REF_89(uint256) -> withdrawfee[tokenaddr]
+TMP_157(bool) = REF_89 < amount
+TMP_158(bool) = TMP_156 && TMP_157
+TMP_159(None) = SOLIDITY_CALL require(bool)(TMP_158)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+Token(tokenaddr).transfer(msg.sender,(amount.sub(withdrawfee[tokenaddr])))
+
+IRs:
+TMP_160 = CONVERT tokenaddr to Token
+REF_92(uint256) -> withdrawfee[tokenaddr]
+TMP_161(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['amount', 'REF_92'] 
+TMP_162(bool) = HIGH_LEVEL_CALL, dest:TMP_160(Token), function:transfer, arguments:['msg.sender', 'TMP_161']  "];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+userDetails[msg.sender][tokenaddr] = userDetails[msg.sender][tokenaddr].sub(amount)
+
+IRs:
+REF_93(mapping(address => uint256)) -> userDetails[msg.sender]
+REF_94(uint256) -> REF_93[tokenaddr]
+REF_95(mapping(address => uint256)) -> userDetails[msg.sender]
+REF_96(uint256) -> REF_95[tokenaddr]
+TMP_163(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_96', 'amount'] 
+REF_94(uint256) (->userDetails) := TMP_163(uint256)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+feeAmount[admin][tokenaddr] = feeAmount[admin][tokenaddr].add(withdrawfee[tokenaddr])
+
+IRs:
+REF_98(mapping(address => uint256)) -> feeAmount[admin]
+REF_99(uint256) -> REF_98[tokenaddr]
+REF_100(mapping(address => uint256)) -> feeAmount[admin]
+REF_101(uint256) -> REF_100[tokenaddr]
+REF_103(uint256) -> withdrawfee[tokenaddr]
+TMP_164(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_101', 'REF_103'] 
+REF_99(uint256) (->feeAmount) := TMP_164(uint256)"];
+13->14;
+14[label="Node Type: END_IF 14
+"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+DepositandWithdraw(msg.sender,tokenaddr,amount,1)
+
+IRs:
+Emit DepositandWithdraw(msg.sender,tokenaddr,amount,1)"];
+15->16;
+16[label="Node Type: RETURN 16
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+dexstatuscheck()
+
+IRs:
+MODIFIER_CALL, StableDEX.dexstatuscheck()()"];
+17->1;
+}

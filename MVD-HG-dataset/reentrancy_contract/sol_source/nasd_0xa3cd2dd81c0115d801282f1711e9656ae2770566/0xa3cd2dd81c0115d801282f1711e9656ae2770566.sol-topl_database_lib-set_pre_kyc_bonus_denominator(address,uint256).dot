@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+database(db).set_pre_kyc_bonus_denominator(_v)
+
+IRs:
+TMP_145 = CONVERT db to database
+HIGH_LEVEL_CALL, dest:TMP_145(database), function:set_pre_kyc_bonus_denominator, arguments:['_v']  "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+e_set_pre_kyc_bonus_denominator(_v)
+
+IRs:
+Emit e_set_pre_kyc_bonus_denominator(_v)"];
+}

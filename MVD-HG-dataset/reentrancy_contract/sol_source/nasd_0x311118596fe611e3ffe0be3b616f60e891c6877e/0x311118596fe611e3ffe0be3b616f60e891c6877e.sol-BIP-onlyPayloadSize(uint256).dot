@@ -1,0 +1,18 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+assert(bool)(msg.data.length == size + 4)
+
+IRs:
+REF_54 -> LENGTH msg.data
+TMP_60(uint256) = size + 4
+TMP_61(bool) = REF_54 == TMP_60
+TMP_62(None) = SOLIDITY_CALL assert(bool)(TMP_61)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

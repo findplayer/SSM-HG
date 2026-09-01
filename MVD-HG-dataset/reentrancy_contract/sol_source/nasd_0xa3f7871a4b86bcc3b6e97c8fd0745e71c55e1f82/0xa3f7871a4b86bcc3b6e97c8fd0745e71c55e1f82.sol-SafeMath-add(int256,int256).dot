@@ -1,0 +1,36 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+c = a + b
+
+IRs:
+TMP_43(int256) = a + b
+c(int256) := TMP_43(int256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)((b >= 0 && c >= a) || (b < 0 && c < a))
+
+IRs:
+TMP_44(bool) = b >= 0
+TMP_45(bool) = c >= a
+TMP_46(bool) = TMP_44 && TMP_45
+TMP_47(bool) = b < 0
+TMP_48(bool) = c < a
+TMP_49(bool) = TMP_47 && TMP_48
+TMP_50(bool) = TMP_46 || TMP_49
+TMP_51(None) = SOLIDITY_CALL require(bool)(TMP_50)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+c
+
+IRs:
+RETURN c"];
+}

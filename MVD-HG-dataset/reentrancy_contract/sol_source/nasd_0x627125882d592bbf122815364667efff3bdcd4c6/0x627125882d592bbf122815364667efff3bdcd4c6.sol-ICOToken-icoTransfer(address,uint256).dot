@@ -1,0 +1,103 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->9;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(! isIcoComplete,ICO is complete, use transfer().)
+
+IRs:
+TMP_69 = UnaryType.BANG isIcoComplete 
+TMP_70(None) = SOLIDITY_CALL require(bool,string)(TMP_69,ICO is complete, use transfer().)"];
+1->10;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_transfer(msg.sender,to,toTransfer)
+
+IRs:
+TMP_71(bool) = INTERNAL_CALL, ICOToken._transfer(address,address,uint256)(msg.sender,to,toTransfer)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+referrer = referredBy[to]
+
+IRs:
+REF_34(address) -> referredBy[to]
+referrer(address) := REF_34(address)"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+referrer != address(0x0)
+
+IRs:
+TMP_72 = CONVERT 0 to address
+TMP_73(bool) = referrer != TMP_72
+CONDITION TMP_73"];
+5->6[label="True"];
+5->8[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+referredBy[to] = address(0x0)
+
+IRs:
+REF_35(address) -> referredBy[to]
+TMP_74 = CONVERT 0 to address
+REF_35(address) (->referredBy) := TMP_74(address)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+awardReferralBonus(to,referrer,toTransfer)
+
+IRs:
+INTERNAL_CALL, ICOToken.awardReferralBonus(address,address,uint256)(to,referrer,toTransfer)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, HorizonContractBase.onlyOwner()()"];
+9->1;
+10[label="Node Type: IF 10
+
+EXPRESSION:
+(value > (balances[msg.sender] - rewardPool_))
+
+IRs:
+REF_36(uint256) -> balances[msg.sender]
+TMP_77(uint256) = REF_36 - rewardPool_
+TMP_78(bool) = value > TMP_77
+CONDITION TMP_78"];
+10->11[label="True"];
+10->12[label="False"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+toTransfer = (balances[msg.sender] - rewardPool_)
+
+IRs:
+REF_37(uint256) -> balances[msg.sender]
+TMP_79(uint256) = REF_37 - rewardPool_
+toTransfer(uint256) := TMP_79(uint256)"];
+11->13;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+toTransfer = value
+
+IRs:
+toTransfer(uint256) := value(uint256)"];
+12->13;
+13[label="Node Type: END_IF 13
+"];
+13->3;
+}

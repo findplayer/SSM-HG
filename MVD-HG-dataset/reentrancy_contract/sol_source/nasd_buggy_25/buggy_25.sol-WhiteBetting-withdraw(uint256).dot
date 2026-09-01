@@ -1,0 +1,41 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_amount > 0 && _amount <= address(this).balance)
+
+IRs:
+TMP_173(bool) = _amount > 0
+TMP_174 = CONVERT this to address
+TMP_175(uint256) = SOLIDITY_CALL balance(address)(TMP_174)
+TMP_176(bool) = _amount <= TMP_175
+TMP_177(bool) = TMP_173 && TMP_176
+TMP_178(None) = SOLIDITY_CALL require(bool)(TMP_177)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+owner.transfer(_amount)
+
+IRs:
+Transfer dest:owner value:_amount"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Withdraw(owner,_amount)
+
+IRs:
+Emit Withdraw(owner,_amount)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, WhiteBetting.onlyOwner()()"];
+4->1;
+}

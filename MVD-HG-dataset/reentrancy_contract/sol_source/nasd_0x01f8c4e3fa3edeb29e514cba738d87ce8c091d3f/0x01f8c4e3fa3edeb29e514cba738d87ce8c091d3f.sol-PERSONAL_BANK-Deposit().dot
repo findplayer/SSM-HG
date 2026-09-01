@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balances[msg.sender] += msg.value
+
+IRs:
+REF_0(uint256) -> balances[msg.sender]
+REF_0(-> balances) = REF_0 + msg.value"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+Log.AddMessage(msg.sender,msg.value,Put)
+
+IRs:
+HIGH_LEVEL_CALL, dest:Log(LogFile), function:AddMessage, arguments:['msg.sender', 'msg.value', 'Put']  "];
+}

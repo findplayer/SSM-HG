@@ -1,0 +1,243 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+channel = Channels[_lcID]
+
+IRs:
+REF_269(LedgerChannel.Channel) -> Channels[_lcID]
+channel(LedgerChannel.Channel) := REF_269(LedgerChannel.Channel)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(channel.isOpen)
+
+IRs:
+REF_270(bool) -> channel.isOpen
+TMP_208(None) = SOLIDITY_CALL require(bool)(REF_270)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(channel.sequence < updateParams[0])
+
+IRs:
+REF_271(uint256) -> channel.sequence
+REF_272(uint256) -> updateParams[0]
+TMP_209(bool) = REF_271 < REF_272
+TMP_210(None) = SOLIDITY_CALL require(bool)(TMP_209)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(channel.ethBalances[0] + channel.ethBalances[1] >= updateParams[2] + updateParams[3])
+
+IRs:
+REF_273(uint256[4]) -> channel.ethBalances
+REF_274(uint256) -> REF_273[0]
+REF_275(uint256[4]) -> channel.ethBalances
+REF_276(uint256) -> REF_275[1]
+TMP_211(uint256) = REF_274 + REF_276
+REF_277(uint256) -> updateParams[2]
+REF_278(uint256) -> updateParams[3]
+TMP_212(uint256) = REF_277 + REF_278
+TMP_213(bool) = TMP_211 >= TMP_212
+TMP_214(None) = SOLIDITY_CALL require(bool)(TMP_213)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool)(channel.erc20Balances[0] + channel.erc20Balances[1] >= updateParams[4] + updateParams[5])
+
+IRs:
+REF_279(uint256[4]) -> channel.erc20Balances
+REF_280(uint256) -> REF_279[0]
+REF_281(uint256[4]) -> channel.erc20Balances
+REF_282(uint256) -> REF_281[1]
+TMP_215(uint256) = REF_280 + REF_282
+REF_283(uint256) -> updateParams[4]
+REF_284(uint256) -> updateParams[5]
+TMP_216(uint256) = REF_283 + REF_284
+TMP_217(bool) = TMP_215 >= TMP_216
+TMP_218(None) = SOLIDITY_CALL require(bool)(TMP_217)"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+channel.isUpdateLCSettling == true
+
+IRs:
+REF_285(bool) -> channel.isUpdateLCSettling
+TMP_219(bool) = REF_285 == True
+CONDITION TMP_219"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+require(bool)(channel.updateLCtimeout > now)
+
+IRs:
+REF_286(uint256) -> channel.updateLCtimeout
+TMP_220(bool) = REF_286 > now
+TMP_221(None) = SOLIDITY_CALL require(bool)(TMP_220)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+_state = keccak256()(abi.encodePacked(_lcID,false,updateParams[0],updateParams[1],_VCroot,channel.partyAddresses[0],channel.partyAddresses[1],updateParams[2],updateParams[3],updateParams[4],updateParams[5]))
+
+IRs:
+REF_288(uint256) -> updateParams[0]
+REF_289(uint256) -> updateParams[1]
+REF_290(address[2]) -> channel.partyAddresses
+REF_291(address) -> REF_290[0]
+REF_292(address[2]) -> channel.partyAddresses
+REF_293(address) -> REF_292[1]
+REF_294(uint256) -> updateParams[2]
+REF_295(uint256) -> updateParams[3]
+REF_296(uint256) -> updateParams[4]
+REF_297(uint256) -> updateParams[5]
+TMP_222(bytes) = SOLIDITY_CALL abi.encodePacked()(_lcID,False,REF_288,REF_289,_VCroot,REF_291,REF_293,REF_294,REF_295,REF_296,REF_297)
+TMP_223(bytes32) = SOLIDITY_CALL keccak256()(TMP_222)
+_state(bytes32) := TMP_223(bytes32)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+require(bool)(channel.partyAddresses[0] == ECTools.recoverSigner(_state,_sigA))
+
+IRs:
+REF_298(address[2]) -> channel.partyAddresses
+REF_299(address) -> REF_298[0]
+TMP_224(address) = LIBRARY_CALL, dest:ECTools, function:ECTools.recoverSigner(bytes32,string), arguments:['_state', '_sigA'] 
+TMP_225(bool) = REF_299 == TMP_224
+TMP_226(None) = SOLIDITY_CALL require(bool)(TMP_225)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+require(bool)(channel.partyAddresses[1] == ECTools.recoverSigner(_state,_sigI))
+
+IRs:
+REF_301(address[2]) -> channel.partyAddresses
+REF_302(address) -> REF_301[1]
+TMP_227(address) = LIBRARY_CALL, dest:ECTools, function:ECTools.recoverSigner(bytes32,string), arguments:['_state', '_sigI'] 
+TMP_228(bool) = REF_302 == TMP_227
+TMP_229(None) = SOLIDITY_CALL require(bool)(TMP_228)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+channel.sequence = updateParams[0]
+
+IRs:
+REF_304(uint256) -> channel.sequence
+REF_305(uint256) -> updateParams[0]
+REF_304(uint256) (->channel) := REF_305(uint256)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+channel.numOpenVC = updateParams[1]
+
+IRs:
+REF_306(uint256) -> channel.numOpenVC
+REF_307(uint256) -> updateParams[1]
+REF_306(uint256) (->channel) := REF_307(uint256)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+channel.ethBalances[0] = updateParams[2]
+
+IRs:
+REF_308(uint256[4]) -> channel.ethBalances
+REF_309(uint256) -> REF_308[0]
+REF_310(uint256) -> updateParams[2]
+REF_309(uint256) (->channel) := REF_310(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+channel.ethBalances[1] = updateParams[3]
+
+IRs:
+REF_311(uint256[4]) -> channel.ethBalances
+REF_312(uint256) -> REF_311[1]
+REF_313(uint256) -> updateParams[3]
+REF_312(uint256) (->channel) := REF_313(uint256)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+channel.erc20Balances[0] = updateParams[4]
+
+IRs:
+REF_314(uint256[4]) -> channel.erc20Balances
+REF_315(uint256) -> REF_314[0]
+REF_316(uint256) -> updateParams[4]
+REF_315(uint256) (->channel) := REF_316(uint256)"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+channel.erc20Balances[1] = updateParams[5]
+
+IRs:
+REF_317(uint256[4]) -> channel.erc20Balances
+REF_318(uint256) -> REF_317[1]
+REF_319(uint256) -> updateParams[5]
+REF_318(uint256) (->channel) := REF_319(uint256)"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+channel.VCrootHash = _VCroot
+
+IRs:
+REF_320(bytes32) -> channel.VCrootHash
+REF_320(bytes32) (->channel) := _VCroot(bytes32)"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+channel.isUpdateLCSettling = true
+
+IRs:
+REF_321(bool) -> channel.isUpdateLCSettling
+REF_321(bool) (->channel) := True(bool)"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+channel.updateLCtimeout = now + channel.confirmTime
+
+IRs:
+REF_322(uint256) -> channel.updateLCtimeout
+REF_323(uint256) -> channel.confirmTime
+TMP_230(uint256) = now + REF_323
+REF_322(uint256) (->channel) := TMP_230(uint256)"];
+20->21;
+21[label="Node Type: EXPRESSION 21
+
+EXPRESSION:
+DidLCUpdateState(_lcID,updateParams[0],updateParams[1],updateParams[2],updateParams[3],updateParams[4],updateParams[5],_VCroot,channel.updateLCtimeout)
+
+IRs:
+REF_324(uint256) -> updateParams[0]
+REF_325(uint256) -> updateParams[1]
+REF_326(uint256) -> updateParams[2]
+REF_327(uint256) -> updateParams[3]
+REF_328(uint256) -> updateParams[4]
+REF_329(uint256) -> updateParams[5]
+REF_330(uint256) -> channel.updateLCtimeout
+Emit DidLCUpdateState(_lcID,REF_324,REF_325,REF_326,REF_327,REF_328,REF_329,_VCroot,REF_330)"];
+}

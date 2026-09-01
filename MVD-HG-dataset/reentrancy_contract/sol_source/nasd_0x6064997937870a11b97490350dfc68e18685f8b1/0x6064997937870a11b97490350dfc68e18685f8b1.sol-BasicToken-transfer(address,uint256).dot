@@ -1,0 +1,134 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_to != address(0))
+
+IRs:
+TMP_92 = CONVERT 0 to address
+TMP_93(bool) = _to != TMP_92
+TMP_94(None) = SOLIDITY_CALL require(bool)(TMP_93)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(_value <= balances[msg.sender])
+
+IRs:
+REF_22(uint256) -> balances[msg.sender]
+TMP_95(bool) = _value <= REF_22
+TMP_96(None) = SOLIDITY_CALL require(bool)(TMP_95)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+fee = (_value.mul(basisPointsRate)).div(10000)
+
+IRs:
+TMP_97(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['_value', 'basisPointsRate'] 
+TMP_98(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_97', '10000'] 
+fee(uint256) := TMP_98(uint256)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+fee > maximumFee
+
+IRs:
+TMP_99(bool) = fee > maximumFee
+CONDITION TMP_99"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+fee = maximumFee
+
+IRs:
+fee(uint256) := maximumFee(uint256)"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+sendAmount = _value.sub(fee)
+
+IRs:
+TMP_100(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['_value', 'fee'] 
+sendAmount(uint256) := TMP_100(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+balances[msg.sender] = balances[msg.sender].sub(_value)
+
+IRs:
+REF_26(uint256) -> balances[msg.sender]
+REF_27(uint256) -> balances[msg.sender]
+TMP_101(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_27', '_value'] 
+REF_26(uint256) (->balances) := TMP_101(uint256)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+balances[_to] = balances[_to].add(sendAmount)
+
+IRs:
+REF_29(uint256) -> balances[_to]
+REF_30(uint256) -> balances[_to]
+TMP_102(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_30', 'sendAmount'] 
+REF_29(uint256) (->balances) := TMP_102(uint256)"];
+9->10;
+10[label="Node Type: IF 10
+
+EXPRESSION:
+fee > 0
+
+IRs:
+TMP_103(bool) = fee > 0
+CONDITION TMP_103"];
+10->11[label="True"];
+10->13[label="False"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+balances[assetOwner] = balances[assetOwner].add(fee)
+
+IRs:
+REF_32(uint256) -> balances[assetOwner]
+REF_33(uint256) -> balances[assetOwner]
+TMP_104(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_33', 'fee'] 
+REF_32(uint256) (->balances) := TMP_104(uint256)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+Transfer(msg.sender,assetOwner,fee)
+
+IRs:
+Emit Transfer(msg.sender,assetOwner,fee)"];
+12->13;
+13[label="Node Type: END_IF 13
+"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+Transfer(msg.sender,_to,sendAmount)
+
+IRs:
+Emit Transfer(msg.sender,_to,sendAmount)"];
+14->15;
+15[label="Node Type: RETURN 15
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+participants[_a].num_of_pro_rata_tokens_alloted = _v
+
+IRs:
+REF_39(database.participant) -> participants[_a]
+REF_40(uint256) -> REF_39.num_of_pro_rata_tokens_alloted
+REF_40(uint256) (->participants) := _v(uint256)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+only_master_or_owner()
+
+IRs:
+MODIFIER_CALL, database.only_master_or_owner()()"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+log_participant_update(_a)
+
+IRs:
+MODIFIER_CALL, database.log_participant_update(address)(_a)"];
+3->1;
+}

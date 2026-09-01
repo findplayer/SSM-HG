@@ -1,0 +1,98 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+Order[orderid].status == 1
+
+IRs:
+REF_409(StableDEX.orders) -> Order[orderid]
+REF_410(uint256) -> REF_409.status
+TMP_282(bool) = REF_410 == 1
+CONDITION TMP_282"];
+1->2[label="True"];
+1->7[label="False"];
+2[label="Node Type: IF 2
+
+EXPRESSION:
+Order[orderid].type_ == 0
+
+IRs:
+REF_411(StableDEX.orders) -> Order[orderid]
+REF_412(uint256) -> REF_411.type_
+TMP_283(bool) = REF_412 == 0
+CONDITION TMP_283"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+userDetails[Order[orderid].userAddress][Order[orderid].tokenAddress] = userDetails[Order[orderid].userAddress][Order[orderid].tokenAddress].add(Order[orderid].tradeTotal)
+
+IRs:
+REF_413(StableDEX.orders) -> Order[orderid]
+REF_414(address) -> REF_413.userAddress
+REF_415(mapping(address => uint256)) -> userDetails[REF_414]
+REF_416(StableDEX.orders) -> Order[orderid]
+REF_417(address) -> REF_416.tokenAddress
+REF_418(uint256) -> REF_415[REF_417]
+REF_419(StableDEX.orders) -> Order[orderid]
+REF_420(address) -> REF_419.userAddress
+REF_421(mapping(address => uint256)) -> userDetails[REF_420]
+REF_422(StableDEX.orders) -> Order[orderid]
+REF_423(address) -> REF_422.tokenAddress
+REF_424(uint256) -> REF_421[REF_423]
+REF_426(StableDEX.orders) -> Order[orderid]
+REF_427(uint256) -> REF_426.tradeTotal
+TMP_284(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_424', 'REF_427'] 
+REF_418(uint256) (->userDetails) := TMP_284(uint256)"];
+3->5;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+userDetails[Order[orderid].userAddress][Order[orderid].tokenAddress] = userDetails[Order[orderid].userAddress][Order[orderid].tokenAddress].add(Order[orderid].tradeAmount)
+
+IRs:
+REF_428(StableDEX.orders) -> Order[orderid]
+REF_429(address) -> REF_428.userAddress
+REF_430(mapping(address => uint256)) -> userDetails[REF_429]
+REF_431(StableDEX.orders) -> Order[orderid]
+REF_432(address) -> REF_431.tokenAddress
+REF_433(uint256) -> REF_430[REF_432]
+REF_434(StableDEX.orders) -> Order[orderid]
+REF_435(address) -> REF_434.userAddress
+REF_436(mapping(address => uint256)) -> userDetails[REF_435]
+REF_437(StableDEX.orders) -> Order[orderid]
+REF_438(address) -> REF_437.tokenAddress
+REF_439(uint256) -> REF_436[REF_438]
+REF_441(StableDEX.orders) -> Order[orderid]
+REF_442(uint256) -> REF_441.tradeAmount
+TMP_285(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_439', 'REF_442'] 
+REF_433(uint256) (->userDetails) := TMP_285(uint256)"];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Order[orderid].status = 3
+
+IRs:
+REF_443(StableDEX.orders) -> Order[orderid]
+REF_444(uint256) -> REF_443.status
+REF_444(uint256) (->Order) := 3(uint256)"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: RETURN 8
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

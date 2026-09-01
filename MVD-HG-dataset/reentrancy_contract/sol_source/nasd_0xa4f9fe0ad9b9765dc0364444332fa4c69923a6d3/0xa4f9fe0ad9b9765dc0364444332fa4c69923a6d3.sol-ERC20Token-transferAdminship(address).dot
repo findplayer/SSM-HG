@@ -1,0 +1,47 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_newAdmin != address(0))
+
+IRs:
+TMP_23 = CONVERT 0 to address
+TMP_24(bool) = _newAdmin != TMP_23
+TMP_25(None) = SOLIDITY_CALL require(bool)(TMP_24)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+admin = _newAdmin
+
+IRs:
+admin(address) := _newAdmin(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+level[_newAdmin] = 2
+
+IRs:
+REF_5(uint256) -> level[_newAdmin]
+REF_5(uint256) (->level) := 2(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+TransferAdminship(admin)
+
+IRs:
+Emit TransferAdminship(admin)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyAdmin(2)
+
+IRs:
+MODIFIER_CALL, admined.onlyAdmin(uint8)(2)"];
+5->1;
+}

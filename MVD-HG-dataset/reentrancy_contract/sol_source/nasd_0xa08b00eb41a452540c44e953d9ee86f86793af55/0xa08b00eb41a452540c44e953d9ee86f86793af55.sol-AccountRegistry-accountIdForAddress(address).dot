@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(addressBelongsToAccount(_address))
+
+IRs:
+TMP_15(bool) = INTERNAL_CALL, AccountRegistry.addressBelongsToAccount(address)(_address)
+TMP_16(None) = SOLIDITY_CALL require(bool)(TMP_15)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+accountByAddress[_address]
+
+IRs:
+REF_0(uint256) -> accountByAddress[_address]
+RETURN REF_0"];
+}

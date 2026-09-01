@@ -1,0 +1,117 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.sender == Channels[_lcID].partyAddresses[0] && Channels[_lcID].isOpen == false)
+
+IRs:
+REF_93(LedgerChannel.Channel) -> Channels[_lcID]
+REF_94(address[2]) -> REF_93.partyAddresses
+REF_95(address) -> REF_94[0]
+TMP_131(bool) = msg.sender == REF_95
+REF_96(LedgerChannel.Channel) -> Channels[_lcID]
+REF_97(bool) -> REF_96.isOpen
+TMP_132(bool) = REF_97 == False
+TMP_133(bool) = TMP_131 && TMP_132
+TMP_134(None) = SOLIDITY_CALL require(bool)(TMP_133)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(now > Channels[_lcID].LCopenTimeout)
+
+IRs:
+REF_98(LedgerChannel.Channel) -> Channels[_lcID]
+REF_99(uint256) -> REF_98.LCopenTimeout
+TMP_135(bool) = now > REF_99
+TMP_136(None) = SOLIDITY_CALL require(bool)(TMP_135)"];
+2->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+Channels[_lcID].initialDeposit[0] != 0
+
+IRs:
+REF_100(LedgerChannel.Channel) -> Channels[_lcID]
+REF_101(uint256[2]) -> REF_100.initialDeposit
+REF_102(uint256) -> REF_101[0]
+TMP_137(bool) = REF_102 != 0
+CONDITION TMP_137"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Channels[_lcID].partyAddresses[0].transfer(Channels[_lcID].ethBalances[0])
+
+IRs:
+REF_103(LedgerChannel.Channel) -> Channels[_lcID]
+REF_104(address[2]) -> REF_103.partyAddresses
+REF_105(address) -> REF_104[0]
+REF_107(LedgerChannel.Channel) -> Channels[_lcID]
+REF_108(uint256[4]) -> REF_107.ethBalances
+REF_109(uint256) -> REF_108[0]
+Transfer dest:REF_105 value:REF_109"];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+Channels[_lcID].initialDeposit[1] != 0
+
+IRs:
+REF_110(LedgerChannel.Channel) -> Channels[_lcID]
+REF_111(uint256[2]) -> REF_110.initialDeposit
+REF_112(uint256) -> REF_111[1]
+TMP_139(bool) = REF_112 != 0
+CONDITION TMP_139"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].token.transfer(Channels[_lcID].partyAddresses[0],Channels[_lcID].erc20Balances[0]),CreateChannel: token transfer failure)
+
+IRs:
+REF_113(LedgerChannel.Channel) -> Channels[_lcID]
+REF_114(HumanStandardToken) -> REF_113.token
+REF_116(LedgerChannel.Channel) -> Channels[_lcID]
+REF_117(address[2]) -> REF_116.partyAddresses
+REF_118(address) -> REF_117[0]
+REF_119(LedgerChannel.Channel) -> Channels[_lcID]
+REF_120(uint256[4]) -> REF_119.erc20Balances
+REF_121(uint256) -> REF_120[0]
+TMP_140(bool) = HIGH_LEVEL_CALL, dest:REF_114(HumanStandardToken), function:transfer, arguments:['REF_118', 'REF_121']  
+TMP_141(None) = SOLIDITY_CALL require(bool,string)(TMP_140,CreateChannel: token transfer failure)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+DidLCClose(_lcID,0,Channels[_lcID].ethBalances[0],Channels[_lcID].erc20Balances[0],0,0)
+
+IRs:
+REF_122(LedgerChannel.Channel) -> Channels[_lcID]
+REF_123(uint256[4]) -> REF_122.ethBalances
+REF_124(uint256) -> REF_123[0]
+REF_125(LedgerChannel.Channel) -> Channels[_lcID]
+REF_126(uint256[4]) -> REF_125.erc20Balances
+REF_127(uint256) -> REF_126[0]
+Emit DidLCClose(_lcID,0,REF_124,REF_127,0,0)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+delete Channels[_lcID]
+
+IRs:
+REF_128(LedgerChannel.Channel) -> Channels[_lcID]
+Channels = delete REF_128 "];
+}

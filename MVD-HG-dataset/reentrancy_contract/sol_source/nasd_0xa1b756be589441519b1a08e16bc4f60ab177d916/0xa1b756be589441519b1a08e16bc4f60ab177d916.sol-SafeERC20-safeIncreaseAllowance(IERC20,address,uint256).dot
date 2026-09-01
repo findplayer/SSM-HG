@@ -1,0 +1,24 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+newAllowance = token.allowance(address(this),spender).add(value)
+
+IRs:
+TMP_437 = CONVERT this to address
+TMP_438(uint256) = HIGH_LEVEL_CALL, dest:token(IERC20), function:allowance, arguments:['TMP_437', 'spender']  
+TMP_439(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['TMP_438', 'value'] 
+newAllowance(uint256) := TMP_439(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(token.approve(spender,newAllowance))
+
+IRs:
+TMP_440(bool) = HIGH_LEVEL_CALL, dest:token(IERC20), function:approve, arguments:['spender', 'newAllowance']  
+TMP_441(None) = SOLIDITY_CALL require(bool)(TMP_440)"];
+}

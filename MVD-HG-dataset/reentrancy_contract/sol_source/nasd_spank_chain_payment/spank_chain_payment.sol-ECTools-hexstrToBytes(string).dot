@@ -1,0 +1,135 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+len = bytes(_hexstr).length
+
+IRs:
+TMP_17 = CONVERT _hexstr to bytes
+REF_2 -> LENGTH TMP_17
+len(uint256) := REF_2(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(len % 2 == 0)
+
+IRs:
+TMP_18(uint256) = len % 2
+TMP_19(bool) = TMP_18 == 0
+TMP_20(None) = SOLIDITY_CALL require(bool)(TMP_19)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+bstr = bytes(new string(len / 2))
+
+IRs:
+TMP_22(uint256) = len / 2
+TMP_23 = new string(TMP_22)
+TMP_24 = CONVERT TMP_23 to bytes
+bstr(bytes) := TMP_24(bytes)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+k = 0
+
+IRs:
+k(uint256) := 0(uint256)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->9;
+7[label="Node Type: BEGIN_LOOP 7
+"];
+7->10;
+8[label="Node Type: END_LOOP 8
+"];
+8->16;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+9->7;
+10[label="Node Type: IF_LOOP 10
+
+EXPRESSION:
+i < len
+
+IRs:
+TMP_25(bool) = i < len
+CONDITION TMP_25"];
+10->11[label="True"];
+10->8[label="False"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+s = substring(_hexstr,i,i + 1)
+
+IRs:
+TMP_26(uint256) = i + 1
+TMP_27(string) = INTERNAL_CALL, ECTools.substring(string,uint256,uint256)(_hexstr,i,TMP_26)
+s(string) := TMP_27(string)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+r = substring(_hexstr,i + 1,i + 2)
+
+IRs:
+TMP_28(uint256) = i + 1
+TMP_29(uint256) = i + 2
+TMP_30(string) = INTERNAL_CALL, ECTools.substring(string,uint256,uint256)(_hexstr,TMP_28,TMP_29)
+r(string) := TMP_30(string)"];
+12->13;
+13[label="Node Type: NEW VARIABLE 13
+
+EXPRESSION:
+p = parseInt16Char(s) * 16 + parseInt16Char(r)
+
+IRs:
+TMP_31(uint256) = INTERNAL_CALL, ECTools.parseInt16Char(string)(s)
+TMP_32(uint256) = TMP_31 * 16
+TMP_33(uint256) = INTERNAL_CALL, ECTools.parseInt16Char(string)(r)
+TMP_34(uint256) = TMP_32 + TMP_33
+p(uint256) := TMP_34(uint256)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+bstr[k ++] = uintToBytes32(p)[31]
+
+IRs:
+TMP_35(uint256) := k(uint256)
+k(uint256) = k + 1
+REF_3(None) -> bstr[TMP_35]
+TMP_36(bytes) = INTERNAL_CALL, ECTools.uintToBytes32(uint256)(p)
+REF_4(None) -> TMP_36[31]
+REF_3(None) (->bstr) := REF_4(None)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+i += 2
+
+IRs:
+i(uint256) = i + 2"];
+15->10;
+16[label="Node Type: RETURN 16
+
+EXPRESSION:
+bstr
+
+IRs:
+RETURN bstr"];
+}

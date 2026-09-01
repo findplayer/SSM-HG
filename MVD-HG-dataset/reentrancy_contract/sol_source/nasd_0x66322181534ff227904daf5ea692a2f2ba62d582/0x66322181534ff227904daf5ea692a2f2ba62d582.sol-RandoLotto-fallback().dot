@@ -1,0 +1,63 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.sender == tx.origin)
+
+IRs:
+TMP_0(bool) = msg.sender == tx.origin
+TMP_1(None) = SOLIDITY_CALL require(bool)(TMP_0)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(msg.value >= 1000000000000000)
+
+IRs:
+TMP_2(bool) = msg.value >= 1000000000000000
+TMP_3(None) = SOLIDITY_CALL require(bool)(TMP_2)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+randomNumber = uint256(keccak256()(blockhash(uint256)(block.number - 1)))
+
+IRs:
+TMP_4(uint256) = block.number - 1
+TMP_5(uint256) = SOLIDITY_CALL blockhash(uint256)(TMP_4)
+TMP_6(bytes32) = SOLIDITY_CALL keccak256()(TMP_5)
+TMP_7 = CONVERT TMP_6 to uint256
+randomNumber(uint256) := TMP_7(uint256)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+randomNumber > highScore
+
+IRs:
+TMP_8(bool) = randomNumber > highScore
+CONDITION TMP_8"];
+4->5[label="True"];
+4->7[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+currentWinner = msg.sender
+
+IRs:
+currentWinner(address) := msg.sender(address)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+lastTimestamp = now
+
+IRs:
+lastTimestamp(uint256) := now(uint256)"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+}

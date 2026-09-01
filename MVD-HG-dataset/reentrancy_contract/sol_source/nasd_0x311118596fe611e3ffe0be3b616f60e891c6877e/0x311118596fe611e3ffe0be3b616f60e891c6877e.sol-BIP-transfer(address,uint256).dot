@@ -1,0 +1,55 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(balances[msg.sender] >= _value && _value > 0)
+
+IRs:
+REF_28(uint256) -> balances[msg.sender]
+TMP_40(bool) = REF_28 >= _value
+TMP_41(bool) = _value > 0
+TMP_42(bool) = TMP_40 && TMP_41
+TMP_43(None) = SOLIDITY_CALL require(bool)(TMP_42)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[msg.sender] = balances[msg.sender].sub(_value)
+
+IRs:
+REF_29(uint256) -> balances[msg.sender]
+REF_30(uint256) -> balances[msg.sender]
+TMP_44(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_30', '_value'] 
+REF_29(uint256) (->balances) := TMP_44(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[_recipient] = balances[_recipient].add(_value)
+
+IRs:
+REF_32(uint256) -> balances[_recipient]
+REF_33(uint256) -> balances[_recipient]
+TMP_45(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_33', '_value'] 
+REF_32(uint256) (->balances) := TMP_45(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Transfer(msg.sender,_recipient,_value)
+
+IRs:
+Emit Transfer(msg.sender,_recipient,_value)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyPayloadSize(2 * 32)
+
+IRs:
+TMP_47(uint256) = 2 * 32
+MODIFIER_CALL, ERC20Standard.onlyPayloadSize(uint256)(TMP_47)"];
+5->1;
+}

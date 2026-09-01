@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(msg.sender == _swapMaster,swapMaster: only swap master can call this methid)
+
+IRs:
+TMP_356(bool) = msg.sender == _swapMaster
+TMP_357(None) = SOLIDITY_CALL require(bool,string)(TMP_356,swapMaster: only swap master can call this methid)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_swap(amount)
+
+IRs:
+INTERNAL_CALL, SwapContract._swap(uint256)(amount)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+MasterTokensSwapped(amount)
+
+IRs:
+Emit MasterTokensSwapped(amount)"];
+}

@@ -1,0 +1,130 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_to != address(0))
+
+IRs:
+TMP_34 = CONVERT 0 to address
+TMP_35(bool) = _to != TMP_34
+TMP_36(None) = SOLIDITY_CALL require(bool)(TMP_35)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+allowances[_from][msg.sender] < _value
+
+IRs:
+REF_6(mapping(address => uint256)) -> allowances[_from]
+REF_7(uint256) -> REF_6[msg.sender]
+TMP_37(bool) = REF_7 < _value
+CONDITION TMP_37"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+4[label="Node Type: END_IF 4
+"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+accounts[_from] < _value
+
+IRs:
+REF_8(uint256) -> accounts[_from]
+TMP_38(bool) = REF_8 < _value
+CONDITION TMP_38"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: IF 8
+
+EXPRESSION:
+_value > 0 && _from != _to
+
+IRs:
+TMP_39(bool) = _value > 0
+TMP_40(bool) = _from != _to
+TMP_41(bool) = TMP_39 && TMP_40
+CONDITION TMP_41"];
+8->9[label="True"];
+8->12[label="False"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+allowances[_from][msg.sender] = safeSub(allowances[_from][msg.sender],_value)
+
+IRs:
+REF_9(mapping(address => uint256)) -> allowances[_from]
+REF_10(uint256) -> REF_9[msg.sender]
+REF_11(mapping(address => uint256)) -> allowances[_from]
+REF_12(uint256) -> REF_11[msg.sender]
+TMP_42(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_12,_value)
+REF_10(uint256) (->allowances) := TMP_42(uint256)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+accounts[_from] = safeSub(accounts[_from],_value)
+
+IRs:
+REF_13(uint256) -> accounts[_from]
+REF_14(uint256) -> accounts[_from]
+TMP_43(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_14,_value)
+REF_13(uint256) (->accounts) := TMP_43(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+accounts[_to] = safeAdd(accounts[_to],_value)
+
+IRs:
+REF_15(uint256) -> accounts[_to]
+REF_16(uint256) -> accounts[_to]
+TMP_44(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_16,_value)
+REF_15(uint256) (->accounts) := TMP_44(uint256)"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+Transfer(_from,_to,_value)
+
+IRs:
+Emit Transfer(_from,_to,_value)"];
+13->14;
+14[label="Node Type: RETURN 14
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+15[label="Node Type: RETURN 15
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

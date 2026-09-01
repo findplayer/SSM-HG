@@ -1,0 +1,62 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->7;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+bntConverter = IBancorConverter(_bntConverter)
+
+IRs:
+TMP_12 = CONVERT _bntConverter to IBancorConverter
+bntConverter(IBancorConverter) := TMP_12(IBancorConverter)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+tokenConverter = IBancorConverter(_tokenConverter)
+
+IRs:
+TMP_13 = CONVERT _tokenConverter to IBancorConverter
+tokenConverter(IBancorConverter) := TMP_13(IBancorConverter)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+ethToken = _ethToken
+
+IRs:
+ethToken(address) := _ethToken(address)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+bntToken = _bntToken
+
+IRs:
+bntToken(address) := _bntToken(address)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+token = _token
+
+IRs:
+token(address) := _token(address)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Initialized(_bntConverter,_tokenConverter,_ethToken,_bntToken,_token)
+
+IRs:
+Emit Initialized(_bntConverter,_tokenConverter,_ethToken,_bntToken,_token)"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Owned.onlyOwner()()"];
+7->1;
+}

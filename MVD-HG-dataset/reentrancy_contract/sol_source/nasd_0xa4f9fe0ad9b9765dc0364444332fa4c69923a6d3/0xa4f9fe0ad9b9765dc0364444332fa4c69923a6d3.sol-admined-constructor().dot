@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+admin = 0x6585b849371A40005F9dCda57668C832a5be1777
+
+IRs:
+admin(address) := 579590120539080431529561354470752717914433787767(address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+level[admin] = 2
+
+IRs:
+REF_0(uint256) -> level[admin]
+REF_0(uint256) (->level) := 2(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Admined(admin)
+
+IRs:
+Emit Admined(admin)"];
+}

@@ -1,0 +1,72 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->7;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(params[ISSUE_METHOD].value == _value)
+
+IRs:
+REF_305(TwoPhaseToken.MethodParam) -> params[ISSUE_METHOD]
+REF_306(uint256) -> REF_305.value
+TMP_542(bool) = REF_306 == _value
+TMP_543(None) = SOLIDITY_CALL require(bool)(TMP_542)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(params[ISSUE_METHOD].state == true)
+
+IRs:
+REF_307(TwoPhaseToken.MethodParam) -> params[ISSUE_METHOD]
+REF_308(bool) -> REF_307.state
+TMP_544(bool) = REF_308 == True
+TMP_545(None) = SOLIDITY_CALL require(bool)(TMP_544)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[assetOwner] = balances[assetOwner].add(_value)
+
+IRs:
+REF_309(uint256) -> balances[assetOwner]
+REF_310(uint256) -> balances[assetOwner]
+TMP_546(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_310', '_value'] 
+REF_309(uint256) (->balances) := TMP_546(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+totalSupply_ = totalSupply_.add(_value)
+
+IRs:
+TMP_547(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['totalSupply_', '_value'] 
+totalSupply_(uint256) := TMP_547(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+params[ISSUE_METHOD].state = false
+
+IRs:
+REF_313(TwoPhaseToken.MethodParam) -> params[ISSUE_METHOD]
+REF_314(bool) -> REF_313.state
+REF_314(bool) (->params) := False(bool)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+ComfirmIsses(msg.sender,_value)
+
+IRs:
+Emit ComfirmIsses(msg.sender,_value)"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+onlyREVIEWER()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyREVIEWER()()"];
+7->1;
+}

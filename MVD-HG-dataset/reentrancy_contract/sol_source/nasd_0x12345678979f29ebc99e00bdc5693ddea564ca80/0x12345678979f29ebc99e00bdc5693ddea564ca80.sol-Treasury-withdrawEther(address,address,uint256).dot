@@ -1,0 +1,52 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+deductBalance(0,traderAddr,amount)
+
+IRs:
+INTERNAL_CALL, Treasury.deductBalance(uint256,address,uint256)(0,traderAddr,amount)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+resetEmergencyRelease(traderAddr)
+
+IRs:
+INTERNAL_CALL, Treasury.resetEmergencyRelease(address)(traderAddr)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Withdrawal(0,traderAddr,withdrawalAddr,amount)
+
+IRs:
+Emit Withdrawal(0,traderAddr,withdrawalAddr,amount)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+withdrawalAddr.transfer(amount)
+
+IRs:
+Transfer dest:withdrawalAddr value:amount"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyActive()
+
+IRs:
+MODIFIER_CALL, Treasury.onlyActive()()"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyApprovedExchange(traderAddr)
+
+IRs:
+MODIFIER_CALL, AccessModifiers.onlyApprovedExchange(address)(traderAddr)"];
+6->1;
+}

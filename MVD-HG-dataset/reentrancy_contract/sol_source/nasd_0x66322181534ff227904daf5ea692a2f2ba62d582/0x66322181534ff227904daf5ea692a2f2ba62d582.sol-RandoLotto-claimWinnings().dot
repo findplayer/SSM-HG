@@ -1,0 +1,33 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(now > lastTimestamp + 86400)
+
+IRs:
+TMP_9(uint256) = lastTimestamp + 86400
+TMP_10(bool) = now > TMP_9
+TMP_11(None) = SOLIDITY_CALL require(bool)(TMP_10)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(msg.sender == currentWinner)
+
+IRs:
+TMP_12(bool) = msg.sender == currentWinner
+TMP_13(None) = SOLIDITY_CALL require(bool)(TMP_12)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+msg.sender.transfer(address(this).balance)
+
+IRs:
+TMP_14 = CONVERT this to address
+TMP_15(uint256) = SOLIDITY_CALL balance(address)(TMP_14)
+Transfer dest:msg.sender value:TMP_15"];
+}

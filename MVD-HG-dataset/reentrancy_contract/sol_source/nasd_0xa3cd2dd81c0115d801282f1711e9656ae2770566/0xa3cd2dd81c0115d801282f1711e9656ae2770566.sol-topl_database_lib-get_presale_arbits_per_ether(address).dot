@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+database(db).get_presale_arbits_per_ether()
+
+IRs:
+TMP_140 = CONVERT db to database
+TMP_141(uint256) = HIGH_LEVEL_CALL, dest:TMP_140(database), function:get_presale_arbits_per_ether, arguments:[]  
+RETURN TMP_141"];
+}

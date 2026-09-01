@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+_contributors[account].exists
+
+IRs:
+REF_20(Contributions.Contributor) -> _contributors[account]
+REF_21(bool) -> REF_20.exists
+RETURN REF_21"];
+}

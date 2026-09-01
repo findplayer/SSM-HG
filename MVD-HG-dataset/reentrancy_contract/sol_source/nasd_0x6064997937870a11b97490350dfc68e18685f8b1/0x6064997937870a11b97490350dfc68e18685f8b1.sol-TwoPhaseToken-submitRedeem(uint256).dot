@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+params[REDEEM_METHOD] = MethodParam(REDEEM_METHOD,_value,true)
+
+IRs:
+REF_315(TwoPhaseToken.MethodParam) -> params[REDEEM_METHOD]
+TMP_550(TwoPhaseToken.MethodParam) = new MethodParam(REDEEM_METHOD,_value,True)
+REF_315(TwoPhaseToken.MethodParam) (->params) := TMP_550(TwoPhaseToken.MethodParam)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+SubmitRedeem(msg.sender,_value)
+
+IRs:
+Emit SubmitRedeem(msg.sender,_value)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyMANAGER()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyMANAGER()()"];
+3->1;
+}

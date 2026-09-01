@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+GeneralERC20(token).balanceOf(owner)
+
+IRs:
+TMP_46 = CONVERT token to GeneralERC20
+TMP_47(uint256) = HIGH_LEVEL_CALL, dest:TMP_46(GeneralERC20), function:balanceOf, arguments:['owner']  
+RETURN TMP_47"];
+}

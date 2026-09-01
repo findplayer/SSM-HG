@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+GRACE_PERIOD_EXPIRATION = block.timestamp.add(gracePeriod)
+
+IRs:
+TMP_95(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['block.timestamp', 'gracePeriod'] 
+GRACE_PERIOD_EXPIRATION(uint256) := TMP_95(uint256)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+Ownable()
+
+IRs:
+INTERNAL_CALL, Ownable.constructor()()"];
+2->1;
+}

@@ -1,0 +1,23 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_addr != 0x0)
+
+IRs:
+TMP_13(bool) = _addr != 0
+TMP_14(None) = SOLIDITY_CALL require(bool)(TMP_13)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+_addr == recoverSigner(_hashedMsg,_sig)
+
+IRs:
+TMP_15(address) = INTERNAL_CALL, ECTools.recoverSigner(bytes32,string)(_hashedMsg,_sig)
+TMP_16(bool) = _addr == TMP_15
+RETURN TMP_16"];
+}

@@ -1,0 +1,56 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+totalSupply = 200000000 * (10 ** uint256(decimals))
+
+IRs:
+TMP_94 = CONVERT decimals to uint256
+TMP_95(uint256) = 10 ** TMP_94
+TMP_96(uint256) = 200000000 * TMP_95
+totalSupply(uint256) := TMP_96(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[writer] = totalSupply / 10000
+
+IRs:
+REF_67(uint256) -> balances[writer]
+TMP_97(uint256) = totalSupply / 10000
+REF_67(uint256) (->balances) := TMP_97(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[admin] = totalSupply.sub(balances[writer])
+
+IRs:
+REF_68(uint256) -> balances[admin]
+REF_70(uint256) -> balances[writer]
+TMP_98(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['totalSupply', 'REF_70'] 
+REF_68(uint256) (->balances) := TMP_98(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Transfer(address(0),writer,balances[writer])
+
+IRs:
+TMP_99 = CONVERT 0 to address
+REF_71(uint256) -> balances[writer]
+Emit Transfer(TMP_99,writer,REF_71)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Transfer(address(0),admin,balances[admin])
+
+IRs:
+TMP_101 = CONVERT 0 to address
+REF_72(uint256) -> balances[admin]
+Emit Transfer(TMP_101,admin,REF_72)"];
+}

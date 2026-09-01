@@ -1,0 +1,53 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_checkAvailableCap(index,value)
+
+IRs:
+INTERNAL_CALL, DeepCloud._checkAvailableCap(uint256,uint256)(index,value)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_updateCapSupply(index,value)
+
+IRs:
+INTERNAL_CALL, DeepCloud._updateCapSupply(uint256,uint256)(index,value)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+capAddress[to] = true
+
+IRs:
+REF_111(bool) -> capAddress[to]
+REF_111(bool) (->capAddress) := True(bool)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+transfer(to,value)
+
+IRs:
+TMP_238(bool) = INTERNAL_CALL, DeepCloud.transfer(address,uint256)(to,value)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, DeepCloud.onlyOwner()()"];
+6->1;
+}

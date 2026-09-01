@@ -1,0 +1,83 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->8;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+subject = participants[_a]
+
+IRs:
+REF_26(database.participant) -> participants[_a]
+subject(database.participant) := REF_26(database.participant)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+subject.eth_address = _a
+
+IRs:
+REF_27(address) -> subject.eth_address
+REF_27(address) (->subject) := _a(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+subject.topl_address = _ta
+
+IRs:
+REF_28(uint256) -> subject.topl_address
+REF_28(uint256) (->subject) := _ta(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+subject.arbits = _arbits
+
+IRs:
+REF_29(uint256) -> subject.arbits
+REF_29(uint256) (->subject) := _arbits(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+subject.num_of_pro_rata_tokens_alloted = _prta
+
+IRs:
+REF_30(uint256) -> subject.num_of_pro_rata_tokens_alloted
+REF_30(uint256) (->subject) := _prta(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+subject.arbits_kyc_whitelist = _v3
+
+IRs:
+REF_31(bool) -> subject.arbits_kyc_whitelist
+REF_31(bool) (->subject) := _v3(bool)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+subject.num_of_uses = _nou
+
+IRs:
+REF_32(uint8) -> subject.num_of_uses
+REF_32(uint8) (->subject) := _nou(uint8)"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+only_master_or_owner()
+
+IRs:
+MODIFIER_CALL, database.only_master_or_owner()()"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+log_participant_update(_a)
+
+IRs:
+MODIFIER_CALL, database.log_participant_update(address)(_a)"];
+9->1;
+}

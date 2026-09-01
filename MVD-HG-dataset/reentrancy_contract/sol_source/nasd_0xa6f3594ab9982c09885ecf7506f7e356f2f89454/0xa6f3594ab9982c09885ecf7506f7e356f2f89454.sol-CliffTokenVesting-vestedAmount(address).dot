@@ -1,0 +1,64 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+block.timestamp < beneficiary[account].cliff
+
+IRs:
+REF_19(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_20(uint256) -> REF_19.cliff
+TMP_41(bool) = block.timestamp < REF_20
+CONDITION TMP_41"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+0
+
+IRs:
+RETURN 0"];
+3[label="Node Type: IF 3
+
+EXPRESSION:
+block.timestamp >= beneficiary[account].start.add(beneficiary[account].duration)
+
+IRs:
+REF_21(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_22(uint256) -> REF_21.start
+REF_24(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_25(uint256) -> REF_24.duration
+TMP_42(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_22', 'REF_25'] 
+TMP_43(bool) = block.timestamp >= TMP_42
+CONDITION TMP_43"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+beneficiary[account].totalAmount
+
+IRs:
+REF_26(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_27(uint256) -> REF_26.totalAmount
+RETURN REF_27"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+beneficiary[account].totalAmount.mul(block.timestamp.sub(beneficiary[account].start)).div(beneficiary[account].duration)
+
+IRs:
+REF_28(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_29(uint256) -> REF_28.totalAmount
+REF_32(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_33(uint256) -> REF_32.start
+TMP_44(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['block.timestamp', 'REF_33'] 
+TMP_45(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['REF_29', 'TMP_44'] 
+REF_35(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_36(uint256) -> REF_35.duration
+TMP_46(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_45', 'REF_36'] 
+RETURN TMP_46"];
+}

@@ -1,0 +1,37 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+creator = msg.sender
+
+IRs:
+creator(address) := msg.sender(address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+startDate = 1515974400
+
+IRs:
+startDate(uint256) := 1515974400(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+price = 500
+
+IRs:
+price(uint256) := 500(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+tokenReward = Token(0xC42de4250cA009C767818eC6f8fb1eacBa859f38)
+
+IRs:
+TMP_0 = CONVERT 1119985598823828143988932803552433666984853741368 to Token
+tokenReward(Token) := TMP_0(Token)"];
+}

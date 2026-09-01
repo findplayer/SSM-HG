@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+_a < _b
+
+IRs:
+TMP_13(bool) = _a < _b
+CONDITION TMP_13"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+_a
+
+IRs:
+RETURN _a"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+_b
+
+IRs:
+RETURN _b"];
+}

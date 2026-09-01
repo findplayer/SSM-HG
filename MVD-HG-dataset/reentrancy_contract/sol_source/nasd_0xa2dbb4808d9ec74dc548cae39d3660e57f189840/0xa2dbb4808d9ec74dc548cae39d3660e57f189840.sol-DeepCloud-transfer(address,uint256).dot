@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(checkLock())
+
+IRs:
+TMP_243(bool) = INTERNAL_CALL, DeepCloud.checkLock()()
+TMP_244(None) = SOLIDITY_CALL require(bool)(TMP_243)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+super.transfer(to,value)
+
+IRs:
+TMP_245(bool) = INTERNAL_CALL, ERC20Pausable.transfer(address,uint256)(to,value)
+RETURN TMP_245"];
+}

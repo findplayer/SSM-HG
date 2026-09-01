@@ -1,0 +1,78 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+_newEthPoints = safeMul(safeSub(totalEthReceived,tokenHolders[_acct].lastEthSnapshot),tokenHolders[_acct].tokens)
+
+IRs:
+REF_30(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_31(uint256) -> REF_30.lastEthSnapshot
+TMP_52(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(totalEthReceived,REF_31)
+REF_32(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_33(uint256) -> REF_32.tokens
+TMP_53(uint256) = INTERNAL_CALL, SafeMath.safeMul(uint256,uint256)(TMP_52,REF_33)
+_newEthPoints(uint256) := TMP_53(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+tokenHolders[_acct].currentEthPoints = safeAdd(tokenHolders[_acct].currentEthPoints,_newEthPoints)
+
+IRs:
+REF_34(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_35(uint256) -> REF_34.currentEthPoints
+REF_36(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_37(uint256) -> REF_36.currentEthPoints
+TMP_54(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_37,_newEthPoints)
+REF_35(uint256) (->tokenHolders) := TMP_54(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokenHolders[_acct].lastEthSnapshot = totalEthReceived
+
+IRs:
+REF_38(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_39(uint256) -> REF_38.lastEthSnapshot
+REF_39(uint256) (->tokenHolders) := totalEthReceived(uint256)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+_newDaiPoints = safeMul(safeSub(totalDaiReceived,tokenHolders[_acct].lastDaiSnapshot),tokenHolders[_acct].tokens)
+
+IRs:
+REF_40(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_41(uint256) -> REF_40.lastDaiSnapshot
+TMP_55(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(totalDaiReceived,REF_41)
+REF_42(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_43(uint256) -> REF_42.tokens
+TMP_56(uint256) = INTERNAL_CALL, SafeMath.safeMul(uint256,uint256)(TMP_55,REF_43)
+_newDaiPoints(uint256) := TMP_56(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+tokenHolders[_acct].currentDaiPoints = safeAdd(tokenHolders[_acct].currentDaiPoints,_newDaiPoints)
+
+IRs:
+REF_44(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_45(uint256) -> REF_44.currentDaiPoints
+REF_46(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_47(uint256) -> REF_46.currentDaiPoints
+TMP_57(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_47,_newDaiPoints)
+REF_45(uint256) (->tokenHolders) := TMP_57(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+tokenHolders[_acct].lastDaiSnapshot = totalDaiReceived
+
+IRs:
+REF_48(ETT.tokenHolder) -> tokenHolders[_acct]
+REF_49(uint256) -> REF_48.lastDaiSnapshot
+REF_49(uint256) (->tokenHolders) := totalDaiReceived(uint256)"];
+}

@@ -1,0 +1,31 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+deprecated
+
+IRs:
+CONDITION deprecated"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+UpgradedStandardToken(upgradedAddress).approveByLegacy(msg.sender,_spender,_value)
+
+IRs:
+TMP_711 = CONVERT upgradedAddress to UpgradedStandardToken
+TMP_712(bool) = HIGH_LEVEL_CALL, dest:TMP_711(UpgradedStandardToken), function:approveByLegacy, arguments:['msg.sender', '_spender', '_value']  
+RETURN TMP_712"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+super.approve(_spender,_value)
+
+IRs:
+TMP_713(bool) = INTERNAL_CALL, PausableToken.approve(address,uint256)(_spender,_value)
+RETURN TMP_713"];
+}

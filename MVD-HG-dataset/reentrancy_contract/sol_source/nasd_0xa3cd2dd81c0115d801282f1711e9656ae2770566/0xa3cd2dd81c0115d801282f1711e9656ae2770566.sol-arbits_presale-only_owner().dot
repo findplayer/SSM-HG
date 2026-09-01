@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(db.get_sale_owner(msg.sender))
+
+IRs:
+TMP_286(bool) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_sale_owner(address,address), arguments:['db', 'msg.sender'] 
+TMP_287(None) = SOLIDITY_CALL require(bool)(TMP_286)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

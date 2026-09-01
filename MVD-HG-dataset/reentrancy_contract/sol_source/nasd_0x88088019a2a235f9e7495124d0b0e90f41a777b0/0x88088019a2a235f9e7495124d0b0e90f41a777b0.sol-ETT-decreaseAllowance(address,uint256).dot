@@ -1,0 +1,23 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_approve(msg.sender,_spender,safeSub(approvals[msg.sender][_spender],_subtractedValue))
+
+IRs:
+REF_24(mapping(address => uint256)) -> approvals[msg.sender]
+REF_25(uint256) -> REF_24[_spender]
+TMP_43(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_25,_subtractedValue)
+INTERNAL_CALL, ETT._approve(address,address,uint256)(msg.sender,_spender,TMP_43)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

@@ -1,0 +1,18 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(beneficiary[account].start != 0)
+
+IRs:
+REF_37(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_38(uint256) -> REF_37.start
+TMP_47(bool) = REF_38 != 0
+TMP_48(None) = SOLIDITY_CALL require(bool)(TMP_47)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

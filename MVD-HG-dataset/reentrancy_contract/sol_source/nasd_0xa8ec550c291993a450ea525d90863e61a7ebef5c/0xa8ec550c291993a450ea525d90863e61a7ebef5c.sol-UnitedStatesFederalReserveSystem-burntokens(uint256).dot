@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_totalSupply = (_totalSupply).sub(tokens)
+
+IRs:
+TMP_13(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['_totalSupply', 'tokens'] 
+_totalSupply(uint256) := TMP_13(uint256)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, UnitedStatesFederalReserveSystem.onlyOwner()()"];
+2->1;
+}

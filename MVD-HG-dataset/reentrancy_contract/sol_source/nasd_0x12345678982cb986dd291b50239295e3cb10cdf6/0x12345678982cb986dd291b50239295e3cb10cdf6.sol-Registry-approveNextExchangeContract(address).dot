@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_nextExchangeContract != exchangeContract,Cannot approve current exchange contract.)
+
+IRs:
+TMP_14(bool) = _nextExchangeContract != exchangeContract
+TMP_15(None) = SOLIDITY_CALL require(bool,string)(TMP_14,Cannot approve current exchange contract.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(! prevExchangeContracts[_nextExchangeContract],Cannot approve previously used contract.)
+
+IRs:
+REF_0(bool) -> prevExchangeContracts[_nextExchangeContract]
+TMP_16 = UnaryType.BANG REF_0 
+TMP_17(None) = SOLIDITY_CALL require(bool,string)(TMP_16,Cannot approve previously used contract.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+nextExchangeContract = _nextExchangeContract
+
+IRs:
+nextExchangeContract(address) := _nextExchangeContract(address)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+4->1;
+}

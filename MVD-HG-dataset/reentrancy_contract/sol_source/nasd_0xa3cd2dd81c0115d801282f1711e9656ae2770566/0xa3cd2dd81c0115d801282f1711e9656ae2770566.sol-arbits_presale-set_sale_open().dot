@@ -1,0 +1,70 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->7;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(db.get_presale_arbits_per_ether() > 0)
+
+IRs:
+TMP_244(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_presale_arbits_per_ether(address), arguments:['db'] 
+TMP_245(bool) = TMP_244 > 0
+TMP_246(None) = SOLIDITY_CALL require(bool)(TMP_245)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(db.get_arbits_max_contribution() > 0)
+
+IRs:
+TMP_247(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_arbits_max_contribution(address), arguments:['db'] 
+TMP_248(bool) = TMP_247 > 0
+TMP_249(None) = SOLIDITY_CALL require(bool)(TMP_248)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(db.get_arbits_min_contribution() > 0)
+
+IRs:
+TMP_250(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_arbits_min_contribution(address), arguments:['db'] 
+TMP_251(bool) = TMP_250 > 0
+TMP_252(None) = SOLIDITY_CALL require(bool)(TMP_251)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(db.get_pre_kyc_bonus_numerator() > 0)
+
+IRs:
+TMP_253(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_pre_kyc_bonus_numerator(address), arguments:['db'] 
+TMP_254(bool) = TMP_253 > 0
+TMP_255(None) = SOLIDITY_CALL require(bool)(TMP_254)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool)(db.get_pre_kyc_bonus_denominator() > 0)
+
+IRs:
+TMP_256(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_pre_kyc_bonus_denominator(address), arguments:['db'] 
+TMP_257(bool) = TMP_256 > 0
+TMP_258(None) = SOLIDITY_CALL require(bool)(TMP_257)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+db.set_arbits_presale_open(true)
+
+IRs:
+LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.set_arbits_presale_open(address,bool), arguments:['db', 'True'] "];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+only_owner()
+
+IRs:
+MODIFIER_CALL, arbits_presale.only_owner()()"];
+7->1;
+}

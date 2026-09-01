@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_burn(from,value)
+
+IRs:
+INTERNAL_CALL, ERC20._burn(address,uint256)(from,value)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyBurner()
+
+IRs:
+MODIFIER_CALL, BurnerRole.onlyBurner()()"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+notWhitelisted(from)
+
+IRs:
+MODIFIER_CALL, ERC20Whitelistable.notWhitelisted(address)(from)"];
+3->1;
+}

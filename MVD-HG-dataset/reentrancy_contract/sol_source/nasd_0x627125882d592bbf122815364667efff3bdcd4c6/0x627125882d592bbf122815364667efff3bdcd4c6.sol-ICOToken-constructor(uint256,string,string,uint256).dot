@@ -1,0 +1,67 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+name = _name
+
+IRs:
+name(string) := _name(string)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+symbol = _symbol
+
+IRs:
+symbol(string) := _symbol(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+totalSupply_ = totalSupply * 10 ** uint256(decimals)
+
+IRs:
+TMP_14 = CONVERT decimals to uint256
+TMP_15(uint256) = 10 ** TMP_14
+TMP_16(uint256) = totalSupply * TMP_15
+totalSupply_(uint256) := TMP_16(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+balances[msg.sender] = totalSupply_
+
+IRs:
+REF_0(uint256) -> balances[msg.sender]
+REF_0(uint256) (->balances) := totalSupply_(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+rewardPool_ = _rewardPool * 10 ** uint256(decimals)
+
+IRs:
+TMP_17 = CONVERT decimals to uint256
+TMP_18(uint256) = 10 ** TMP_17
+TMP_19(uint256) = _rewardPool * TMP_18
+rewardPool_(uint256) := TMP_19(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+setKycProvider(msg.sender)
+
+IRs:
+INTERNAL_CALL, ICOToken.setKycProvider(address)(msg.sender)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+setIssuer(msg.sender)
+
+IRs:
+INTERNAL_CALL, ICOToken.setIssuer(address)(msg.sender)"];
+}

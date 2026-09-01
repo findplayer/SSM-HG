@@ -1,0 +1,136 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+len = 0
+
+IRs:
+len(uint256) := 0(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+m = _uint + 0
+
+IRs:
+TMP_62(uint256) = _uint + 0
+m(uint256) := TMP_62(uint256)"];
+2->3;
+3[label="Node Type: BEGIN_LOOP 3
+"];
+3->4;
+4[label="Node Type: IF_LOOP 4
+
+EXPRESSION:
+m != 0
+
+IRs:
+TMP_63(bool) = m != 0
+CONDITION TMP_63"];
+4->5[label="True"];
+4->7[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+len ++
+
+IRs:
+TMP_64(uint256) := len(uint256)
+len(uint256) = len + 1"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+m /= 10
+
+IRs:
+m(uint256) = m / 10"];
+6->4;
+7[label="Node Type: END_LOOP 7
+"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+b = new bytes(len)
+
+IRs:
+TMP_66 = new bytes(len)
+b(bytes) := TMP_66(bytes)"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+i = len - 1
+
+IRs:
+TMP_67(uint256) = len - 1
+i(uint256) := TMP_67(uint256)"];
+9->10;
+10[label="Node Type: BEGIN_LOOP 10
+"];
+10->11;
+11[label="Node Type: IF_LOOP 11
+
+EXPRESSION:
+_uint != 0
+
+IRs:
+TMP_68(bool) = _uint != 0
+CONDITION TMP_68"];
+11->12[label="True"];
+11->15[label="False"];
+12[label="Node Type: NEW VARIABLE 12
+
+EXPRESSION:
+remainder = _uint % 10
+
+IRs:
+TMP_69(uint256) = _uint % 10
+remainder(uint256) := TMP_69(uint256)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+_uint = _uint / 10
+
+IRs:
+TMP_70(uint256) = _uint / 10
+_uint(uint256) := TMP_70(uint256)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+b[i --] = bytes1(48 + remainder)
+
+IRs:
+TMP_71(uint256) := i(uint256)
+i(uint256) = i - 1
+REF_16(bytes1) -> b[TMP_71]
+TMP_72(uint256) = 48 + remainder
+TMP_73 = CONVERT TMP_72 to bytes1
+REF_16(bytes1) (->b) := TMP_73(bytes1)"];
+14->11;
+15[label="Node Type: END_LOOP 15
+"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+str = string(b)
+
+IRs:
+TMP_74 = CONVERT b to string
+str(string) := TMP_74(string)"];
+16->17;
+17[label="Node Type: RETURN 17
+
+EXPRESSION:
+str
+
+IRs:
+RETURN str"];
+}

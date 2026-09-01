@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_oldToken.safeTransferFrom(msg.sender,address(this),amountToSwap)
+
+IRs:
+TMP_362 = CONVERT this to address
+LIBRARY_CALL, dest:SafeERC20, function:SafeERC20.safeTransferFrom(IERC20,address,address,uint256), arguments:['_oldToken', 'msg.sender', 'TMP_362', 'amountToSwap'] "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_newToken.mint(msg.sender,amountToSwap)
+
+IRs:
+TMP_364(bool) = HIGH_LEVEL_CALL, dest:_newToken(IERC20), function:mint, arguments:['msg.sender', 'amountToSwap']  "];
+}

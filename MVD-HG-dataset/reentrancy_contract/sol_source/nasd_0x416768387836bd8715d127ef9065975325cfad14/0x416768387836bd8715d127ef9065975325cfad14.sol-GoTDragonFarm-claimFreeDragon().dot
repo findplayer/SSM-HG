@@ -1,0 +1,40 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(initialized)
+
+IRs:
+TMP_50(None) = SOLIDITY_CALL require(bool)(initialized)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(hatchery[msg.sender] == 0)
+
+IRs:
+REF_38(uint256) -> hatchery[msg.sender]
+TMP_51(bool) = REF_38 == 0
+TMP_52(None) = SOLIDITY_CALL require(bool)(TMP_51)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+lastHatch[msg.sender] = now
+
+IRs:
+REF_39(uint256) -> lastHatch[msg.sender]
+REF_39(uint256) (->lastHatch) := now(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+hatchery[msg.sender] = 300
+
+IRs:
+REF_40(uint256) -> hatchery[msg.sender]
+REF_40(uint256) (->hatchery) := 300(uint256)"];
+}

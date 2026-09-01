@@ -1,0 +1,27 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+(storedData,storedAddress)
+
+IRs:
+RETURN storedData,storedAddress"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+flag(storedData,storedAddress)
+
+IRs:
+Emit flag(storedData,storedAddress)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+(retVal,retAddr)
+
+IRs:
+RETURN retVal,retAddr"];
+}

@@ -1,0 +1,48 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(! addressBelongsToAccount(_newUser))
+
+IRs:
+TMP_18(bool) = INTERNAL_CALL, AccountRegistry.addressBelongsToAccount(address)(_newUser)
+TMP_19 = UnaryType.BANG TMP_18 
+TMP_20(None) = SOLIDITY_CALL require(bool)(TMP_19)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+numAccounts ++
+
+IRs:
+TMP_21(uint256) := numAccounts(uint256)
+numAccounts(uint256) = numAccounts + 1"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+accountByAddress[_newUser] = numAccounts
+
+IRs:
+REF_2(uint256) -> accountByAddress[_newUser]
+REF_2(uint256) (->accountByAddress) := numAccounts(uint256)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyAccountRegistryLogic()
+
+IRs:
+MODIFIER_CALL, AccountRegistry.onlyAccountRegistryLogic()()"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+nonZero(_newUser)
+
+IRs:
+MODIFIER_CALL, AccountRegistry.nonZero(address)(_newUser)"];
+5->1;
+}

@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+active = _active
+
+IRs:
+active(bool) := _active(bool)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+SetActive(active)
+
+IRs:
+Emit SetActive(active)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyRegistryOwner()
+
+IRs:
+MODIFIER_CALL, AccessModifiers.onlyRegistryOwner()()"];
+3->1;
+}

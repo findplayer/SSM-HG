@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_wallet != address(0),Invalid wallet)
+
+IRs:
+TMP_20 = CONVERT 0 to address
+TMP_21(bool) = _wallet != TMP_20
+TMP_22(None) = SOLIDITY_CALL require(bool,string)(TMP_21,Invalid wallet)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+whitelist[_wallet] = true
+
+IRs:
+REF_0(bool) -> whitelist[_wallet]
+REF_0(bool) (->whitelist) := True(bool)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Whitelisted(_wallet)
+
+IRs:
+Emit Whitelisted(_wallet)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+4->1;
+}

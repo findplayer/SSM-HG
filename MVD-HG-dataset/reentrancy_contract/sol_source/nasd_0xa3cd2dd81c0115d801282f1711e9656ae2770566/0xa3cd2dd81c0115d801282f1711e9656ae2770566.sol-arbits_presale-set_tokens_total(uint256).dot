@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+db.set_presale_arbits_total(_v)
+
+IRs:
+LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.set_presale_arbits_total(address,uint256), arguments:['db', '_v'] "];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+only_owner()
+
+IRs:
+MODIFIER_CALL, arbits_presale.only_owner()()"];
+2->1;
+}

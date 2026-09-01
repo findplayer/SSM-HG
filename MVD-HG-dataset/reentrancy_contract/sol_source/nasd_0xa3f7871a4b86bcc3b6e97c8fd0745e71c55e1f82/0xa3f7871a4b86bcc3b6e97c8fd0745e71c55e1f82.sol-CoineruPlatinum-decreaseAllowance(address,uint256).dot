@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(spender != address(0),Cannot decreaseAllowance for 0x0 address)
+
+IRs:
+TMP_101 = CONVERT 0 to address
+TMP_102(bool) = spender != TMP_101
+TMP_103(None) = SOLIDITY_CALL require(bool,string)(TMP_102,Cannot decreaseAllowance for 0x0 address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_allowed[msg.sender][spender] = _allowed[msg.sender][spender].sub(subtractedValue)
+
+IRs:
+REF_55(mapping(address => uint256)) -> _allowed[msg.sender]
+REF_56(uint256) -> REF_55[spender]
+REF_57(mapping(address => uint256)) -> _allowed[msg.sender]
+REF_58(uint256) -> REF_57[spender]
+TMP_104(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_58', 'subtractedValue'] 
+REF_56(uint256) (->_allowed) := TMP_104(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Approval(msg.sender,spender,_allowed[msg.sender][spender])
+
+IRs:
+REF_60(mapping(address => uint256)) -> _allowed[msg.sender]
+REF_61(uint256) -> REF_60[spender]
+Emit Approval(msg.sender,spender,REF_61)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

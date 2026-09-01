@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_mint(msg.sender,initialSupply)
+
+IRs:
+INTERNAL_CALL, ERC20._mint(address,uint256)(msg.sender,initialSupply)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+ERC20Detailed(_name,_symbol,_decimals)
+
+IRs:
+INTERNAL_CALL, ERC20Detailed.constructor(string,string,uint8)(_name,_symbol,_decimals)"];
+2->1;
+}

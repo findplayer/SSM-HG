@@ -1,0 +1,58 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+burnAddress = msg.sender
+
+IRs:
+burnAddress(address) := msg.sender(address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(value <= balances[burnAddress])
+
+IRs:
+REF_197(uint256) -> balances[burnAddress]
+TMP_248(bool) = value <= REF_197
+TMP_249(None) = SOLIDITY_CALL require(bool)(TMP_248)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[burnAddress] = balances[burnAddress].sub(value)
+
+IRs:
+REF_198(uint256) -> balances[burnAddress]
+REF_199(uint256) -> balances[burnAddress]
+TMP_250(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_199', 'value'] 
+REF_198(uint256) (->balances) := TMP_250(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+totalSupply_ = totalSupply_.sub(value)
+
+IRs:
+TMP_251(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['totalSupply_', 'value'] 
+totalSupply_(uint256) := TMP_251(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Burn(burnAddress,value)
+
+IRs:
+Emit Burn(burnAddress,value)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+6->1;
+}

@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+level[_target] = _level
+
+IRs:
+REF_66(uint256) -> level[_target]
+REF_66(uint256) (->level) := _level(uint8)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+AdminLevelSet(_target,_level)
+
+IRs:
+Emit AdminLevelSet(_target,_level)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyAdmin(2)
+
+IRs:
+MODIFIER_CALL, admined.onlyAdmin(uint8)(2)"];
+3->1;
+}

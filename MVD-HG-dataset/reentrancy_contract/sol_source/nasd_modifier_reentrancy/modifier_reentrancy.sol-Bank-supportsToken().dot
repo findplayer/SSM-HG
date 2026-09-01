@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+(keccak256()(abi.encodePacked(Nu Token)))
+
+IRs:
+TMP_10(bytes) = SOLIDITY_CALL abi.encodePacked()(Nu Token)
+TMP_11(bytes32) = SOLIDITY_CALL keccak256()(TMP_10)
+RETURN TMP_11"];
+}

@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.sender == owner)
+
+IRs:
+TMP_120(bool) = msg.sender == owner
+TMP_121(None) = SOLIDITY_CALL require(bool)(TMP_120)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(msg.sender != _target)
+
+IRs:
+TMP_122(bool) = msg.sender != _target
+TMP_123(None) = SOLIDITY_CALL require(bool)(TMP_122)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+frozenAccount[_target] = freeze
+
+IRs:
+REF_50(bool) -> frozenAccount[_target]
+REF_50(bool) (->frozenAccount) := freeze(bool)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+FrozenFunds(_target,freeze)
+
+IRs:
+Emit FrozenFunds(_target,freeze)"];
+}

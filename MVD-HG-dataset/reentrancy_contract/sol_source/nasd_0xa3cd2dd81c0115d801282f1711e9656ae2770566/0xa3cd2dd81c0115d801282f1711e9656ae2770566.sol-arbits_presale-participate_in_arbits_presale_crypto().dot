@@ -1,0 +1,153 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->19;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+(p1,p2,p3,p4,p5,p6) = db.get_participant(msg.sender)
+
+IRs:
+TUPLE_1(address,uint256,uint256,uint256,bool,uint8) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_participant(address,address), arguments:['db', 'msg.sender'] 
+p1(address)= UNPACK TUPLE_1 index: 0 
+p2(uint256)= UNPACK TUPLE_1 index: 1 
+p3(uint256)= UNPACK TUPLE_1 index: 2 
+p4(uint256)= UNPACK TUPLE_1 index: 3 
+p5(bool)= UNPACK TUPLE_1 index: 4 
+p6(uint8)= UNPACK TUPLE_1 index: 5 "];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+subject = participant(p1,p2,p3,p4,p5,p6)
+
+IRs:
+TMP_208(arbits_presale.participant) = new participant(p1,p2,p3,p4,p5,p6)
+subject(arbits_presale.participant) := TMP_208(arbits_presale.participant)"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+subject_tokens_to_add = msg.value.mul(db.get_presale_arbits_per_ether()).div(1000000000000000000)
+
+IRs:
+TMP_209(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_presale_arbits_per_ether(address), arguments:['db'] 
+TMP_210(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['msg.value', 'TMP_209'] 
+TMP_211(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_210', '1000000000000000000'] 
+subject_tokens_to_add(uint256) := TMP_211(uint256)"];
+9->10;
+10[label="Node Type: IF 10
+
+EXPRESSION:
+subject.arbits_kyc_whitelist
+
+IRs:
+REF_109(bool) -> subject.arbits_kyc_whitelist
+CONDITION REF_109"];
+10->11[label="True"];
+10->12[label="False"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+subject_tokens_to_add = subject_tokens_to_add.mul(db.get_pre_kyc_bonus_numerator()).div(db.get_pre_kyc_bonus_denominator())
+
+IRs:
+TMP_212(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_pre_kyc_bonus_numerator(address), arguments:['db'] 
+TMP_213(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['subject_tokens_to_add', 'TMP_212'] 
+TMP_214(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_pre_kyc_bonus_denominator(address), arguments:['db'] 
+TMP_215(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_213', 'TMP_214'] 
+subject_tokens_to_add(uint256) := TMP_215(uint256)"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+require(bool)(db.get_presale_arbits_total() >= db.get_presale_arbits_sold().add(subject_tokens_to_add))
+
+IRs:
+TMP_216(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_presale_arbits_total(address), arguments:['db'] 
+TMP_217(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_presale_arbits_sold(address), arguments:['db'] 
+TMP_218(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['TMP_217', 'subject_tokens_to_add'] 
+TMP_219(bool) = TMP_216 >= TMP_218
+TMP_220(None) = SOLIDITY_CALL require(bool)(TMP_219)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+require(bool)(db.get_arbits_max_contribution() >= subject_tokens_to_add)
+
+IRs:
+TMP_221(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_arbits_max_contribution(address), arguments:['db'] 
+TMP_222(bool) = TMP_221 >= subject_tokens_to_add
+TMP_223(None) = SOLIDITY_CALL require(bool)(TMP_222)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+require(bool)(db.get_arbits_min_contribution() <= subject_tokens_to_add)
+
+IRs:
+TMP_224(uint256) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_arbits_min_contribution(address), arguments:['db'] 
+TMP_225(bool) = TMP_224 <= subject_tokens_to_add
+TMP_226(None) = SOLIDITY_CALL require(bool)(TMP_225)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+db.add_presale_arbits_sold(subject_tokens_to_add)
+
+IRs:
+LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.add_presale_arbits_sold(address,uint256), arguments:['db', 'subject_tokens_to_add'] "];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+db.add_arbits(msg.sender,subject_tokens_to_add)
+
+IRs:
+LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.add_arbits(address,address,uint256), arguments:['db', 'msg.sender', 'subject_tokens_to_add'] "];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+e_participate_in_arbits_presale_crypto(msg.sender,msg.value)
+
+IRs:
+Emit e_participate_in_arbits_presale_crypto(msg.sender,msg.value)"];
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+presale_open()
+
+IRs:
+MODIFIER_CALL, arbits_presale.presale_open()()"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+use_count()
+
+IRs:
+MODIFIER_CALL, arbits_presale.use_count()()"];
+20->1;
+}

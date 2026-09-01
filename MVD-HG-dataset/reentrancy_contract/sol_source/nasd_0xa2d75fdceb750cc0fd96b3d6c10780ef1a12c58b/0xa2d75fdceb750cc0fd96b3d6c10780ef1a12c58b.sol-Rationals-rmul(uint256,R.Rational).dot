@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+amount.mul(r.n).div(r.d)
+
+IRs:
+REF_1(uint256) -> r.n
+TMP_12(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['amount', 'REF_1'] 
+REF_3(uint256) -> r.d
+TMP_13(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_12', 'REF_3'] 
+RETURN TMP_13"];
+}

@@ -1,0 +1,46 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+balances[msg.sender] >= _amount
+
+IRs:
+REF_2(uint256) -> balances[msg.sender]
+TMP_0(bool) = REF_2 >= _amount
+CONDITION TMP_0"];
+1->2[label="True"];
+1->6[label="False"];
+2[label="Node Type: IF 2
+
+EXPRESSION:
+msg.sender.call.value(_amount)()
+
+IRs:
+TMP_2(bool) = LOW_LEVEL_CALL, dest:msg.sender, function:call, arguments:[] value:_amount 
+CONDITION TMP_2"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_amount
+"];
+3->4;
+4[label="Node Type: END_IF 4
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+balances[msg.sender] -= _amount
+
+IRs:
+REF_5(uint256) -> balances[msg.sender]
+REF_5(-> balances) = REF_5 - _amount"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+}

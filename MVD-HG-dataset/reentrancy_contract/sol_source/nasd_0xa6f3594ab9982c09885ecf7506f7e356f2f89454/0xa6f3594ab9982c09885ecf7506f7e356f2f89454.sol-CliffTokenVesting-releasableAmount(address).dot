@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+vestedAmount(account).sub(beneficiary[account].releasedAmount)
+
+IRs:
+TMP_15(uint256) = INTERNAL_CALL, CliffTokenVesting.vestedAmount(address)(account)
+REF_1(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_2(uint256) -> REF_1.releasedAmount
+TMP_16(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['TMP_15', 'REF_2'] 
+RETURN TMP_16"];
+}

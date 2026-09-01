@@ -1,0 +1,54 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_name = Dukas Coins
+
+IRs:
+_name(string) := Dukas Coins(string)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_symbol = DUK+
+
+IRs:
+_symbol(string) := DUK+(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_decimals = 4
+
+IRs:
+_decimals(uint8) := 4(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+_totalSupply = 200000000000000
+
+IRs:
+_totalSupply(uint256) := 200000000000000(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+_balances[msg.sender] = _totalSupply
+
+IRs:
+REF_0(uint256) -> _balances[msg.sender]
+REF_0(uint256) (->_balances) := _totalSupply(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Transfer(address(0),msg.sender,_totalSupply)
+
+IRs:
+TMP_17 = CONVERT 0 to address
+Emit Transfer(TMP_17,msg.sender,_totalSupply)"];
+}

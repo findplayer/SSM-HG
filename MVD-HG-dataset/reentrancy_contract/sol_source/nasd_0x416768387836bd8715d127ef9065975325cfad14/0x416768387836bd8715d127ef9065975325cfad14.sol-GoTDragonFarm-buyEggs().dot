@@ -1,0 +1,62 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(initialized)
+
+IRs:
+TMP_21(None) = SOLIDITY_CALL require(bool)(initialized)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+eggsBought = calculateEggBuy(msg.value,SafeMath.sub(address(this).balance,msg.value))
+
+IRs:
+TMP_22 = CONVERT this to address
+TMP_23(uint256) = SOLIDITY_CALL balance(address)(TMP_22)
+TMP_24(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['TMP_23', 'msg.value'] 
+TMP_25(uint256) = INTERNAL_CALL, GoTDragonFarm.calculateEggBuy(uint256,uint256)(msg.value,TMP_24)
+eggsBought(uint256) := TMP_25(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+eggsBought = SafeMath.sub(eggsBought,calculateDevFee(eggsBought))
+
+IRs:
+TMP_26(uint256) = INTERNAL_CALL, GoTDragonFarm.calculateDevFee(uint256)(eggsBought)
+TMP_27(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['eggsBought', 'TMP_26'] 
+eggsBought(uint256) := TMP_27(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+ceoAddress.transfer(calculateDevFee(msg.value))
+
+IRs:
+TMP_28(uint256) = INTERNAL_CALL, GoTDragonFarm.calculateDevFee(uint256)(msg.value)
+Transfer dest:ceoAddress value:TMP_28"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+claimedEggs[msg.sender] = SafeMath.add(claimedEggs[msg.sender],eggsBought)
+
+IRs:
+REF_26(uint256) -> claimedEggs[msg.sender]
+REF_28(uint256) -> claimedEggs[msg.sender]
+TMP_30(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_28', 'eggsBought'] 
+REF_26(uint256) (->claimedEggs) := TMP_30(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Buy(msg.sender,eggsBought)
+
+IRs:
+Emit Buy(msg.sender,eggsBought)"];
+}

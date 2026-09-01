@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_nextOwner != owner,Cannot approve current owner.)
+
+IRs:
+TMP_0(bool) = _nextOwner != owner
+TMP_1(None) = SOLIDITY_CALL require(bool,string)(TMP_0,Cannot approve current owner.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+nextOwner = _nextOwner
+
+IRs:
+nextOwner(address) := _nextOwner(address)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+3->1;
+}

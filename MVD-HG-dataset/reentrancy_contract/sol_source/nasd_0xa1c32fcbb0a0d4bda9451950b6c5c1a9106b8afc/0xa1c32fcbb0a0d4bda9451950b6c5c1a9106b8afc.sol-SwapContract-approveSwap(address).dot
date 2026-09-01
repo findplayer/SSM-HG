@@ -1,0 +1,77 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->8;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(swapper != address(0),approveSwap: invalid swapper address)
+
+IRs:
+TMP_305 = CONVERT 0 to address
+TMP_306(bool) = swapper != TMP_305
+TMP_307(None) = SOLIDITY_CALL require(bool,string)(TMP_306,approveSwap: invalid swapper address)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+balance = _oldToken.balanceOf(swapper)
+
+IRs:
+TMP_308(uint256) = HIGH_LEVEL_CALL, dest:_oldToken(IERC20), function:balanceOf, arguments:['swapper']  
+balance(uint256) := TMP_308(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(balance > 0,approveSwap: the swapper token balance is zero)
+
+IRs:
+TMP_309(bool) = balance > 0
+TMP_310(None) = SOLIDITY_CALL require(bool,string)(TMP_309,approveSwap: the swapper token balance is zero)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool,string)(_infos[swapper].alreadyWhitelisted == false,approveSwap: the user already swapped his tokens)
+
+IRs:
+REF_166(SwapContract.SwapInfo) -> _infos[swapper]
+REF_167(bool) -> REF_166.alreadyWhitelisted
+TMP_311(bool) = REF_167 == False
+TMP_312(None) = SOLIDITY_CALL require(bool,string)(TMP_311,approveSwap: the user already swapped his tokens)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+_addWhitelisted(swapper)
+
+IRs:
+INTERNAL_CALL, WhitelistedRole._addWhitelisted(address)(swapper)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+_infos[swapper] = SwapInfo({alreadyWhitelisted:true,availableTokens:balance,lastSwapTimestamp:0})
+
+IRs:
+REF_168(SwapContract.SwapInfo) -> _infos[swapper]
+TMP_314(SwapContract.SwapInfo) = new SwapInfo(True,balance,0)
+REF_168(SwapContract.SwapInfo) (->_infos) := TMP_314(SwapContract.SwapInfo)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+SwapApproved(swapper,balance)
+
+IRs:
+Emit SwapApproved(swapper,balance)"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+onlyWhitelistAdmin()
+
+IRs:
+MODIFIER_CALL, WhitelistAdminRole.onlyWhitelistAdmin()()"];
+8->1;
+}

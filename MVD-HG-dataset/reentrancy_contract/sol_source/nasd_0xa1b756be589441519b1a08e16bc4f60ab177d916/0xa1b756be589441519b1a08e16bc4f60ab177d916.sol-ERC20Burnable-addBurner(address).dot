@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_addBurner(account)
+
+IRs:
+INTERNAL_CALL, BurnerRole._addBurner(address)(account)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyBurner()
+
+IRs:
+MODIFIER_CALL, BurnerRole.onlyBurner()()"];
+2->1;
+}

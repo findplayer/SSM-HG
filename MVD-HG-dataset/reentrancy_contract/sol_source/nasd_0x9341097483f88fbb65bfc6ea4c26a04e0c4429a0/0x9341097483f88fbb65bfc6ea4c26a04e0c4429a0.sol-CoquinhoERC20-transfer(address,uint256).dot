@@ -1,0 +1,61 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balances[msg.sender] -= amount
+
+IRs:
+REF_4(uint256) -> balances[msg.sender]
+REF_4(-> balances) = REF_4 - amount"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[to] += amount
+
+IRs:
+REF_5(uint256) -> balances[to]
+REF_5(-> balances) = REF_5 + amount"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Transfer(msg.sender,to,amount)
+
+IRs:
+Emit Transfer(msg.sender,to,amount)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+hasEnoughBalance(msg.sender,amount)
+
+IRs:
+MODIFIER_CALL, CoquinhoERC20.hasEnoughBalance(address,uint256)(msg.sender,amount)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+tokenAmountValid(amount)
+
+IRs:
+MODIFIER_CALL, CoquinhoERC20.tokenAmountValid(uint256)(amount)"];
+6->1;
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+status
+
+IRs:
+RETURN status"];
+}

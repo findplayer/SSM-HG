@@ -130,10 +130,46 @@ class GraphContext:
         return ctx
 
     @classmethod
+    def from_hetero_json(cls, hetero_data: dict) -> "GraphContext":
+        """解析 M2 输出的 *_hetero.json,构造 GraphContext。
+
+        兼容 build_cfg_centered_hetero_graph.py 当前输出:
+          - 顶层 meta / nodes / edges
+          - nodes[i] 形如 {id, cfg_node_type, contract, function,
+            expression, span, line_start, line_end, ...}
+          - edges 形如 {CFG_FLOW: [...], AST_PARENT: [...], ...}
+        """
+        ctx = cls()
+
+        raw_nodes = hetero_data.get("nodes") or []
+        raw_edges = hetero_data.get("edges") or {}
+
+        for node in raw_nodes:
+            normalized = _normalize_hetero_node(node)
+            node_id = normalized.get("id")
+            if node_id is None:
+                continue
+            ctx.nodes[node_id] = normalized
+
+        ctx.adj_cfg = _build_cfg_adj_from_hetero_edges(raw_edges)
+        ctx.state_vars = load_state_vars_from_slither_json(hetero_data)
+        if not ctx.state_vars:
+            ctx.state_vars = load_state_vars_from_source(hetero_data)
+        ctx.bool_consumed_nodes = _build_bool_consumed_set(ctx.nodes)
+        return ctx
+
+    @classmethod
+    def from_any_json(cls, data: dict) -> "GraphContext":
+        """自动识别并解析旧 Slither JSON 或当前 *_hetero.json。"""
+        if isinstance(data.get("edges"), dict) and "nodes" in data:
+            return cls.from_hetero_json(data)
+        return cls.from_slither_json(data)
+
+    @classmethod
     def from_json_file(cls, path: str | Path) -> "GraphContext":
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
-        return cls.from_slither_json(data)
+        return cls.from_any_json(data)
 
     # ------------------------------------------------------------------
     # 查询辅助
@@ -187,6 +223,158 @@ class GraphContext:
         return result
 
 
+def _normalize_hetero_node(node: dict) -> dict:
+    """把 *_hetero.json 节点扁平化成 M1 规则可消费的格式。"""
+    attributes = node.get("attributes") or {}
+    raw_type = node.get("cfg_node_type") or node.get("type") or attributes.get("type")
+    expression = _extract_node_expression(node, attributes)
+    normalized = dict(node)
+    normalized["cfg_node_type"] = _normalize_cfg_node_type(raw_type, expression)
+    normalized["expression"] = expression
+    if "id" in normalized:
+        normalized["id"] = normalized["id"]
+    normalized["contract"] = node.get("contract")
+    normalized["function"] = node.get("function")
+    normalized["line_start"] = node.get("line_start")
+    normalized["line_end"] = node.get("line_end")
+    normalized["span"] = node.get("span")
+    return normalized
+
+
+def _extract_node_expression(node: dict, attributes: dict[str, Any] | None = None) -> str:
+    """从 hetero 节点的多种字段里提取表达式文本。"""
+    candidate_fields = (
+        node.get("expression"),
+        node.get("expr"),
+        node.get("label"),
+        node.get("name"),
+    )
+    for value in candidate_fields:
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+    attributes = attributes or node.get("attributes") or {}
+    if isinstance(attributes, dict):
+        for key in ("expression", "expr", "label", "value", "text", "name"):
+            value = attributes.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+    return ""
+
+
+def _normalize_cfg_node_type(raw_type: Any, expression: str = "") -> str:
+    """把 hetero 节点类型归一成 M1 使用的有限类型集合。"""
+    if raw_type is None:
+        raw_type = ""
+    node_type = str(raw_type).upper().strip()
+    expr = expression or ""
+
+    if not node_type:
+        return NT_OTHER
+    if node_type in {NT_ENTRY, NT_CONDITION, NT_ASSIGNMENT, NT_CALL, NT_STATE_WRITE, NT_RETURN}:
+        return node_type
+    if any(token in node_type for token in ("ENTRY", "START")):
+        return NT_ENTRY
+    if any(token in node_type for token in ("RETURN", "EXIT")):
+        return NT_RETURN
+    if any(token in node_type for token in ("IF", "CONDITION", "LOOP", "FOR", "WHILE", "DO_WHILE")):
+        return NT_CONDITION
+    if any(token in node_type for token in ("CALL", "SEND", "TRANSFER", "LOW_LEVEL")):
+        return NT_CALL
+    if any(token in node_type for token in ("ASSIGN", "STATE_WRITE")):
+        return NT_ASSIGNMENT
+    if node_type == "EXPRESSION":
+        if _RE_ASSIGN_LHS.match(expr.strip()):
+            return NT_ASSIGNMENT
+        if _RE_LOWLEVEL_CALL.search(expr) or _RE_SEND.search(expr) or _RE_TRANSFER.search(expr):
+            return NT_CALL
+    return NT_OTHER
+
+
+def _build_cfg_adj_from_hetero_edges(edges: Any) -> dict[str | int, list]:
+    """从 *_hetero.json 的 edges 字典中提取 CFG_FLOW 邻接表。"""
+    adj_cfg: dict[str | int, list] = {}
+    if not isinstance(edges, dict):
+        return adj_cfg
+
+    cfg_edges = edges.get("CFG_FLOW") or []
+    for edge in cfg_edges:
+        if not isinstance(edge, dict):
+            continue
+        src = edge.get("source") if "source" in edge else edge.get("src")
+        dst = edge.get("target") if "target" in edge else edge.get("dst")
+        if src is None or dst is None or src == dst:
+            continue
+        adj_cfg.setdefault(src, []).append(dst)
+    return adj_cfg
+
+
+def _extract_state_vars_from_source_text(source_text: str) -> set[str]:
+    """从 Solidity 源码里回填合约级状态变量名。
+
+    这里采用保守启发式，只收集函数体之前的顶层声明行，适合当前
+    数据集里状态变量集中出现在 contract 开头的情况。
+    """
+    state_vars: set[str] = set()
+    if not source_text:
+        return state_vars
+
+    contract_body = source_text
+    if "{" in source_text:
+        contract_body = source_text.split("{", 1)[1]
+
+    head, _, _ = contract_body.partition("function ")
+    head = head.partition("modifier ")[0]
+    head = head.partition("event ")[0]
+
+    line_patterns = (
+        re.compile(r"^\s*(?:mapping\s*\([^;]+\)|(?:uint|int|bool|address|string|bytes(?:\d+)?)\b[\w\s\[\](),]*)\b(?:public|private|internal|external)?\s*(?P<name>[A-Za-z_]\w*)\s*(?:=|;)", re.IGNORECASE),
+        re.compile(r"^\s*(?P<name>[A-Za-z_]\w*)\s*=\s*[^;]+;\s*$"),
+    )
+
+    for raw_line in head.splitlines():
+        line = raw_line.split("//", 1)[0].strip()
+        if not line.endswith(";"):
+            continue
+        if "(" in line and "mapping" not in line.lower():
+            continue
+        for pattern in line_patterns:
+            match = pattern.match(line)
+            if match:
+                name = match.group("name").strip()
+                if name:
+                    state_vars.add(name.lower())
+                break
+
+    return state_vars
+
+
+def load_state_vars_from_source(slither_data: dict) -> set[str]:
+    """从 *_hetero.json 的 source_path / source_text 回填状态变量。"""
+    candidates: list[str] = []
+    meta = slither_data.get("meta") if isinstance(slither_data, dict) else None
+    if isinstance(meta, dict):
+        for key in ("source_text", "source_code", "source"):
+            value = meta.get(key)
+            if isinstance(value, str) and value.strip():
+                candidates.append(value)
+
+        source_path = meta.get("source_path")
+        if isinstance(source_path, str) and source_path.strip():
+            try:
+                source_file = Path(source_path)
+                if source_file.exists():
+                    candidates.append(source_file.read_text(encoding="utf-8", errors="ignore"))
+            except OSError:
+                pass
+
+    for text in candidates:
+        state_vars = _extract_state_vars_from_source_text(text)
+        if state_vars:
+            return state_vars
+    return set()
+
+
 # ---------------------------------------------------------------------------
 # 公共正则(模块级编译,全函数复用)
 # ---------------------------------------------------------------------------
@@ -220,7 +408,7 @@ _RE_TIMESTAMP = re.compile(r"\bblock\.timestamp\b|\bnow\b", re.IGNORECASE)
 
 # front_running:提取赋值 LHS(排除比较 ==)
 _RE_ASSIGN_LHS = re.compile(
-    r"^(?P<lhs>[A-Za-z_][\w.\[\]]*)\s*=(?!=)",
+    r"^(?P<lhs>[A-Za-z_][\w.\[\]]*)\s*(?:<<=|>>=|\+=|-=|\*=|/=|%=|&=|\|=|\^=|=(?!=))",
 )
 
 # uncheck_return:bool 消费检测
@@ -558,6 +746,8 @@ def is_anchor_front_running(
     rhs = expr[m.end():].strip()
     if _RE_TIMESTAMP.search(rhs):
         return False
+    if re.fullmatch(r"(?:true|false)", rhs, re.IGNORECASE):
+        return False
 
     # 步骤 4:命中判断
     if ctx.state_vars:
@@ -708,3 +898,53 @@ def compute_anchor_score(
 def detect_all_anchors(ctx: GraphContext) -> dict[Any, dict[str, bool]]:
     """对 ctx 中所有节点批量检测锚点,返回 {node_id: flags_dict}。"""
     return {nid: compute_anchor_flags(nid, ctx) for nid in ctx.nodes}
+
+
+# ---------------------------------------------------------------------------
+# 互斥仲裁层
+# ---------------------------------------------------------------------------
+
+# 互斥输出的优先级:越靠前越优先保留。
+# 规则原则:
+#   1) 先保留时序/状态写入类的更具体命中;
+#   2) 再保留外部调用类命中;
+#   3) 最后保留图结构类命中。
+EXCLUSIVE_RULE_PRIORITY: tuple[str, ...] = (
+    "time_manipulation",
+    "arithmetic",
+    "front_running",
+    "reentrancy",
+    "access_control",
+    "uncheck_return",
+    "dos",
+)
+
+
+def resolve_anchor_label(flags: dict[str, bool]) -> str | None:
+    """把七类布尔命中仲裁成单一标签。
+
+    说明:
+    - 保留原始 compute_anchor_flags 作为多标签诊断结果。
+    - 下游训练/统计若要求互斥标签,使用本函数的结果。
+    """
+    for label in EXCLUSIVE_RULE_PRIORITY:
+        if flags.get(label):
+            return label
+    return None
+
+
+def compute_anchor_flags_exclusive(
+    node_id: Any,
+    ctx: GraphContext,
+) -> dict[str, bool]:
+    """生成单标签互斥版 flags:每个节点最多保留一个 True。"""
+    raw_flags = compute_anchor_flags(node_id, ctx)
+    winner = resolve_anchor_label(raw_flags)
+    if winner is None:
+        return {name: False for name in VULN_CLASSES}
+    return {name: (name == winner) for name in VULN_CLASSES}
+
+
+def detect_all_anchors_exclusive(ctx: GraphContext) -> dict[Any, dict[str, bool]]:
+    """批量生成互斥版锚点标注。"""
+    return {nid: compute_anchor_flags_exclusive(nid, ctx) for nid in ctx.nodes}

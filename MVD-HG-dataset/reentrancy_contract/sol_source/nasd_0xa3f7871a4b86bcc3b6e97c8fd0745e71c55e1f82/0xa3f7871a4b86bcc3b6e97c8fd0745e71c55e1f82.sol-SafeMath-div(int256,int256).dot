@@ -1,0 +1,43 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(b != 0)
+
+IRs:
+TMP_19(bool) = b != 0
+TMP_20(None) = SOLIDITY_CALL require(bool)(TMP_19)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(! (b == - 1 && a == INT256_MIN))
+
+IRs:
+TMP_21(uint256) = 0 - 1
+TMP_22(bool) = b == TMP_21
+TMP_23(bool) = a == INT256_MIN
+TMP_24(bool) = TMP_22 && TMP_23
+TMP_25 = UnaryType.BANG TMP_24 
+TMP_26(None) = SOLIDITY_CALL require(bool)(TMP_25)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+c = a / b
+
+IRs:
+TMP_27(int256) = a / b
+c(int256) := TMP_27(int256)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+c
+
+IRs:
+RETURN c"];
+}

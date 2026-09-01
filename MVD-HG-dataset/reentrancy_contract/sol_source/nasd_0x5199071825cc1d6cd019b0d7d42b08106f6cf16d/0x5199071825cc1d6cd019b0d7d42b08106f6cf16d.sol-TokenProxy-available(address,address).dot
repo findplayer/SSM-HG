@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+Math.min256(TokenInteract.allowance(token,who,address(this)),TokenInteract.balanceOf(token,who))
+
+IRs:
+TMP_88 = CONVERT this to address
+TMP_89(uint256) = LIBRARY_CALL, dest:TokenInteract, function:TokenInteract.allowance(address,address,address), arguments:['token', 'who', 'TMP_88'] 
+TMP_90(uint256) = LIBRARY_CALL, dest:TokenInteract, function:TokenInteract.balanceOf(address,address), arguments:['token', 'who'] 
+TMP_91(uint256) = LIBRARY_CALL, dest:Math, function:Math.min256(uint256,uint256), arguments:['TMP_89', 'TMP_90'] 
+RETURN TMP_91"];
+}

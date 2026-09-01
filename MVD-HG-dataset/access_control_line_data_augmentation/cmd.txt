@@ -1,0 +1,9 @@
+python main.py --run_mode create --train_mode contract_classification --create_corpus_mode create_corpus_txt --data_dir_name access_control_line_data_augmentation --attack_type_name access_control --data_augmentation
+
+删除hash
+手动修改所有带有raw和sol关键字的文件名字以及文件标签
+nohup python main.py -u --run_mode create --train_mode contract_classification --create_corpus_mode create_corpus_txt --data_dir_name access_control_line_data_augmentation --attack_type_name access_control > access_control_line_data_augmentation/log 2>&1 &
+
+nohup python main.py -u --run_mode create --train_mode contract_classification --create_corpus_mode generate_all --data_dir_name access_control_line_data_augmentation --attack_type_name access_control > access_control_line_data_augmentation/log 2>&1 &
+
+nohup python main.py -u --run_mode contract_classification_train --train_mode contract_classification --create_corpus_mode no --data_dir_name access_control_line_data_augmentation --attack_type_name access_control --gpu_id 0 > access_control_line_data_augmentation/log 2>&1 &

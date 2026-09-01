@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(isBurner(msg.sender))
+
+IRs:
+TMP_404(bool) = INTERNAL_CALL, BurnerRole.isBurner(address)(msg.sender)
+TMP_405(None) = SOLIDITY_CALL require(bool)(TMP_404)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

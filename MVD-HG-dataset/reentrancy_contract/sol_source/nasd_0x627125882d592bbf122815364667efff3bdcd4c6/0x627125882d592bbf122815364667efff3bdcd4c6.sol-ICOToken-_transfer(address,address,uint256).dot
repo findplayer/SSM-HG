@@ -1,0 +1,105 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(from != address(0x0),Cannot send tokens from null address)
+
+IRs:
+TMP_87 = CONVERT 0 to address
+TMP_88(bool) = from != TMP_87
+TMP_89(None) = SOLIDITY_CALL require(bool,string)(TMP_88,Cannot send tokens from null address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(to != address(0x0),Cannot transfer tokens to null)
+
+IRs:
+TMP_90 = CONVERT 0 to address
+TMP_91(bool) = to != TMP_90
+TMP_92(None) = SOLIDITY_CALL require(bool,string)(TMP_91,Cannot transfer tokens to null)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(balances[from] >= value,Insufficient funds)
+
+IRs:
+REF_39(uint256) -> balances[from]
+TMP_93(bool) = REF_39 >= value
+TMP_94(None) = SOLIDITY_CALL require(bool,string)(TMP_93,Insufficient funds)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+value == 0
+
+IRs:
+TMP_95(bool) = value == 0
+CONDITION TMP_95"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+balances[from] = balances[from].sub(value)
+
+IRs:
+REF_40(uint256) -> balances[from]
+REF_41(uint256) -> balances[from]
+TMP_96(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_41', 'value'] 
+REF_40(uint256) (->balances) := TMP_96(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+balances[to] = balances[to].add(value)
+
+IRs:
+REF_43(uint256) -> balances[to]
+REF_44(uint256) -> balances[to]
+TMP_97(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_44', 'value'] 
+REF_43(uint256) (->balances) := TMP_97(uint256)"];
+8->9;
+9[label="Node Type: IF 9
+
+EXPRESSION:
+to == owner
+
+IRs:
+TMP_98(bool) = to == owner
+CONDITION TMP_98"];
+9->10[label="True"];
+9->11[label="False"];
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+_burn(to,value)
+
+IRs:
+TMP_99(bool) = INTERNAL_CALL, ICOToken._burn(address,uint256)(to,value)"];
+10->11;
+11[label="Node Type: END_IF 11
+"];
+11->12;
+12[label="Node Type: RETURN 12
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

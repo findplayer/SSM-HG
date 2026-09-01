@@ -1,0 +1,15 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+investments[_investor][_index].redeemed
+
+IRs:
+REF_35(Investing.Investor[]) -> investments[_investor]
+REF_36(Investing.Investor) -> REF_35[_index]
+REF_37(bool) -> REF_36.redeemed
+RETURN REF_37"];
+}

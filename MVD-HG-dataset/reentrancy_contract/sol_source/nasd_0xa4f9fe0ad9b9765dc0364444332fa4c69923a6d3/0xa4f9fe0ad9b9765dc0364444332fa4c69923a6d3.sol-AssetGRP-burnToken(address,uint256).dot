@@ -1,0 +1,48 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balances[_target] = SafeMath.sub(balances[_target],_burnedAmount)
+
+IRs:
+REF_60(uint256) -> balances[_target]
+REF_62(uint256) -> balances[_target]
+TMP_79(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_62', '_burnedAmount'] 
+REF_60(uint256) (->balances) := TMP_79(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+totalSupply = SafeMath.sub(totalSupply,_burnedAmount)
+
+IRs:
+TMP_80(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['totalSupply', '_burnedAmount'] 
+totalSupply(uint256) := TMP_80(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Burned(_target,_burnedAmount)
+
+IRs:
+Emit Burned(_target,_burnedAmount)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyAdmin(2)
+
+IRs:
+MODIFIER_CALL, admined.onlyAdmin(uint8)(2)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+supplyLock()
+
+IRs:
+MODIFIER_CALL, admined.supplyLock()()"];
+5->1;
+}

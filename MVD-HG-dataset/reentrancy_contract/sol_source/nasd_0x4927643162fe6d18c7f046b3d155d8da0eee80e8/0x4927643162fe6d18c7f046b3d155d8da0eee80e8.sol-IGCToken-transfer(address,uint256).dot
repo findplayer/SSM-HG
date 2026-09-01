@@ -1,0 +1,37 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+_canTransfer(msg.sender,value)
+
+IRs:
+TMP_92(bool) = INTERNAL_CALL, IGCToken._canTransfer(address,uint256)(msg.sender,value)
+CONDITION TMP_92"];
+1->2[label="True"];
+1->4[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_transfer(msg.sender,to,value)
+
+IRs:
+INTERNAL_CALL, IGCToken._transfer(address,address,uint256)(msg.sender,to,value)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+}

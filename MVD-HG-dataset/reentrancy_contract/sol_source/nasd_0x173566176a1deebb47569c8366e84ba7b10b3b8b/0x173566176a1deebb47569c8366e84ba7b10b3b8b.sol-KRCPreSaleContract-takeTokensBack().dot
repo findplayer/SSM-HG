@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+remainingTokensInTheContract = token.balanceOf(address(this))
+
+IRs:
+TMP_112 = CONVERT this to address
+TMP_113(uint256) = HIGH_LEVEL_CALL, dest:token(TokenInterface), function:balanceOf, arguments:['TMP_112']  
+remainingTokensInTheContract(uint256) := TMP_113(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+token.transfer(owner,remainingTokensInTheContract)
+
+IRs:
+TMP_114(bool) = HIGH_LEVEL_CALL, dest:token(TokenInterface), function:transfer, arguments:['owner', 'remainingTokensInTheContract']  "];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+3->1;
+}

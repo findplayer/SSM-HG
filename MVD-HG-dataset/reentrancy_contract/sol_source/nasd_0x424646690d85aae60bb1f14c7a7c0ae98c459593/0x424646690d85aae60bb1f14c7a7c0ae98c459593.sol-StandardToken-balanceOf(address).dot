@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+balanceOf[_owner]
+
+IRs:
+REF_7(uint256) -> balanceOf[_owner]
+RETURN REF_7"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+validAddress(_owner)
+
+IRs:
+MODIFIER_CALL, Utils.validAddress(address)(_owner)"];
+2->1;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+balance
+
+IRs:
+RETURN balance"];
+}

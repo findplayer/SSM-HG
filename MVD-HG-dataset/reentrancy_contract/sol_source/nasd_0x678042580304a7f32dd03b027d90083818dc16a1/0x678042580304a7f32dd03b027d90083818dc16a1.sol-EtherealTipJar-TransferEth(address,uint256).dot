@@ -1,0 +1,51 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(this.balance >= value)
+
+IRs:
+REF_0(uint256) = SOLIDITY_CALL balance(address)(this)
+TMP_11(bool) = REF_0 >= value
+TMP_12(None) = SOLIDITY_CALL require(bool)(TMP_11)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+value > 0
+
+IRs:
+TMP_13(bool) = value > 0
+CONDITION TMP_13"];
+2->3[label="True"];
+2->5[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+to.transfer(value)
+
+IRs:
+Transfer dest:to value:value"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+TransferedEth(to,value)
+
+IRs:
+Emit TransferedEth(to,value)"];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, EtherealFoundationOwned.onlyOwner()()"];
+6->1;
+}

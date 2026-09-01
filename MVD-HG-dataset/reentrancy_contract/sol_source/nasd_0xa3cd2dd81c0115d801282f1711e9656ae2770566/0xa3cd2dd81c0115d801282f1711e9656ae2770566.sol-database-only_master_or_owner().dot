@@ -1,0 +1,18 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(masters[msg.sender] || owners[msg.sender])
+
+IRs:
+REF_48(bool) -> masters[msg.sender]
+REF_49(bool) -> owners[msg.sender]
+TMP_60(bool) = REF_48 || REF_49
+TMP_61(None) = SOLIDITY_CALL require(bool)(TMP_60)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

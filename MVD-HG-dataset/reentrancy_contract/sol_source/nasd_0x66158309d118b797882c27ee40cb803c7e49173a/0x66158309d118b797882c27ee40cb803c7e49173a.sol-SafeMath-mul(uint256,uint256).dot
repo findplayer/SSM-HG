@@ -1,0 +1,33 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+c = a * b
+
+IRs:
+TMP_30(uint256) = a * b
+c(uint256) := TMP_30(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(a == 0 || c / a == b)
+
+IRs:
+TMP_31(bool) = a == 0
+TMP_32(uint256) = c / a
+TMP_33(bool) = TMP_32 == b
+TMP_34(bool) = TMP_31 || TMP_33
+TMP_35(None) = SOLIDITY_CALL require(bool)(TMP_34)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+c
+
+IRs:
+RETURN c"];
+}

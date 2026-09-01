@@ -1,0 +1,79 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balances[from] -= amount
+
+IRs:
+REF_8(uint256) -> balances[from]
+REF_8(-> balances) = REF_8 - amount"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[to] += amount
+
+IRs:
+REF_9(uint256) -> balances[to]
+REF_9(-> balances) = REF_9 + amount"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+ownerAllowances[from][msg.sender] = amount
+
+IRs:
+REF_10(mapping(address => uint256)) -> ownerAllowances[from]
+REF_11(uint256) -> REF_10[msg.sender]
+REF_11(uint256) (->ownerAllowances) := amount(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Transfer(from,to,amount)
+
+IRs:
+Emit Transfer(from,to,amount)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+hasEnoughBalance(from,amount)
+
+IRs:
+MODIFIER_CALL, CoquinhoERC20.hasEnoughBalance(address,uint256)(from,amount)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+isAllowed(msg.sender,from,amount)
+
+IRs:
+MODIFIER_CALL, CoquinhoERC20.isAllowed(address,address,uint256)(msg.sender,from,amount)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+tokenAmountValid(amount)
+
+IRs:
+MODIFIER_CALL, CoquinhoERC20.tokenAmountValid(uint256)(amount)"];
+8->1;
+9[label="Node Type: RETURN 9
+
+EXPRESSION:
+status
+
+IRs:
+RETURN status"];
+}

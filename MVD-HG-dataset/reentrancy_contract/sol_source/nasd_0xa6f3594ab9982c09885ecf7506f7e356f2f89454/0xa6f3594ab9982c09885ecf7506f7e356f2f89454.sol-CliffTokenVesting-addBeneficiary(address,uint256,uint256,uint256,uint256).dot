@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(amount != 0 && start != 0 && account != address(0x0) && cliff < duration && beneficiary[account].start == 0)
+
+IRs:
+TMP_25(bool) = amount != 0
+TMP_26(bool) = start != 0
+TMP_27(bool) = TMP_25 && TMP_26
+TMP_28 = CONVERT 0 to address
+TMP_29(bool) = account != TMP_28
+TMP_30(bool) = TMP_27 && TMP_29
+TMP_31(bool) = cliff < duration
+TMP_32(bool) = TMP_30 && TMP_31
+REF_14(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_15(uint256) -> REF_14.start
+TMP_33(bool) = REF_15 == 0
+TMP_34(bool) = TMP_32 && TMP_33
+TMP_35(None) = SOLIDITY_CALL require(bool)(TMP_34)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(token.transferFrom(msg.sender,address(this),amount))
+
+IRs:
+TMP_36 = CONVERT this to address
+TMP_37(bool) = HIGH_LEVEL_CALL, dest:token(ERC20TokenInterface), function:transferFrom, arguments:['msg.sender', 'TMP_36', 'amount']  
+TMP_38(None) = SOLIDITY_CALL require(bool)(TMP_37)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+beneficiary[account] = Beneficiary({start:start,duration:duration,cliff:start.add(cliff),totalAmount:amount,releasedAmount:0})
+
+IRs:
+REF_17(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+TMP_39(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['start', 'cliff'] 
+TMP_40(CliffTokenVesting.Beneficiary) = new Beneficiary(start,duration,TMP_39,amount,0)
+REF_17(CliffTokenVesting.Beneficiary) (->beneficiary) := TMP_40(CliffTokenVesting.Beneficiary)"];
+}

@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+owner = msg.sender
+
+IRs:
+owner(address) := msg.sender(address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+tokenCount = _tokenCount
+
+IRs:
+tokenCount(uint256) := _tokenCount(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+accounts[msg.sender] = _tokenCount
+
+IRs:
+REF_34(uint256) -> accounts[msg.sender]
+REF_34(uint256) (->accounts) := _tokenCount(uint256)"];
+}

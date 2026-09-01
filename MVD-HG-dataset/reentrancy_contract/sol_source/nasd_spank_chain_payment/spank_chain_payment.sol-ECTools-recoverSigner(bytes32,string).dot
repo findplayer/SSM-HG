@@ -1,0 +1,132 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_hashedMsg != 0x00)
+
+IRs:
+TMP_0(bool) = _hashedMsg != 0
+TMP_1(None) = SOLIDITY_CALL require(bool)(TMP_0)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+prefix = Ethereum Signed Message:
+32
+
+IRs:
+prefix(bytes) := Ethereum Signed Message:
+32(string)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+prefixedHash = keccak256()(abi.encodePacked(prefix,_hashedMsg))
+
+IRs:
+TMP_2(bytes) = SOLIDITY_CALL abi.encodePacked()(prefix,_hashedMsg)
+TMP_3(bytes32) = SOLIDITY_CALL keccak256()(TMP_2)
+prefixedHash(bytes32) := TMP_3(bytes32)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+bytes(_sig).length != 132
+
+IRs:
+TMP_4 = CONVERT _sig to bytes
+REF_1 -> LENGTH TMP_4
+TMP_5(bool) = REF_1 != 132
+CONDITION TMP_5"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+0x0
+
+IRs:
+RETURN 0"];
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+
+EXPRESSION:
+sig = hexstrToBytes(substring(_sig,2,132))
+
+IRs:
+TMP_6(string) = INTERNAL_CALL, ECTools.substring(string,uint256,uint256)(_sig,2,132)
+TMP_7(bytes) = INTERNAL_CALL, ECTools.hexstrToBytes(string)(TMP_6)
+sig(bytes) := TMP_7(bytes)"];
+10->11;
+11[label="Node Type: INLINE ASM 11
+"];
+11->12;
+12[label="Node Type: END INLINE ASM 12
+"];
+12->13;
+13[label="Node Type: IF 13
+
+EXPRESSION:
+v < 27
+
+IRs:
+TMP_8(bool) = v < 27
+CONDITION TMP_8"];
+13->14[label="True"];
+13->15[label="False"];
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+v += 27
+
+IRs:
+v(uint8) = v + 27"];
+14->15;
+15[label="Node Type: END_IF 15
+"];
+15->16;
+16[label="Node Type: IF 16
+
+EXPRESSION:
+v < 27 || v > 28
+
+IRs:
+TMP_9(bool) = v < 27
+TMP_10(bool) = v > 28
+TMP_11(bool) = TMP_9 || TMP_10
+CONDITION TMP_11"];
+16->17[label="True"];
+16->18[label="False"];
+17[label="Node Type: RETURN 17
+
+EXPRESSION:
+0x0
+
+IRs:
+RETURN 0"];
+18[label="Node Type: END_IF 18
+"];
+18->19;
+19[label="Node Type: RETURN 19
+
+EXPRESSION:
+ecrecover(bytes32,uint8,bytes32,bytes32)(prefixedHash,v,r,s)
+
+IRs:
+TMP_12(address) = SOLIDITY_CALL ecrecover(bytes32,uint8,bytes32,bytes32)(prefixedHash,v,r,s)
+RETURN TMP_12"];
+}

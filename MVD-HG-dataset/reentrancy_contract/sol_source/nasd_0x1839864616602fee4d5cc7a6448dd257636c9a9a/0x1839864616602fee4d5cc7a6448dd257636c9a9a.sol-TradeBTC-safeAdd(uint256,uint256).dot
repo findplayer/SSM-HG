@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(x <= MAX_UINT256 - y)
+
+IRs:
+TMP_74(uint256) = MAX_UINT256 - y
+TMP_75(bool) = x <= TMP_74
+TMP_76(None) = SOLIDITY_CALL require(bool)(TMP_75)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+x + y
+
+IRs:
+TMP_77(uint256) = x + y
+RETURN TMP_77"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+z
+
+IRs:
+RETURN z"];
+}

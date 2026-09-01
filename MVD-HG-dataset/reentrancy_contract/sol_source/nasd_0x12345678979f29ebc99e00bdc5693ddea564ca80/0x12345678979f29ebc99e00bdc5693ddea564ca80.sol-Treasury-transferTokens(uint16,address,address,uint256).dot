@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+resetEmergencyRelease(fromAddr)
+
+IRs:
+INTERNAL_CALL, Treasury.resetEmergencyRelease(address)(fromAddr)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+deductBalance(tokenCode,fromAddr,amount)
+
+IRs:
+INTERNAL_CALL, Treasury.deductBalance(uint256,address,uint256)(tokenCode,fromAddr,amount)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+addBalance(tokenCode,toAddr,amount)
+
+IRs:
+INTERNAL_CALL, Treasury.addBalance(uint256,address,uint256)(tokenCode,toAddr,amount)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyActive()
+
+IRs:
+MODIFIER_CALL, Treasury.onlyActive()()"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyApprovedExchange(fromAddr)
+
+IRs:
+MODIFIER_CALL, AccessModifiers.onlyApprovedExchange(address)(fromAddr)"];
+5->1;
+}

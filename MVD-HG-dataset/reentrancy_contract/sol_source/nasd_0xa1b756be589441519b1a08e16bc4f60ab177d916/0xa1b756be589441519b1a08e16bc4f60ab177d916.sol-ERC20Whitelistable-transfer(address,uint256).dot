@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+super.transfer(to,value)
+
+IRs:
+TMP_322(bool) = INTERNAL_CALL, ERC20.transfer(address,uint256)(to,value)
+RETURN TMP_322"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyWhitelisted(msg.sender)
+
+IRs:
+MODIFIER_CALL, ERC20Whitelistable.onlyWhitelisted(address)(msg.sender)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyWhitelisted(to)
+
+IRs:
+MODIFIER_CALL, ERC20Whitelistable.onlyWhitelisted(address)(to)"];
+3->1;
+}

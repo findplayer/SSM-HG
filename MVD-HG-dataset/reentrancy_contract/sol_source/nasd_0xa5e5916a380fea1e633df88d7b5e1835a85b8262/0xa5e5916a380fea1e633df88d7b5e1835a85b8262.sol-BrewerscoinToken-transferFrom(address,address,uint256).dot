@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(tokenAmount <= allowance[from][msg.sender],NOT_ENOUGH_ALLOWANCE)
+
+IRs:
+REF_6(mapping(address => uint256)) -> allowance[from]
+REF_7(uint256) -> REF_6[msg.sender]
+TMP_22(bool) = tokenAmount <= REF_7
+TMP_23(None) = SOLIDITY_CALL require(bool,string)(TMP_22,NOT_ENOUGH_ALLOWANCE)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_transfer(from,to,tokenAmount)
+
+IRs:
+INTERNAL_CALL, BrewerscoinToken._transfer(address,address,uint256)(from,to,tokenAmount)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+allowance[from][msg.sender] = allowance[from][msg.sender].sub(tokenAmount)
+
+IRs:
+REF_8(mapping(address => uint256)) -> allowance[from]
+REF_9(uint256) -> REF_8[msg.sender]
+REF_10(mapping(address => uint256)) -> allowance[from]
+REF_11(uint256) -> REF_10[msg.sender]
+TMP_25(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_11', 'tokenAmount'] 
+REF_9(uint256) (->allowance) := TMP_25(uint256)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_exchangeContractVersion > 1,First version doesn't need approval.)
+
+IRs:
+TMP_23(bool) = _exchangeContractVersion > 1
+TMP_24(None) = SOLIDITY_CALL require(bool,string)(TMP_23,First version doesn't need approval.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(_exchangeContractVersion == exchangeContractVersion,Can only approve the latest version.)
+
+IRs:
+TMP_25(bool) = _exchangeContractVersion == exchangeContractVersion
+TMP_26(None) = SOLIDITY_CALL require(bool,string)(TMP_25,Can only approve the latest version.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+traderApprovals[msg.sender] = _exchangeContractVersion
+
+IRs:
+REF_2(uint256) -> traderApprovals[msg.sender]
+REF_2(uint256) (->traderApprovals) := _exchangeContractVersion(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+TraderApproveContract(msg.sender,_exchangeContractVersion)
+
+IRs:
+Emit TraderApproveContract(msg.sender,_exchangeContractVersion)"];
+}

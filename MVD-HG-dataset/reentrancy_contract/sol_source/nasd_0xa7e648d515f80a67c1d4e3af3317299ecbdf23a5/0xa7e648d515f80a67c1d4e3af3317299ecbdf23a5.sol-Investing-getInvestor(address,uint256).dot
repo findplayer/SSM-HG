@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+(investments[_investor][_index].currency,investments[_investor][_index].rate,investments[_investor][_index].amount,investments[_investor][_index].redeemed,investments[_investor][_index].timestamp,investments[_investor][_index].tokens)
+
+IRs:
+REF_17(Investing.Investor[]) -> investments[_investor]
+REF_18(Investing.Investor) -> REF_17[_index]
+REF_19(string) -> REF_18.currency
+REF_20(Investing.Investor[]) -> investments[_investor]
+REF_21(Investing.Investor) -> REF_20[_index]
+REF_22(uint256) -> REF_21.rate
+REF_23(Investing.Investor[]) -> investments[_investor]
+REF_24(Investing.Investor) -> REF_23[_index]
+REF_25(uint256) -> REF_24.amount
+REF_26(Investing.Investor[]) -> investments[_investor]
+REF_27(Investing.Investor) -> REF_26[_index]
+REF_28(bool) -> REF_27.redeemed
+REF_29(Investing.Investor[]) -> investments[_investor]
+REF_30(Investing.Investor) -> REF_29[_index]
+REF_31(uint256) -> REF_30.timestamp
+REF_32(Investing.Investor[]) -> investments[_investor]
+REF_33(Investing.Investor) -> REF_32[_index]
+REF_34(uint256) -> REF_33.tokens
+RETURN REF_19,REF_22,REF_25,REF_28,REF_31,REF_34"];
+}

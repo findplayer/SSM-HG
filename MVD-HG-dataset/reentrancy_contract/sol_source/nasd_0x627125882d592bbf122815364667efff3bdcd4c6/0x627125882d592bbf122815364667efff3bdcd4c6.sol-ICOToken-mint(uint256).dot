@@ -1,0 +1,49 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(value > 0,Tokens to mint must be greater than zero)
+
+IRs:
+TMP_100(bool) = value > 0
+TMP_101(None) = SOLIDITY_CALL require(bool,string)(TMP_100,Tokens to mint must be greater than zero)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[owner] = balances[owner].add(value)
+
+IRs:
+REF_46(uint256) -> balances[owner]
+REF_47(uint256) -> balances[owner]
+TMP_102(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_47', 'value'] 
+REF_46(uint256) (->balances) := TMP_102(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+totalSupply_ = totalSupply_.add(value)
+
+IRs:
+TMP_103(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['totalSupply_', 'value'] 
+totalSupply_(uint256) := TMP_103(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Mint(msg.sender,value)
+
+IRs:
+Emit Mint(msg.sender,value)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyIssuer()
+
+IRs:
+MODIFIER_CALL, ICOToken.onlyIssuer()()"];
+5->1;
+}

@@ -1,0 +1,56 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+_spender = tokenRecipient(spender)
+
+IRs:
+TMP_35 = CONVERT spender to tokenRecipient
+_spender(tokenRecipient) := TMP_35(tokenRecipient)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+_approve(spender,tokenAmount)
+
+IRs:
+TMP_36(bool) = INTERNAL_CALL, BrewerscoinToken._approve(address,uint256)(spender,tokenAmount)
+CONDITION TMP_36"];
+2->3[label="True"];
+2->5[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_spender.receiveApproval(msg.sender,tokenAmount,this,extraData)
+
+IRs:
+HIGH_LEVEL_CALL, dest:_spender(tokenRecipient), function:receiveApproval, arguments:['msg.sender', 'tokenAmount', 'this', 'extraData']  "];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

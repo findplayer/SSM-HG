@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+tkn = ethToTokens(1000000000000000000)
+
+IRs:
+TMP_21(uint256) = INTERNAL_CALL, Exchange.ethToTokens(uint256)(1000000000000000000)
+tkn(uint256) := TMP_21(uint256)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+tkn
+
+IRs:
+RETURN tkn"];
+}

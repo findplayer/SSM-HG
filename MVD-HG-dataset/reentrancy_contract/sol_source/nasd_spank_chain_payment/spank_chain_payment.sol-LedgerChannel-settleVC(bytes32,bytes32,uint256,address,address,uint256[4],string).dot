@@ -1,0 +1,214 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].isOpen,LC is closed.)
+
+IRs:
+REF_381(LedgerChannel.Channel) -> Channels[_lcID]
+REF_382(bool) -> REF_381.isOpen
+TMP_252(None) = SOLIDITY_CALL require(bool,string)(REF_382,LC is closed.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(! virtualChannels[_vcID].isClose,VC is closed.)
+
+IRs:
+REF_383(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_384(bool) -> REF_383.isClose
+TMP_253 = UnaryType.BANG REF_384 
+TMP_254(None) = SOLIDITY_CALL require(bool,string)(TMP_253,VC is closed.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(virtualChannels[_vcID].sequence < updateSeq,VC sequence is higher than update sequence.)
+
+IRs:
+REF_385(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_386(uint256) -> REF_385.sequence
+TMP_255(bool) = REF_386 < updateSeq
+TMP_256(None) = SOLIDITY_CALL require(bool,string)(TMP_255,VC sequence is higher than update sequence.)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool,string)(virtualChannels[_vcID].ethBalances[1] < updateBal[1] && virtualChannels[_vcID].erc20Balances[1] < updateBal[3],State updates may only increase recipient balance.)
+
+IRs:
+REF_387(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_388(uint256[2]) -> REF_387.ethBalances
+REF_389(uint256) -> REF_388[1]
+REF_390(uint256) -> updateBal[1]
+TMP_257(bool) = REF_389 < REF_390
+REF_391(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_392(uint256[2]) -> REF_391.erc20Balances
+REF_393(uint256) -> REF_392[1]
+REF_394(uint256) -> updateBal[3]
+TMP_258(bool) = REF_393 < REF_394
+TMP_259(bool) = TMP_257 && TMP_258
+TMP_260(None) = SOLIDITY_CALL require(bool,string)(TMP_259,State updates may only increase recipient balance.)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool,string)(virtualChannels[_vcID].bond[0] == updateBal[0] + updateBal[1] && virtualChannels[_vcID].bond[1] == updateBal[2] + updateBal[3],Incorrect balances for bonded amount)
+
+IRs:
+REF_395(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_396(uint256[2]) -> REF_395.bond
+REF_397(uint256) -> REF_396[0]
+REF_398(uint256) -> updateBal[0]
+REF_399(uint256) -> updateBal[1]
+TMP_261(uint256) = REF_398 + REF_399
+TMP_262(bool) = REF_397 == TMP_261
+REF_400(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_401(uint256[2]) -> REF_400.bond
+REF_402(uint256) -> REF_401[1]
+REF_403(uint256) -> updateBal[2]
+REF_404(uint256) -> updateBal[3]
+TMP_263(uint256) = REF_403 + REF_404
+TMP_264(bool) = REF_402 == TMP_263
+TMP_265(bool) = TMP_262 && TMP_264
+TMP_266(None) = SOLIDITY_CALL require(bool,string)(TMP_265,Incorrect balances for bonded amount)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+require(bool)(Channels[_lcID].updateLCtimeout < now)
+
+IRs:
+REF_405(LedgerChannel.Channel) -> Channels[_lcID]
+REF_406(uint256) -> REF_405.updateLCtimeout
+TMP_267(bool) = REF_406 < now
+TMP_268(None) = SOLIDITY_CALL require(bool)(TMP_267)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+_updateState = keccak256()(abi.encodePacked(_vcID,updateSeq,_partyA,_partyB,virtualChannels[_vcID].bond[0],virtualChannels[_vcID].bond[1],updateBal[0],updateBal[1],updateBal[2],updateBal[3]))
+
+IRs:
+REF_408(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_409(uint256[2]) -> REF_408.bond
+REF_410(uint256) -> REF_409[0]
+REF_411(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_412(uint256[2]) -> REF_411.bond
+REF_413(uint256) -> REF_412[1]
+REF_414(uint256) -> updateBal[0]
+REF_415(uint256) -> updateBal[1]
+REF_416(uint256) -> updateBal[2]
+REF_417(uint256) -> updateBal[3]
+TMP_269(bytes) = SOLIDITY_CALL abi.encodePacked()(_vcID,updateSeq,_partyA,_partyB,REF_410,REF_413,REF_414,REF_415,REF_416,REF_417)
+TMP_270(bytes32) = SOLIDITY_CALL keccak256()(TMP_269)
+_updateState(bytes32) := TMP_270(bytes32)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+require(bool)(virtualChannels[_vcID].partyA == ECTools.recoverSigner(_updateState,sigA))
+
+IRs:
+REF_418(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_419(address) -> REF_418.partyA
+TMP_271(address) = LIBRARY_CALL, dest:ECTools, function:ECTools.recoverSigner(bytes32,string), arguments:['_updateState', 'sigA'] 
+TMP_272(bool) = REF_419 == TMP_271
+TMP_273(None) = SOLIDITY_CALL require(bool)(TMP_272)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+virtualChannels[_vcID].challenger = msg.sender
+
+IRs:
+REF_421(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_422(address) -> REF_421.challenger
+REF_422(address) (->virtualChannels) := msg.sender(address)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+virtualChannels[_vcID].sequence = updateSeq
+
+IRs:
+REF_423(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_424(uint256) -> REF_423.sequence
+REF_424(uint256) (->virtualChannels) := updateSeq(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+virtualChannels[_vcID].ethBalances[0] = updateBal[0]
+
+IRs:
+REF_425(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_426(uint256[2]) -> REF_425.ethBalances
+REF_427(uint256) -> REF_426[0]
+REF_428(uint256) -> updateBal[0]
+REF_427(uint256) (->virtualChannels) := REF_428(uint256)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+virtualChannels[_vcID].ethBalances[1] = updateBal[1]
+
+IRs:
+REF_429(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_430(uint256[2]) -> REF_429.ethBalances
+REF_431(uint256) -> REF_430[1]
+REF_432(uint256) -> updateBal[1]
+REF_431(uint256) (->virtualChannels) := REF_432(uint256)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+virtualChannels[_vcID].erc20Balances[0] = updateBal[2]
+
+IRs:
+REF_433(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_434(uint256[2]) -> REF_433.erc20Balances
+REF_435(uint256) -> REF_434[0]
+REF_436(uint256) -> updateBal[2]
+REF_435(uint256) (->virtualChannels) := REF_436(uint256)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+virtualChannels[_vcID].erc20Balances[1] = updateBal[3]
+
+IRs:
+REF_437(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_438(uint256[2]) -> REF_437.erc20Balances
+REF_439(uint256) -> REF_438[1]
+REF_440(uint256) -> updateBal[3]
+REF_439(uint256) (->virtualChannels) := REF_440(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+virtualChannels[_vcID].updateVCtimeout = now + Channels[_lcID].confirmTime
+
+IRs:
+REF_441(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_442(uint256) -> REF_441.updateVCtimeout
+REF_443(LedgerChannel.Channel) -> Channels[_lcID]
+REF_444(uint256) -> REF_443.confirmTime
+TMP_274(uint256) = now + REF_444
+REF_442(uint256) (->virtualChannels) := TMP_274(uint256)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+DidVCSettle(_lcID,_vcID,updateSeq,updateBal[0],updateBal[1],msg.sender,virtualChannels[_vcID].updateVCtimeout)
+
+IRs:
+REF_445(uint256) -> updateBal[0]
+REF_446(uint256) -> updateBal[1]
+REF_447(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_448(uint256) -> REF_447.updateVCtimeout
+Emit DidVCSettle(_lcID,_vcID,updateSeq,REF_445,REF_446,msg.sender,REF_448)"];
+}

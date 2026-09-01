@@ -1,0 +1,17 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(! isWhitelisted(account))
+
+IRs:
+TMP_598(bool) = INTERNAL_CALL, ERC20Whitelistable.isWhitelisted(address)(account)
+TMP_599 = UnaryType.BANG TMP_598 
+TMP_600(None) = SOLIDITY_CALL require(bool)(TMP_599)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

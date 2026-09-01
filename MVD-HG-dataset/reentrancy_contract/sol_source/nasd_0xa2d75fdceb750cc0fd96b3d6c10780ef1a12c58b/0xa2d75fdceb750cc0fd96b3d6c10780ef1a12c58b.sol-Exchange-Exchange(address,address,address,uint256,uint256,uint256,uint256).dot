@@ -1,0 +1,56 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+baseToken = ERC20(_baseToken)
+
+IRs:
+TMP_63 = CONVERT _baseToken to ERC20
+baseToken(ERC20) := TMP_63(ERC20)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+dai = ERC20(_dai)
+
+IRs:
+TMP_64 = CONVERT _dai to ERC20
+dai(ERC20) := TMP_64(ERC20)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+addRole(_oracle,ROLE_ORACLE)
+
+IRs:
+INTERNAL_CALL, RBAC.addRole(address,string)(_oracle,ROLE_ORACLE)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+oracle = _oracle
+
+IRs:
+oracle(address) := _oracle(address)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+ethRate = R.Rational(_ethRateN,_ethRateD)
+
+IRs:
+TMP_66(R.Rational) = new Rational(_ethRateN,_ethRateD)
+ethRate(R.Rational) := TMP_66(R.Rational)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+daiRate = R.Rational(_daiRateN,_daiRateD)
+
+IRs:
+TMP_67(R.Rational) = new Rational(_daiRateN,_daiRateD)
+daiRate(R.Rational) := TMP_67(R.Rational)"];
+}

@@ -1,0 +1,51 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+balances[msg.sender] >= MinSum && balances[msg.sender] >= _am
+
+IRs:
+REF_2(uint256) -> balances[msg.sender]
+TMP_6(bool) = REF_2 >= MinSum
+REF_3(uint256) -> balances[msg.sender]
+TMP_7(bool) = REF_3 >= _am
+TMP_8(bool) = TMP_6 && TMP_7
+CONDITION TMP_8"];
+1->2[label="True"];
+1->6[label="False"];
+2[label="Node Type: IF 2
+
+EXPRESSION:
+msg.sender.call.value(_am)()
+
+IRs:
+TMP_10(bool) = LOW_LEVEL_CALL, dest:msg.sender, function:call, arguments:[] value:_am 
+CONDITION TMP_10"];
+2->3[label="True"];
+2->5[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[msg.sender] -= _am
+
+IRs:
+REF_6(uint256) -> balances[msg.sender]
+REF_6(-> balances) = REF_6 - _am"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Log.AddMessage(msg.sender,_am,Collect)
+
+IRs:
+HIGH_LEVEL_CALL, dest:Log(LogFile), function:AddMessage, arguments:['msg.sender', '_am', 'Collect']  "];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+}

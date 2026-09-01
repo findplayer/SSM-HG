@@ -1,0 +1,63 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+acc = Acc[msg.sender]
+
+IRs:
+REF_5(WALLET.Holder) -> Acc[msg.sender]
+acc(WALLET.Holder) := REF_5(WALLET.Holder)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+acc.balance >= MinSum && acc.balance >= _am && now > acc.unlockTime
+
+IRs:
+REF_6(uint256) -> acc.balance
+TMP_2(bool) = REF_6 >= MinSum
+REF_7(uint256) -> acc.balance
+TMP_3(bool) = REF_7 >= _am
+TMP_4(bool) = TMP_2 && TMP_3
+REF_8(uint256) -> acc.unlockTime
+TMP_5(bool) = now > REF_8
+TMP_6(bool) = TMP_4 && TMP_5
+CONDITION TMP_6"];
+2->3[label="True"];
+2->7[label="False"];
+3[label="Node Type: IF 3
+
+EXPRESSION:
+msg.sender.call.value(_am)()
+
+IRs:
+TMP_8(bool) = LOW_LEVEL_CALL, dest:msg.sender, function:call, arguments:[] value:_am 
+CONDITION TMP_8"];
+3->4[label="True"];
+3->6[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+acc.balance -= _am
+
+IRs:
+REF_11(uint256) -> acc.balance
+REF_11(-> acc) = REF_11 - _am"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+LogFile.AddMessage(msg.sender,_am,Collect)
+
+IRs:
+HIGH_LEVEL_CALL, dest:LogFile(Log), function:AddMessage, arguments:['msg.sender', '_am', 'Collect']  "];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+}

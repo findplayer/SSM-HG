@@ -1,0 +1,34 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+uses = db.get_num_of_uses(msg.sender)
+
+IRs:
+TMP_290(uint8) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_num_of_uses(address,address), arguments:['db', 'msg.sender'] 
+uses(uint8) := TMP_290(uint8)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(uses < 5)
+
+IRs:
+TMP_291(bool) = uses < 5
+TMP_292(None) = SOLIDITY_CALL require(bool)(TMP_291)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+db.set_num_of_uses(msg.sender,uses + 1)
+
+IRs:
+TMP_293(uint8) = uses + 1
+LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.set_num_of_uses(address,address,uint8), arguments:['db', 'msg.sender', 'TMP_293'] "];
+3->4;
+4[label="Node Type: _ 4
+"];
+}

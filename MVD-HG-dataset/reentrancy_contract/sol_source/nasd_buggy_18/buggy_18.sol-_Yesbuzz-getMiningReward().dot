@@ -1,0 +1,17 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+(50 * 10 ** uint256(decimals)).div(2 ** rewardEra)
+
+IRs:
+TMP_236 = CONVERT decimals to uint256
+TMP_237(uint256) = 10 ** TMP_236
+TMP_238(uint256) = 50 * TMP_237
+TMP_239(uint256) = 2 ** rewardEra
+TMP_240(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_238', 'TMP_239'] 
+RETURN TMP_240"];
+}

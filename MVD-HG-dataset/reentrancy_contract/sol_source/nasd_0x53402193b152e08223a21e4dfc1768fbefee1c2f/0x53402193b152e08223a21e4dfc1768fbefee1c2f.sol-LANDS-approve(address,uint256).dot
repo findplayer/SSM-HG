@@ -1,0 +1,32 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(allowance(msg.sender,_spender) == 0 || _value == 0)
+
+IRs:
+TMP_88(uint256) = INTERNAL_CALL, AbstractToken.allowance(address,address)(msg.sender,_spender)
+TMP_89(bool) = TMP_88 == 0
+TMP_90(bool) = _value == 0
+TMP_91(bool) = TMP_89 || TMP_90
+TMP_92(None) = SOLIDITY_CALL require(bool)(TMP_91)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+AbstractToken.approve(_spender,_value)
+
+IRs:
+TMP_93(bool) = INTERNAL_CALL, AbstractToken.approve(address,uint256)(_spender,_value)
+RETURN TMP_93"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

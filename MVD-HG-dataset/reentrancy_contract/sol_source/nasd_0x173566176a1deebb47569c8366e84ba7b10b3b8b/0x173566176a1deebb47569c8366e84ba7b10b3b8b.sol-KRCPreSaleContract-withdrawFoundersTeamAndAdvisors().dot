@@ -1,0 +1,37 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(FoundersTeamAndAdvisorsAccumulated > 0)
+
+IRs:
+TMP_142(bool) = FoundersTeamAndAdvisorsAccumulated > 0
+TMP_143(None) = SOLIDITY_CALL require(bool)(TMP_142)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+owner.transfer(FoundersTeamAndAdvisorsAccumulated)
+
+IRs:
+Transfer dest:owner value:FoundersTeamAndAdvisorsAccumulated"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+FoundersTeamAndAdvisorsAccumulated = 0
+
+IRs:
+FoundersTeamAndAdvisorsAccumulated(uint256) := 0(uint256)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+4->1;
+}

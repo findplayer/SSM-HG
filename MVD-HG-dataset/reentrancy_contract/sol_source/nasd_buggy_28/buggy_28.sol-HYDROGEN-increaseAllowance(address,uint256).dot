@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(spender != address(0))
+
+IRs:
+TMP_162 = CONVERT 0 to address
+TMP_163(bool) = spender != TMP_162
+TMP_164(None) = SOLIDITY_CALL require(bool)(TMP_163)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_allowed[msg.sender][spender] = (_allowed[msg.sender][spender].add(addedValue))
+
+IRs:
+REF_117(mapping(address => uint256)) -> _allowed[msg.sender]
+REF_118(uint256) -> REF_117[spender]
+REF_119(mapping(address => uint256)) -> _allowed[msg.sender]
+REF_120(uint256) -> REF_119[spender]
+TMP_165(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_120', 'addedValue'] 
+REF_118(uint256) (->_allowed) := TMP_165(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Approval(msg.sender,spender,_allowed[msg.sender][spender])
+
+IRs:
+REF_122(mapping(address => uint256)) -> _allowed[msg.sender]
+REF_123(uint256) -> REF_122[spender]
+Emit Approval(msg.sender,spender,REF_123)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

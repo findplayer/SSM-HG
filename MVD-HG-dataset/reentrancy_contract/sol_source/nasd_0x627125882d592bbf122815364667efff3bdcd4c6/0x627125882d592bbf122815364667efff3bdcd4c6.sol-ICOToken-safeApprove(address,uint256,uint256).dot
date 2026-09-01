@@ -1,0 +1,51 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(spender != address(0x0),Cannot approve null address.)
+
+IRs:
+TMP_42 = CONVERT 0 to address
+TMP_43(bool) = spender != TMP_42
+TMP_44(None) = SOLIDITY_CALL require(bool,string)(TMP_43,Cannot approve null address.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(oldValue == allowanceCollection[msg.sender][spender],The expected old value did not match current allowance.)
+
+IRs:
+REF_16(mapping(address => uint256)) -> allowanceCollection[msg.sender]
+REF_17(uint256) -> REF_16[spender]
+TMP_45(bool) = oldValue == REF_17
+TMP_46(None) = SOLIDITY_CALL require(bool,string)(TMP_45,The expected old value did not match current allowance.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+allowanceCollection[msg.sender][spender] = value
+
+IRs:
+REF_18(mapping(address => uint256)) -> allowanceCollection[msg.sender]
+REF_19(uint256) -> REF_18[spender]
+REF_19(uint256) (->allowanceCollection) := value(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Approval(msg.sender,spender,value)
+
+IRs:
+Emit Approval(msg.sender,spender,value)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

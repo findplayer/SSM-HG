@@ -1,0 +1,64 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balances[id][token] = balances[id][token].sub(amount)
+
+IRs:
+REF_34(mapping(address => uint256)) -> balances[id]
+REF_35(uint256) -> REF_34[token]
+REF_36(mapping(address => uint256)) -> balances[id]
+REF_37(uint256) -> REF_36[token]
+TMP_128(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_37', 'amount'] 
+REF_35(uint256) (->balances) := TMP_128(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+totalBalances[token] = totalBalances[token].sub(amount)
+
+IRs:
+REF_39(uint256) -> totalBalances[token]
+REF_40(uint256) -> totalBalances[token]
+TMP_129(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_40', 'amount'] 
+REF_39(uint256) (->totalBalances) := TMP_129(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+assert(bool)(totalBalances[token] >= balances[id][token])
+
+IRs:
+REF_42(uint256) -> totalBalances[token]
+REF_43(mapping(address => uint256)) -> balances[id]
+REF_44(uint256) -> REF_43[token]
+TMP_130(bool) = REF_42 >= REF_44
+TMP_131(None) = SOLIDITY_CALL assert(bool)(TMP_130)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+TokenInteract.transfer(token,to,amount)
+
+IRs:
+LIBRARY_CALL, dest:TokenInteract, function:TokenInteract.transfer(address,address,uint256), arguments:['token', 'to', 'amount'] "];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+validateBalance(token)
+
+IRs:
+INTERNAL_CALL, Vault.validateBalance(address)(token)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+requiresAuthorization()
+
+IRs:
+MODIFIER_CALL, AccessControlledBase.requiresAuthorization()()"];
+6->1;
+}

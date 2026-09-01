@@ -1,0 +1,168 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(sender != address(0),ERC20: transfer from the zero address)
+
+IRs:
+TMP_101 = CONVERT 0 to address
+TMP_102(bool) = sender != TMP_101
+TMP_103(None) = SOLIDITY_CALL require(bool,string)(TMP_102,ERC20: transfer from the zero address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(recipient != address(0),ERC20: transfer to the zero address)
+
+IRs:
+TMP_104 = CONVERT 0 to address
+TMP_105(bool) = recipient != TMP_104
+TMP_106(None) = SOLIDITY_CALL require(bool,string)(TMP_105,ERC20: transfer to the zero address)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+senderTimeElasped = now - (_balances[sender].time)
+
+IRs:
+REF_52(LollypopToken.transferMapping) -> _balances[sender]
+REF_53(uint256) -> REF_52.time
+TMP_107(uint256) = now - REF_53
+senderTimeElasped(uint256) := TMP_107(uint256)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+recipientTimeElasped = now - (_balances[recipient].time)
+
+IRs:
+REF_54(LollypopToken.transferMapping) -> _balances[recipient]
+REF_55(uint256) -> REF_54.time
+TMP_108(uint256) = now - REF_55
+recipientTimeElasped(uint256) := TMP_108(uint256)"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+senderTimeElasped >= minAgeOfToken && (_totalSupply < _maxTotalSupply)
+
+IRs:
+TMP_109(bool) = senderTimeElasped >= minAgeOfToken
+TMP_110(bool) = _totalSupply < _maxTotalSupply
+TMP_111(bool) = TMP_109 && TMP_110
+CONDITION TMP_111"];
+5->6[label="True"];
+5->8[label="False"];
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+bonus = calculateBonus(senderTimeElasped,balanceOf(sender))
+
+IRs:
+TMP_112(uint256) = INTERNAL_CALL, LollypopToken.balanceOf(address)(sender)
+TMP_113(uint256) = INTERNAL_CALL, LollypopToken.calculateBonus(uint256,uint256)(senderTimeElasped,TMP_112)
+bonus(uint256) := TMP_113(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+mint(sender,bonus)
+
+IRs:
+INTERNAL_CALL, LollypopToken.mint(address,uint256)(sender,bonus)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: IF 9
+
+EXPRESSION:
+recipientTimeElasped >= minAgeOfToken && (_totalSupply < _maxTotalSupply) && sender != recipient
+
+IRs:
+TMP_115(bool) = recipientTimeElasped >= minAgeOfToken
+TMP_116(bool) = _totalSupply < _maxTotalSupply
+TMP_117(bool) = TMP_115 && TMP_116
+TMP_118(bool) = sender != recipient
+TMP_119(bool) = TMP_117 && TMP_118
+CONDITION TMP_119"];
+9->10[label="True"];
+9->12[label="False"];
+10[label="Node Type: NEW VARIABLE 10
+
+EXPRESSION:
+bonus_scope_0 = calculateBonus(recipientTimeElasped,balanceOf(recipient))
+
+IRs:
+TMP_120(uint256) = INTERNAL_CALL, LollypopToken.balanceOf(address)(recipient)
+TMP_121(uint256) = INTERNAL_CALL, LollypopToken.calculateBonus(uint256,uint256)(recipientTimeElasped,TMP_120)
+bonus_scope_0(uint256) := TMP_121(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+mint(recipient,bonus_scope_0)
+
+IRs:
+INTERNAL_CALL, LollypopToken.mint(address,uint256)(recipient,bonus_scope_0)"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+_balances[sender].amount = _balances[sender].amount.sub(amount)
+
+IRs:
+REF_56(LollypopToken.transferMapping) -> _balances[sender]
+REF_57(uint256) -> REF_56.amount
+REF_58(LollypopToken.transferMapping) -> _balances[sender]
+REF_59(uint256) -> REF_58.amount
+TMP_123(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_59', 'amount'] 
+REF_57(uint256) (->_balances) := TMP_123(uint256)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+_balances[recipient].amount = _balances[recipient].amount.add(amount)
+
+IRs:
+REF_61(LollypopToken.transferMapping) -> _balances[recipient]
+REF_62(uint256) -> REF_61.amount
+REF_63(LollypopToken.transferMapping) -> _balances[recipient]
+REF_64(uint256) -> REF_63.amount
+TMP_124(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_64', 'amount'] 
+REF_62(uint256) (->_balances) := TMP_124(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+_balances[sender].time = now
+
+IRs:
+REF_66(LollypopToken.transferMapping) -> _balances[sender]
+REF_67(uint256) -> REF_66.time
+REF_67(uint256) (->_balances) := now(uint256)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+_balances[recipient].time = now
+
+IRs:
+REF_68(LollypopToken.transferMapping) -> _balances[recipient]
+REF_69(uint256) -> REF_68.time
+REF_69(uint256) (->_balances) := now(uint256)"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+Transfer(sender,recipient,amount)
+
+IRs:
+Emit Transfer(sender,recipient,amount)"];
+}

@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+withdraw_to.transfer(amount)
+
+IRs:
+Transfer dest:withdraw_to value:amount"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+e_withdraw_some_amount(withdraw_to,amount)
+
+IRs:
+Emit e_withdraw_some_amount(withdraw_to,amount)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+only_owner()
+
+IRs:
+MODIFIER_CALL, arbits_presale.only_owner()()"];
+3->1;
+}

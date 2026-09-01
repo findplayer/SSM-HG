@@ -1,0 +1,64 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+_currentEthPoints = tokenHolders[_addr].currentEthPoints + ((totalEthReceived - tokenHolders[_addr].lastEthSnapshot) * tokenHolders[_addr].tokens)
+
+IRs:
+REF_52(ETT.tokenHolder) -> tokenHolders[_addr]
+REF_53(uint256) -> REF_52.currentEthPoints
+REF_54(ETT.tokenHolder) -> tokenHolders[_addr]
+REF_55(uint256) -> REF_54.lastEthSnapshot
+TMP_72(uint256) = totalEthReceived - REF_55
+REF_56(ETT.tokenHolder) -> tokenHolders[_addr]
+REF_57(uint256) -> REF_56.tokens
+TMP_73(uint256) = TMP_72 * REF_57
+TMP_74(uint256) = REF_53 + TMP_73
+_currentEthPoints(uint256) := TMP_74(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_ethAmount = _currentEthPoints / totalSupply
+
+IRs:
+TMP_75(uint256) = _currentEthPoints / totalSupply
+_ethAmount(uint256) := TMP_75(uint256)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+_currentDaiPoints = tokenHolders[_addr].currentDaiPoints + ((totalDaiReceived - tokenHolders[_addr].lastDaiSnapshot) * tokenHolders[_addr].tokens)
+
+IRs:
+REF_58(ETT.tokenHolder) -> tokenHolders[_addr]
+REF_59(uint256) -> REF_58.currentDaiPoints
+REF_60(ETT.tokenHolder) -> tokenHolders[_addr]
+REF_61(uint256) -> REF_60.lastDaiSnapshot
+TMP_76(uint256) = totalDaiReceived - REF_61
+REF_62(ETT.tokenHolder) -> tokenHolders[_addr]
+REF_63(uint256) -> REF_62.tokens
+TMP_77(uint256) = TMP_76 * REF_63
+TMP_78(uint256) = REF_59 + TMP_77
+_currentDaiPoints(uint256) := TMP_78(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+_daiAmount = _currentDaiPoints / totalSupply
+
+IRs:
+TMP_79(uint256) = _currentDaiPoints / totalSupply
+_daiAmount(uint256) := TMP_79(uint256)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+(_ethAmount,_daiAmount)
+
+IRs:
+RETURN _ethAmount,_daiAmount"];
+}

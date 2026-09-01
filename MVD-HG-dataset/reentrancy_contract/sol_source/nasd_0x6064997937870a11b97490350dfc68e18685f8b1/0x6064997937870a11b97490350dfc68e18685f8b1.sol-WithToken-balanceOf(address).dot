@@ -1,0 +1,38 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+deprecated
+
+IRs:
+CONDITION deprecated"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+UpgradedStandardToken(upgradedAddress).balanceOfByLegacy(_owner)
+
+IRs:
+TMP_693 = CONVERT upgradedAddress to UpgradedStandardToken
+TMP_694(uint256) = HIGH_LEVEL_CALL, dest:TMP_693(UpgradedStandardToken), function:balanceOfByLegacy, arguments:['_owner']  
+RETURN TMP_694"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+super.balanceOf(_owner)
+
+IRs:
+TMP_695(uint256) = INTERNAL_CALL, BasicToken.balanceOf(address)(_owner)
+RETURN TMP_695"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+balance
+
+IRs:
+RETURN balance"];
+}

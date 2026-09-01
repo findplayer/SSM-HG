@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+e_kill_and_withdraw(withdraw_to)
+
+IRs:
+Emit e_kill_and_withdraw(withdraw_to)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+selfdestruct(address)(withdraw_to)
+
+IRs:
+TMP_239(None) = SOLIDITY_CALL selfdestruct(address)(withdraw_to)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+only_owner()
+
+IRs:
+MODIFIER_CALL, arbits_presale.only_owner()()"];
+3->1;
+}

@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+GeneralERC20(token).approve(spender,amount)
+
+IRs:
+TMP_50 = CONVERT token to GeneralERC20
+HIGH_LEVEL_CALL, dest:TMP_50(GeneralERC20), function:approve, arguments:['spender', 'amount']  "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(checkSuccess(),TokenInteract#approve: Approval failed)
+
+IRs:
+TMP_52(bool) = INTERNAL_CALL, TokenInteract.checkSuccess()()
+TMP_53(None) = SOLIDITY_CALL require(bool,string)(TMP_52,TokenInteract#approve: Approval failed)"];
+}

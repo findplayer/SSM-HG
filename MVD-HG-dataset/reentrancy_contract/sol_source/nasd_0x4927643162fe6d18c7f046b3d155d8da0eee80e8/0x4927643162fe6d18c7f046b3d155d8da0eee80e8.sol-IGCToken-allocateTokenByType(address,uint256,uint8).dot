@@ -1,0 +1,186 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->20;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(accountAddress != address(0x0),accountAddress not right)
+
+IRs:
+TMP_17 = CONVERT 0 to address
+TMP_18(bool) = accountAddress != TMP_17
+TMP_19(None) = SOLIDITY_CALL require(bool,string)(TMP_18,accountAddress not right)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(roleType <= 5,roleType must be 0~5)
+
+IRs:
+TMP_20(bool) = roleType <= 5
+TMP_21(None) = SOLIDITY_CALL require(bool,string)(TMP_20,roleType must be 0~5)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(now < beginTime,beginTime <= now, so can not set)
+
+IRs:
+TMP_22(bool) = now < beginTime
+TMP_23(None) = SOLIDITY_CALL require(bool,string)(TMP_22,beginTime <= now, so can not set)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+amount = amount.mul(10 ** uint256(decimals))
+
+IRs:
+TMP_24 = CONVERT decimals to uint256
+TMP_25(uint256) = 10 ** TMP_24
+TMP_26(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['amount', 'TMP_25'] 
+amount(uint256) := TMP_26(uint256)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+_account = accountMapping[accountAddress]
+
+IRs:
+REF_1(IGCToken.Account) -> accountMapping[accountAddress]
+_account(IGCToken.Account) := REF_1(IGCToken.Account)"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+_account.ownAmount == 0
+
+IRs:
+REF_2(uint256) -> _account.ownAmount
+TMP_27(bool) = REF_2 == 0
+CONDITION TMP_27"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+accountMapping[accountAddress] = Account(roleType,amount,0)
+
+IRs:
+REF_3(IGCToken.Account) -> accountMapping[accountAddress]
+TMP_28(IGCToken.Account) = new Account(roleType,amount,0)
+REF_3(IGCToken.Account) (->accountMapping) := TMP_28(IGCToken.Account)"];
+7->13;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+require(bool,string)(roleType == _account.roleType,roleType must be same!)
+
+IRs:
+REF_4(uint8) -> _account.roleType
+TMP_29(bool) = roleType == REF_4
+TMP_30(None) = SOLIDITY_CALL require(bool,string)(TMP_29,roleType must be same!)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+accountMapping[accountAddress].ownAmount = _account.ownAmount.add(amount)
+
+IRs:
+REF_5(IGCToken.Account) -> accountMapping[accountAddress]
+REF_6(uint256) -> REF_5.ownAmount
+REF_7(uint256) -> _account.ownAmount
+TMP_31(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_7', 'amount'] 
+REF_6(uint256) (->accountMapping) := TMP_31(uint256)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+accountMapping[accountAddress].releasedAmount = 0
+
+IRs:
+REF_9(IGCToken.Account) -> accountMapping[accountAddress]
+REF_10(uint256) -> REF_9.releasedAmount
+REF_10(uint256) (->accountMapping) := 0(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+delete nolockReleasedMapping[accountAddress]
+
+IRs:
+REF_11(bool) -> nolockReleasedMapping[accountAddress]
+nolockReleasedMapping = delete REF_11 "];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+delete releasedRateMapping[accountAddress]
+
+IRs:
+REF_12(uint256) -> releasedRateMapping[accountAddress]
+releasedRateMapping = delete REF_12 "];
+12->13;
+13[label="Node Type: END_IF 13
+"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+_balances[accountAddress] = _balances[accountAddress].add(amount)
+
+IRs:
+REF_13(uint256) -> _balances[accountAddress]
+REF_14(uint256) -> _balances[accountAddress]
+TMP_32(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_14', 'amount'] 
+REF_13(uint256) (->_balances) := TMP_32(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+_balances[msg.sender] = _balances[msg.sender].sub(amount)
+
+IRs:
+REF_16(uint256) -> _balances[msg.sender]
+REF_17(uint256) -> _balances[msg.sender]
+TMP_33(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_17', 'amount'] 
+REF_16(uint256) (->_balances) := TMP_33(uint256)"];
+15->16;
+16[label="Node Type: IF 16
+
+EXPRESSION:
+roleType == 1
+
+IRs:
+TMP_34(bool) = roleType == 1
+CONDITION TMP_34"];
+16->17[label="True"];
+16->18[label="False"];
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+role1_balance = role1_balance.sub(amount)
+
+IRs:
+TMP_35(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['role1_balance', 'amount'] 
+role1_balance(uint256) := TMP_35(uint256)"];
+17->18;
+18[label="Node Type: END_IF 18
+"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+releaseToken(accountAddress)
+
+IRs:
+TMP_36(bool) = INTERNAL_CALL, IGCToken.releaseToken(address)(accountAddress)"];
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Owned.onlyOwner()()"];
+20->1;
+}

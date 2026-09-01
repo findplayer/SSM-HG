@@ -1,0 +1,116 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+now < beginTime
+
+IRs:
+TMP_94(bool) = now < beginTime
+CONDITION TMP_94"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+3[label="Node Type: END_IF 3
+"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+(balanceOf(from)) <= 0
+
+IRs:
+TMP_95(uint256) = INTERNAL_CALL, IGCToken.balanceOf(address)(from)
+TMP_96(bool) = TMP_95 <= 0
+CONDITION TMP_96"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+releaseToken(from)
+
+IRs:
+TMP_97(bool) = INTERNAL_CALL, IGCToken.releaseToken(address)(from)"];
+7->8;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+_account = accountMapping[from]
+
+IRs:
+REF_68(IGCToken.Account) -> accountMapping[from]
+_account(IGCToken.Account) := REF_68(IGCToken.Account)"];
+8->9;
+9[label="Node Type: IF 9
+
+EXPRESSION:
+_account.ownAmount == 0
+
+IRs:
+REF_69(uint256) -> _account.ownAmount
+TMP_98(bool) = REF_69 == 0
+CONDITION TMP_98"];
+9->10[label="True"];
+9->11[label="False"];
+10[label="Node Type: RETURN 10
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+11[label="Node Type: END_IF 11
+"];
+11->12;
+12[label="Node Type: IF 12
+
+EXPRESSION:
+balanceOf(from).sub(_amount) < _account.ownAmount.sub(_account.releasedAmount)
+
+IRs:
+TMP_99(uint256) = INTERNAL_CALL, IGCToken.balanceOf(address)(from)
+TMP_100(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['TMP_99', '_amount'] 
+REF_71(uint256) -> _account.ownAmount
+REF_73(uint256) -> _account.releasedAmount
+TMP_101(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_71', 'REF_73'] 
+TMP_102(bool) = TMP_100 < TMP_101
+CONDITION TMP_102"];
+12->13[label="True"];
+12->14[label="False"];
+13[label="Node Type: RETURN 13
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+14[label="Node Type: END_IF 14
+"];
+14->15;
+15[label="Node Type: RETURN 15
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

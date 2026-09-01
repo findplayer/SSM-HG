@@ -1,0 +1,107 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->11;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_value > 0,_value > 0)
+
+IRs:
+TMP_38(bool) = _value > 0
+TMP_39(None) = SOLIDITY_CALL require(bool,string)(TMP_38,_value > 0)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_value = _value.mul(10 ** uint256(decimals))
+
+IRs:
+TMP_40 = CONVERT decimals to uint256
+TMP_41(uint256) = 10 ** TMP_40
+TMP_42(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['_value', 'TMP_41'] 
+_value(uint256) := TMP_42(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(_balances[msg.sender] >= _value)
+
+IRs:
+REF_21(uint256) -> _balances[msg.sender]
+TMP_43(bool) = REF_21 >= _value
+TMP_44(None) = SOLIDITY_CALL require(bool)(TMP_43)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+_balances[msg.sender] = _balances[msg.sender].sub(_value)
+
+IRs:
+REF_22(uint256) -> _balances[msg.sender]
+REF_23(uint256) -> _balances[msg.sender]
+TMP_45(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_23', '_value'] 
+REF_22(uint256) (->_balances) := TMP_45(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+_totalSupply = _totalSupply.sub(_value)
+
+IRs:
+TMP_46(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['_totalSupply', '_value'] 
+_totalSupply(uint256) := TMP_46(uint256)"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+_roleType == 1
+
+IRs:
+TMP_47(bool) = _roleType == 1
+CONDITION TMP_47"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+role1_balance = role1_balance.sub(_value)
+
+IRs:
+TMP_48(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['role1_balance', '_value'] 
+role1_balance(uint256) := TMP_48(uint256)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+Burn(msg.sender,_value)
+
+IRs:
+Emit Burn(msg.sender,_value)"];
+9->10;
+10[label="Node Type: RETURN 10
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Owned.onlyOwner()()"];
+11->1;
+12[label="Node Type: RETURN 12
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

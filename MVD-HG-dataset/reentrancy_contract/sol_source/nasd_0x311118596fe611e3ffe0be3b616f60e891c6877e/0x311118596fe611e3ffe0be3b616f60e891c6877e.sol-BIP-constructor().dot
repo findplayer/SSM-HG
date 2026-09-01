@@ -1,0 +1,53 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+totalSupply = 200000000000000000000000000
+
+IRs:
+totalSupply(uint256) := 200000000000000000000000000(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+name = Blockchain Invest Platform Token
+
+IRs:
+name(string) := Blockchain Invest Platform Token(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+decimals = 18
+
+IRs:
+decimals(uint8) := 18(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+symbol = BIP
+
+IRs:
+symbol(string) := BIP(string)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+version = 2.0
+
+IRs:
+version(string) := 2.0(string)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+balances[msg.sender] = totalSupply
+
+IRs:
+REF_53(uint256) -> balances[msg.sender]
+REF_53(uint256) (->balances) := totalSupply(uint256)"];
+}

@@ -1,0 +1,91 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+(call_success,return_data) = tokenContract.call(abi.encodeWithSelector(0x23b872dd,from,to,value))
+
+IRs:
+TMP_116(bytes) = SOLIDITY_CALL abi.encodeWithSelector()(599290589,from,to,value)
+TUPLE_1(bool,bytes) = LOW_LEVEL_CALL, dest:tokenContract, function:call, arguments:['TMP_116']  
+call_success(bool)= UNPACK TUPLE_1 index: 0 
+return_data(bytes)= UNPACK TUPLE_1 index: 1 "];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+success = false
+
+IRs:
+success(bool) := False(bool)"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+call_success
+
+IRs:
+CONDITION call_success"];
+5->6[label="True"];
+5->13[label="False"];
+6[label="Node Type: IF 6
+
+EXPRESSION:
+return_data.length == 0
+
+IRs:
+REF_25 -> LENGTH return_data
+TMP_117(bool) = REF_25 == 0
+CONDITION TMP_117"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+success = true
+
+IRs:
+success(bool) := True(bool)"];
+7->12;
+8[label="Node Type: IF 8
+
+EXPRESSION:
+return_data.length == 32
+
+IRs:
+REF_26 -> LENGTH return_data
+TMP_118(bool) = REF_26 == 32
+CONDITION TMP_118"];
+8->9[label="True"];
+8->11[label="False"];
+9[label="Node Type: INLINE ASM 9
+"];
+9->10;
+10[label="Node Type: END INLINE ASM 10
+"];
+10->11;
+11[label="Node Type: END_IF 11
+"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+12->13;
+13[label="Node Type: END_IF 13
+"];
+13->14;
+14[label="Node Type: RETURN 14
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

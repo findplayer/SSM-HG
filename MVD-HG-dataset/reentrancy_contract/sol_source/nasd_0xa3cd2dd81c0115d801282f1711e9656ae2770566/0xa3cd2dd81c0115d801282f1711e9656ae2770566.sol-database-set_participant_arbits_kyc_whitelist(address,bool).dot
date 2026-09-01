@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+participants[_a].arbits_kyc_whitelist = _v
+
+IRs:
+REF_41(database.participant) -> participants[_a]
+REF_42(bool) -> REF_41.arbits_kyc_whitelist
+REF_42(bool) (->participants) := _v(bool)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+only_kycer()
+
+IRs:
+MODIFIER_CALL, database.only_kycer()()"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+log_participant_update(_a)
+
+IRs:
+MODIFIER_CALL, database.log_participant_update(address)(_a)"];
+3->1;
+}

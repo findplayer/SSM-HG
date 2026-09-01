@@ -1,0 +1,43 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(account != address(0),ERC20: mint to the zero address)
+
+IRs:
+TMP_237 = CONVERT 0 to address
+TMP_238(bool) = account != TMP_237
+TMP_239(None) = SOLIDITY_CALL require(bool,string)(TMP_238,ERC20: mint to the zero address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_totalSupply = _totalSupply.add(amount)
+
+IRs:
+TMP_240(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['_totalSupply', 'amount'] 
+_totalSupply(uint256) := TMP_240(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_balances[account] = _balances[account].add(amount)
+
+IRs:
+REF_162(uint256) -> _balances[account]
+REF_163(uint256) -> _balances[account]
+TMP_241(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_163', 'amount'] 
+REF_162(uint256) (->_balances) := TMP_241(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Transfer(address(0),account,amount)
+
+IRs:
+TMP_242 = CONVERT 0 to address
+Emit Transfer(TMP_242,account,amount)"];
+}

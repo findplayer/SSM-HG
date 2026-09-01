@@ -1,0 +1,61 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+acc = Acc[msg.sender]
+
+IRs:
+REF_0(W_WALLET.Holder) -> Acc[msg.sender]
+acc(W_WALLET.Holder) := REF_0(W_WALLET.Holder)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+acc.balance += msg.value
+
+IRs:
+REF_1(uint256) -> acc.balance
+REF_1(-> acc) = REF_1 + msg.value"];
+2->5;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+LogFile.AddMessage(msg.sender,msg.value,Put)
+
+IRs:
+HIGH_LEVEL_CALL, dest:LogFile(Log), function:AddMessage, arguments:['msg.sender', 'msg.value', 'Put']  "];
+5[label="Node Type: IF 5
+
+EXPRESSION:
+_unlockTime > now
+
+IRs:
+TMP_1(bool) = _unlockTime > now
+CONDITION TMP_1"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+acc.unlockTime = _unlockTime
+
+IRs:
+REF_3(uint256) -> acc.unlockTime
+REF_3(uint256) (->acc) := _unlockTime(uint256)"];
+6->8;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+acc.unlockTime = now
+
+IRs:
+REF_4(uint256) -> acc.unlockTime
+REF_4(uint256) (->acc) := now(uint256)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->4;
+}

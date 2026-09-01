@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(db.get_arbits_presale_open())
+
+IRs:
+TMP_288(bool) = LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.get_arbits_presale_open(address), arguments:['db'] 
+TMP_289(None) = SOLIDITY_CALL require(bool)(TMP_288)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

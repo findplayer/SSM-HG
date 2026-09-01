@@ -1,0 +1,75 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+base = 1e18
+
+IRs:
+base(uint256) := 1000000000000000000(uint256)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+MAX_UINT = 2 ** 256 - 1
+
+IRs:
+TMP_49(uint256) = 2 ** 256
+TMP_50(uint256) = TMP_49 - 1
+MAX_UINT(uint256) := TMP_50(uint256)"];
+1->2;
+2[label="Node Type: OTHER_ENTRYPOINT 2
+
+EXPRESSION:
+name = Brewer's coin
+
+IRs:
+name(string) := Brewer's coin(string)"];
+2->3;
+3[label="Node Type: OTHER_ENTRYPOINT 3
+
+EXPRESSION:
+symbol = BREW
+
+IRs:
+symbol(string) := BREW(string)"];
+3->4;
+4[label="Node Type: OTHER_ENTRYPOINT 4
+
+EXPRESSION:
+decimals = 18
+
+IRs:
+decimals(uint8) := 18(uint256)"];
+4->5;
+5[label="Node Type: OTHER_ENTRYPOINT 5
+
+EXPRESSION:
+NOT_ENOUGH_TOKENS = Not enough tokens
+
+IRs:
+NOT_ENOUGH_TOKENS(string) := Not enough tokens(string)"];
+5->6;
+6[label="Node Type: OTHER_ENTRYPOINT 6
+
+EXPRESSION:
+NOT_ENOUGH_ETHER = Not enough ether
+
+IRs:
+NOT_ENOUGH_ETHER(string) := Not enough ether(string)"];
+6->7;
+7[label="Node Type: OTHER_ENTRYPOINT 7
+
+EXPRESSION:
+NOT_ENOUGH_ALLOWANCE = Not enough allowance
+
+IRs:
+NOT_ENOUGH_ALLOWANCE(string) := Not enough allowance(string)"];
+7->8;
+8[label="Node Type: OTHER_ENTRYPOINT 8
+
+EXPRESSION:
+ADDRESS_0_NOT_ALLOWED = Address 0 not allowed
+
+IRs:
+ADDRESS_0_NOT_ALLOWED(string) := Address 0 not allowed(string)"];
+}

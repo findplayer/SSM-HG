@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+isBlackListed[_evilUser] = true
+
+IRs:
+REF_357(bool) -> isBlackListed[_evilUser]
+REF_357(bool) (->isBlackListed) := True(bool)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+AddedBlackList(_evilUser)
+
+IRs:
+Emit AddedBlackList(_evilUser)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyCRO()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyCRO()()"];
+3->1;
+}

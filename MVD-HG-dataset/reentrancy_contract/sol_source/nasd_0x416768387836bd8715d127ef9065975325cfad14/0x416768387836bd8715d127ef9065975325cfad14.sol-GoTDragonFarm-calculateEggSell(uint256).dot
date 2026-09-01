@@ -1,0 +1,15 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+calculateTrade(eggs,marketEggs,address(this).balance)
+
+IRs:
+TMP_39 = CONVERT this to address
+TMP_40(uint256) = SOLIDITY_CALL balance(address)(TMP_39)
+TMP_41(uint256) = INTERNAL_CALL, GoTDragonFarm.calculateTrade(uint256,uint256,uint256)(eggs,marketEggs,TMP_40)
+RETURN TMP_41"];
+}

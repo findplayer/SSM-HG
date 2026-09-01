@@ -1,0 +1,180 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].isOpen == true,Tried adding funds to a closed channel)
+
+IRs:
+REF_160(LedgerChannel.Channel) -> Channels[_lcID]
+REF_161(bool) -> REF_160.isOpen
+TMP_155(bool) = REF_161 == True
+TMP_156(None) = SOLIDITY_CALL require(bool,string)(TMP_155,Tried adding funds to a closed channel)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(recipient == Channels[_lcID].partyAddresses[0] || recipient == Channels[_lcID].partyAddresses[1])
+
+IRs:
+REF_162(LedgerChannel.Channel) -> Channels[_lcID]
+REF_163(address[2]) -> REF_162.partyAddresses
+REF_164(address) -> REF_163[0]
+TMP_157(bool) = recipient == REF_164
+REF_165(LedgerChannel.Channel) -> Channels[_lcID]
+REF_166(address[2]) -> REF_165.partyAddresses
+REF_167(address) -> REF_166[1]
+TMP_158(bool) = recipient == REF_167
+TMP_159(bool) = TMP_157 || TMP_158
+TMP_160(None) = SOLIDITY_CALL require(bool)(TMP_159)"];
+2->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+Channels[_lcID].partyAddresses[0] == recipient
+
+IRs:
+REF_168(LedgerChannel.Channel) -> Channels[_lcID]
+REF_169(address[2]) -> REF_168.partyAddresses
+REF_170(address) -> REF_169[0]
+TMP_161(bool) = REF_170 == recipient
+CONDITION TMP_161"];
+3->4[label="True"];
+3->10[label="False"];
+4[label="Node Type: IF 4
+
+EXPRESSION:
+isToken
+
+IRs:
+CONDITION isToken"];
+4->5[label="True"];
+4->7[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].token.transferFrom(msg.sender,this,_balance),deposit: token transfer failure)
+
+IRs:
+REF_171(LedgerChannel.Channel) -> Channels[_lcID]
+REF_172(HumanStandardToken) -> REF_171.token
+TMP_162(bool) = HIGH_LEVEL_CALL, dest:REF_172(HumanStandardToken), function:transferFrom, arguments:['msg.sender', 'this', '_balance']  
+TMP_163(None) = SOLIDITY_CALL require(bool,string)(TMP_162,deposit: token transfer failure)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[2] += _balance
+
+IRs:
+REF_174(LedgerChannel.Channel) -> Channels[_lcID]
+REF_175(uint256[4]) -> REF_174.erc20Balances
+REF_176(uint256) -> REF_175[2]
+REF_176(-> Channels) = REF_176 + _balance"];
+6->9;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+require(bool,string)(msg.value == _balance,state balance does not match sent value)
+
+IRs:
+TMP_164(bool) = msg.value == _balance
+TMP_165(None) = SOLIDITY_CALL require(bool,string)(TMP_164,state balance does not match sent value)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Channels[_lcID].ethBalances[2] += msg.value
+
+IRs:
+REF_177(LedgerChannel.Channel) -> Channels[_lcID]
+REF_178(uint256[4]) -> REF_177.ethBalances
+REF_179(uint256) -> REF_178[2]
+REF_179(-> Channels) = REF_179 + msg.value"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+9->10;
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: IF 11
+
+EXPRESSION:
+Channels[_lcID].partyAddresses[1] == recipient
+
+IRs:
+REF_180(LedgerChannel.Channel) -> Channels[_lcID]
+REF_181(address[2]) -> REF_180.partyAddresses
+REF_182(address) -> REF_181[1]
+TMP_166(bool) = REF_182 == recipient
+CONDITION TMP_166"];
+11->12[label="True"];
+11->18[label="False"];
+12[label="Node Type: IF 12
+
+EXPRESSION:
+isToken
+
+IRs:
+CONDITION isToken"];
+12->13[label="True"];
+12->15[label="False"];
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].token.transferFrom(msg.sender,this,_balance),deposit: token transfer failure)
+
+IRs:
+REF_183(LedgerChannel.Channel) -> Channels[_lcID]
+REF_184(HumanStandardToken) -> REF_183.token
+TMP_167(bool) = HIGH_LEVEL_CALL, dest:REF_184(HumanStandardToken), function:transferFrom, arguments:['msg.sender', 'this', '_balance']  
+TMP_168(None) = SOLIDITY_CALL require(bool,string)(TMP_167,deposit: token transfer failure)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[3] += _balance
+
+IRs:
+REF_186(LedgerChannel.Channel) -> Channels[_lcID]
+REF_187(uint256[4]) -> REF_186.erc20Balances
+REF_188(uint256) -> REF_187[3]
+REF_188(-> Channels) = REF_188 + _balance"];
+14->17;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+require(bool,string)(msg.value == _balance,state balance does not match sent value)
+
+IRs:
+TMP_169(bool) = msg.value == _balance
+TMP_170(None) = SOLIDITY_CALL require(bool,string)(TMP_169,state balance does not match sent value)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+Channels[_lcID].ethBalances[3] += msg.value
+
+IRs:
+REF_189(LedgerChannel.Channel) -> Channels[_lcID]
+REF_190(uint256[4]) -> REF_189.ethBalances
+REF_191(uint256) -> REF_190[3]
+REF_191(-> Channels) = REF_191 + msg.value"];
+16->17;
+17[label="Node Type: END_IF 17
+"];
+17->18;
+18[label="Node Type: END_IF 18
+"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+DidLCDeposit(_lcID,recipient,_balance,isToken)
+
+IRs:
+Emit DidLCDeposit(_lcID,recipient,_balance,isToken)"];
+}

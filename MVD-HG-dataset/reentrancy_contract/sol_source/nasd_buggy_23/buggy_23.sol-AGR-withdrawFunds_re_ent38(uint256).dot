@@ -1,0 +1,32 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(balances_re_ent38[msg.sender] >= _weiToWithdraw)
+
+IRs:
+REF_199(uint256) -> balances_re_ent38[msg.sender]
+TMP_296(bool) = REF_199 >= _weiToWithdraw
+TMP_297(None) = SOLIDITY_CALL require(bool)(TMP_296)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(msg.sender.send(_weiToWithdraw))
+
+IRs:
+TMP_298 = SEND dest:msg.sender value:_weiToWithdraw
+TMP_299(None) = SOLIDITY_CALL require(bool)(TMP_298)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances_re_ent38[msg.sender] -= _weiToWithdraw
+
+IRs:
+REF_201(uint256) -> balances_re_ent38[msg.sender]
+REF_201(-> balances_re_ent38) = REF_201 - _weiToWithdraw"];
+}

@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+amount == 0 || from == to
+
+IRs:
+TMP_62(bool) = amount == 0
+TMP_63(bool) = from == to
+TMP_64(bool) = TMP_62 || TMP_63
+CONDITION TMP_64"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+"];
+3[label="Node Type: END_IF 3
+"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+GeneralERC20(token).transferFrom(from,to,amount)
+
+IRs:
+TMP_65 = CONVERT token to GeneralERC20
+HIGH_LEVEL_CALL, dest:TMP_65(GeneralERC20), function:transferFrom, arguments:['from', 'to', 'amount']  "];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool,string)(checkSuccess(),TokenInteract#transferFrom: TransferFrom failed)
+
+IRs:
+TMP_67(bool) = INTERNAL_CALL, TokenInteract.checkSuccess()()
+TMP_68(None) = SOLIDITY_CALL require(bool,string)(TMP_67,TokenInteract#transferFrom: TransferFrom failed)"];
+}

@@ -1,0 +1,18 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(msg.sender == getRegistry().getOwner(),onlyRegistryOwner() method called by non-owner.)
+
+IRs:
+TMP_2(RegistryInterface) = INTERNAL_CALL, FixedAddress.getRegistry()()
+TMP_3(address) = HIGH_LEVEL_CALL, dest:TMP_2(RegistryInterface), function:getOwner, arguments:[]  
+TMP_4(bool) = msg.sender == TMP_3
+TMP_5(None) = SOLIDITY_CALL require(bool,string)(TMP_4,onlyRegistryOwner() method called by non-owner.)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

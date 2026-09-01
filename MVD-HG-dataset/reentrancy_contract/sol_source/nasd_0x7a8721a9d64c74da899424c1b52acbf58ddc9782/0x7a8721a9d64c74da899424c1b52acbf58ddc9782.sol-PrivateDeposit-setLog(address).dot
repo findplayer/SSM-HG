@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+TransferLog = Log(_lib)
+
+IRs:
+TMP_2 = CONVERT _lib to Log
+TransferLog(Log) := TMP_2(Log)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, PrivateDeposit.onlyOwner()()"];
+2->1;
+}

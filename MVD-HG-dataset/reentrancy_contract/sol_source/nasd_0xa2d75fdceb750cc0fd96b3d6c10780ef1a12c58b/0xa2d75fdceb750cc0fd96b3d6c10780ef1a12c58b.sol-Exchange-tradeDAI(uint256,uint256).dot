@@ -1,0 +1,57 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+amountBaseToken = calculateAmountForDAI(amountDAI)
+
+IRs:
+TMP_75(uint256) = INTERNAL_CALL, Exchange.calculateAmountForDAI(uint256)(amountDAI)
+amountBaseToken(uint256) := TMP_75(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(amountBaseToken == expectedAmountBaseToken)
+
+IRs:
+TMP_76(bool) = amountBaseToken == expectedAmountBaseToken
+TMP_77(None) = SOLIDITY_CALL require(bool)(TMP_76)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(dai.transferFrom(msg.sender,address(this),amountDAI))
+
+IRs:
+TMP_78 = CONVERT this to address
+TMP_79(bool) = HIGH_LEVEL_CALL, dest:dai(ERC20), function:transferFrom, arguments:['msg.sender', 'TMP_78', 'amountDAI']  
+TMP_80(None) = SOLIDITY_CALL require(bool)(TMP_79)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(baseToken.transfer(msg.sender,amountBaseToken))
+
+IRs:
+TMP_81(bool) = HIGH_LEVEL_CALL, dest:baseToken(ERC20), function:transfer, arguments:['msg.sender', 'amountBaseToken']  
+TMP_82(None) = SOLIDITY_CALL require(bool)(TMP_81)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+TradeDAI(amountDAI,amountBaseToken)
+
+IRs:
+Emit TradeDAI(amountDAI,amountBaseToken)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+whenNotPaused()
+
+IRs:
+MODIFIER_CALL, Pausable.whenNotPaused()()"];
+6->1;
+}

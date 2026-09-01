@@ -1,0 +1,26 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(msg.sender == ProxyAddress,onlyApprovedExchange() called not by exchange proxy.)
+
+IRs:
+TMP_123(bool) = msg.sender == ProxyAddress
+TMP_124(None) = SOLIDITY_CALL require(bool,string)(TMP_123,onlyApprovedExchange() called not by exchange proxy.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(getRegistry().contractApproved(trader),onlyApprovedExchange() requires approval of the latest contract code by trader.)
+
+IRs:
+TMP_125(RegistryInterface) = INTERNAL_CALL, FixedAddress.getRegistry()()
+TMP_126(bool) = HIGH_LEVEL_CALL, dest:TMP_125(RegistryInterface), function:contractApproved, arguments:['trader']  
+TMP_127(None) = SOLIDITY_CALL require(bool,string)(TMP_126,onlyApprovedExchange() requires approval of the latest contract code by trader.)"];
+2->3;
+3[label="Node Type: _ 3
+"];
+}

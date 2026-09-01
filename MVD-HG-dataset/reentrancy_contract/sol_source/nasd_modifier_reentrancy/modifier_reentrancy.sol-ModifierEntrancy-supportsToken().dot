@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(keccak256()(abi.encodePacked(Nu Token)) == Bank(msg.sender).supportsToken())
+
+IRs:
+TMP_2(bytes) = SOLIDITY_CALL abi.encodePacked()(Nu Token)
+TMP_3(bytes32) = SOLIDITY_CALL keccak256()(TMP_2)
+TMP_4 = CONVERT msg.sender to Bank
+TMP_5(bytes32) = HIGH_LEVEL_CALL, dest:TMP_4(Bank), function:supportsToken, arguments:[]  
+TMP_6(bool) = TMP_3 == TMP_5
+TMP_7(None) = SOLIDITY_CALL require(bool)(TMP_6)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

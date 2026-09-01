@@ -1,0 +1,7 @@
+nohup python -u main.py --run_mode create --train_mode contract_classification --create_corpus_mode create_corpus_txt --data_dir_name access_control_contract_data_augmentation --attack_type_name access_control > /data/space_station/AST-GNN/access_control_contract_data_augmentation/log 2>&1 &
+
+
+nohup python -u main.py --run_mode create --train_mode contract_classification --create_corpus_mode generate_all --data_dir_name access_control_contract_data_augmentation --attack_type_name access_control > /data/space_station/AST-GNN/access_control_contract_data_augmentation/log 2>&1 &
+
+
+nohup python -u main.py --run_mode contract_classification_train --train_mode contract_classification --create_corpus_mode no --data_dir_name access_control_contract_data_augmentation --attack_type_name access_control --gpu_id 0 > /data/space_station/AST-GNN/access_control_contract_data_augmentation/log 2>&1 &

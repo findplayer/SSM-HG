@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+erc20 = ERC20(token)
+
+IRs:
+TMP_93 = CONVERT token to ERC20
+erc20(ERC20) := TMP_93(ERC20)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(erc20.transfer(owner,amount))
+
+IRs:
+TMP_94(bool) = HIGH_LEVEL_CALL, dest:erc20(ERC20), function:transfer, arguments:['owner', 'amount']  
+TMP_95(None) = SOLIDITY_CALL require(bool)(TMP_94)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+3->1;
+}

@@ -1,0 +1,60 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(! safeGuard,System Paused by Admin)
+
+IRs:
+TMP_168 = UnaryType.BANG safeGuard 
+TMP_169(None) = SOLIDITY_CALL require(bool,string)(TMP_168,System Paused by Admin)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(tokens[address(0)][msg.sender] >= amount)
+
+IRs:
+TMP_170 = CONVERT 0 to address
+REF_93(mapping(address => uint256)) -> tokens[TMP_170]
+REF_94(uint256) -> REF_93[msg.sender]
+TMP_171(bool) = REF_94 >= amount
+TMP_172(None) = SOLIDITY_CALL require(bool)(TMP_171)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokens[address(0)][msg.sender] = tokens[address(0)][msg.sender].sub(amount)
+
+IRs:
+TMP_173 = CONVERT 0 to address
+REF_95(mapping(address => uint256)) -> tokens[TMP_173]
+REF_96(uint256) -> REF_95[msg.sender]
+TMP_174 = CONVERT 0 to address
+REF_97(mapping(address => uint256)) -> tokens[TMP_174]
+REF_98(uint256) -> REF_97[msg.sender]
+TMP_175(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_98', 'amount'] 
+REF_96(uint256) (->tokens) := TMP_175(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+msg.sender.transfer(amount)
+
+IRs:
+Transfer dest:msg.sender value:amount"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Withdraw(now,address(0),msg.sender,amount,tokens[address(0)][msg.sender])
+
+IRs:
+TMP_177 = CONVERT 0 to address
+TMP_178 = CONVERT 0 to address
+REF_101(mapping(address => uint256)) -> tokens[TMP_178]
+REF_102(uint256) -> REF_101[msg.sender]
+Emit Withdraw(now,TMP_177,msg.sender,amount,REF_102)"];
+}

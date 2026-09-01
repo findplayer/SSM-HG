@@ -1,0 +1,100 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->10;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+gameList[_fixtureId].odd_homeTeam = _odd_homeTeam
+
+IRs:
+REF_34(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_35(uint32) -> REF_34.odd_homeTeam
+REF_35(uint32) (->gameList) := _odd_homeTeam(uint32)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+gameList[_fixtureId].odd_drawTeam = _odd_drawTeam
+
+IRs:
+REF_36(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_37(uint32) -> REF_36.odd_drawTeam
+REF_37(uint32) (->gameList) := _odd_drawTeam(uint32)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+gameList[_fixtureId].odd_awayTeam = _odd_awayTeam
+
+IRs:
+REF_38(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_39(uint32) -> REF_38.odd_awayTeam
+REF_39(uint32) (->gameList) := _odd_awayTeam(uint32)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+gameList[_fixtureId].odd_over = _odd_over
+
+IRs:
+REF_40(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_41(uint32) -> REF_40.odd_over
+REF_41(uint32) (->gameList) := _odd_over(uint32)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+gameList[_fixtureId].odd_under = _odd_under
+
+IRs:
+REF_42(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_43(uint32) -> REF_42.odd_under
+REF_43(uint32) (->gameList) := _odd_under(uint32)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+gameList[_fixtureId].odd_homeTeamAndDraw = _odd_homeTeamAndDraw
+
+IRs:
+REF_44(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_45(uint32) -> REF_44.odd_homeTeamAndDraw
+REF_45(uint32) (->gameList) := _odd_homeTeamAndDraw(uint32)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+gameList[_fixtureId].odd_homeAndAwayTeam = _odd_homeAndAwayTeam
+
+IRs:
+REF_46(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_47(uint32) -> REF_46.odd_homeAndAwayTeam
+REF_47(uint32) (->gameList) := _odd_homeAndAwayTeam(uint32)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+gameList[_fixtureId].odd_awayTeamAndDraw = _odd_awayTeamAndDraw
+
+IRs:
+REF_48(WhiteBetting.GameInfo) -> gameList[_fixtureId]
+REF_49(uint32) -> REF_48.odd_awayTeamAndDraw
+REF_49(uint32) (->gameList) := _odd_awayTeamAndDraw(uint32)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+ChangeOdd(_fixtureId,_odd_homeTeam,_odd_drawTeam,_odd_awayTeam,_odd_over,_odd_under,_odd_homeTeamAndDraw,_odd_homeAndAwayTeam,_odd_awayTeamAndDraw)
+
+IRs:
+Emit ChangeOdd(_fixtureId,_odd_homeTeam,_odd_drawTeam,_odd_awayTeam,_odd_over,_odd_under,_odd_homeTeamAndDraw,_odd_homeAndAwayTeam,_odd_awayTeamAndDraw)"];
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, WhiteBetting.onlyOwner()()"];
+10->1;
+}

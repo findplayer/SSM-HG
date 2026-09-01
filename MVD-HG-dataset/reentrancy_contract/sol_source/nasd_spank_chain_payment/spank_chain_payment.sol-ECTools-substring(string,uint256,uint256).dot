@@ -1,0 +1,104 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+strBytes = bytes(_str)
+
+IRs:
+TMP_75 = CONVERT _str to bytes
+strBytes(bytes) := TMP_75(bytes)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(_startIndex <= _endIndex)
+
+IRs:
+TMP_76(bool) = _startIndex <= _endIndex
+TMP_77(None) = SOLIDITY_CALL require(bool)(TMP_76)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(_startIndex >= 0)
+
+IRs:
+TMP_78(bool) = _startIndex >= 0
+TMP_79(None) = SOLIDITY_CALL require(bool)(TMP_78)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(_endIndex <= strBytes.length)
+
+IRs:
+REF_17 -> LENGTH strBytes
+TMP_80(bool) = _endIndex <= REF_17
+TMP_81(None) = SOLIDITY_CALL require(bool)(TMP_80)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+result = new bytes(_endIndex - _startIndex)
+
+IRs:
+TMP_83(uint256) = _endIndex - _startIndex
+TMP_84 = new bytes(TMP_83)
+result(bytes) := TMP_84(bytes)"];
+5->8;
+6[label="Node Type: BEGIN_LOOP 6
+"];
+6->9;
+7[label="Node Type: END_LOOP 7
+"];
+7->12;
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+i = _startIndex
+
+IRs:
+i(uint256) := _startIndex(uint256)"];
+8->6;
+9[label="Node Type: IF_LOOP 9
+
+EXPRESSION:
+i < _endIndex
+
+IRs:
+TMP_85(bool) = i < _endIndex
+CONDITION TMP_85"];
+9->10[label="True"];
+9->7[label="False"];
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+result[i - _startIndex] = strBytes[i]
+
+IRs:
+TMP_86(uint256) = i - _startIndex
+REF_18(None) -> result[TMP_86]
+REF_19(None) -> strBytes[i]
+REF_18(None) (->result) := REF_19(None)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_87(uint256) := i(uint256)
+i(uint256) = i + 1"];
+11->9;
+12[label="Node Type: RETURN 12
+
+EXPRESSION:
+string(result)
+
+IRs:
+TMP_88 = CONVERT result to string
+RETURN TMP_88"];
+}

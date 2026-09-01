@@ -1,0 +1,69 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->9;
+1[label="Node Type: BEGIN_LOOP 1
+"];
+1->4;
+2[label="Node Type: END_LOOP 2
+"];
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint16) := 0(uint256)"];
+3->1;
+4[label="Node Type: IF_LOOP 4
+
+EXPRESSION:
+i < limit
+
+IRs:
+TMP_82(bool) = i < limit
+CONDITION TMP_82"];
+4->5[label="True"];
+4->2[label="False"];
+5[label="Node Type: IF 5
+
+EXPRESSION:
+accounts[i] != address(0x0)
+
+IRs:
+REF_19(address) -> accounts[i]
+TMP_83 = CONVERT 0 to address
+TMP_84(bool) = REF_19 != TMP_83
+CONDITION TMP_84"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+addReferrer(accounts[i])
+
+IRs:
+REF_20(address) -> accounts[i]
+INTERNAL_CALL, Referrers.addReferrer(address)(REF_20)"];
+6->7;
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_86(uint16) := i(uint16)
+i(uint16) = i + 1"];
+8->4;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+onlyOperator()
+
+IRs:
+MODIFIER_CALL, OperatorRole.onlyOperator()()"];
+9->3;
+}

@@ -1,0 +1,256 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(accountAddress != address(0x0),accountAddress not right)
+
+IRs:
+TMP_51 = CONVERT 0 to address
+TMP_52(bool) = accountAddress != TMP_51
+TMP_53(None) = SOLIDITY_CALL require(bool,string)(TMP_52,accountAddress not right)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+_account = accountMapping[accountAddress]
+
+IRs:
+REF_27(IGCToken.Account) -> accountMapping[accountAddress]
+_account(IGCToken.Account) := REF_27(IGCToken.Account)"];
+2->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+_account.ownAmount == 0
+
+IRs:
+REF_28(uint256) -> _account.ownAmount
+TMP_54(bool) = REF_28 == 0
+CONDITION TMP_54"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+_account.releasedAmount == _account.ownAmount
+
+IRs:
+REF_29(uint256) -> _account.releasedAmount
+REF_30(uint256) -> _account.ownAmount
+TMP_55(bool) = REF_29 == REF_30
+CONDITION TMP_55"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+_releasedAmount = 0
+
+IRs:
+_releasedAmount(uint256) := 0(uint256)"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+"];
+10->11;
+11[label="Node Type: NEW VARIABLE 11
+"];
+11->12;
+12[label="Node Type: NEW VARIABLE 12
+"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+(releaseTime,nolockRate,releaseRate) = getRoles(_account.roleType)
+
+IRs:
+REF_31(uint8) -> _account.roleType
+TUPLE_0(uint256,uint256,uint256) = INTERNAL_CALL, IGCToken.getRoles(uint8)(REF_31)
+releaseTime(uint256)= UNPACK TUPLE_0 index: 0 
+nolockRate(uint256)= UNPACK TUPLE_0 index: 1 
+releaseRate(uint256)= UNPACK TUPLE_0 index: 2 "];
+13->14;
+14[label="Node Type: IF 14
+
+EXPRESSION:
+nolockRate > 0 && nolockReleasedMapping[accountAddress] != true
+
+IRs:
+TMP_56(bool) = nolockRate > 0
+REF_32(bool) -> nolockReleasedMapping[accountAddress]
+TMP_57(bool) = REF_32 != True
+TMP_58(bool) = TMP_56 && TMP_57
+CONDITION TMP_58"];
+14->15[label="True"];
+14->17[label="False"];
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+_releasedAmount = _releasedAmount.add(_account.ownAmount.mul(nolockRate).div(100))
+
+IRs:
+REF_34(uint256) -> _account.ownAmount
+TMP_59(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['REF_34', 'nolockRate'] 
+TMP_60(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_59', '100'] 
+TMP_61(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['_releasedAmount', 'TMP_60'] 
+_releasedAmount(uint256) := TMP_61(uint256)"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+nolockReleasedMapping[accountAddress] = true
+
+IRs:
+REF_37(bool) -> nolockReleasedMapping[accountAddress]
+REF_37(bool) (->nolockReleasedMapping) := True(bool)"];
+16->17;
+17[label="Node Type: END_IF 17
+"];
+17->18;
+18[label="Node Type: IF 18
+
+EXPRESSION:
+releaseTime <= now
+
+IRs:
+TMP_62(bool) = releaseTime <= now
+CONDITION TMP_62"];
+18->19[label="True"];
+18->24[label="False"];
+19[label="Node Type: NEW VARIABLE 19
+
+EXPRESSION:
+_momth = now.sub(releaseTime).div(2592000).add(1)
+
+IRs:
+TMP_63(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['now', 'releaseTime'] 
+TMP_64(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_63', '2592000'] 
+TMP_65(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['TMP_64', '1'] 
+_momth(uint256) := TMP_65(uint256)"];
+19->20;
+20[label="Node Type: IF 20
+
+EXPRESSION:
+releasedRateMapping[accountAddress] <= _momth
+
+IRs:
+REF_41(uint256) -> releasedRateMapping[accountAddress]
+TMP_66(bool) = REF_41 <= _momth
+CONDITION TMP_66"];
+20->21[label="True"];
+20->23[label="False"];
+21[label="Node Type: EXPRESSION 21
+
+EXPRESSION:
+_releasedAmount = _releasedAmount.add(_account.ownAmount.mul(_momth - releasedRateMapping[accountAddress]).mul(releaseRate).div(100))
+
+IRs:
+REF_43(uint256) -> _account.ownAmount
+REF_45(uint256) -> releasedRateMapping[accountAddress]
+TMP_67(uint256) = _momth - REF_45
+TMP_68(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['REF_43', 'TMP_67'] 
+TMP_69(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['TMP_68', 'releaseRate'] 
+TMP_70(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_69', '100'] 
+TMP_71(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['_releasedAmount', 'TMP_70'] 
+_releasedAmount(uint256) := TMP_71(uint256)"];
+21->22;
+22[label="Node Type: EXPRESSION 22
+
+EXPRESSION:
+releasedRateMapping[accountAddress] = _momth
+
+IRs:
+REF_48(uint256) -> releasedRateMapping[accountAddress]
+REF_48(uint256) (->releasedRateMapping) := _momth(uint256)"];
+22->23;
+23[label="Node Type: END_IF 23
+"];
+23->24;
+24[label="Node Type: END_IF 24
+"];
+24->25;
+25[label="Node Type: IF 25
+
+EXPRESSION:
+_releasedAmount > 0
+
+IRs:
+TMP_72(bool) = _releasedAmount > 0
+CONDITION TMP_72"];
+25->26[label="True"];
+25->30[label="False"];
+26[label="Node Type: IF 26
+
+EXPRESSION:
+accountMapping[accountAddress].releasedAmount.add(_releasedAmount) <= _account.ownAmount
+
+IRs:
+REF_49(IGCToken.Account) -> accountMapping[accountAddress]
+REF_50(uint256) -> REF_49.releasedAmount
+TMP_73(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_50', '_releasedAmount'] 
+REF_52(uint256) -> _account.ownAmount
+TMP_74(bool) = TMP_73 <= REF_52
+CONDITION TMP_74"];
+26->27[label="True"];
+26->28[label="False"];
+27[label="Node Type: EXPRESSION 27
+
+EXPRESSION:
+accountMapping[accountAddress].releasedAmount = accountMapping[accountAddress].releasedAmount.add(_releasedAmount)
+
+IRs:
+REF_53(IGCToken.Account) -> accountMapping[accountAddress]
+REF_54(uint256) -> REF_53.releasedAmount
+REF_55(IGCToken.Account) -> accountMapping[accountAddress]
+REF_56(uint256) -> REF_55.releasedAmount
+TMP_75(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_56', '_releasedAmount'] 
+REF_54(uint256) (->accountMapping) := TMP_75(uint256)"];
+27->29;
+28[label="Node Type: EXPRESSION 28
+
+EXPRESSION:
+accountMapping[accountAddress].releasedAmount = _account.ownAmount
+
+IRs:
+REF_58(IGCToken.Account) -> accountMapping[accountAddress]
+REF_59(uint256) -> REF_58.releasedAmount
+REF_60(uint256) -> _account.ownAmount
+REF_59(uint256) (->accountMapping) := REF_60(uint256)"];
+28->29;
+29[label="Node Type: END_IF 29
+"];
+29->30;
+30[label="Node Type: END_IF 30
+"];
+30->31;
+31[label="Node Type: RETURN 31
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

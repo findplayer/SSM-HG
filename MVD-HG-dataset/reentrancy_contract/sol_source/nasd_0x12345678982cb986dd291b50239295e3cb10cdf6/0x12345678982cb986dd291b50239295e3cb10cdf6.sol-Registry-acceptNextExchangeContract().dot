@@ -1,0 +1,47 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(msg.sender == nextExchangeContract,Can only accept preapproved exchange contract.)
+
+IRs:
+TMP_19(bool) = msg.sender == nextExchangeContract
+TMP_20(None) = SOLIDITY_CALL require(bool,string)(TMP_19,Can only accept preapproved exchange contract.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+exchangeContract = nextExchangeContract
+
+IRs:
+exchangeContract(address) := nextExchangeContract(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+prevExchangeContracts[nextExchangeContract] = true
+
+IRs:
+REF_1(bool) -> prevExchangeContracts[nextExchangeContract]
+REF_1(bool) (->prevExchangeContracts) := True(bool)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+exchangeContractVersion ++
+
+IRs:
+TMP_21(uint256) := exchangeContractVersion(uint256)
+exchangeContractVersion(uint256) = exchangeContractVersion + 1"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+UpgradeExchangeContract(exchangeContract,exchangeContractVersion)
+
+IRs:
+Emit UpgradeExchangeContract(exchangeContract,exchangeContractVersion)"];
+}

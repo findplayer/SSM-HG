@@ -1,0 +1,31 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_tokenContract != address(0))
+
+IRs:
+TMP_43 = CONVERT 0 to address
+TMP_44(bool) = _tokenContract != TMP_43
+TMP_45(None) = SOLIDITY_CALL require(bool)(TMP_44)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+token = Token(_tokenContract)
+
+IRs:
+TMP_46 = CONVERT _tokenContract to Token
+token(Token) := TMP_46(Token)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+3->1;
+}

@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+((address(this).balance,totalInvestCount,totalInvestAmount,totalStaticCommissionWithdrawAmount,totalDynamicCommissionWithdrawAmount,totalWithdrawAmount,totalUserCount,engineerFunds,engineerWithdrawAmount,operatorFunds,operatorWithdrawAmount))
+
+IRs:
+TMP_288 = CONVERT this to address
+TMP_289(uint256) = SOLIDITY_CALL balance(address)(TMP_288)
+RETURN TMP_289,totalInvestCount,totalInvestAmount,totalStaticCommissionWithdrawAmount,totalDynamicCommissionWithdrawAmount,totalWithdrawAmount,totalUserCount,engineerFunds,engineerWithdrawAmount,operatorFunds,operatorWithdrawAmount"];
+}

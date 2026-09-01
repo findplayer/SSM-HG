@@ -1,0 +1,36 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+name = CirilloChain
+
+IRs:
+name(string) := CirilloChain(string)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+symbol = CIN
+
+IRs:
+symbol(string) := CIN(string)"];
+1->2;
+2[label="Node Type: OTHER_ENTRYPOINT 2
+
+EXPRESSION:
+decimals = 18
+
+IRs:
+decimals(uint8) := 18(uint256)"];
+2->3;
+3[label="Node Type: OTHER_ENTRYPOINT 3
+
+EXPRESSION:
+INITIAL_SUPPLY = 5000000000 * (10 ** uint256(decimals))
+
+IRs:
+TMP_183 = CONVERT decimals to uint256
+TMP_184(uint256) = 10 ** TMP_183
+TMP_185(uint256) = 5000000000 * TMP_184
+INITIAL_SUPPLY(uint256) := TMP_185(uint256)"];
+}

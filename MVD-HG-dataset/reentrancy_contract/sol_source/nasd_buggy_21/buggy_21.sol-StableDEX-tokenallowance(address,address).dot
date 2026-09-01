@@ -1,0 +1,15 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+Token(tokenAddr).allowance(owner,address(this))
+
+IRs:
+TMP_295 = CONVERT tokenAddr to Token
+TMP_296 = CONVERT this to address
+TMP_297(uint256) = HIGH_LEVEL_CALL, dest:TMP_295(Token), function:allowance, arguments:['owner', 'TMP_296']  
+RETURN TMP_297"];
+}

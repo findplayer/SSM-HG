@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+_contributors[account].tokenAmount
+
+IRs:
+REF_18(Contributions.Contributor) -> _contributors[account]
+REF_19(uint256) -> REF_18.tokenAmount
+RETURN REF_19"];
+}

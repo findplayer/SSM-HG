@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_addWhitelistAdmin(account)
+
+IRs:
+INTERNAL_CALL, WhitelistAdminRole._addWhitelistAdmin(address)(account)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyWhitelistAdmin()
+
+IRs:
+MODIFIER_CALL, WhitelistAdminRole.onlyWhitelistAdmin()()"];
+2->1;
+}

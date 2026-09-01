@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+totalSupply = INITIAL_SUPPLY
+
+IRs:
+totalSupply(uint256) := INITIAL_SUPPLY(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+owner = _owner
+
+IRs:
+owner(address) := _owner(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[owner] = INITIAL_SUPPLY
+
+IRs:
+REF_94(uint256) -> balances[owner]
+REF_94(uint256) (->balances) := INITIAL_SUPPLY(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+tokenAllocated = 0
+
+IRs:
+tokenAllocated(uint256) := 0(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+transfersEnabled = true
+
+IRs:
+transfersEnabled(bool) := True(bool)"];
+}

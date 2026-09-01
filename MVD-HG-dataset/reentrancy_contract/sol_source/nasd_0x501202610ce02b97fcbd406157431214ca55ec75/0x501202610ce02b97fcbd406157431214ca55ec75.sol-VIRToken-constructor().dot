@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+owner = msg.sender
+
+IRs:
+owner(address) := msg.sender(address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+totalSupply = initialSupply
+
+IRs:
+totalSupply(uint256) := initialSupply(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[owner] = initialSupply
+
+IRs:
+REF_92(uint256) -> balances[owner]
+REF_92(uint256) (->balances) := initialSupply(uint256)"];
+}

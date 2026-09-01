@@ -1,0 +1,32 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+exchangeContractVersion > 1
+
+IRs:
+TMP_28(bool) = exchangeContractVersion > 1
+CONDITION TMP_28"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+exchangeContractVersion == traderApprovals[traderAddr]
+
+IRs:
+REF_3(uint256) -> traderApprovals[traderAddr]
+TMP_29(bool) = exchangeContractVersion == REF_3
+RETURN TMP_29"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+exchangeContractVersion == 1
+
+IRs:
+TMP_30(bool) = exchangeContractVersion == 1
+RETURN TMP_30"];
+}

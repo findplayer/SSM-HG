@@ -1,0 +1,32 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+ieoState = getCurrentState()
+
+IRs:
+TMP_286(AcunarIEO.State) = INTERNAL_CALL, AcunarIEO.getCurrentState()()
+ieoState(AcunarIEO.State) := TMP_286(AcunarIEO.State)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(ieoState == State.afterEnd)
+
+IRs:
+REF_204(AcunarIEO.State) -> State.afterEnd
+TMP_287(bool) = ieoState == REF_204
+TMP_288(None) = SOLIDITY_CALL require(bool)(TMP_287)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[founder] = 0
+
+IRs:
+REF_205(uint256) -> balances[founder]
+REF_205(uint256) (->balances) := 0(uint256)"];
+}

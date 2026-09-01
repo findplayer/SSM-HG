@@ -1,0 +1,7 @@
+nohup python main.py -u --run_mode create --train_mode contract_classification --create_corpus_mode create_corpus_txt --data_dir_name reentrancy_contract --attack_type_name reentrancy > reentrancy_contract/log 2>&1 &
+
+
+nohup python main.py -u --run_mode create --train_mode contract_classification --create_corpus_mode generate_all --data_dir_name reentrancy_contract --attack_type_name reentrancy > reentrancy_contract/log 2>&1 &
+
+
+nohup python main.py -u --run_mode contract_classification_train --train_mode contract_classification --create_corpus_mode no --data_dir_name reentrancy_contract --attack_type_name reentrancy --gpu_id 1 > reentrancy_contract/log 2>&1 &

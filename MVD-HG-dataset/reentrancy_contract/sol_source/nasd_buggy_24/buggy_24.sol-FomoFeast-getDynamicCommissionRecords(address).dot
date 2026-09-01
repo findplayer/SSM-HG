@@ -1,0 +1,57 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+records = dynamicCommissionRecordMapping[userAddress]
+
+IRs:
+REF_344(FomoFeast.CommissionRecord[9]) -> dynamicCommissionRecordMapping[userAddress]
+records(FomoFeast.CommissionRecord[9]) = ['REF_344(FomoFeast.CommissionRecord[9])']"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+((records[0].time,records[0].amount),(records[1].time,records[1].amount),(records[2].time,records[2].amount),(records[3].time,records[3].amount),(records[4].time,records[4].amount),(records[5].time,records[5].amount),(records[6].time,records[6].amount),(records[7].time,records[7].amount),(records[8].time,records[8].amount))
+
+IRs:
+REF_345(FomoFeast.CommissionRecord) -> records[0]
+REF_346(uint256) -> REF_345.time
+REF_347(FomoFeast.CommissionRecord) -> records[0]
+REF_348(uint256) -> REF_347.amount
+REF_349(FomoFeast.CommissionRecord) -> records[1]
+REF_350(uint256) -> REF_349.time
+REF_351(FomoFeast.CommissionRecord) -> records[1]
+REF_352(uint256) -> REF_351.amount
+REF_353(FomoFeast.CommissionRecord) -> records[2]
+REF_354(uint256) -> REF_353.time
+REF_355(FomoFeast.CommissionRecord) -> records[2]
+REF_356(uint256) -> REF_355.amount
+REF_357(FomoFeast.CommissionRecord) -> records[3]
+REF_358(uint256) -> REF_357.time
+REF_359(FomoFeast.CommissionRecord) -> records[3]
+REF_360(uint256) -> REF_359.amount
+REF_361(FomoFeast.CommissionRecord) -> records[4]
+REF_362(uint256) -> REF_361.time
+REF_363(FomoFeast.CommissionRecord) -> records[4]
+REF_364(uint256) -> REF_363.amount
+REF_365(FomoFeast.CommissionRecord) -> records[5]
+REF_366(uint256) -> REF_365.time
+REF_367(FomoFeast.CommissionRecord) -> records[5]
+REF_368(uint256) -> REF_367.amount
+REF_369(FomoFeast.CommissionRecord) -> records[6]
+REF_370(uint256) -> REF_369.time
+REF_371(FomoFeast.CommissionRecord) -> records[6]
+REF_372(uint256) -> REF_371.amount
+REF_373(FomoFeast.CommissionRecord) -> records[7]
+REF_374(uint256) -> REF_373.time
+REF_375(FomoFeast.CommissionRecord) -> records[7]
+REF_376(uint256) -> REF_375.amount
+REF_377(FomoFeast.CommissionRecord) -> records[8]
+REF_378(uint256) -> REF_377.time
+REF_379(FomoFeast.CommissionRecord) -> records[8]
+REF_380(uint256) -> REF_379.amount
+RETURN REF_346,REF_348,REF_350,REF_352,REF_354,REF_356,REF_358,REF_360,REF_362,REF_364,REF_366,REF_368,REF_370,REF_372,REF_374,REF_376,REF_378,REF_380"];
+}

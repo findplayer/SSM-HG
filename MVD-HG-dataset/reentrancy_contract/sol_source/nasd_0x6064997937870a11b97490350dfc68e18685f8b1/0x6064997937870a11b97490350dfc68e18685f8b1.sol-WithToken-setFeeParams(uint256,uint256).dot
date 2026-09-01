@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+basisPointsRate = newBasisPoints
+
+IRs:
+basisPointsRate(uint256) := newBasisPoints(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+maximumFee = newMaxFee.mul(uint256(10) ** decimals)
+
+IRs:
+TMP_723 = CONVERT 10 to uint256
+TMP_724(uint256) = TMP_723 ** decimals
+TMP_725(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['newMaxFee', 'TMP_724'] 
+maximumFee(uint256) := TMP_725(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+FeeParams(basisPointsRate,maximumFee)
+
+IRs:
+Emit FeeParams(basisPointsRate,maximumFee)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyCEO()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyCEO()()"];
+4->1;
+}

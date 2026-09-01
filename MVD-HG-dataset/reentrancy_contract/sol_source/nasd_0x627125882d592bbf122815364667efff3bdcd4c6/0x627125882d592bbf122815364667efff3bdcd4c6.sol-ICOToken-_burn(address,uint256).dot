@@ -1,0 +1,66 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(value > 0,Tokens to burn must be greater than zero)
+
+IRs:
+TMP_108(bool) = value > 0
+TMP_109(None) = SOLIDITY_CALL require(bool,string)(TMP_108,Tokens to burn must be greater than zero)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(balances[addressToBurn] >= value,Tokens to burn exceeds balance)
+
+IRs:
+REF_50(uint256) -> balances[addressToBurn]
+TMP_110(bool) = REF_50 >= value
+TMP_111(None) = SOLIDITY_CALL require(bool,string)(TMP_110,Tokens to burn exceeds balance)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[addressToBurn] = balances[addressToBurn].sub(value)
+
+IRs:
+REF_51(uint256) -> balances[addressToBurn]
+REF_52(uint256) -> balances[addressToBurn]
+TMP_112(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_52', 'value'] 
+REF_51(uint256) (->balances) := TMP_112(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+totalSupply_ = totalSupply_.sub(value)
+
+IRs:
+TMP_113(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['totalSupply_', 'value'] 
+totalSupply_(uint256) := TMP_113(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Burn(msg.sender,value)
+
+IRs:
+Emit Burn(msg.sender,value)"];
+5->6;
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

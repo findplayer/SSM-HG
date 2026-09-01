@@ -1,0 +1,114 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_to != address(0))
+
+IRs:
+TMP_30 = CONVERT 0 to address
+TMP_31(bool) = _to != TMP_30
+TMP_32(None) = SOLIDITY_CALL require(bool)(TMP_31)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+calcCurPointsForAcct(_from)
+
+IRs:
+INTERNAL_CALL, ETT.calcCurPointsForAcct(address)(_from)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokenHolders[_from].tokens = safeSub(tokenHolders[_from].tokens,_value)
+
+IRs:
+REF_4(ETT.tokenHolder) -> tokenHolders[_from]
+REF_5(uint256) -> REF_4.tokens
+REF_6(ETT.tokenHolder) -> tokenHolders[_from]
+REF_7(uint256) -> REF_6.tokens
+TMP_34(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_7,_value)
+REF_5(uint256) (->tokenHolders) := TMP_34(uint256)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+tokenHolders[_to].lastEthSnapshot == 0
+
+IRs:
+REF_8(ETT.tokenHolder) -> tokenHolders[_to]
+REF_9(uint256) -> REF_8.lastEthSnapshot
+TMP_35(bool) = REF_9 == 0
+CONDITION TMP_35"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+tokenHolders[_to].lastEthSnapshot = totalEthReceived
+
+IRs:
+REF_10(ETT.tokenHolder) -> tokenHolders[_to]
+REF_11(uint256) -> REF_10.lastEthSnapshot
+REF_11(uint256) (->tokenHolders) := totalEthReceived(uint256)"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: IF 7
+
+EXPRESSION:
+tokenHolders[_to].lastDaiSnapshot == 0
+
+IRs:
+REF_12(ETT.tokenHolder) -> tokenHolders[_to]
+REF_13(uint256) -> REF_12.lastDaiSnapshot
+TMP_36(bool) = REF_13 == 0
+CONDITION TMP_36"];
+7->8[label="True"];
+7->9[label="False"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+tokenHolders[_to].lastDaiSnapshot = totalDaiReceived
+
+IRs:
+REF_14(ETT.tokenHolder) -> tokenHolders[_to]
+REF_15(uint256) -> REF_14.lastDaiSnapshot
+REF_15(uint256) (->tokenHolders) := totalDaiReceived(uint256)"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+calcCurPointsForAcct(_to)
+
+IRs:
+INTERNAL_CALL, ETT.calcCurPointsForAcct(address)(_to)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+tokenHolders[_to].tokens = safeAdd(tokenHolders[_to].tokens,_value)
+
+IRs:
+REF_16(ETT.tokenHolder) -> tokenHolders[_to]
+REF_17(uint256) -> REF_16.tokens
+REF_18(ETT.tokenHolder) -> tokenHolders[_to]
+REF_19(uint256) -> REF_18.tokens
+TMP_38(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_19,_value)
+REF_17(uint256) (->tokenHolders) := TMP_38(uint256)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+Transfer(_from,_to,_value)
+
+IRs:
+Emit Transfer(_from,_to,_value)"];
+}

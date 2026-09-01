@@ -1,0 +1,20 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+arbits_presale_open = _v
+
+IRs:
+arbits_presale_open(bool) := _v(bool)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+only_master_or_owner()
+
+IRs:
+MODIFIER_CALL, database.only_master_or_owner()()"];
+2->1;
+}

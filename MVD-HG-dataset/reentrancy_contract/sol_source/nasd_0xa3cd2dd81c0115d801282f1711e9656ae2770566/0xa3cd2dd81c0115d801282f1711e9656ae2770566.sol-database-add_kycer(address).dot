@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+kycers[_subject] = true
+
+IRs:
+REF_5(bool) -> kycers[_subject]
+REF_5(bool) (->kycers) := True(bool)"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+only_owner()
+
+IRs:
+MODIFIER_CALL, database.only_owner()()"];
+2->1;
+}

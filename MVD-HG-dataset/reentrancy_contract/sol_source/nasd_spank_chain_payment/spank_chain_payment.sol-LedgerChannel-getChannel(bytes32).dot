@@ -1,0 +1,33 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+channel = Channels[id]
+
+IRs:
+REF_601(LedgerChannel.Channel) -> Channels[id]
+channel(LedgerChannel.Channel) := REF_601(LedgerChannel.Channel)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+(channel.partyAddresses,channel.ethBalances,channel.erc20Balances,channel.initialDeposit,channel.sequence,channel.confirmTime,channel.VCrootHash,channel.LCopenTimeout,channel.updateLCtimeout,channel.isOpen,channel.isUpdateLCSettling,channel.numOpenVC)
+
+IRs:
+REF_602(address[2]) -> channel.partyAddresses
+REF_603(uint256[4]) -> channel.ethBalances
+REF_604(uint256[4]) -> channel.erc20Balances
+REF_605(uint256[2]) -> channel.initialDeposit
+REF_606(uint256) -> channel.sequence
+REF_607(uint256) -> channel.confirmTime
+REF_608(bytes32) -> channel.VCrootHash
+REF_609(uint256) -> channel.LCopenTimeout
+REF_610(uint256) -> channel.updateLCtimeout
+REF_611(bool) -> channel.isOpen
+REF_612(bool) -> channel.isUpdateLCSettling
+REF_613(uint256) -> channel.numOpenVC
+RETURN REF_602,REF_603,REF_604,REF_605,REF_606,REF_607,REF_608,REF_609,REF_610,REF_611,REF_612,REF_613"];
+}

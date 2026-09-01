@@ -1,0 +1,33 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(account != address(0))
+
+IRs:
+TMP_59 = CONVERT 0 to address
+TMP_60(bool) = account != TMP_59
+TMP_61(None) = SOLIDITY_CALL require(bool)(TMP_60)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(has(role,account))
+
+IRs:
+TMP_62(bool) = INTERNAL_CALL, Roles.has(Roles.Role,address)(role,account)
+TMP_63(None) = SOLIDITY_CALL require(bool)(TMP_62)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+role.bearer[account] = false
+
+IRs:
+REF_33(mapping(address => bool)) -> role.bearer
+REF_34(bool) -> REF_33[account]
+REF_34(bool) (->role) := False(bool)"];
+}

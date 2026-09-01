@@ -1,0 +1,36 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+name = IGCcoin
+
+IRs:
+name(string) := IGCcoin(string)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+symbol = IGC
+
+IRs:
+symbol(string) := IGC(string)"];
+1->2;
+2[label="Node Type: OTHER_ENTRYPOINT 2
+
+EXPRESSION:
+decimals = 18
+
+IRs:
+decimals(uint8) := 18(uint256)"];
+2->3;
+3[label="Node Type: OTHER_ENTRYPOINT 3
+
+EXPRESSION:
+INITIAL_SUPPLY = 1000000000 * (10 ** uint256(decimals))
+
+IRs:
+TMP_122 = CONVERT decimals to uint256
+TMP_123(uint256) = 10 ** TMP_122
+TMP_124(uint256) = 1000000000 * TMP_123
+INITIAL_SUPPLY(uint256) := TMP_124(uint256)"];
+}

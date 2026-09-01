@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+database(db).get_sale_owner(_a)
+
+IRs:
+TMP_199 = CONVERT db to database
+TMP_200(bool) = HIGH_LEVEL_CALL, dest:TMP_199(database), function:get_sale_owner, arguments:['_a']  
+RETURN TMP_200"];
+}

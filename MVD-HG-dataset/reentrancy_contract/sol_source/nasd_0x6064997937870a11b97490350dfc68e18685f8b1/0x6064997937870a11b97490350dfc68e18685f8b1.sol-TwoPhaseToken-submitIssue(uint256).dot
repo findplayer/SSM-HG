@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+params[ISSUE_METHOD] = MethodParam(ISSUE_METHOD,_value,true)
+
+IRs:
+REF_304(TwoPhaseToken.MethodParam) -> params[ISSUE_METHOD]
+TMP_539(TwoPhaseToken.MethodParam) = new MethodParam(ISSUE_METHOD,_value,True)
+REF_304(TwoPhaseToken.MethodParam) (->params) := TMP_539(TwoPhaseToken.MethodParam)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+SubmitIsses(msg.sender,_value)
+
+IRs:
+Emit SubmitIsses(msg.sender,_value)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyMANAGER()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyMANAGER()()"];
+3->1;
+}

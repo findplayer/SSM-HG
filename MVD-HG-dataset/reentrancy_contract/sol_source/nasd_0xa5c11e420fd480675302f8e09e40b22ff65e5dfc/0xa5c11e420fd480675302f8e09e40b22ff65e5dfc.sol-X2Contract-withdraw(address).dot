@@ -1,0 +1,113 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+balance = getUserBalance(_address)
+
+IRs:
+TMP_14(uint256) = INTERNAL_CALL, X2Contract.getUserBalance(address)(_address)
+balance(uint256) := TMP_14(uint256)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+deposit[_address] > 0 && address(this).balance >= balance && balance > 0
+
+IRs:
+REF_8(uint256) -> deposit[_address]
+TMP_15(bool) = REF_8 > 0
+TMP_16 = CONVERT this to address
+TMP_17(uint256) = SOLIDITY_CALL balance(address)(TMP_16)
+TMP_18(bool) = TMP_17 >= balance
+TMP_19(bool) = TMP_15 && TMP_18
+TMP_20(bool) = balance > 0
+TMP_21(bool) = TMP_19 && TMP_20
+CONDITION TMP_21"];
+2->3[label="True"];
+2->12[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+withdrawals[_address] = withdrawals[_address].add(balance)
+
+IRs:
+REF_9(uint256) -> withdrawals[_address]
+REF_10(uint256) -> withdrawals[_address]
+TMP_22(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_10', 'balance'] 
+REF_9(uint256) (->withdrawals) := TMP_22(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+time[_address] = now
+
+IRs:
+REF_12(uint256) -> time[_address]
+REF_12(uint256) (->time) := now(uint256)"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+withdrawals[_address] >= deposit[_address].mul(2)
+
+IRs:
+REF_13(uint256) -> withdrawals[_address]
+REF_14(uint256) -> deposit[_address]
+TMP_23(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['REF_14', '2'] 
+TMP_24(bool) = REF_13 >= TMP_23
+CONDITION TMP_24"];
+5->6[label="True"];
+5->10[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+deposit[_address] = 0
+
+IRs:
+REF_16(uint256) -> deposit[_address]
+REF_16(uint256) (->deposit) := 0(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+time[_address] = 0
+
+IRs:
+REF_17(uint256) -> time[_address]
+REF_17(uint256) (->time) := 0(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+withdrawals[_address] = 0
+
+IRs:
+REF_18(uint256) -> withdrawals[_address]
+REF_18(uint256) (->withdrawals) := 0(uint256)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+countOfInvestors --
+
+IRs:
+TMP_25(uint256) := countOfInvestors(uint256)
+countOfInvestors(uint256) = countOfInvestors - 1"];
+9->10;
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+_address.transfer(balance)
+
+IRs:
+Transfer dest:_address value:balance"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+}

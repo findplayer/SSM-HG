@@ -1,0 +1,55 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+allowanceCollection[msg.sender][_spender] > 0 && _value != 0
+
+IRs:
+REF_12(mapping(address => uint256)) -> allowanceCollection[msg.sender]
+REF_13(uint256) -> REF_12[_spender]
+TMP_37(bool) = REF_13 > 0
+TMP_38(bool) = _value != 0
+TMP_39(bool) = TMP_37 && TMP_38
+CONDITION TMP_39"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+revert(string)(You cannot set a non-zero allowance to another non-zero, you must zero it first.)
+
+IRs:
+TMP_40(None) = SOLIDITY_CALL revert(string)(You cannot set a non-zero allowance to another non-zero, you must zero it first.)"];
+2->3;
+3[label="Node Type: END_IF 3
+"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+allowanceCollection[msg.sender][_spender] = _value
+
+IRs:
+REF_14(mapping(address => uint256)) -> allowanceCollection[msg.sender]
+REF_15(uint256) -> REF_14[_spender]
+REF_15(uint256) (->allowanceCollection) := _value(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Approval(msg.sender,_spender,_value)
+
+IRs:
+Emit Approval(msg.sender,_spender,_value)"];
+5->6;
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

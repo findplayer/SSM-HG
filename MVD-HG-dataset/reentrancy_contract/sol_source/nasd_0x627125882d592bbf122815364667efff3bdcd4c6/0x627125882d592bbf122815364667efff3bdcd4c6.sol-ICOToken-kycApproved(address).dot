@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(! isIcoComplete,The ICO phase has ended, you can no longer approve.)
+
+IRs:
+TMP_54 = UnaryType.BANG isIcoComplete 
+TMP_55(None) = SOLIDITY_CALL require(bool,string)(TMP_54,The ICO phase has ended, you can no longer approve.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(who != address(0x0),Cannot approve a null address.)
+
+IRs:
+TMP_56 = CONVERT 0 to address
+TMP_57(bool) = who != TMP_56
+TMP_58(None) = SOLIDITY_CALL require(bool,string)(TMP_57,Cannot approve a null address.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+kycValidated.push(who)
+
+IRs:
+REF_24 -> LENGTH kycValidated
+TMP_60(uint256) := REF_24(uint256)
+TMP_61(uint256) = TMP_60 + 1
+REF_24(uint256) (->kycValidated) := TMP_61(uint256)
+REF_25(address) -> kycValidated[TMP_60]
+REF_25(address) (->kycValidated) := who(address)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyKycProvider()
+
+IRs:
+MODIFIER_CALL, ICOToken.onlyKycProvider()()"];
+4->1;
+}

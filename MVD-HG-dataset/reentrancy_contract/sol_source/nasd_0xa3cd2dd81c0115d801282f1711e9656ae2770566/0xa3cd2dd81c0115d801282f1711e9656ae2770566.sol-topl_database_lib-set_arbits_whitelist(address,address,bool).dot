@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+database(db).set_participant_arbits_kyc_whitelist(_a,_v)
+
+IRs:
+TMP_85 = CONVERT db to database
+HIGH_LEVEL_CALL, dest:TMP_85(database), function:set_participant_arbits_kyc_whitelist, arguments:['_a', '_v']  "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+e_set_arbits_whitelist(_a,_v)
+
+IRs:
+Emit e_set_arbits_whitelist(_a,_v)"];
+}

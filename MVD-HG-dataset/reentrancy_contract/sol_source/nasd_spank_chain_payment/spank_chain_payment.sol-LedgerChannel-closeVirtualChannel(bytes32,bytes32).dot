@@ -1,0 +1,229 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].isOpen,LC is closed.)
+
+IRs:
+REF_449(LedgerChannel.Channel) -> Channels[_lcID]
+REF_450(bool) -> REF_449.isOpen
+TMP_276(None) = SOLIDITY_CALL require(bool,string)(REF_450,LC is closed.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(virtualChannels[_vcID].isInSettlementState,VC is not in settlement state.)
+
+IRs:
+REF_451(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_452(bool) -> REF_451.isInSettlementState
+TMP_277(None) = SOLIDITY_CALL require(bool,string)(REF_452,VC is not in settlement state.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(virtualChannels[_vcID].updateVCtimeout < now,Update vc timeout has not elapsed.)
+
+IRs:
+REF_453(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_454(uint256) -> REF_453.updateVCtimeout
+TMP_278(bool) = REF_454 < now
+TMP_279(None) = SOLIDITY_CALL require(bool,string)(TMP_278,Update vc timeout has not elapsed.)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool,string)(! virtualChannels[_vcID].isClose,VC is already closed)
+
+IRs:
+REF_455(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_456(bool) -> REF_455.isClose
+TMP_280 = UnaryType.BANG REF_456 
+TMP_281(None) = SOLIDITY_CALL require(bool,string)(TMP_280,VC is already closed)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Channels[_lcID].numOpenVC --
+
+IRs:
+REF_457(LedgerChannel.Channel) -> Channels[_lcID]
+REF_458(uint256) -> REF_457.numOpenVC
+TMP_282(uint256) := REF_458(uint256)
+REF_458(-> Channels) = REF_458 - 1"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+virtualChannels[_vcID].isClose = true
+
+IRs:
+REF_459(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_460(bool) -> REF_459.isClose
+REF_460(bool) (->virtualChannels) := True(bool)"];
+6->7;
+7[label="Node Type: IF 7
+
+EXPRESSION:
+virtualChannels[_vcID].partyA == Channels[_lcID].partyAddresses[0]
+
+IRs:
+REF_461(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_462(address) -> REF_461.partyA
+REF_463(LedgerChannel.Channel) -> Channels[_lcID]
+REF_464(address[2]) -> REF_463.partyAddresses
+REF_465(address) -> REF_464[0]
+TMP_283(bool) = REF_462 == REF_465
+CONDITION TMP_283"];
+7->8[label="True"];
+7->12[label="False"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Channels[_lcID].ethBalances[0] += virtualChannels[_vcID].ethBalances[0]
+
+IRs:
+REF_466(LedgerChannel.Channel) -> Channels[_lcID]
+REF_467(uint256[4]) -> REF_466.ethBalances
+REF_468(uint256) -> REF_467[0]
+REF_469(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_470(uint256[2]) -> REF_469.ethBalances
+REF_471(uint256) -> REF_470[0]
+REF_468(-> Channels) = REF_468 + REF_471"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+Channels[_lcID].ethBalances[1] += virtualChannels[_vcID].ethBalances[1]
+
+IRs:
+REF_472(LedgerChannel.Channel) -> Channels[_lcID]
+REF_473(uint256[4]) -> REF_472.ethBalances
+REF_474(uint256) -> REF_473[1]
+REF_475(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_476(uint256[2]) -> REF_475.ethBalances
+REF_477(uint256) -> REF_476[1]
+REF_474(-> Channels) = REF_474 + REF_477"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[0] += virtualChannels[_vcID].erc20Balances[0]
+
+IRs:
+REF_478(LedgerChannel.Channel) -> Channels[_lcID]
+REF_479(uint256[4]) -> REF_478.erc20Balances
+REF_480(uint256) -> REF_479[0]
+REF_481(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_482(uint256[2]) -> REF_481.erc20Balances
+REF_483(uint256) -> REF_482[0]
+REF_480(-> Channels) = REF_480 + REF_483"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[1] += virtualChannels[_vcID].erc20Balances[1]
+
+IRs:
+REF_484(LedgerChannel.Channel) -> Channels[_lcID]
+REF_485(uint256[4]) -> REF_484.erc20Balances
+REF_486(uint256) -> REF_485[1]
+REF_487(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_488(uint256[2]) -> REF_487.erc20Balances
+REF_489(uint256) -> REF_488[1]
+REF_486(-> Channels) = REF_486 + REF_489"];
+11->18;
+12[label="Node Type: IF 12
+
+EXPRESSION:
+virtualChannels[_vcID].partyB == Channels[_lcID].partyAddresses[0]
+
+IRs:
+REF_490(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_491(address) -> REF_490.partyB
+REF_492(LedgerChannel.Channel) -> Channels[_lcID]
+REF_493(address[2]) -> REF_492.partyAddresses
+REF_494(address) -> REF_493[0]
+TMP_284(bool) = REF_491 == REF_494
+CONDITION TMP_284"];
+12->13[label="True"];
+12->17[label="False"];
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+Channels[_lcID].ethBalances[0] += virtualChannels[_vcID].ethBalances[1]
+
+IRs:
+REF_495(LedgerChannel.Channel) -> Channels[_lcID]
+REF_496(uint256[4]) -> REF_495.ethBalances
+REF_497(uint256) -> REF_496[0]
+REF_498(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_499(uint256[2]) -> REF_498.ethBalances
+REF_500(uint256) -> REF_499[1]
+REF_497(-> Channels) = REF_497 + REF_500"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+Channels[_lcID].ethBalances[1] += virtualChannels[_vcID].ethBalances[0]
+
+IRs:
+REF_501(LedgerChannel.Channel) -> Channels[_lcID]
+REF_502(uint256[4]) -> REF_501.ethBalances
+REF_503(uint256) -> REF_502[1]
+REF_504(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_505(uint256[2]) -> REF_504.ethBalances
+REF_506(uint256) -> REF_505[0]
+REF_503(-> Channels) = REF_503 + REF_506"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[0] += virtualChannels[_vcID].erc20Balances[1]
+
+IRs:
+REF_507(LedgerChannel.Channel) -> Channels[_lcID]
+REF_508(uint256[4]) -> REF_507.erc20Balances
+REF_509(uint256) -> REF_508[0]
+REF_510(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_511(uint256[2]) -> REF_510.erc20Balances
+REF_512(uint256) -> REF_511[1]
+REF_509(-> Channels) = REF_509 + REF_512"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[1] += virtualChannels[_vcID].erc20Balances[0]
+
+IRs:
+REF_513(LedgerChannel.Channel) -> Channels[_lcID]
+REF_514(uint256[4]) -> REF_513.erc20Balances
+REF_515(uint256) -> REF_514[1]
+REF_516(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_517(uint256[2]) -> REF_516.erc20Balances
+REF_518(uint256) -> REF_517[0]
+REF_515(-> Channels) = REF_515 + REF_518"];
+16->17;
+17[label="Node Type: END_IF 17
+"];
+17->18;
+18[label="Node Type: END_IF 18
+"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+DidVCClose(_lcID,_vcID,virtualChannels[_vcID].erc20Balances[0],virtualChannels[_vcID].erc20Balances[1])
+
+IRs:
+REF_519(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_520(uint256[2]) -> REF_519.erc20Balances
+REF_521(uint256) -> REF_520[0]
+REF_522(LedgerChannel.VirtualChannel) -> virtualChannels[_vcID]
+REF_523(uint256[2]) -> REF_522.erc20Balances
+REF_524(uint256) -> REF_523[1]
+Emit DidVCClose(_lcID,_vcID,REF_521,REF_524)"];
+}

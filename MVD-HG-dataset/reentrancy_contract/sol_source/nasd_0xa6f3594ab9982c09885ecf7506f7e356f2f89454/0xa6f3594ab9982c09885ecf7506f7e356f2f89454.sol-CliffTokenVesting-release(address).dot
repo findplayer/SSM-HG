@@ -1,0 +1,85 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->9;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+unreleased = releasableAmount(account)
+
+IRs:
+TMP_17(uint256) = INTERNAL_CALL, CliffTokenVesting.releasableAmount(address)(account)
+unreleased(uint256) := TMP_17(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(unreleased > 0)
+
+IRs:
+TMP_18(bool) = unreleased > 0
+TMP_19(None) = SOLIDITY_CALL require(bool)(TMP_18)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+beneficiary[account].releasedAmount = beneficiary[account].releasedAmount.add(unreleased)
+
+IRs:
+REF_3(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_4(uint256) -> REF_3.releasedAmount
+REF_5(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_6(uint256) -> REF_5.releasedAmount
+TMP_20(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_6', 'unreleased'] 
+REF_4(uint256) (->beneficiary) := TMP_20(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+token.transfer(account,unreleased)
+
+IRs:
+TMP_21(bool) = HIGH_LEVEL_CALL, dest:token(ERC20TokenInterface), function:transfer, arguments:['account', 'unreleased']  "];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Released(account,unreleased)
+
+IRs:
+Emit Released(account,unreleased)"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+beneficiary[account].releasedAmount == beneficiary[account].totalAmount
+
+IRs:
+REF_9(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_10(uint256) -> REF_9.releasedAmount
+REF_11(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+REF_12(uint256) -> REF_11.totalAmount
+TMP_23(bool) = REF_10 == REF_12
+CONDITION TMP_23"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+delete beneficiary[account]
+
+IRs:
+REF_13(CliffTokenVesting.Beneficiary) -> beneficiary[account]
+beneficiary = delete REF_13 "];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+isVestedAccount(account)
+
+IRs:
+MODIFIER_CALL, CliffTokenVesting.isVestedAccount(address)(account)"];
+9->1;
+}

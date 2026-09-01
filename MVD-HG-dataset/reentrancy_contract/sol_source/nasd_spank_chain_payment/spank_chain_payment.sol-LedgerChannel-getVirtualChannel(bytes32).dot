@@ -1,0 +1,32 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+virtualChannel = virtualChannels[id]
+
+IRs:
+REF_614(LedgerChannel.VirtualChannel) -> virtualChannels[id]
+virtualChannel(LedgerChannel.VirtualChannel) := REF_614(LedgerChannel.VirtualChannel)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+(virtualChannel.isClose,virtualChannel.isInSettlementState,virtualChannel.sequence,virtualChannel.challenger,virtualChannel.updateVCtimeout,virtualChannel.partyA,virtualChannel.partyB,virtualChannel.partyI,virtualChannel.ethBalances,virtualChannel.erc20Balances,virtualChannel.bond)
+
+IRs:
+REF_615(bool) -> virtualChannel.isClose
+REF_616(bool) -> virtualChannel.isInSettlementState
+REF_617(uint256) -> virtualChannel.sequence
+REF_618(address) -> virtualChannel.challenger
+REF_619(uint256) -> virtualChannel.updateVCtimeout
+REF_620(address) -> virtualChannel.partyA
+REF_621(address) -> virtualChannel.partyB
+REF_622(address) -> virtualChannel.partyI
+REF_623(uint256[2]) -> virtualChannel.ethBalances
+REF_624(uint256[2]) -> virtualChannel.erc20Balances
+REF_625(uint256[2]) -> virtualChannel.bond
+RETURN REF_615,REF_616,REF_617,REF_618,REF_619,REF_620,REF_621,REF_622,REF_623,REF_624,REF_625"];
+}

@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_team.remove(account)
+
+IRs:
+LIBRARY_CALL, dest:Roles, function:Roles.remove(Roles.Role,address), arguments:['_team', 'account'] "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+TeamMemberRemoved(account)
+
+IRs:
+Emit TeamMemberRemoved(account)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyWhitelistAdmin()
+
+IRs:
+MODIFIER_CALL, WhitelistAdminRole.onlyWhitelistAdmin()()"];
+3->1;
+}

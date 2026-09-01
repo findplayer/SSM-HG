@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+owncount = getHashOwnersCount(hash)
+
+IRs:
+TMP_98(uint256) = INTERNAL_CALL, digitalNotary.getHashOwnersCount(bytes32)(hash)
+owncount(uint256) := TMP_98(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(owncount > 0)
+
+IRs:
+TMP_99(bool) = owncount > 0
+TMP_100(None) = SOLIDITY_CALL require(bool)(TMP_99)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(indx < owncount)
+
+IRs:
+TMP_101(bool) = indx < owncount
+TMP_102(None) = SOLIDITY_CALL require(bool)(TMP_101)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+(HashList[hash][indx].owner,HashList[hash][indx].registrationtime)
+
+IRs:
+REF_58(digitalNotary.HashRegistration[]) -> HashList[hash]
+REF_59(digitalNotary.HashRegistration) -> REF_58[indx]
+REF_60(address) -> REF_59.owner
+REF_61(digitalNotary.HashRegistration[]) -> HashList[hash]
+REF_62(digitalNotary.HashRegistration) -> REF_61[indx]
+REF_63(uint256) -> REF_62.registrationtime
+RETURN REF_60,REF_63"];
+}

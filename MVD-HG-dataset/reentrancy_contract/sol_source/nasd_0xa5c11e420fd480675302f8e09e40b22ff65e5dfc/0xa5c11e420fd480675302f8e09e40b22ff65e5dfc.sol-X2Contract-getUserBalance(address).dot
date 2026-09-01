@@ -1,0 +1,53 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+percent = getPhasePercent()
+
+IRs:
+TMP_7(uint256) = INTERNAL_CALL, X2Contract.getPhasePercent()()
+percent(uint256) := TMP_7(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+differentTime = now.sub(time[_address]).div(3600)
+
+IRs:
+REF_1(uint256) -> time[_address]
+TMP_8(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['now', 'REF_1'] 
+TMP_9(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_8', '3600'] 
+differentTime(uint256) := TMP_9(uint256)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+differentPercent = deposit[_address].mul(percent).div(100)
+
+IRs:
+REF_3(uint256) -> deposit[_address]
+TMP_10(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['REF_3', 'percent'] 
+TMP_11(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_10', '100'] 
+differentPercent(uint256) := TMP_11(uint256)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+payout = differentPercent.mul(differentTime).div(24)
+
+IRs:
+TMP_12(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['differentPercent', 'differentTime'] 
+TMP_13(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_12', '24'] 
+payout(uint256) := TMP_13(uint256)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+payout
+
+IRs:
+RETURN payout"];
+}

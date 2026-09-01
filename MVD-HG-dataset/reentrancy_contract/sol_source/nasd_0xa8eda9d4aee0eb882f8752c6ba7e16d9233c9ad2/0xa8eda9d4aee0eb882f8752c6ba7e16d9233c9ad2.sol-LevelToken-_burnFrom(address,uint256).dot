@@ -1,0 +1,36 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(value <= _allowed[account][msg.sender])
+
+IRs:
+REF_158(mapping(address => uint256)) -> _allowed[account]
+REF_159(uint256) -> REF_158[msg.sender]
+TMP_248(bool) = value <= REF_159
+TMP_249(None) = SOLIDITY_CALL require(bool)(TMP_248)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_allowed[account][msg.sender] = _allowed[account][msg.sender].sub(value)
+
+IRs:
+REF_160(mapping(address => uint256)) -> _allowed[account]
+REF_161(uint256) -> REF_160[msg.sender]
+REF_162(mapping(address => uint256)) -> _allowed[account]
+REF_163(uint256) -> REF_162[msg.sender]
+TMP_250(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_163', 'value'] 
+REF_161(uint256) (->_allowed) := TMP_250(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_burn(account,value)
+
+IRs:
+INTERNAL_CALL, ERC20._burn(address,uint256)(account,value)"];
+}

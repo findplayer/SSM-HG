@@ -1,0 +1,296 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.value > 0)
+
+IRs:
+TMP_15(bool) = msg.value > 0
+TMP_16(None) = SOLIDITY_CALL require(bool)(TMP_15)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(now > startDate)
+
+IRs:
+TMP_17(bool) = now > startDate
+TMP_18(None) = SOLIDITY_CALL require(bool)(TMP_17)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(tokenSelled < 100000001)
+
+IRs:
+TMP_19(bool) = tokenSelled < 100000001
+TMP_20(None) = SOLIDITY_CALL require(bool)(TMP_19)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+amount = msg.value / 10000000000000000
+
+IRs:
+TMP_21(uint256) = msg.value / 10000000000000000
+amount(uint256) := TMP_21(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool)(amount > 5)
+
+IRs:
+TMP_22(bool) = amount > 5
+TMP_23(None) = SOLIDITY_CALL require(bool)(TMP_22)"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+"];
+6->7;
+7[label="Node Type: IF 7
+
+EXPRESSION:
+now > startDate && now < 1518480000
+
+IRs:
+TMP_24(bool) = now > startDate
+TMP_25(bool) = now < 1518480000
+TMP_26(bool) = TMP_24 && TMP_25
+CONDITION TMP_26"];
+7->8[label="True"];
+7->12[label="False"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+price = 700
+
+IRs:
+price(uint256) := 700(uint256)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+amount *= price * 100
+
+IRs:
+TMP_27(uint256) = price * 100
+amount(uint256) = amount * TMP_27"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+amount20 = amount / 20
+
+IRs:
+TMP_28(uint256) = amount / 20
+amount20(uint256) := TMP_28(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+amount += amount20 * 8
+
+IRs:
+TMP_29(uint256) = amount20 * 8
+amount(uint256) = amount + TMP_29"];
+11->12;
+12[label="Node Type: END_IF 12
+"];
+12->13;
+13[label="Node Type: IF 13
+
+EXPRESSION:
+now > 1518480000 && now < 1519084800
+
+IRs:
+TMP_30(bool) = now > 1518480000
+TMP_31(bool) = now < 1519084800
+TMP_32(bool) = TMP_30 && TMP_31
+CONDITION TMP_32"];
+13->14[label="True"];
+13->17[label="False"];
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+price = 625
+
+IRs:
+price(uint256) := 625(uint256)"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+amount *= price * 100
+
+IRs:
+TMP_33(uint256) = price * 100
+amount(uint256) = amount * TMP_33"];
+15->16;
+16[label="Node Type: EXPRESSION 16
+
+EXPRESSION:
+amount += amount / 4
+
+IRs:
+TMP_34(uint256) = amount / 4
+amount(uint256) = amount + TMP_34"];
+16->17;
+17[label="Node Type: END_IF 17
+"];
+17->18;
+18[label="Node Type: IF 18
+
+EXPRESSION:
+now > 1519084800 && now < 1519689600
+
+IRs:
+TMP_35(bool) = now > 1519084800
+TMP_36(bool) = now < 1519689600
+TMP_37(bool) = TMP_35 && TMP_36
+CONDITION TMP_37"];
+18->19[label="True"];
+18->23[label="False"];
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+price = 575
+
+IRs:
+price(uint256) := 575(uint256)"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+amount *= price * 100
+
+IRs:
+TMP_38(uint256) = price * 100
+amount(uint256) = amount * TMP_38"];
+20->21;
+21[label="Node Type: EXPRESSION 21
+
+EXPRESSION:
+amount20 = amount / 20
+
+IRs:
+TMP_39(uint256) = amount / 20
+amount20(uint256) := TMP_39(uint256)"];
+21->22;
+22[label="Node Type: EXPRESSION 22
+
+EXPRESSION:
+amount += amount20 * 3
+
+IRs:
+TMP_40(uint256) = amount20 * 3
+amount(uint256) = amount + TMP_40"];
+22->23;
+23[label="Node Type: END_IF 23
+"];
+23->24;
+24[label="Node Type: IF 24
+
+EXPRESSION:
+now > 1519689600 && now < 1520294400
+
+IRs:
+TMP_41(bool) = now > 1519689600
+TMP_42(bool) = now < 1520294400
+TMP_43(bool) = TMP_41 && TMP_42
+CONDITION TMP_43"];
+24->25[label="True"];
+24->28[label="False"];
+25[label="Node Type: EXPRESSION 25
+
+EXPRESSION:
+price = 550
+
+IRs:
+price(uint256) := 550(uint256)"];
+25->26;
+26[label="Node Type: EXPRESSION 26
+
+EXPRESSION:
+amount *= price * 100
+
+IRs:
+TMP_44(uint256) = price * 100
+amount(uint256) = amount * TMP_44"];
+26->27;
+27[label="Node Type: EXPRESSION 27
+
+EXPRESSION:
+amount += amount / 10
+
+IRs:
+TMP_45(uint256) = amount / 10
+amount(uint256) = amount + TMP_45"];
+27->28;
+28[label="Node Type: END_IF 28
+"];
+28->29;
+29[label="Node Type: IF 29
+
+EXPRESSION:
+now > 1520294400
+
+IRs:
+TMP_46(bool) = now > 1520294400
+CONDITION TMP_46"];
+29->30[label="True"];
+29->32[label="False"];
+30[label="Node Type: EXPRESSION 30
+
+EXPRESSION:
+price = 500
+
+IRs:
+price(uint256) := 500(uint256)"];
+30->31;
+31[label="Node Type: EXPRESSION 31
+
+EXPRESSION:
+amount *= price * 100
+
+IRs:
+TMP_47(uint256) = price * 100
+amount(uint256) = amount * TMP_47"];
+31->32;
+32[label="Node Type: END_IF 32
+"];
+32->33;
+33[label="Node Type: EXPRESSION 33
+
+EXPRESSION:
+tokenSelled += amount
+
+IRs:
+tokenSelled(uint256) = tokenSelled + amount"];
+33->34;
+34[label="Node Type: EXPRESSION 34
+
+EXPRESSION:
+tokenReward.transfer(msg.sender,amount)
+
+IRs:
+HIGH_LEVEL_CALL, dest:tokenReward(Token), function:transfer, arguments:['msg.sender', 'amount']  "];
+34->35;
+35[label="Node Type: EXPRESSION 35
+
+EXPRESSION:
+FundTransfer(msg.sender,amount,true)
+
+IRs:
+Emit FundTransfer(msg.sender,amount,True)"];
+35->36;
+36[label="Node Type: EXPRESSION 36
+
+EXPRESSION:
+owner.transfer(msg.value)
+
+IRs:
+Transfer dest:owner value:msg.value"];
+}

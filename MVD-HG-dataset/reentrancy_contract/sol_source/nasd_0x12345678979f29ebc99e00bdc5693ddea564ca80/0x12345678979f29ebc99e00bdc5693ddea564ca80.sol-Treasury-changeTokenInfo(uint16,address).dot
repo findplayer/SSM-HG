@@ -1,0 +1,49 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(tokenCode != 0,Token code of zero is reserved for Ether.)
+
+IRs:
+TMP_19(bool) = tokenCode != 0
+TMP_20(None) = SOLIDITY_CALL require(bool,string)(TMP_19,Token code of zero is reserved for Ether.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(tokenContracts[tokenCode] == address(0),Token contract address can be assigned only once.)
+
+IRs:
+REF_3(address) -> tokenContracts[tokenCode]
+TMP_21 = CONVERT 0 to address
+TMP_22(bool) = REF_3 == TMP_21
+TMP_23(None) = SOLIDITY_CALL require(bool,string)(TMP_22,Token contract address can be assigned only once.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokenContracts[tokenCode] = tokenContract
+
+IRs:
+REF_4(address) -> tokenContracts[tokenCode]
+REF_4(address) (->tokenContracts) := tokenContract(address)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+ChangeTokenInfo(tokenCode,tokenContract)
+
+IRs:
+Emit ChangeTokenInfo(tokenCode,tokenContract)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyRegistryOwner()
+
+IRs:
+MODIFIER_CALL, AccessModifiers.onlyRegistryOwner()()"];
+5->1;
+}

@@ -1,0 +1,75 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+records = investRecordMapping[userAddress]
+
+IRs:
+REF_248(FomoFeast.InvestRecord[9]) -> investRecordMapping[userAddress]
+records(FomoFeast.InvestRecord[9]) = ['REF_248(FomoFeast.InvestRecord[9])']"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+((records[0].time,records[0].amount,records[0].cycle),(records[1].time,records[1].amount,records[1].cycle),(records[2].time,records[2].amount,records[2].cycle),(records[3].time,records[3].amount,records[3].cycle),(records[4].time,records[4].amount,records[4].cycle),(records[5].time,records[5].amount,records[5].cycle),(records[6].time,records[6].amount,records[6].cycle),(records[7].time,records[7].amount,records[7].cycle),(records[8].time,records[8].amount,records[8].cycle))
+
+IRs:
+REF_249(FomoFeast.InvestRecord) -> records[0]
+REF_250(uint256) -> REF_249.time
+REF_251(FomoFeast.InvestRecord) -> records[0]
+REF_252(uint256) -> REF_251.amount
+REF_253(FomoFeast.InvestRecord) -> records[0]
+REF_254(uint256) -> REF_253.cycle
+REF_255(FomoFeast.InvestRecord) -> records[1]
+REF_256(uint256) -> REF_255.time
+REF_257(FomoFeast.InvestRecord) -> records[1]
+REF_258(uint256) -> REF_257.amount
+REF_259(FomoFeast.InvestRecord) -> records[1]
+REF_260(uint256) -> REF_259.cycle
+REF_261(FomoFeast.InvestRecord) -> records[2]
+REF_262(uint256) -> REF_261.time
+REF_263(FomoFeast.InvestRecord) -> records[2]
+REF_264(uint256) -> REF_263.amount
+REF_265(FomoFeast.InvestRecord) -> records[2]
+REF_266(uint256) -> REF_265.cycle
+REF_267(FomoFeast.InvestRecord) -> records[3]
+REF_268(uint256) -> REF_267.time
+REF_269(FomoFeast.InvestRecord) -> records[3]
+REF_270(uint256) -> REF_269.amount
+REF_271(FomoFeast.InvestRecord) -> records[3]
+REF_272(uint256) -> REF_271.cycle
+REF_273(FomoFeast.InvestRecord) -> records[4]
+REF_274(uint256) -> REF_273.time
+REF_275(FomoFeast.InvestRecord) -> records[4]
+REF_276(uint256) -> REF_275.amount
+REF_277(FomoFeast.InvestRecord) -> records[4]
+REF_278(uint256) -> REF_277.cycle
+REF_279(FomoFeast.InvestRecord) -> records[5]
+REF_280(uint256) -> REF_279.time
+REF_281(FomoFeast.InvestRecord) -> records[5]
+REF_282(uint256) -> REF_281.amount
+REF_283(FomoFeast.InvestRecord) -> records[5]
+REF_284(uint256) -> REF_283.cycle
+REF_285(FomoFeast.InvestRecord) -> records[6]
+REF_286(uint256) -> REF_285.time
+REF_287(FomoFeast.InvestRecord) -> records[6]
+REF_288(uint256) -> REF_287.amount
+REF_289(FomoFeast.InvestRecord) -> records[6]
+REF_290(uint256) -> REF_289.cycle
+REF_291(FomoFeast.InvestRecord) -> records[7]
+REF_292(uint256) -> REF_291.time
+REF_293(FomoFeast.InvestRecord) -> records[7]
+REF_294(uint256) -> REF_293.amount
+REF_295(FomoFeast.InvestRecord) -> records[7]
+REF_296(uint256) -> REF_295.cycle
+REF_297(FomoFeast.InvestRecord) -> records[8]
+REF_298(uint256) -> REF_297.time
+REF_299(FomoFeast.InvestRecord) -> records[8]
+REF_300(uint256) -> REF_299.amount
+REF_301(FomoFeast.InvestRecord) -> records[8]
+REF_302(uint256) -> REF_301.cycle
+RETURN REF_250,REF_252,REF_254,REF_256,REF_258,REF_260,REF_262,REF_264,REF_266,REF_268,REF_270,REF_272,REF_274,REF_276,REF_278,REF_280,REF_282,REF_284,REF_286,REF_288,REF_290,REF_292,REF_294,REF_296,REF_298,REF_300,REF_302"];
+}

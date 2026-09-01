@@ -1,0 +1,57 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+symbol = NEOFIXED
+
+IRs:
+symbol(string) := NEOFIXED(string)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+name = Example Fixed Supply Token
+
+IRs:
+name(string) := Example Fixed Supply Token(string)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+decimals = 18
+
+IRs:
+decimals(uint8) := 18(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+_totalSupply = 10000000000 * 10 ** uint256(decimals)
+
+IRs:
+TMP_27 = CONVERT decimals to uint256
+TMP_28(uint256) = 10 ** TMP_27
+TMP_29(uint256) = 10000000000 * TMP_28
+_totalSupply(uint256) := TMP_29(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+balances[owner] = _totalSupply
+
+IRs:
+REF_0(uint256) -> balances[owner]
+REF_0(uint256) (->balances) := _totalSupply(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Transfer(address(0),owner,_totalSupply)
+
+IRs:
+TMP_30 = CONVERT 0 to address
+Emit Transfer(TMP_30,owner,_totalSupply)"];
+}

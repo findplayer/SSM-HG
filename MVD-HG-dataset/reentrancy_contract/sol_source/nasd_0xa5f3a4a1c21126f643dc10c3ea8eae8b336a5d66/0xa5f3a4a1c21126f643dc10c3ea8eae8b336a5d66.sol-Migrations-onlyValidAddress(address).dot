@@ -1,0 +1,17 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(addr != address(0),Address cannot be zero)
+
+IRs:
+TMP_17 = CONVERT 0 to address
+TMP_18(bool) = addr != TMP_17
+TMP_19(None) = SOLIDITY_CALL require(bool,string)(TMP_18,Address cannot be zero)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

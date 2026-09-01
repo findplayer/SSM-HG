@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.sender == creator)
+
+IRs:
+TMP_11(bool) = msg.sender == creator
+TMP_12(None) = SOLIDITY_CALL require(bool)(TMP_11)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+tokenReward.transfer(receiver,amount)
+
+IRs:
+HIGH_LEVEL_CALL, dest:tokenReward(Token), function:transfer, arguments:['receiver', 'amount']  "];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+FundTransfer(receiver,amount,true)
+
+IRs:
+Emit FundTransfer(receiver,amount,True)"];
+}

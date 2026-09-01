@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+database(db).get_pre_kyc_bonus_numerator()
+
+IRs:
+TMP_134 = CONVERT db to database
+TMP_135(uint256) = HIGH_LEVEL_CALL, dest:TMP_134(database), function:get_pre_kyc_bonus_numerator, arguments:[]  
+RETURN TMP_135"];
+}

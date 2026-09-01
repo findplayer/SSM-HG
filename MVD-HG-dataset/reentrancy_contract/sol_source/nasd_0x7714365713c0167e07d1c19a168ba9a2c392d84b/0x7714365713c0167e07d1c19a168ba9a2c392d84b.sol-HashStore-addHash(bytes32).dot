@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_hashes[rootHash] == 0,addHash: this hash was already deployed)
+
+IRs:
+REF_0(uint256) -> _hashes[rootHash]
+TMP_20(bool) = REF_0 == 0
+TMP_21(None) = SOLIDITY_CALL require(bool,string)(TMP_20,addHash: this hash was already deployed)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_hashes[rootHash] = block.timestamp
+
+IRs:
+REF_1(uint256) -> _hashes[rootHash]
+REF_1(uint256) (->_hashes) := block.timestamp(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+HashAdded(rootHash)
+
+IRs:
+Emit HashAdded(rootHash)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+4->1;
+}

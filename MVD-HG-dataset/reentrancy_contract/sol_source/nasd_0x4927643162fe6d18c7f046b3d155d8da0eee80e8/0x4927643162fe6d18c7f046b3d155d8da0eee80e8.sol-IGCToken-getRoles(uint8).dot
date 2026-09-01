@@ -1,0 +1,133 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_type <= 5)
+
+IRs:
+TMP_76(bool) = _type <= 5
+TMP_77(None) = SOLIDITY_CALL require(bool)(TMP_76)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+_type == 0
+
+IRs:
+TMP_78(bool) = _type == 0
+CONDITION TMP_78"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+(1559361600,0,100)
+
+IRs:
+RETURN 1559361600,0,100"];
+4[label="Node Type: END_IF 4
+"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+_type == 1
+
+IRs:
+TMP_79(bool) = _type == 1
+CONDITION TMP_79"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+(1564632000,0,10)
+
+IRs:
+RETURN 1564632000,0,10"];
+7[label="Node Type: END_IF 7
+"];
+7->8;
+8[label="Node Type: IF 8
+
+EXPRESSION:
+_type == 2
+
+IRs:
+TMP_80(bool) = _type == 2
+CONDITION TMP_80"];
+8->9[label="True"];
+8->10[label="False"];
+9[label="Node Type: RETURN 9
+
+EXPRESSION:
+(1575172800,0,2)
+
+IRs:
+RETURN 1575172800,0,2"];
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: IF 11
+
+EXPRESSION:
+_type == 3
+
+IRs:
+TMP_81(bool) = _type == 3
+CONDITION TMP_81"];
+11->12[label="True"];
+11->13[label="False"];
+12[label="Node Type: RETURN 12
+
+EXPRESSION:
+(1567310400,20,10)
+
+IRs:
+RETURN 1567310400,20,10"];
+13[label="Node Type: END_IF 13
+"];
+13->14;
+14[label="Node Type: IF 14
+
+EXPRESSION:
+_type == 4
+
+IRs:
+TMP_82(bool) = _type == 4
+CONDITION TMP_82"];
+14->15[label="True"];
+14->16[label="False"];
+15[label="Node Type: RETURN 15
+
+EXPRESSION:
+(1559361600,10,5)
+
+IRs:
+RETURN 1559361600,10,5"];
+16[label="Node Type: END_IF 16
+"];
+16->17;
+17[label="Node Type: IF 17
+
+EXPRESSION:
+_type == 5
+
+IRs:
+TMP_83(bool) = _type == 5
+CONDITION TMP_83"];
+17->18[label="True"];
+17->19[label="False"];
+18[label="Node Type: RETURN 18
+
+EXPRESSION:
+(1559361600,0,100)
+
+IRs:
+RETURN 1559361600,0,100"];
+19[label="Node Type: END_IF 19
+"];
+}

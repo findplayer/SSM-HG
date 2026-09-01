@@ -1,0 +1,46 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+c = database(db).get_presale_arbits_sold() + _v
+
+IRs:
+TMP_174 = CONVERT db to database
+TMP_175(uint256) = HIGH_LEVEL_CALL, dest:TMP_174(database), function:get_presale_arbits_sold, arguments:[]  
+TMP_176(uint256) = TMP_175 + _v
+c(uint256) := TMP_176(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+assert(bool)(c >= database(db).get_presale_arbits_sold())
+
+IRs:
+TMP_177 = CONVERT db to database
+TMP_178(uint256) = HIGH_LEVEL_CALL, dest:TMP_177(database), function:get_presale_arbits_sold, arguments:[]  
+TMP_179(bool) = c >= TMP_178
+TMP_180(None) = SOLIDITY_CALL assert(bool)(TMP_179)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+database(db).set_presale_arbits_sold((database(db).get_presale_arbits_sold() + _v))
+
+IRs:
+TMP_181 = CONVERT db to database
+TMP_182 = CONVERT db to database
+TMP_183(uint256) = HIGH_LEVEL_CALL, dest:TMP_182(database), function:get_presale_arbits_sold, arguments:[]  
+TMP_184(uint256) = TMP_183 + _v
+HIGH_LEVEL_CALL, dest:TMP_181(database), function:set_presale_arbits_sold, arguments:['TMP_184']  "];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+e_add_presale_arbits_sold(_v)
+
+IRs:
+Emit e_add_presale_arbits_sold(_v)"];
+}

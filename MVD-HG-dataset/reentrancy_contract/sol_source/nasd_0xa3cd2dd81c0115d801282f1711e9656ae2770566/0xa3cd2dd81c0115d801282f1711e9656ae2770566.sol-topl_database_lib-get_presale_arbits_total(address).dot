@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+database(db).get_presale_arbits_total()
+
+IRs:
+TMP_154 = CONVERT db to database
+TMP_155(uint256) = HIGH_LEVEL_CALL, dest:TMP_154(database), function:get_presale_arbits_total, arguments:[]  
+RETURN TMP_155"];
+}

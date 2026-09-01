@@ -1,0 +1,36 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+_name = IPW Token
+
+IRs:
+_name(string) := IPW Token(string)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+_symbol = IPWT
+
+IRs:
+_symbol(string) := IPWT(string)"];
+1->2;
+2[label="Node Type: OTHER_ENTRYPOINT 2
+
+EXPRESSION:
+_decimals = 18
+
+IRs:
+_decimals(uint8) := 18(uint256)"];
+2->3;
+3[label="Node Type: OTHER_ENTRYPOINT 3
+
+EXPRESSION:
+initialSupply = 10000000000 * (10 ** uint256(_decimals))
+
+IRs:
+TMP_97 = CONVERT _decimals to uint256
+TMP_98(uint256) = 10 ** TMP_97
+TMP_99(uint256) = 10000000000 * TMP_98
+initialSupply(uint256) := TMP_99(uint256)"];
+}

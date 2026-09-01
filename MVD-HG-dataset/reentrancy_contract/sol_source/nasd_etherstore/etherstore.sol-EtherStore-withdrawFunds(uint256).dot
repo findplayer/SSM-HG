@@ -1,0 +1,61 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(balances[msg.sender] >= _weiToWithdraw)
+
+IRs:
+REF_1(uint256) -> balances[msg.sender]
+TMP_0(bool) = REF_1 >= _weiToWithdraw
+TMP_1(None) = SOLIDITY_CALL require(bool)(TMP_0)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(_weiToWithdraw <= withdrawalLimit)
+
+IRs:
+TMP_2(bool) = _weiToWithdraw <= withdrawalLimit
+TMP_3(None) = SOLIDITY_CALL require(bool)(TMP_2)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(now >= lastWithdrawTime[msg.sender] + 604800)
+
+IRs:
+REF_2(uint256) -> lastWithdrawTime[msg.sender]
+TMP_4(uint256) = REF_2 + 604800
+TMP_5(bool) = now >= TMP_4
+TMP_6(None) = SOLIDITY_CALL require(bool)(TMP_5)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(msg.sender.call.value(_weiToWithdraw)())
+
+IRs:
+TMP_8(bool) = LOW_LEVEL_CALL, dest:msg.sender, function:call, arguments:[] value:_weiToWithdraw 
+TMP_9(None) = SOLIDITY_CALL require(bool)(TMP_8)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+balances[msg.sender] -= _weiToWithdraw
+
+IRs:
+REF_5(uint256) -> balances[msg.sender]
+REF_5(-> balances) = REF_5 - _weiToWithdraw"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+lastWithdrawTime[msg.sender] = now
+
+IRs:
+REF_6(uint256) -> lastWithdrawTime[msg.sender]
+REF_6(uint256) (->lastWithdrawTime) := now(uint256)"];
+}

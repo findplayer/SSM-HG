@@ -1,0 +1,50 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(referrer != address(0x0),Referrer cannot be null)
+
+IRs:
+TMP_23 = CONVERT 0 to address
+TMP_24(bool) = referrer != TMP_23
+TMP_25(None) = SOLIDITY_CALL require(bool,string)(TMP_24,Referrer cannot be null)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(referee != address(0x0),Referee cannot be null)
+
+IRs:
+TMP_26 = CONVERT 0 to address
+TMP_27(bool) = referee != TMP_26
+TMP_28(None) = SOLIDITY_CALL require(bool,string)(TMP_27,Referee cannot be null)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(! isIcoComplete,Cannot add new referrals after ICO is complete.)
+
+IRs:
+TMP_29 = UnaryType.BANG isIcoComplete 
+TMP_30(None) = SOLIDITY_CALL require(bool,string)(TMP_29,Cannot add new referrals after ICO is complete.)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+referredBy[referee] = referrer
+
+IRs:
+REF_4(address) -> referredBy[referee]
+REF_4(address) (->referredBy) := referrer(address)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, HorizonContractBase.onlyOwner()()"];
+5->1;
+}

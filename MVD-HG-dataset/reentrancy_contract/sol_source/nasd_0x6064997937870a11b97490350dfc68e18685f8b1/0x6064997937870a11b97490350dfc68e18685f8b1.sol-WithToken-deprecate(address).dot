@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+deprecated = true
+
+IRs:
+deprecated(bool) := True(bool)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+upgradedAddress = _upgradedAddress
+
+IRs:
+upgradedAddress(address) := _upgradedAddress(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+Deprecate(_upgradedAddress)
+
+IRs:
+Emit Deprecate(_upgradedAddress)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyCEO()
+
+IRs:
+MODIFIER_CALL, RBAC.onlyCEO()()"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+whenPaused()
+
+IRs:
+MODIFIER_CALL, Pausable.whenPaused()()"];
+5->1;
+}

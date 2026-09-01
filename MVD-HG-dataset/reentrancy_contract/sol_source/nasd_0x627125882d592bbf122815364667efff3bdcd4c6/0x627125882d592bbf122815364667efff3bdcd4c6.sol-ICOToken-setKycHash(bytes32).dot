@@ -1,0 +1,34 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(! isIcoComplete,The ICO phase has ended, you can no longer set KYC hashes.)
+
+IRs:
+TMP_48 = UnaryType.BANG isIcoComplete 
+TMP_49(None) = SOLIDITY_CALL require(bool,string)(TMP_48,The ICO phase has ended, you can no longer set KYC hashes.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+kycHashes.push(sha)
+
+IRs:
+REF_21 -> LENGTH kycHashes
+TMP_51(uint256) := REF_21(uint256)
+TMP_52(uint256) = TMP_51 + 1
+REF_21(uint256) (->kycHashes) := TMP_52(uint256)
+REF_22(bytes32) -> kycHashes[TMP_51]
+REF_22(bytes32) (->kycHashes) := sha(bytes32)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, HorizonContractBase.onlyOwner()()"];
+3->1;
+}

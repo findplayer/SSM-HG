@@ -1,0 +1,64 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->7;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(! isIcoComplete,The ICO phase has already ended, you cannot close it again.)
+
+IRs:
+TMP_80 = UnaryType.BANG isIcoComplete 
+TMP_81(None) = SOLIDITY_CALL require(bool,string)(TMP_80,The ICO phase has already ended, you cannot close it again.)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)((balances[owner] - rewardPool_) == 0,Cannot close ICO when a balance remains in the owner account.)
+
+IRs:
+REF_38(uint256) -> balances[owner]
+TMP_82(uint256) = REF_38 - rewardPool_
+TMP_83(bool) = TMP_82 == 0
+TMP_84(None) = SOLIDITY_CALL require(bool,string)(TMP_83,Cannot close ICO when a balance remains in the owner account.)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+isIcoComplete = true
+
+IRs:
+isIcoComplete(bool) := True(bool)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+delete kycHashes
+
+IRs:
+kycHashes = delete kycHashes "];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+delete kycValidated
+
+IRs:
+kycValidated = delete kycValidated "];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+IcoComplete()
+
+IRs:
+Emit IcoComplete()"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, HorizonContractBase.onlyOwner()()"];
+7->1;
+}

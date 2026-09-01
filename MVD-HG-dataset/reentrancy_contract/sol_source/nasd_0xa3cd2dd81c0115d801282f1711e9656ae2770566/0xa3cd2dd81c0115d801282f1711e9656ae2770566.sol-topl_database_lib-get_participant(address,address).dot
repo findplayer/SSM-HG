@@ -1,0 +1,14 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+database(db).get_participant(_a)
+
+IRs:
+TMP_62 = CONVERT db to database
+TUPLE_0(address,uint256,uint256,uint256,bool,uint8) = HIGH_LEVEL_CALL, dest:TMP_62(database), function:get_participant, arguments:['_a']  
+RETURN TUPLE_0"];
+}

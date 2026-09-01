@@ -1,0 +1,102 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->10;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_to != address(0))
+
+IRs:
+TMP_41 = CONVERT 0 to address
+TMP_42(bool) = _to != TMP_41
+TMP_43(None) = SOLIDITY_CALL require(bool)(TMP_42)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(_value <= balances[_from])
+
+IRs:
+REF_17(uint256) -> balances[_from]
+TMP_44(bool) = _value <= REF_17
+TMP_45(None) = SOLIDITY_CALL require(bool)(TMP_44)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(_value <= allowed[_from][msg.sender])
+
+IRs:
+REF_18(mapping(address => uint256)) -> allowed[_from]
+REF_19(uint256) -> REF_18[msg.sender]
+TMP_46(bool) = _value <= REF_19
+TMP_47(None) = SOLIDITY_CALL require(bool)(TMP_46)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(transfersEnabled)
+
+IRs:
+TMP_48(None) = SOLIDITY_CALL require(bool)(transfersEnabled)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+balances[_from] = balances[_from].sub(_value)
+
+IRs:
+REF_20(uint256) -> balances[_from]
+REF_21(uint256) -> balances[_from]
+TMP_49(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_21', '_value'] 
+REF_20(uint256) (->balances) := TMP_49(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+balances[_to] = balances[_to].add(_value)
+
+IRs:
+REF_23(uint256) -> balances[_to]
+REF_24(uint256) -> balances[_to]
+TMP_50(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_24', '_value'] 
+REF_23(uint256) (->balances) := TMP_50(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value)
+
+IRs:
+REF_26(mapping(address => uint256)) -> allowed[_from]
+REF_27(uint256) -> REF_26[msg.sender]
+REF_28(mapping(address => uint256)) -> allowed[_from]
+REF_29(uint256) -> REF_28[msg.sender]
+TMP_51(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_29', '_value'] 
+REF_27(uint256) (->allowed) := TMP_51(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Transfer(_from,_to,_value)
+
+IRs:
+Emit Transfer(_from,_to,_value)"];
+8->9;
+9[label="Node Type: RETURN 9
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+onlyPayloadSize(3)
+
+IRs:
+MODIFIER_CALL, BasicToken.onlyPayloadSize(uint256)(3)"];
+10->1;
+}

@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+_oldRegistryLogic = accountRegistryLogic
+
+IRs:
+_oldRegistryLogic(address) := accountRegistryLogic(address)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+accountRegistryLogic = _newRegistryLogic
+
+IRs:
+accountRegistryLogic(address) := _newRegistryLogic(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+AccountRegistryLogicChanged(_oldRegistryLogic,accountRegistryLogic)
+
+IRs:
+Emit AccountRegistryLogicChanged(_oldRegistryLogic,accountRegistryLogic)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+nonZero(_newRegistryLogic)
+
+IRs:
+MODIFIER_CALL, AccountRegistry.nonZero(address)(_newRegistryLogic)"];
+5->1;
+}

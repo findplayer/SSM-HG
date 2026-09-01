@@ -1,0 +1,57 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+amount = deductFullBalance(tokenCode,msg.sender)
+
+IRs:
+TMP_46(uint256) = INTERNAL_CALL, Treasury.deductFullBalance(uint256,address)(tokenCode,msg.sender)
+amount(uint256) := TMP_46(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+EmergencyRelease(tokenCode,msg.sender,amount)
+
+IRs:
+Emit EmergencyRelease(tokenCode,msg.sender,amount)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+tokenContract = tokenContracts[tokenCode]
+
+IRs:
+REF_10(address) -> tokenContracts[tokenCode]
+tokenContract(address) := REF_10(address)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool,string)(tokenContract != address(0),Registered token contract.)
+
+IRs:
+TMP_48 = CONVERT 0 to address
+TMP_49(bool) = tokenContract != TMP_48
+TMP_50(None) = SOLIDITY_CALL require(bool,string)(TMP_49,Registered token contract.)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool,string)(safeTransfer(tokenContract,msg.sender,amount),Could not transfer ERC-20 tokens using transfer.)
+
+IRs:
+TMP_51(bool) = INTERNAL_CALL, Treasury.safeTransfer(address,address,uint256)(tokenContract,msg.sender,amount)
+TMP_52(None) = SOLIDITY_CALL require(bool,string)(TMP_51,Could not transfer ERC-20 tokens using transfer.)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+emergencyReleasePossible(msg.sender)
+
+IRs:
+MODIFIER_CALL, Treasury.emergencyReleasePossible(address)(msg.sender)"];
+6->1;
+}

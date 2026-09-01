@@ -1,0 +1,113 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->13;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(_infos[msg.sender].availableTokens != 0,swapTeam: no tokens available for swap)
+
+IRs:
+REF_178(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_179(uint256) -> REF_178.availableTokens
+TMP_343(bool) = REF_179 != 0
+TMP_344(None) = SOLIDITY_CALL require(bool,string)(TMP_343,swapTeam: no tokens available for swap)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool,string)(now >= _infos[msg.sender].lastSwapTimestamp + _period,swapTeam: team member can not call this method now)
+
+IRs:
+REF_180(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_181(uint256) -> REF_180.lastSwapTimestamp
+TMP_345(uint256) = REF_181 + _period
+TMP_346(bool) = now >= TMP_345
+TMP_347(None) = SOLIDITY_CALL require(bool,string)(TMP_346,swapTeam: team member can not call this method now)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+toSwap = _infos[msg.sender].availableTokens
+
+IRs:
+REF_182(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_183(uint256) -> REF_182.availableTokens
+toSwap(uint256) := REF_183(uint256)"];
+3->4;
+4[label="Node Type: IF 4
+
+EXPRESSION:
+toSwap > _teamLimit
+
+IRs:
+TMP_348(bool) = toSwap > _teamLimit
+CONDITION TMP_348"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+toSwap = _teamLimit
+
+IRs:
+toSwap(uint256) := _teamLimit(uint256)"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: IF 7
+
+EXPRESSION:
+toSwap > _oldToken.balanceOf(msg.sender)
+
+IRs:
+TMP_349(uint256) = HIGH_LEVEL_CALL, dest:_oldToken(IERC20), function:balanceOf, arguments:['msg.sender']  
+TMP_350(bool) = toSwap > TMP_349
+CONDITION TMP_350"];
+7->8[label="True"];
+7->9[label="False"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+toSwap = _oldToken.balanceOf(msg.sender)
+
+IRs:
+TMP_351(uint256) = HIGH_LEVEL_CALL, dest:_oldToken(IERC20), function:balanceOf, arguments:['msg.sender']  
+toSwap(uint256) := TMP_351(uint256)"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+_swap(toSwap)
+
+IRs:
+INTERNAL_CALL, SwapContract._swap(uint256)(toSwap)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+_update(toSwap)
+
+IRs:
+INTERNAL_CALL, SwapContract._update(uint256)(toSwap)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+TeamTokensSwapped(msg.sender,toSwap)
+
+IRs:
+Emit TeamTokensSwapped(msg.sender,toSwap)"];
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+onlyTeamMember()
+
+IRs:
+MODIFIER_CALL, TeamRole.onlyTeamMember()()"];
+13->1;
+}

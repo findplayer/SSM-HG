@@ -1,0 +1,86 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->9;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+resetEmergencyRelease(addr1)
+
+IRs:
+INTERNAL_CALL, Treasury.resetEmergencyRelease(address)(addr1)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+resetEmergencyRelease(addr2)
+
+IRs:
+INTERNAL_CALL, Treasury.resetEmergencyRelease(address)(addr2)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+deductBalance(tokenCode1,addr1,amount1 + fee1)
+
+IRs:
+TMP_84(uint256) = amount1 + fee1
+INTERNAL_CALL, Treasury.deductBalance(uint256,address,uint256)(tokenCode1,addr1,TMP_84)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+deductBalance(tokenCode2,addr2,amount2 + fee2)
+
+IRs:
+TMP_86(uint256) = amount2 + fee2
+INTERNAL_CALL, Treasury.deductBalance(uint256,address,uint256)(tokenCode2,addr2,TMP_86)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+addBalance(tokenCode1,addr2,amount1)
+
+IRs:
+INTERNAL_CALL, Treasury.addBalance(uint256,address,uint256)(tokenCode1,addr2,amount1)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+addBalance(tokenCode2,addr1,amount2)
+
+IRs:
+INTERNAL_CALL, Treasury.addBalance(uint256,address,uint256)(tokenCode2,addr1,amount2)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+addBalance(tokenCode1,addrFee,fee1)
+
+IRs:
+INTERNAL_CALL, Treasury.addBalance(uint256,address,uint256)(tokenCode1,addrFee,fee1)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+addBalance(tokenCode2,addrFee,fee2)
+
+IRs:
+INTERNAL_CALL, Treasury.addBalance(uint256,address,uint256)(tokenCode2,addrFee,fee2)"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+onlyActive()
+
+IRs:
+MODIFIER_CALL, Treasury.onlyActive()()"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+onlyApprovedExchangeBoth(addr1,addr2)
+
+IRs:
+MODIFIER_CALL, AccessModifiers.onlyApprovedExchangeBoth(address,address)(addr1,addr2)"];
+10->1;
+}

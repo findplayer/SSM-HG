@@ -1,0 +1,48 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+_am <= balances[msg.sender]
+
+IRs:
+REF_2(uint256) -> balances[msg.sender]
+TMP_3(bool) = _am <= REF_2
+CONDITION TMP_3"];
+1->2[label="True"];
+1->6[label="False"];
+2[label="Node Type: IF 2
+
+EXPRESSION:
+msg.sender.call.value(_am)()
+
+IRs:
+TMP_5(bool) = LOW_LEVEL_CALL, dest:msg.sender, function:call, arguments:[] value:_am 
+CONDITION TMP_5"];
+2->3[label="True"];
+2->5[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[msg.sender] -= _am
+
+IRs:
+REF_5(uint256) -> balances[msg.sender]
+REF_5(-> balances) = REF_5 - _am"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+TransferLog.AddMessage(msg.sender,_am,CashOut)
+
+IRs:
+HIGH_LEVEL_CALL, dest:TransferLog(Log), function:AddMessage, arguments:['msg.sender', '_am', 'CashOut']  "];
+4->5;
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+}

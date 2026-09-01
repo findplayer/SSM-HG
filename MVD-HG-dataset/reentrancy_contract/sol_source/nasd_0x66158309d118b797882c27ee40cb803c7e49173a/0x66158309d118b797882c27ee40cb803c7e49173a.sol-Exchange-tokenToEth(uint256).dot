@@ -1,0 +1,30 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+bnt = tokenConverter.getReturn(token,bntToken,_amountOfTokens)
+
+IRs:
+TMP_18(uint256) = HIGH_LEVEL_CALL, dest:tokenConverter(IBancorConverter), function:getReturn, arguments:['token', 'bntToken', '_amountOfTokens']  
+bnt(uint256) := TMP_18(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+eth = bntConverter.getReturn(bntToken,ethToken,bnt)
+
+IRs:
+TMP_19(uint256) = HIGH_LEVEL_CALL, dest:bntConverter(IBancorConverter), function:getReturn, arguments:['bntToken', 'ethToken', 'bnt']  
+eth(uint256) := TMP_19(uint256)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+eth
+
+IRs:
+RETURN eth"];
+}

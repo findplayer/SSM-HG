@@ -1,0 +1,28 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+db.set_sale_owner(__subject,false)
+
+IRs:
+LIBRARY_CALL, dest:topl_database_lib, function:topl_database_lib.set_sale_owner(address,address,bool), arguments:['db', '__subject', 'False'] "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+e_remove_owner(msg.sender,__subject)
+
+IRs:
+Emit e_remove_owner(msg.sender,__subject)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+only_owner()
+
+IRs:
+MODIFIER_CALL, arbits_presale.only_owner()()"];
+3->1;
+}

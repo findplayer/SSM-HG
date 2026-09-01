@@ -1,0 +1,38 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+amountToWithdraw = userBalances[msg.sender]
+
+IRs:
+REF_2(uint256) -> userBalances[msg.sender]
+amountToWithdraw(uint256) := REF_2(uint256)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+! (msg.sender.call.value(amountToWithdraw)())
+
+IRs:
+TMP_1(bool) = LOW_LEVEL_CALL, dest:msg.sender, function:call, arguments:[] value:amountToWithdraw 
+TMP_2 = UnaryType.BANG TMP_1 
+CONDITION TMP_2"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: THROW 3
+"];
+4[label="Node Type: END_IF 4
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+userBalances[msg.sender] = 0
+
+IRs:
+REF_5(uint256) -> userBalances[msg.sender]
+REF_5(uint256) (->userBalances) := 0(uint256)"];
+}

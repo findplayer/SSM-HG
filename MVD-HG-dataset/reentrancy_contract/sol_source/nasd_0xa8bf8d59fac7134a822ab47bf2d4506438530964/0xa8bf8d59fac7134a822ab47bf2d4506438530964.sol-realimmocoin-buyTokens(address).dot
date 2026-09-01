@@ -1,0 +1,119 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_investor != address(0))
+
+IRs:
+TMP_96 = CONVERT 0 to address
+TMP_97(bool) = _investor != TMP_96
+TMP_98(None) = SOLIDITY_CALL require(bool)(TMP_97)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(saleToken == true)
+
+IRs:
+TMP_99(bool) = saleToken == True
+TMP_100(None) = SOLIDITY_CALL require(bool)(TMP_99)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+wallet = owner
+
+IRs:
+wallet(address) := owner(address)"];
+3->4;
+4[label="Node Type: NEW VARIABLE 4
+
+EXPRESSION:
+weiAmount = msg.value
+
+IRs:
+weiAmount(uint256) := msg.value(uint256)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+tokens = validPurchaseTokens(weiAmount)
+
+IRs:
+TMP_101(uint256) = INTERNAL_CALL, realimmocoin.validPurchaseTokens(uint256)(weiAmount)
+tokens(uint256) := TMP_101(uint256)"];
+5->6;
+6[label="Node Type: IF 6
+
+EXPRESSION:
+tokens == 0
+
+IRs:
+TMP_102(bool) = tokens == 0
+CONDITION TMP_102"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+revert()()
+
+IRs:
+TMP_103(None) = SOLIDITY_CALL revert()()"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+weiRaised = weiRaised.add(weiAmount)
+
+IRs:
+TMP_104(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['weiRaised', 'weiAmount'] 
+weiRaised(uint256) := TMP_104(uint256)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+tokenAllocated = tokenAllocated.add(tokens)
+
+IRs:
+TMP_105(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['tokenAllocated', 'tokens'] 
+tokenAllocated(uint256) := TMP_105(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+mint(_investor,tokens,owner)
+
+IRs:
+TMP_106(bool) = INTERNAL_CALL, realimmocoin.mint(address,uint256,address)(_investor,tokens,owner)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+TokenPurchase(_investor,weiAmount,tokens)
+
+IRs:
+Emit TokenPurchase(_investor,weiAmount,tokens)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+wallet.transfer(weiAmount)
+
+IRs:
+Transfer dest:wallet value:weiAmount"];
+13->14;
+14[label="Node Type: RETURN 14
+
+EXPRESSION:
+tokens
+
+IRs:
+RETURN tokens"];
+}

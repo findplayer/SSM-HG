@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+assert(bool)(TokenInteract.balanceOf(token,address(this)) >= totalBalances[token])
+
+IRs:
+TMP_135 = CONVERT this to address
+TMP_136(uint256) = LIBRARY_CALL, dest:TokenInteract, function:TokenInteract.balanceOf(address,address), arguments:['token', 'TMP_135'] 
+REF_47(uint256) -> totalBalances[token]
+TMP_137(bool) = TMP_136 >= REF_47
+TMP_138(None) = SOLIDITY_CALL assert(bool)(TMP_137)"];
+}

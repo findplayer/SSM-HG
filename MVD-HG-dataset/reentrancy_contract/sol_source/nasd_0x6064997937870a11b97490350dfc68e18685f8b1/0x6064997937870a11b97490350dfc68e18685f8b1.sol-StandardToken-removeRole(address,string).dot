@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+roles[roleName].remove(addr)
+
+IRs:
+REF_56(Roles.Role) -> roles[roleName]
+LIBRARY_CALL, dest:Roles, function:Roles.remove(Roles.Role,address), arguments:['REF_56', 'addr'] "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+RoleRemoved(addr,roleName)
+
+IRs:
+Emit RoleRemoved(addr,roleName)"];
+}

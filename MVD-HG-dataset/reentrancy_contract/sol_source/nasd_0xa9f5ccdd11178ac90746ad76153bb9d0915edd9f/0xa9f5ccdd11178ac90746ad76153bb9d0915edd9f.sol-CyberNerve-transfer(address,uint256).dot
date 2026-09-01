@@ -1,0 +1,106 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_to != address(0))
+
+IRs:
+TMP_72 = CONVERT 0 to address
+TMP_73(bool) = _to != TMP_72
+TMP_74(None) = SOLIDITY_CALL require(bool)(TMP_73)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(_value > 0)
+
+IRs:
+TMP_75(bool) = _value > 0
+TMP_76(None) = SOLIDITY_CALL require(bool)(TMP_75)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(balanceOf[msg.sender] >= _value)
+
+IRs:
+REF_1(uint256) -> balanceOf[msg.sender]
+TMP_77(bool) = REF_1 >= _value
+TMP_78(None) = SOLIDITY_CALL require(bool)(TMP_77)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(balanceOf[_to] + _value >= balanceOf[_to])
+
+IRs:
+REF_2(uint256) -> balanceOf[_to]
+TMP_79(uint256) = REF_2 + _value
+REF_3(uint256) -> balanceOf[_to]
+TMP_80(bool) = TMP_79 >= REF_3
+TMP_81(None) = SOLIDITY_CALL require(bool)(TMP_80)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+previousBalances = balanceOf[msg.sender] + balanceOf[_to]
+
+IRs:
+REF_4(uint256) -> balanceOf[msg.sender]
+REF_5(uint256) -> balanceOf[_to]
+TMP_82(uint256) = REF_4 + REF_5
+previousBalances(uint256) := TMP_82(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+balanceOf[msg.sender] = SafeMath.safeSub(balanceOf[msg.sender],_value)
+
+IRs:
+REF_6(uint256) -> balanceOf[msg.sender]
+REF_8(uint256) -> balanceOf[msg.sender]
+TMP_83(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_8,_value)
+REF_6(uint256) (->balanceOf) := TMP_83(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+balanceOf[_to] = SafeMath.safeAdd(balanceOf[_to],_value)
+
+IRs:
+REF_9(uint256) -> balanceOf[_to]
+REF_11(uint256) -> balanceOf[_to]
+TMP_84(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_11,_value)
+REF_9(uint256) (->balanceOf) := TMP_84(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Transfer(msg.sender,_to,_value)
+
+IRs:
+Emit Transfer(msg.sender,_to,_value)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+assert(bool)(balanceOf[msg.sender] + balanceOf[_to] == previousBalances)
+
+IRs:
+REF_12(uint256) -> balanceOf[msg.sender]
+REF_13(uint256) -> balanceOf[_to]
+TMP_86(uint256) = REF_12 + REF_13
+TMP_87(bool) = TMP_86 == previousBalances
+TMP_88(None) = SOLIDITY_CALL assert(bool)(TMP_87)"];
+9->10;
+10[label="Node Type: RETURN 10
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+}

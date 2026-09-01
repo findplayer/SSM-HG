@@ -1,0 +1,72 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+calcCurPointsForAcct(msg.sender)
+
+IRs:
+INTERNAL_CALL, ETT.calcCurPointsForAcct(address)(msg.sender)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_amount = tokenHolders[msg.sender].currentDaiPoints / totalSupply
+
+IRs:
+REF_71(ETT.tokenHolder) -> tokenHolders[msg.sender]
+REF_72(uint256) -> REF_71.currentDaiPoints
+TMP_87(uint256) = REF_72 / totalSupply
+_amount(uint256) := TMP_87(uint256)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+_pointsUsed = safeMul(_amount,totalSupply)
+
+IRs:
+TMP_88(uint256) = INTERNAL_CALL, SafeMath.safeMul(uint256,uint256)(_amount,totalSupply)
+_pointsUsed(uint256) := TMP_88(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+tokenHolders[msg.sender].currentDaiPoints = safeSub(tokenHolders[msg.sender].currentDaiPoints,_pointsUsed)
+
+IRs:
+REF_73(ETT.tokenHolder) -> tokenHolders[msg.sender]
+REF_74(uint256) -> REF_73.currentDaiPoints
+REF_75(ETT.tokenHolder) -> tokenHolders[msg.sender]
+REF_76(uint256) -> REF_75.currentDaiPoints
+TMP_89(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(REF_76,_pointsUsed)
+REF_74(uint256) (->tokenHolders) := TMP_89(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+holdoverDaiBalance = safeSub(holdoverDaiBalance,_amount)
+
+IRs:
+TMP_90(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(holdoverDaiBalance,_amount)
+holdoverDaiBalance(uint256) := TMP_90(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+require(bool,string)(iERC20Token(daiToken).transfer(msg.sender,_amount),failed to transfer dai)
+
+IRs:
+TMP_91 = CONVERT daiToken to iERC20Token
+TMP_92(bool) = HIGH_LEVEL_CALL, dest:TMP_91(iERC20Token), function:transfer, arguments:['msg.sender', '_amount']  
+TMP_93(None) = SOLIDITY_CALL require(bool,string)(TMP_92,failed to transfer dai)"];
+6->7;
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+_amount
+
+IRs:
+RETURN _amount"];
+}

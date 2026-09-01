@@ -1,0 +1,15 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+safeAdd(safeMul(tokensCount,5) / 1e11,25000)
+
+IRs:
+TMP_88(uint256) = INTERNAL_CALL, SafeMath.safeMul(uint256,uint256)(tokensCount,5)
+TMP_89(uint256) = TMP_88 / 100000000000
+TMP_90(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(TMP_89,25000)
+RETURN TMP_90"];
+}

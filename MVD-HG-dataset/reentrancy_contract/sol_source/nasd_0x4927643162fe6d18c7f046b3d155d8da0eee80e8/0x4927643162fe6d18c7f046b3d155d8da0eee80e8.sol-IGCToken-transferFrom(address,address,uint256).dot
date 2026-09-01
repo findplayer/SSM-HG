@@ -1,0 +1,61 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(value <= _allowed[from][msg.sender])
+
+IRs:
+REF_76(mapping(address => uint256)) -> _allowed[from]
+REF_77(uint256) -> REF_76[msg.sender]
+TMP_107(bool) = value <= REF_77
+TMP_108(None) = SOLIDITY_CALL require(bool)(TMP_107)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+_canTransfer(from,value)
+
+IRs:
+TMP_109(bool) = INTERNAL_CALL, IGCToken._canTransfer(address,uint256)(from,value)
+CONDITION TMP_109"];
+2->3[label="True"];
+2->6[label="False"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value)
+
+IRs:
+REF_78(mapping(address => uint256)) -> _allowed[from]
+REF_79(uint256) -> REF_78[msg.sender]
+REF_80(mapping(address => uint256)) -> _allowed[from]
+REF_81(uint256) -> REF_80[msg.sender]
+TMP_110(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_81', 'value'] 
+REF_79(uint256) (->_allowed) := TMP_110(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+_transfer(from,to,value)
+
+IRs:
+INTERNAL_CALL, IGCToken._transfer(address,address,uint256)(from,to,value)"];
+4->5;
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+}

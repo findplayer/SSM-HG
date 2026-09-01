@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+withinPeriod = now >= startTime && now <= endTime
+
+IRs:
+TMP_98(bool) = now >= startTime
+TMP_99(bool) = now <= endTime
+TMP_100(bool) = TMP_98 && TMP_99
+withinPeriod(bool) := TMP_100(bool)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+nonZeroPurchase = msg.value != 0
+
+IRs:
+TMP_101(bool) = msg.value != 0
+nonZeroPurchase(bool) := TMP_101(bool)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+withinContributionLimit = msg.value >= minimumContribution && msg.value <= maximumContribution
+
+IRs:
+TMP_102(bool) = msg.value >= minimumContribution
+TMP_103(bool) = msg.value <= maximumContribution
+TMP_104(bool) = TMP_102 && TMP_103
+withinContributionLimit(bool) := TMP_104(bool)"];
+3->4;
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+withinPeriod && nonZeroPurchase && withinContributionLimit
+
+IRs:
+TMP_105(bool) = withinPeriod && nonZeroPurchase
+TMP_106(bool) = TMP_105 && withinContributionLimit
+RETURN TMP_106"];
+}

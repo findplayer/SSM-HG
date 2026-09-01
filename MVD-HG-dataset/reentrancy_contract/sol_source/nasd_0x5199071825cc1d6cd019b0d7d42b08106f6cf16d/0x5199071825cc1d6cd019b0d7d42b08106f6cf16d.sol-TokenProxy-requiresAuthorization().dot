@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(authorized[msg.sender],AccessControlledBase#requiresAuthorization: Sender not authorized)
+
+IRs:
+REF_15(bool) -> authorized[msg.sender]
+TMP_94(None) = SOLIDITY_CALL require(bool,string)(REF_15,AccessControlledBase#requiresAuthorization: Sender not authorized)"];
+1->2;
+2[label="Node Type: _ 2
+"];
+}

@@ -1,0 +1,42 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+_actBalance = iERC20Token(daiToken).balanceOf(address(this))
+
+IRs:
+TMP_66 = CONVERT daiToken to iERC20Token
+TMP_67 = CONVERT this to address
+TMP_68(uint256) = HIGH_LEVEL_CALL, dest:TMP_66(iERC20Token), function:balanceOf, arguments:['TMP_67']  
+_actBalance(uint256) := TMP_68(uint256)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+_daiAmount = safeSub(_actBalance,holdoverDaiBalance)
+
+IRs:
+TMP_69(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(_actBalance,holdoverDaiBalance)
+_daiAmount(uint256) := TMP_69(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+holdoverDaiBalance = safeAdd(holdoverDaiBalance,_daiAmount)
+
+IRs:
+TMP_70(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(holdoverDaiBalance,_daiAmount)
+holdoverDaiBalance(uint256) := TMP_70(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+totalDaiReceived = safeAdd(totalDaiReceived,_daiAmount)
+
+IRs:
+TMP_71(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(totalDaiReceived,_daiAmount)
+totalDaiReceived(uint256) := TMP_71(uint256)"];
+}

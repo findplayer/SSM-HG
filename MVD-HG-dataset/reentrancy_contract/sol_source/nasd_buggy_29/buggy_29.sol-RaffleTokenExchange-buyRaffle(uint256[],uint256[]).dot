@@ -1,0 +1,253 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->30;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(amounts.length == listingIds.length,You have to provide amounts for every single listing!)
+
+IRs:
+REF_32 -> LENGTH amounts
+REF_33 -> LENGTH listingIds
+TMP_84(bool) = REF_32 == REF_33
+TMP_85(None) = SOLIDITY_CALL require(bool,string)(TMP_84,You have to provide amounts for every single listing!)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+"];
+3->6;
+4[label="Node Type: BEGIN_LOOP 4
+"];
+4->7;
+5[label="Node Type: END_LOOP 5
+"];
+5->23;
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+i = 0
+
+IRs:
+i(uint256) := 0(uint256)"];
+6->4;
+7[label="Node Type: IF_LOOP 7
+
+EXPRESSION:
+i < listingIds.length
+
+IRs:
+REF_34 -> LENGTH listingIds
+TMP_86(bool) = i < REF_34
+CONDITION TMP_86"];
+7->8[label="True"];
+7->5[label="False"];
+8[label="Node Type: NEW VARIABLE 8
+
+EXPRESSION:
+id = listingIds[i]
+
+IRs:
+REF_35(uint256) -> listingIds[i]
+id(uint256) := REF_35(uint256)"];
+8->9;
+9[label="Node Type: NEW VARIABLE 9
+
+EXPRESSION:
+amount = amounts[i]
+
+IRs:
+REF_36(uint256) -> amounts[i]
+amount(uint256) := REF_36(uint256)"];
+9->10;
+10[label="Node Type: NEW VARIABLE 10
+
+EXPRESSION:
+listing = listingsById[id]
+
+IRs:
+REF_37(RaffleTokenExchange.Listing) -> listingsById[id]
+listing(RaffleTokenExchange.Listing) := REF_37(RaffleTokenExchange.Listing)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+require(bool,string)(listing.active,Listing is not active anymore!)
+
+IRs:
+REF_38(bool) -> listing.active
+TMP_87(None) = SOLIDITY_CALL require(bool,string)(REF_38,Listing is not active anymore!)"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+listing.amountLeft = listing.amountLeft.sub(amount)
+
+IRs:
+REF_39(uint256) -> listing.amountLeft
+REF_40(uint256) -> listing.amountLeft
+TMP_88(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_40', 'amount'] 
+REF_39(uint256) (->listing) := TMP_88(uint256)"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+require(bool,string)(listing.amountLeft >= 0,Amount left needs to be higher than 0.)
+
+IRs:
+REF_42(uint256) -> listing.amountLeft
+TMP_89(bool) = REF_42 >= 0
+TMP_90(None) = SOLIDITY_CALL require(bool,string)(TMP_89,Amount left needs to be higher than 0.)"];
+13->14;
+14[label="Node Type: IF 14
+
+EXPRESSION:
+listing.amountLeft == 0
+
+IRs:
+REF_43(uint256) -> listing.amountLeft
+TMP_91(bool) = REF_43 == 0
+CONDITION TMP_91"];
+14->15[label="True"];
+14->16[label="False"];
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+listing.active = false
+
+IRs:
+REF_44(bool) -> listing.active
+REF_44(bool) (->listing) := False(bool)"];
+15->16;
+16[label="Node Type: END_IF 16
+"];
+16->17;
+17[label="Node Type: NEW VARIABLE 17
+
+EXPRESSION:
+amountToPay = listing.pricePerToken * amount
+
+IRs:
+REF_45(uint256) -> listing.pricePerToken
+TMP_92(uint256) = REF_45 * amount
+amountToPay(uint256) := TMP_92(uint256)"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+listing.seller.transfer(amountToPay)
+
+IRs:
+REF_46(address) -> listing.seller
+Transfer dest:REF_46 value:amountToPay"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+totalAmountPayed = totalAmountPayed.add(amountToPay)
+
+IRs:
+TMP_94(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['totalAmountPayed', 'amountToPay'] 
+totalAmountPayed(uint256) := TMP_94(uint256)"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+totalAmount = totalAmount.add(amount)
+
+IRs:
+TMP_95(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['totalAmount', 'amount'] 
+totalAmount(uint256) := TMP_95(uint256)"];
+20->21;
+21[label="Node Type: EXPRESSION 21
+
+EXPRESSION:
+require(bool,string)(raffleContract.transferFrom(listing.seller,msg.sender,amount),Token transfer failed!)
+
+IRs:
+REF_51(address) -> listing.seller
+TMP_96(bool) = HIGH_LEVEL_CALL, dest:raffleContract(RaffleToken), function:transferFrom, arguments:['REF_51', 'msg.sender', 'amount']  
+TMP_97(None) = SOLIDITY_CALL require(bool,string)(TMP_96,Token transfer failed!)"];
+21->22;
+22[label="Node Type: EXPRESSION 22
+
+EXPRESSION:
+i ++
+
+IRs:
+TMP_98(uint256) := i(uint256)
+i(uint256) = i + 1"];
+22->7;
+23[label="Node Type: EXPRESSION 23
+
+EXPRESSION:
+require(bool,string)(totalAmountPayed <= msg.value,Overpayed!)
+
+IRs:
+TMP_99(bool) = totalAmountPayed <= msg.value
+TMP_100(None) = SOLIDITY_CALL require(bool,string)(TMP_99,Overpayed!)"];
+23->24;
+24[label="Node Type: NEW VARIABLE 24
+
+EXPRESSION:
+id_scope_0 = nextPurchaseId ++
+
+IRs:
+TMP_101(uint256) := nextPurchaseId(uint256)
+nextPurchaseId(uint256) = nextPurchaseId + 1
+id_scope_0(uint256) := TMP_101(uint256)"];
+24->25;
+25[label="Node Type: NEW VARIABLE 25
+
+EXPRESSION:
+purchase = purchasesById[id_scope_0]
+
+IRs:
+REF_52(RaffleTokenExchange.Purchase) -> purchasesById[id_scope_0]
+purchase(RaffleTokenExchange.Purchase) := REF_52(RaffleTokenExchange.Purchase)"];
+25->26;
+26[label="Node Type: EXPRESSION 26
+
+EXPRESSION:
+purchase.totalAmount = totalAmount
+
+IRs:
+REF_53(uint256) -> purchase.totalAmount
+REF_53(uint256) (->purchase) := totalAmount(uint256)"];
+26->27;
+27[label="Node Type: EXPRESSION 27
+
+EXPRESSION:
+purchase.totalAmountPayed = totalAmountPayed
+
+IRs:
+REF_54(uint256) -> purchase.totalAmountPayed
+REF_54(uint256) (->purchase) := totalAmountPayed(uint256)"];
+27->28;
+28[label="Node Type: EXPRESSION 28
+
+EXPRESSION:
+purchase.timestamp = now
+
+IRs:
+REF_55(uint256) -> purchase.timestamp
+REF_55(uint256) (->purchase) := now(uint256)"];
+28->29;
+29[label="Node Type: EXPRESSION 29
+
+EXPRESSION:
+Purchased(id_scope_0,totalAmount,totalAmountPayed,now)
+
+IRs:
+Emit Purchased(id_scope_0,totalAmount,totalAmountPayed,now)"];
+30[label="Node Type: EXPRESSION 30
+
+EXPRESSION:
+onlyUnpaused()
+
+IRs:
+MODIFIER_CALL, RaffleTokenExchange.onlyUnpaused()()"];
+30->1;
+}

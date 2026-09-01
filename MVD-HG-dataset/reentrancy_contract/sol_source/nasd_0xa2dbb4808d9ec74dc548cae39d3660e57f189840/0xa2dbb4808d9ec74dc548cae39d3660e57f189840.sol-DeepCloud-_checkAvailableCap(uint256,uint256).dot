@@ -1,0 +1,16 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(caps[index] >= (supplied[index] + value),Balance: Low balance)
+
+IRs:
+REF_113(uint256) -> caps[index]
+REF_114(uint256) -> supplied[index]
+TMP_240(uint256) = REF_114 + value
+TMP_241(bool) = REF_113 >= TMP_240
+TMP_242(None) = SOLIDITY_CALL require(bool,string)(TMP_241,Balance: Low balance)"];
+}

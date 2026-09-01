@@ -1,0 +1,102 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+bresult = bytes(_char)
+
+IRs:
+TMP_37 = CONVERT _char to bytes
+bresult(bytes) := TMP_37(bytes)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+(bresult[0] >= 48) && (bresult[0] <= 57)
+
+IRs:
+REF_5(None) -> bresult[0]
+TMP_38(bool) = REF_5 >= 48
+REF_6(None) -> bresult[0]
+TMP_39(bool) = REF_6 <= 57
+TMP_40(bool) = TMP_38 && TMP_39
+CONDITION TMP_40"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+uint256(bresult[0]) - 48
+
+IRs:
+REF_7(None) -> bresult[0]
+TMP_41 = CONVERT REF_7 to uint256
+TMP_42(uint256) = TMP_41 - 48
+RETURN TMP_42"];
+4[label="Node Type: IF 4
+
+EXPRESSION:
+(bresult[0] >= 65) && (bresult[0] <= 70)
+
+IRs:
+REF_8(None) -> bresult[0]
+TMP_43(bool) = REF_8 >= 65
+REF_9(None) -> bresult[0]
+TMP_44(bool) = REF_9 <= 70
+TMP_45(bool) = TMP_43 && TMP_44
+CONDITION TMP_45"];
+4->5[label="True"];
+4->6[label="False"];
+5[label="Node Type: RETURN 5
+
+EXPRESSION:
+uint256(bresult[0]) - 55
+
+IRs:
+REF_10(None) -> bresult[0]
+TMP_46 = CONVERT REF_10 to uint256
+TMP_47(uint256) = TMP_46 - 55
+RETURN TMP_47"];
+6[label="Node Type: IF 6
+
+EXPRESSION:
+(bresult[0] >= 97) && (bresult[0] <= 102)
+
+IRs:
+REF_11(None) -> bresult[0]
+TMP_48(bool) = REF_11 >= 97
+REF_12(None) -> bresult[0]
+TMP_49(bool) = REF_12 <= 102
+TMP_50(bool) = TMP_48 && TMP_49
+CONDITION TMP_50"];
+6->7[label="True"];
+6->8[label="False"];
+7[label="Node Type: RETURN 7
+
+EXPRESSION:
+uint256(bresult[0]) - 87
+
+IRs:
+REF_13(None) -> bresult[0]
+TMP_51 = CONVERT REF_13 to uint256
+TMP_52(uint256) = TMP_51 - 87
+RETURN TMP_52"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+revert()()
+
+IRs:
+TMP_53(None) = SOLIDITY_CALL revert()()"];
+8->9;
+9[label="Node Type: END_IF 9
+"];
+9->10;
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: END_IF 11
+"];
+}

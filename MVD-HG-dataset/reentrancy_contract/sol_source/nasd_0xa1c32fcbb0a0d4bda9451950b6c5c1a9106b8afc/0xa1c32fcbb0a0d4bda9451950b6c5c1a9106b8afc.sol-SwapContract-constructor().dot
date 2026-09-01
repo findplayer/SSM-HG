@@ -1,0 +1,39 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+_newToken = IERC20(address(new TuneTradeToken()))
+
+IRs:
+TMP_299(TuneTradeToken) = new TuneTradeToken() 
+TMP_300 = CONVERT TMP_299 to address
+TMP_301 = CONVERT TMP_300 to IERC20
+_newToken(IERC20) := TMP_301(IERC20)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_newToken.mint(_swapMaster,50000010000000000000000010)
+
+IRs:
+TMP_302(bool) = HIGH_LEVEL_CALL, dest:_newToken(IERC20), function:mint, arguments:['_swapMaster', '50000010000000000000000010']  "];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+MasterTokensSwapped(50000010000000000000000010)
+
+IRs:
+Emit MasterTokensSwapped(50000010000000000000000010)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+_reset()
+
+IRs:
+INTERNAL_CALL, SwapContract._reset()()"];
+}

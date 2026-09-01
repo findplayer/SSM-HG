@@ -1,0 +1,29 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->3;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+ethRate = R.Rational(n,d)
+
+IRs:
+TMP_87(R.Rational) = new Rational(n,d)
+ethRate(R.Rational) := TMP_87(R.Rational)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+RateUpdatedETH(n,d)
+
+IRs:
+Emit RateUpdatedETH(n,d)"];
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+onlyRole(ROLE_ORACLE)
+
+IRs:
+MODIFIER_CALL, RBAC.onlyRole(string)(ROLE_ORACLE)"];
+3->1;
+}

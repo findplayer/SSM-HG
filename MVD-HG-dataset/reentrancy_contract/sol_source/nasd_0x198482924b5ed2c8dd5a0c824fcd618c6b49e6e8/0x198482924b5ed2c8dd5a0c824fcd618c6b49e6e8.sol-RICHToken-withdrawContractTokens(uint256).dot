@@ -1,0 +1,52 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->5;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(_balances[contractAddress] >= _amount)
+
+IRs:
+REF_50(uint256) -> _balances[contractAddress]
+TMP_95(bool) = REF_50 >= _amount
+TMP_96(None) = SOLIDITY_CALL require(bool)(TMP_95)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_balances[contractAddress] = _balances[contractAddress].sub(_amount)
+
+IRs:
+REF_51(uint256) -> _balances[contractAddress]
+REF_52(uint256) -> _balances[contractAddress]
+TMP_97(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_52', '_amount'] 
+REF_51(uint256) (->_balances) := TMP_97(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_balances[owner] = _balances[owner].add(_amount)
+
+IRs:
+REF_54(uint256) -> _balances[owner]
+REF_55(uint256) -> _balances[owner]
+TMP_98(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_55', '_amount'] 
+REF_54(uint256) (->_balances) := TMP_98(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Transfer(contractAddress,owner,_amount)
+
+IRs:
+Emit Transfer(contractAddress,owner,_amount)"];
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Owned.onlyOwner()()"];
+5->1;
+}

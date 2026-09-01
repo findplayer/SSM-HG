@@ -1,0 +1,153 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(Channels[_lcID].isOpen == false)
+
+IRs:
+REF_129(LedgerChannel.Channel) -> Channels[_lcID]
+REF_130(bool) -> REF_129.isOpen
+TMP_143(bool) = REF_130 == False
+TMP_144(None) = SOLIDITY_CALL require(bool)(TMP_143)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(msg.sender == Channels[_lcID].partyAddresses[1])
+
+IRs:
+REF_131(LedgerChannel.Channel) -> Channels[_lcID]
+REF_132(address[2]) -> REF_131.partyAddresses
+REF_133(address) -> REF_132[1]
+TMP_145(bool) = msg.sender == REF_133
+TMP_146(None) = SOLIDITY_CALL require(bool)(TMP_145)"];
+2->3;
+3[label="Node Type: IF 3
+
+EXPRESSION:
+_balances[0] != 0
+
+IRs:
+REF_134(uint256) -> _balances[0]
+TMP_147(bool) = REF_134 != 0
+CONDITION TMP_147"];
+3->4[label="True"];
+3->6[label="False"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool,string)(msg.value == _balances[0],state balance does not match sent value)
+
+IRs:
+REF_135(uint256) -> _balances[0]
+TMP_148(bool) = msg.value == REF_135
+TMP_149(None) = SOLIDITY_CALL require(bool,string)(TMP_148,state balance does not match sent value)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+Channels[_lcID].ethBalances[1] = msg.value
+
+IRs:
+REF_136(LedgerChannel.Channel) -> Channels[_lcID]
+REF_137(uint256[4]) -> REF_136.ethBalances
+REF_138(uint256) -> REF_137[1]
+REF_138(uint256) (->Channels) := msg.value(uint256)"];
+5->6;
+6[label="Node Type: END_IF 6
+"];
+6->7;
+7[label="Node Type: IF 7
+
+EXPRESSION:
+_balances[1] != 0
+
+IRs:
+REF_139(uint256) -> _balances[1]
+TMP_150(bool) = REF_139 != 0
+CONDITION TMP_150"];
+7->8[label="True"];
+7->10[label="False"];
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+require(bool,string)(Channels[_lcID].token.transferFrom(msg.sender,this,_balances[1]),joinChannel: token transfer failure)
+
+IRs:
+REF_140(LedgerChannel.Channel) -> Channels[_lcID]
+REF_141(HumanStandardToken) -> REF_140.token
+REF_143(uint256) -> _balances[1]
+TMP_151(bool) = HIGH_LEVEL_CALL, dest:REF_141(HumanStandardToken), function:transferFrom, arguments:['msg.sender', 'this', 'REF_143']  
+TMP_152(None) = SOLIDITY_CALL require(bool,string)(TMP_151,joinChannel: token transfer failure)"];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+Channels[_lcID].erc20Balances[1] = _balances[1]
+
+IRs:
+REF_144(LedgerChannel.Channel) -> Channels[_lcID]
+REF_145(uint256[4]) -> REF_144.erc20Balances
+REF_146(uint256) -> REF_145[1]
+REF_147(uint256) -> _balances[1]
+REF_146(uint256) (->Channels) := REF_147(uint256)"];
+9->10;
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+Channels[_lcID].initialDeposit[0] += _balances[0]
+
+IRs:
+REF_148(LedgerChannel.Channel) -> Channels[_lcID]
+REF_149(uint256[2]) -> REF_148.initialDeposit
+REF_150(uint256) -> REF_149[0]
+REF_151(uint256) -> _balances[0]
+REF_150(-> Channels) = REF_150 + REF_151"];
+11->12;
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+Channels[_lcID].initialDeposit[1] += _balances[1]
+
+IRs:
+REF_152(LedgerChannel.Channel) -> Channels[_lcID]
+REF_153(uint256[2]) -> REF_152.initialDeposit
+REF_154(uint256) -> REF_153[1]
+REF_155(uint256) -> _balances[1]
+REF_154(-> Channels) = REF_154 + REF_155"];
+12->13;
+13[label="Node Type: EXPRESSION 13
+
+EXPRESSION:
+Channels[_lcID].isOpen = true
+
+IRs:
+REF_156(LedgerChannel.Channel) -> Channels[_lcID]
+REF_157(bool) -> REF_156.isOpen
+REF_157(bool) (->Channels) := True(bool)"];
+13->14;
+14[label="Node Type: EXPRESSION 14
+
+EXPRESSION:
+numChannels ++
+
+IRs:
+TMP_153(uint256) := numChannels(uint256)
+numChannels(uint256) = numChannels + 1"];
+14->15;
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+DidLCJoin(_lcID,_balances[0],_balances[1])
+
+IRs:
+REF_158(uint256) -> _balances[0]
+REF_159(uint256) -> _balances[1]
+Emit DidLCJoin(_lcID,REF_158,REF_159)"];
+}

@@ -1,0 +1,43 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(investments[_investor][_index].redeemed == false)
+
+IRs:
+REF_10(Investing.Investor[]) -> investments[_investor]
+REF_11(Investing.Investor) -> REF_10[_index]
+REF_12(bool) -> REF_11.redeemed
+TMP_40(bool) = REF_12 == False
+TMP_41(None) = SOLIDITY_CALL require(bool)(TMP_40)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+investments[_investor][_index].redeemed = true
+
+IRs:
+REF_13(Investing.Investor[]) -> investments[_investor]
+REF_14(Investing.Investor) -> REF_13[_index]
+REF_15(bool) -> REF_14.redeemed
+REF_15(bool) (->investments) := True(bool)"];
+2->3;
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyTrust()
+
+IRs:
+MODIFIER_CALL, Investing.onlyTrust()()"];
+4->1;
+}

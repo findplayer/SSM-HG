@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+ok = (caller == getCreator())
+
+IRs:
+TMP_148(address) = INTERNAL_CALL, Template.getCreator()()
+TMP_149(bool) = caller == TMP_148
+ok(bool) := TMP_149(bool)"];
+1->2;
+2[label="Node Type: RETURN 2
+
+EXPRESSION:
+ok
+
+IRs:
+RETURN ok"];
+}

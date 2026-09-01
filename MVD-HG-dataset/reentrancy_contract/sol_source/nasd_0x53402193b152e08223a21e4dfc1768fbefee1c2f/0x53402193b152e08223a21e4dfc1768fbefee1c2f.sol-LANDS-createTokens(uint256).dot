@@ -1,0 +1,98 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(msg.sender == owner)
+
+IRs:
+TMP_94(bool) = msg.sender == owner
+TMP_95(None) = SOLIDITY_CALL require(bool)(TMP_94)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+_value > 0
+
+IRs:
+TMP_96(bool) = _value > 0
+CONDITION TMP_96"];
+2->3[label="True"];
+2->10[label="False"];
+3[label="Node Type: IF 3
+
+EXPRESSION:
+_value > safeSub(MAX_TOKEN_COUNT,tokenCount)
+
+IRs:
+TMP_97(uint256) = INTERNAL_CALL, SafeMath.safeSub(uint256,uint256)(MAX_TOKEN_COUNT,tokenCount)
+TMP_98(bool) = _value > TMP_97
+CONDITION TMP_98"];
+3->4[label="True"];
+3->5[label="False"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+5[label="Node Type: END_IF 5
+"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+accounts[msg.sender] = safeAdd(accounts[msg.sender],_value)
+
+IRs:
+REF_47(uint256) -> accounts[msg.sender]
+REF_48(uint256) -> accounts[msg.sender]
+TMP_99(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(REF_48,_value)
+REF_47(uint256) (->accounts) := TMP_99(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+tokenCount = safeAdd(tokenCount,_value)
+
+IRs:
+TMP_100(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(tokenCount,_value)
+tokenCount(uint256) := TMP_100(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+Transfer(address(0),msg.sender,_value)
+
+IRs:
+TMP_101 = CONVERT 0 to address
+Emit Transfer(TMP_101,msg.sender,_value)"];
+8->9;
+9[label="Node Type: RETURN 9
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: RETURN 11
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+12[label="Node Type: RETURN 12
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

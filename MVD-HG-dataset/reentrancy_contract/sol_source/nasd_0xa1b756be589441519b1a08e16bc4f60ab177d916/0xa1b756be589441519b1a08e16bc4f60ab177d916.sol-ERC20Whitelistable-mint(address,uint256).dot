@@ -1,0 +1,21 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->2;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+super.mint(to,value)
+
+IRs:
+TMP_328(bool) = INTERNAL_CALL, ERC20Mintable.mint(address,uint256)(to,value)
+RETURN TMP_328"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+onlyWhitelisted(to)
+
+IRs:
+MODIFIER_CALL, ERC20Whitelistable.onlyWhitelisted(address)(to)"];
+2->1;
+}

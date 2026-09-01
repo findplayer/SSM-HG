@@ -1,0 +1,101 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(beneficiary != 0x0)
+
+IRs:
+TMP_61(bool) = beneficiary != 0
+TMP_62(None) = SOLIDITY_CALL require(bool)(TMP_61)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(isCrowdsalePaused == false)
+
+IRs:
+TMP_63(bool) = isCrowdsalePaused == False
+TMP_64(None) = SOLIDITY_CALL require(bool)(TMP_63)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool)(validPurchase())
+
+IRs:
+TMP_65(bool) = INTERNAL_CALL, KRCPreSaleContract.validPurchase()()
+TMP_66(None) = SOLIDITY_CALL require(bool)(TMP_65)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(TOKENS_SOLD < maxTokensToSale)
+
+IRs:
+TMP_67(bool) = TOKENS_SOLD < maxTokensToSale
+TMP_68(None) = SOLIDITY_CALL require(bool)(TMP_67)"];
+4->5;
+5[label="Node Type: NEW VARIABLE 5
+
+EXPRESSION:
+weiAmount = msg.value.div(10 ** 16)
+
+IRs:
+TMP_69(uint256) = 10 ** 16
+TMP_70(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['msg.value', 'TMP_69'] 
+weiAmount(uint256) := TMP_70(uint256)"];
+5->6;
+6[label="Node Type: NEW VARIABLE 6
+
+EXPRESSION:
+tokens = calculateTokens(weiAmount)
+
+IRs:
+TMP_71(uint256) = INTERNAL_CALL, KRCPreSaleContract.calculateTokens(uint256)(weiAmount)
+tokens(uint256) := TMP_71(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+weiRaised = weiRaised.add(msg.value)
+
+IRs:
+TMP_72(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['weiRaised', 'msg.value'] 
+weiRaised(uint256) := TMP_72(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+token.transfer(beneficiary,tokens)
+
+IRs:
+TMP_73(bool) = HIGH_LEVEL_CALL, dest:token(TokenInterface), function:transfer, arguments:['beneficiary', 'tokens']  "];
+8->9;
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+TokenPurchase(owner,beneficiary,msg.value,tokens)
+
+IRs:
+Emit TokenPurchase(owner,beneficiary,msg.value,tokens)"];
+9->10;
+10[label="Node Type: EXPRESSION 10
+
+EXPRESSION:
+TOKENS_SOLD = TOKENS_SOLD.add(tokens)
+
+IRs:
+TMP_75(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['TOKENS_SOLD', 'tokens'] 
+TOKENS_SOLD(uint256) := TMP_75(uint256)"];
+10->11;
+11[label="Node Type: EXPRESSION 11
+
+EXPRESSION:
+distributeFunds()
+
+IRs:
+INTERNAL_CALL, KRCPreSaleContract.distributeFunds()()"];
+}

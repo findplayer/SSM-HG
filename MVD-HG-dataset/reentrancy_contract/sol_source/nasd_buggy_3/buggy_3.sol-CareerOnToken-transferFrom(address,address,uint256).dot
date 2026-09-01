@@ -1,0 +1,101 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+assert(bool)(_to != address(this) && ! isTransPaused && balances[msg.sender] >= _value && balances[_to] + _value > balances[_to] && allowed[_from][msg.sender] >= _value)
+
+IRs:
+TMP_66 = CONVERT this to address
+TMP_67(bool) = _to != TMP_66
+TMP_68 = UnaryType.BANG isTransPaused 
+TMP_69(bool) = TMP_67 && TMP_68
+REF_40(uint256) -> balances[msg.sender]
+TMP_70(bool) = REF_40 >= _value
+TMP_71(bool) = TMP_69 && TMP_70
+REF_41(uint256) -> balances[_to]
+TMP_72(uint256) = REF_41 + _value
+REF_42(uint256) -> balances[_to]
+TMP_73(bool) = TMP_72 > REF_42
+TMP_74(bool) = TMP_71 && TMP_73
+REF_43(mapping(address => uint256)) -> allowed[_from]
+REF_44(uint256) -> REF_43[msg.sender]
+TMP_75(bool) = REF_44 >= _value
+TMP_76(bool) = TMP_74 && TMP_75
+TMP_77(None) = SOLIDITY_CALL assert(bool)(TMP_76)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+balances[_to] += _value
+
+IRs:
+REF_45(uint256) -> balances[_to]
+REF_45(-> balances) = REF_45 + _value"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+balances[_from] -= _value
+
+IRs:
+REF_46(uint256) -> balances[_from]
+REF_46(-> balances) = REF_46 - _value"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+allowed[_from][msg.sender] -= _value
+
+IRs:
+REF_47(mapping(address => uint256)) -> allowed[_from]
+REF_48(uint256) -> REF_47[msg.sender]
+REF_48(-> allowed) = REF_48 - _value"];
+4->5;
+5[label="Node Type: IF 5
+
+EXPRESSION:
+_from == owner
+
+IRs:
+TMP_78(bool) = _from == owner
+CONDITION TMP_78"];
+5->6[label="True"];
+5->7[label="False"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+Transfer(address(this),_to,_value)
+
+IRs:
+TMP_79 = CONVERT this to address
+Emit Transfer(TMP_79,_to,_value)"];
+6->8;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+Transfer(_from,_to,_value)
+
+IRs:
+Emit Transfer(_from,_to,_value)"];
+7->8;
+8[label="Node Type: END_IF 8
+"];
+8->9;
+9[label="Node Type: RETURN 9
+
+EXPRESSION:
+true
+
+IRs:
+RETURN True"];
+10[label="Node Type: RETURN 10
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

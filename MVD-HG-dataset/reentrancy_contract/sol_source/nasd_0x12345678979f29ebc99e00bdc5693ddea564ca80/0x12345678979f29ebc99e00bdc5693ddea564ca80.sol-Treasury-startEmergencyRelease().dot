@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+emergencyReleaseSince[msg.sender] = block.timestamp + EMERGENCY_RELEASE_CHALLENGE_PERIOD
+
+IRs:
+REF_5(uint256) -> emergencyReleaseSince[msg.sender]
+TMP_26(uint256) = block.timestamp + EMERGENCY_RELEASE_CHALLENGE_PERIOD
+REF_5(uint256) (->emergencyReleaseSince) := TMP_26(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+StartEmergencyRelease(msg.sender)
+
+IRs:
+Emit StartEmergencyRelease(msg.sender)"];
+}

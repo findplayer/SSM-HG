@@ -1,0 +1,22 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+balanceOf[msg.sender] = totalSupply
+
+IRs:
+REF_13(uint256) -> balanceOf[msg.sender]
+REF_13(uint256) (->balanceOf) := totalSupply(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+Transfer(address(0),msg.sender,totalSupply)
+
+IRs:
+TMP_18 = CONVERT 0 to address
+Emit Transfer(TMP_18,msg.sender,totalSupply)"];
+}

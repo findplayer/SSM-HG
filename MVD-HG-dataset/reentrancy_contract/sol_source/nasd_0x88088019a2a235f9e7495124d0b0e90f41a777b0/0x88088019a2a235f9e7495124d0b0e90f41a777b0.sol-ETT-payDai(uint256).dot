@@ -1,0 +1,33 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(iERC20Token(daiToken).transferFrom(msg.sender,address(this),_daiAmount),failed to transfer dai)
+
+IRs:
+TMP_60 = CONVERT daiToken to iERC20Token
+TMP_61 = CONVERT this to address
+TMP_62(bool) = HIGH_LEVEL_CALL, dest:TMP_60(iERC20Token), function:transferFrom, arguments:['msg.sender', 'TMP_61', '_daiAmount']  
+TMP_63(None) = SOLIDITY_CALL require(bool,string)(TMP_62,failed to transfer dai)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+holdoverDaiBalance = safeAdd(holdoverDaiBalance,_daiAmount)
+
+IRs:
+TMP_64(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(holdoverDaiBalance,_daiAmount)
+holdoverDaiBalance(uint256) := TMP_64(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+totalDaiReceived = safeAdd(totalDaiReceived,_daiAmount)
+
+IRs:
+TMP_65(uint256) = INTERNAL_CALL, SafeMath.safeAdd(uint256,uint256)(totalDaiReceived,_daiAmount)
+totalDaiReceived(uint256) := TMP_65(uint256)"];
+}

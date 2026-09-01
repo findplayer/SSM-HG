@@ -1,0 +1,15 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: RETURN 1
+
+EXPRESSION:
+SafeMath.add(claimedEggs[msg.sender],getEggsSinceLastHatch(msg.sender))
+
+IRs:
+REF_43(uint256) -> claimedEggs[msg.sender]
+TMP_55(uint256) = INTERNAL_CALL, GoTDragonFarm.getEggsSinceLastHatch(address)(msg.sender)
+TMP_56(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_43', 'TMP_55'] 
+RETURN TMP_56"];
+}

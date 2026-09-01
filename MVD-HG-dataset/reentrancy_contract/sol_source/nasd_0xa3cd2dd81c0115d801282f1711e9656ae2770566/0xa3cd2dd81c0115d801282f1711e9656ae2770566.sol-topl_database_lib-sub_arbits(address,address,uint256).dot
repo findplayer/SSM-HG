@@ -1,0 +1,35 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+assert(bool)(_v <= database(db).get_participant_arbits(_a))
+
+IRs:
+TMP_104 = CONVERT db to database
+TMP_105(uint256) = HIGH_LEVEL_CALL, dest:TMP_104(database), function:get_participant_arbits, arguments:['_a']  
+TMP_106(bool) = _v <= TMP_105
+TMP_107(None) = SOLIDITY_CALL assert(bool)(TMP_106)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+database(db).set_participant_arbits(_a,(database(db).get_participant_arbits(_a) - _v))
+
+IRs:
+TMP_108 = CONVERT db to database
+TMP_109 = CONVERT db to database
+TMP_110(uint256) = HIGH_LEVEL_CALL, dest:TMP_109(database), function:get_participant_arbits, arguments:['_a']  
+TMP_111(uint256) = TMP_110 - _v
+HIGH_LEVEL_CALL, dest:TMP_108(database), function:set_participant_arbits, arguments:['_a', 'TMP_111']  "];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+e_sub_arbits(_a,_v)
+
+IRs:
+Emit e_sub_arbits(_a,_v)"];
+}

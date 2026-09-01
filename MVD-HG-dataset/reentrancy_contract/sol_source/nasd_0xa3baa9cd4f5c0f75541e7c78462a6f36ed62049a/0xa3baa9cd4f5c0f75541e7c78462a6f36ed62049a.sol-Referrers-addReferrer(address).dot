@@ -1,0 +1,55 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->6;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+referrers.add(_account)
+
+IRs:
+LIBRARY_CALL, dest:Roles, function:Roles.add(Roles.Role,address), arguments:['referrers', '_account'] "];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+indexToAddress[index] = _account
+
+IRs:
+REF_17(address) -> indexToAddress[index]
+REF_17(address) (->indexToAddress) := _account(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+addressToIndex[_account] = index
+
+IRs:
+REF_18(uint32) -> addressToIndex[_account]
+REF_18(uint32) (->addressToIndex) := index(uint32)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+index ++
+
+IRs:
+TMP_79(uint32) := index(uint32)
+index(uint32) = index + 1"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+ReferrerAdded(_account)
+
+IRs:
+Emit ReferrerAdded(_account)"];
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+onlyOperator()
+
+IRs:
+MODIFIER_CALL, OperatorRole.onlyOperator()()"];
+6->1;
+}

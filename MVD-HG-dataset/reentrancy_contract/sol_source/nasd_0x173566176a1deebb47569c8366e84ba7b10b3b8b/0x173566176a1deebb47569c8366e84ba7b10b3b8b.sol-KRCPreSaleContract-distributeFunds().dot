@@ -1,0 +1,89 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+received = msg.value
+
+IRs:
+received(uint256) := msg.value(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+LongTermFoundationBudgetAccumulated = LongTermFoundationBudgetAccumulated.add(received.mul(LongTermFoundationBudgetPercentage).div(100))
+
+IRs:
+TMP_77(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'LongTermFoundationBudgetPercentage'] 
+TMP_78(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_77', '100'] 
+TMP_79(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['LongTermFoundationBudgetAccumulated', 'TMP_78'] 
+LongTermFoundationBudgetAccumulated(uint256) := TMP_79(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+LegalContingencyFundsAccumulated = LegalContingencyFundsAccumulated.add(received.mul(LegalContingencyFundsPercentage).div(100))
+
+IRs:
+TMP_80(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'LegalContingencyFundsPercentage'] 
+TMP_81(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_80', '100'] 
+TMP_82(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['LegalContingencyFundsAccumulated', 'TMP_81'] 
+LegalContingencyFundsAccumulated(uint256) := TMP_82(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+MarketingAndCommunityOutreachAccumulated = MarketingAndCommunityOutreachAccumulated.add(received.mul(MarketingAndCommunityOutreachPercentage).div(100))
+
+IRs:
+TMP_83(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'MarketingAndCommunityOutreachPercentage'] 
+TMP_84(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_83', '100'] 
+TMP_85(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['MarketingAndCommunityOutreachAccumulated', 'TMP_84'] 
+MarketingAndCommunityOutreachAccumulated(uint256) := TMP_85(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+CashReserveFundAccumulated = CashReserveFundAccumulated.add(received.mul(CashReserveFundPercentage).div(100))
+
+IRs:
+TMP_86(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'CashReserveFundPercentage'] 
+TMP_87(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_86', '100'] 
+TMP_88(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['CashReserveFundAccumulated', 'TMP_87'] 
+CashReserveFundAccumulated(uint256) := TMP_88(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+OperationalExpensesAccumulated = OperationalExpensesAccumulated.add(received.mul(OperationalExpensesPercentage).div(100))
+
+IRs:
+TMP_89(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'OperationalExpensesPercentage'] 
+TMP_90(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_89', '100'] 
+TMP_91(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['OperationalExpensesAccumulated', 'TMP_90'] 
+OperationalExpensesAccumulated(uint256) := TMP_91(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+SoftwareProductDevelopmentAccumulated = SoftwareProductDevelopmentAccumulated.add(received.mul(SoftwareProductDevelopmentPercentage).div(100))
+
+IRs:
+TMP_92(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'SoftwareProductDevelopmentPercentage'] 
+TMP_93(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_92', '100'] 
+TMP_94(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['SoftwareProductDevelopmentAccumulated', 'TMP_93'] 
+SoftwareProductDevelopmentAccumulated(uint256) := TMP_94(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+FoundersTeamAndAdvisorsAccumulated = FoundersTeamAndAdvisorsAccumulated.add(received.mul(FoundersTeamAndAdvisorsPercentage).div(100))
+
+IRs:
+TMP_95(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['received', 'FoundersTeamAndAdvisorsPercentage'] 
+TMP_96(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.div(uint256,uint256), arguments:['TMP_95', '100'] 
+TMP_97(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['FoundersTeamAndAdvisorsAccumulated', 'TMP_96'] 
+FoundersTeamAndAdvisorsAccumulated(uint256) := TMP_97(uint256)"];
+}

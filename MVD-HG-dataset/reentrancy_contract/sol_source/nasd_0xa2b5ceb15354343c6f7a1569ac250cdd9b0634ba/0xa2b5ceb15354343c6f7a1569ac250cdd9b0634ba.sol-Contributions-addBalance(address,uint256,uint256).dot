@@ -1,0 +1,94 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->9;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+! _contributors[account].exists
+
+IRs:
+REF_22(Contributions.Contributor) -> _contributors[account]
+REF_23(bool) -> REF_22.exists
+TMP_96 = UnaryType.BANG REF_23 
+CONDITION TMP_96"];
+1->2[label="True"];
+1->4[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_addresses.push(account)
+
+IRs:
+REF_25 -> LENGTH _addresses
+TMP_98(uint256) := REF_25(uint256)
+TMP_99(uint256) = TMP_98 + 1
+REF_25(uint256) (->_addresses) := TMP_99(uint256)
+REF_26(address) -> _addresses[TMP_98]
+REF_26(address) (->_addresses) := account(address)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_contributors[account].exists = true
+
+IRs:
+REF_27(Contributions.Contributor) -> _contributors[account]
+REF_28(bool) -> REF_27.exists
+REF_28(bool) (->_contributors) := True(bool)"];
+3->4;
+4[label="Node Type: END_IF 4
+"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+_contributors[account].weiAmount = _contributors[account].weiAmount.add(weiAmount)
+
+IRs:
+REF_29(Contributions.Contributor) -> _contributors[account]
+REF_30(uint256) -> REF_29.weiAmount
+REF_31(Contributions.Contributor) -> _contributors[account]
+REF_32(uint256) -> REF_31.weiAmount
+TMP_100(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_32', 'weiAmount'] 
+REF_30(uint256) (->_contributors) := TMP_100(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+_contributors[account].tokenAmount = _contributors[account].tokenAmount.add(tokenAmount)
+
+IRs:
+REF_34(Contributions.Contributor) -> _contributors[account]
+REF_35(uint256) -> REF_34.tokenAmount
+REF_36(Contributions.Contributor) -> _contributors[account]
+REF_37(uint256) -> REF_36.tokenAmount
+TMP_101(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_37', 'tokenAmount'] 
+REF_35(uint256) (->_contributors) := TMP_101(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+_totalWeiRaised = _totalWeiRaised.add(weiAmount)
+
+IRs:
+TMP_102(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['_totalWeiRaised', 'weiAmount'] 
+_totalWeiRaised(uint256) := TMP_102(uint256)"];
+7->8;
+8[label="Node Type: EXPRESSION 8
+
+EXPRESSION:
+_totalSoldTokens = _totalSoldTokens.add(tokenAmount)
+
+IRs:
+TMP_103(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['_totalSoldTokens', 'tokenAmount'] 
+_totalSoldTokens(uint256) := TMP_103(uint256)"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+onlyOperator()
+
+IRs:
+MODIFIER_CALL, OperatorRole.onlyOperator()()"];
+9->1;
+}

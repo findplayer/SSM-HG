@@ -1,0 +1,86 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+tradingFeeXfer = calculatePercentage(amount,tradingFee)
+
+IRs:
+TMP_245(uint256) = INTERNAL_CALL, BitpayerDEX.calculatePercentage(uint256,uint256)(amount,tradingFee)
+tradingFeeXfer(uint256) := TMP_245(uint256)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+tokens[tokenGet][msg.sender] = tokens[tokenGet][msg.sender].sub(amount.add(tradingFeeXfer))
+
+IRs:
+REF_148(mapping(address => uint256)) -> tokens[tokenGet]
+REF_149(uint256) -> REF_148[msg.sender]
+REF_150(mapping(address => uint256)) -> tokens[tokenGet]
+REF_151(uint256) -> REF_150[msg.sender]
+TMP_246(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['amount', 'tradingFeeXfer'] 
+TMP_247(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_151', 'TMP_246'] 
+REF_149(uint256) (->tokens) := TMP_247(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+tokens[tokenGet][user] = tokens[tokenGet][user].add(amount.sub(tradingFeeXfer))
+
+IRs:
+REF_154(mapping(address => uint256)) -> tokens[tokenGet]
+REF_155(uint256) -> REF_154[user]
+REF_156(mapping(address => uint256)) -> tokens[tokenGet]
+REF_157(uint256) -> REF_156[user]
+TMP_248(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['amount', 'tradingFeeXfer'] 
+TMP_249(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_157', 'TMP_248'] 
+REF_155(uint256) (->tokens) := TMP_249(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+tokens[address(0)][feeAccount] = tokens[address(0)][feeAccount].add(tradingFeeXfer)
+
+IRs:
+TMP_250 = CONVERT 0 to address
+REF_160(mapping(address => uint256)) -> tokens[TMP_250]
+REF_161(uint256) -> REF_160[feeAccount]
+TMP_251 = CONVERT 0 to address
+REF_162(mapping(address => uint256)) -> tokens[TMP_251]
+REF_163(uint256) -> REF_162[feeAccount]
+TMP_252(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_163', 'tradingFeeXfer'] 
+REF_161(uint256) (->tokens) := TMP_252(uint256)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+tokens[tokenGive][user] = tokens[tokenGive][user].sub(amountGive.mul(amount) / amountGet)
+
+IRs:
+REF_165(mapping(address => uint256)) -> tokens[tokenGive]
+REF_166(uint256) -> REF_165[user]
+REF_167(mapping(address => uint256)) -> tokens[tokenGive]
+REF_168(uint256) -> REF_167[user]
+TMP_253(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['amountGive', 'amount'] 
+TMP_254(uint256) = TMP_253 / amountGet
+TMP_255(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_168', 'TMP_254'] 
+REF_166(uint256) (->tokens) := TMP_255(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+tokens[tokenGive][msg.sender] = tokens[tokenGive][msg.sender].add(amountGive.mul(amount) / amountGet)
+
+IRs:
+REF_171(mapping(address => uint256)) -> tokens[tokenGive]
+REF_172(uint256) -> REF_171[msg.sender]
+REF_173(mapping(address => uint256)) -> tokens[tokenGive]
+REF_174(uint256) -> REF_173[msg.sender]
+TMP_256(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.mul(uint256,uint256), arguments:['amountGive', 'amount'] 
+TMP_257(uint256) = TMP_256 / amountGet
+TMP_258(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_174', 'TMP_257'] 
+REF_172(uint256) (->tokens) := TMP_258(uint256)"];
+}

@@ -1,0 +1,35 @@
+digraph{
+0[label="Node Type: OTHER_ENTRYPOINT 0
+
+EXPRESSION:
+name = Real Estate Chain
+
+IRs:
+name(string) := Real Estate Chain(string)"];
+0->1;
+1[label="Node Type: OTHER_ENTRYPOINT 1
+
+EXPRESSION:
+symbol = ERCC
+
+IRs:
+symbol(string) := ERCC(string)"];
+1->2;
+2[label="Node Type: OTHER_ENTRYPOINT 2
+
+EXPRESSION:
+decimals = 18
+
+IRs:
+decimals(uint8) := 18(uint256)"];
+2->3;
+3[label="Node Type: OTHER_ENTRYPOINT 3
+
+EXPRESSION:
+totalSupply = 5 * 10 ** 26
+
+IRs:
+TMP_110(uint256) = 10 ** 26
+TMP_111(uint256) = 5 * TMP_110
+totalSupply(uint256) := TMP_111(uint256)"];
+}

@@ -1,0 +1,38 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->4;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool,string)(block.timestamp < GRACE_PERIOD_EXPIRATION,StaticAccessControlled#grantAccess: Cannot grant access after grace period)
+
+IRs:
+TMP_97(bool) = block.timestamp < GRACE_PERIOD_EXPIRATION
+TMP_98(None) = SOLIDITY_CALL require(bool,string)(TMP_97,StaticAccessControlled#grantAccess: Cannot grant access after grace period)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+AccessGranted(who)
+
+IRs:
+Emit AccessGranted(who)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+authorized[who] = true
+
+IRs:
+REF_17(bool) -> authorized[who]
+REF_17(bool) (->authorized) := True(bool)"];
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+onlyOwner()
+
+IRs:
+MODIFIER_CALL, Ownable.onlyOwner()()"];
+4->1;
+}

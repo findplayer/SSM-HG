@@ -1,0 +1,79 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(ICOPrice > 0)
+
+IRs:
+TMP_74(bool) = ICOPrice > 0
+TMP_75(None) = SOLIDITY_CALL require(bool)(TMP_74)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+require(bool)(msg.value >= ICOPrice)
+
+IRs:
+TMP_76(bool) = msg.value >= ICOPrice
+TMP_77(None) = SOLIDITY_CALL require(bool)(TMP_76)"];
+2->3;
+3[label="Node Type: NEW VARIABLE 3
+
+EXPRESSION:
+affordAmount = msg.value / ICOPrice
+
+IRs:
+TMP_78(uint256) = msg.value / ICOPrice
+affordAmount(uint256) := TMP_78(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool)(_balances[contractAddress] >= affordAmount * 10 ** decimals)
+
+IRs:
+REF_42(uint256) -> _balances[contractAddress]
+TMP_79(uint256) = 10 ** decimals
+TMP_80(uint256) = affordAmount * TMP_79
+TMP_81(bool) = REF_42 >= TMP_80
+TMP_82(None) = SOLIDITY_CALL require(bool)(TMP_81)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+_balances[contractAddress] = _balances[contractAddress].sub(affordAmount * 10 ** decimals)
+
+IRs:
+REF_43(uint256) -> _balances[contractAddress]
+REF_44(uint256) -> _balances[contractAddress]
+TMP_83(uint256) = 10 ** decimals
+TMP_84(uint256) = affordAmount * TMP_83
+TMP_85(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_44', 'TMP_84'] 
+REF_43(uint256) (->_balances) := TMP_85(uint256)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+_balances[msg.sender] = _balances[msg.sender].add(affordAmount * 10 ** decimals)
+
+IRs:
+REF_46(uint256) -> _balances[msg.sender]
+REF_47(uint256) -> _balances[msg.sender]
+TMP_86(uint256) = 10 ** decimals
+TMP_87(uint256) = affordAmount * TMP_86
+TMP_88(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_47', 'TMP_87'] 
+REF_46(uint256) (->_balances) := TMP_88(uint256)"];
+6->7;
+7[label="Node Type: EXPRESSION 7
+
+EXPRESSION:
+Transfer(contractAddress,msg.sender,affordAmount * 10 ** decimals)
+
+IRs:
+TMP_89(uint256) = 10 ** decimals
+TMP_90(uint256) = affordAmount * TMP_89
+Emit Transfer(contractAddress,msg.sender,TMP_90)"];
+}

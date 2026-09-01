@@ -1,0 +1,46 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(! frozenAccount[msg.sender])
+
+IRs:
+REF_42(bool) -> frozenAccount[msg.sender]
+TMP_82 = UnaryType.BANG REF_42 
+TMP_83(None) = SOLIDITY_CALL require(bool)(TMP_82)"];
+1->2;
+2[label="Node Type: IF 2
+
+EXPRESSION:
+frozen
+
+IRs:
+CONDITION frozen"];
+2->3[label="True"];
+2->4[label="False"];
+3[label="Node Type: RETURN 3
+
+EXPRESSION:
+false
+
+IRs:
+RETURN False"];
+4[label="Node Type: RETURN 4
+
+EXPRESSION:
+AbstractToken.transfer(_to,_value)
+
+IRs:
+TMP_84(bool) = INTERNAL_CALL, AbstractToken.transfer(address,uint256)(_to,_value)
+RETURN TMP_84"];
+6[label="Node Type: RETURN 6
+
+EXPRESSION:
+success
+
+IRs:
+RETURN success"];
+}

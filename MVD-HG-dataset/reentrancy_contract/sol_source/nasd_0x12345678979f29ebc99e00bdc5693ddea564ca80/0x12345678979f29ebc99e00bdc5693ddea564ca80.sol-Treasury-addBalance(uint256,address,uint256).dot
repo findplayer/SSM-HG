@@ -1,0 +1,45 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: NEW VARIABLE 1
+
+EXPRESSION:
+tokenAccount = uint176(tokenCode) << 160 | uint176(addr)
+
+IRs:
+TMP_105 = CONVERT tokenCode to uint176
+TMP_106(uint176) = TMP_105 << 160
+TMP_107 = CONVERT addr to uint176
+TMP_108(uint176) = TMP_106 | TMP_107
+tokenAccount(uint176) := TMP_108(uint176)"];
+1->2;
+2[label="Node Type: NEW VARIABLE 2
+
+EXPRESSION:
+before = tokenAmounts[tokenAccount]
+
+IRs:
+REF_17(uint256) -> tokenAmounts[tokenAccount]
+before(uint256) := REF_17(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+require(bool,string)(before + amount >= before,No overflow.)
+
+IRs:
+TMP_109(uint256) = before + amount
+TMP_110(bool) = TMP_109 >= before
+TMP_111(None) = SOLIDITY_CALL require(bool,string)(TMP_110,No overflow.)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+tokenAmounts[tokenAccount] = before + amount
+
+IRs:
+REF_18(uint256) -> tokenAmounts[tokenAccount]
+TMP_112(uint256) = before + amount
+REF_18(uint256) (->tokenAmounts) := TMP_112(uint256)"];
+}

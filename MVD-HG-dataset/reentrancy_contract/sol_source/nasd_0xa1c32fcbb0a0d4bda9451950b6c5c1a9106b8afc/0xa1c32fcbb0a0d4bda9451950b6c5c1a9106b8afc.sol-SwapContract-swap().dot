@@ -1,0 +1,174 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->21;
+1[label="Node Type: IF 1
+
+EXPRESSION:
+now >= _lastReset + _period
+
+IRs:
+TMP_323(uint256) = _lastReset + _period
+TMP_324(bool) = now >= TMP_323
+CONDITION TMP_324"];
+1->2[label="True"];
+1->3[label="False"];
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_reset()
+
+IRs:
+INTERNAL_CALL, SwapContract._reset()()"];
+2->3;
+3[label="Node Type: END_IF 3
+"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+require(bool,string)(_remaining != 0,swap: no tokens available)
+
+IRs:
+TMP_326(bool) = _remaining != 0
+TMP_327(None) = SOLIDITY_CALL require(bool,string)(TMP_326,swap: no tokens available)"];
+4->5;
+5[label="Node Type: EXPRESSION 5
+
+EXPRESSION:
+require(bool,string)(_infos[msg.sender].availableTokens != 0,swap: no tokens available for swap)
+
+IRs:
+REF_169(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_170(uint256) -> REF_169.availableTokens
+TMP_328(bool) = REF_170 != 0
+TMP_329(None) = SOLIDITY_CALL require(bool,string)(TMP_328,swap: no tokens available for swap)"];
+5->6;
+6[label="Node Type: EXPRESSION 6
+
+EXPRESSION:
+require(bool,string)(now >= _infos[msg.sender].lastSwapTimestamp + _period,swap: msg.sender can not call this method now)
+
+IRs:
+REF_171(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_172(uint256) -> REF_171.lastSwapTimestamp
+TMP_330(uint256) = REF_172 + _period
+TMP_331(bool) = now >= TMP_330
+TMP_332(None) = SOLIDITY_CALL require(bool,string)(TMP_331,swap: msg.sender can not call this method now)"];
+6->7;
+7[label="Node Type: NEW VARIABLE 7
+
+EXPRESSION:
+toSwap = _infos[msg.sender].availableTokens
+
+IRs:
+REF_173(SwapContract.SwapInfo) -> _infos[msg.sender]
+REF_174(uint256) -> REF_173.availableTokens
+toSwap(uint256) := REF_174(uint256)"];
+7->8;
+8[label="Node Type: IF 8
+
+EXPRESSION:
+toSwap > _publicLimit
+
+IRs:
+TMP_333(bool) = toSwap > _publicLimit
+CONDITION TMP_333"];
+8->9[label="True"];
+8->10[label="False"];
+9[label="Node Type: EXPRESSION 9
+
+EXPRESSION:
+toSwap = _publicLimit
+
+IRs:
+toSwap(uint256) := _publicLimit(uint256)"];
+9->10;
+10[label="Node Type: END_IF 10
+"];
+10->11;
+11[label="Node Type: IF 11
+
+EXPRESSION:
+toSwap > _remaining
+
+IRs:
+TMP_334(bool) = toSwap > _remaining
+CONDITION TMP_334"];
+11->12[label="True"];
+11->13[label="False"];
+12[label="Node Type: EXPRESSION 12
+
+EXPRESSION:
+toSwap = _remaining
+
+IRs:
+toSwap(uint256) := _remaining(uint256)"];
+12->13;
+13[label="Node Type: END_IF 13
+"];
+13->14;
+14[label="Node Type: IF 14
+
+EXPRESSION:
+toSwap > _oldToken.balanceOf(msg.sender)
+
+IRs:
+TMP_335(uint256) = HIGH_LEVEL_CALL, dest:_oldToken(IERC20), function:balanceOf, arguments:['msg.sender']  
+TMP_336(bool) = toSwap > TMP_335
+CONDITION TMP_336"];
+14->15[label="True"];
+14->16[label="False"];
+15[label="Node Type: EXPRESSION 15
+
+EXPRESSION:
+toSwap = _oldToken.balanceOf(msg.sender)
+
+IRs:
+TMP_337(uint256) = HIGH_LEVEL_CALL, dest:_oldToken(IERC20), function:balanceOf, arguments:['msg.sender']  
+toSwap(uint256) := TMP_337(uint256)"];
+15->16;
+16[label="Node Type: END_IF 16
+"];
+16->17;
+17[label="Node Type: EXPRESSION 17
+
+EXPRESSION:
+_swap(toSwap)
+
+IRs:
+INTERNAL_CALL, SwapContract._swap(uint256)(toSwap)"];
+17->18;
+18[label="Node Type: EXPRESSION 18
+
+EXPRESSION:
+_update(toSwap)
+
+IRs:
+INTERNAL_CALL, SwapContract._update(uint256)(toSwap)"];
+18->19;
+19[label="Node Type: EXPRESSION 19
+
+EXPRESSION:
+_remaining = _remaining.sub(toSwap)
+
+IRs:
+TMP_340(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['_remaining', 'toSwap'] 
+_remaining(uint256) := TMP_340(uint256)"];
+19->20;
+20[label="Node Type: EXPRESSION 20
+
+EXPRESSION:
+TokensSwapped(msg.sender,toSwap)
+
+IRs:
+Emit TokensSwapped(msg.sender,toSwap)"];
+21[label="Node Type: EXPRESSION 21
+
+EXPRESSION:
+onlyWhitelisted()
+
+IRs:
+MODIFIER_CALL, WhitelistedRole.onlyWhitelisted()()"];
+21->1;
+}

@@ -1,0 +1,44 @@
+digraph{
+0[label="Node Type: ENTRY_POINT 0
+"];
+0->1;
+1[label="Node Type: EXPRESSION 1
+
+EXPRESSION:
+require(bool)(to != address(0))
+
+IRs:
+TMP_529 = CONVERT 0 to address
+TMP_530(bool) = to != TMP_529
+TMP_531(None) = SOLIDITY_CALL require(bool)(TMP_530)"];
+1->2;
+2[label="Node Type: EXPRESSION 2
+
+EXPRESSION:
+_balances[from] = _balances[from].sub(value)
+
+IRs:
+REF_312(uint256) -> _balances[from]
+REF_313(uint256) -> _balances[from]
+TMP_532(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.sub(uint256,uint256), arguments:['REF_313', 'value'] 
+REF_312(uint256) (->_balances) := TMP_532(uint256)"];
+2->3;
+3[label="Node Type: EXPRESSION 3
+
+EXPRESSION:
+_balances[to] = _balances[to].add(value)
+
+IRs:
+REF_315(uint256) -> _balances[to]
+REF_316(uint256) -> _balances[to]
+TMP_533(uint256) = LIBRARY_CALL, dest:SafeMath, function:SafeMath.add(uint256,uint256), arguments:['REF_316', 'value'] 
+REF_315(uint256) (->_balances) := TMP_533(uint256)"];
+3->4;
+4[label="Node Type: EXPRESSION 4
+
+EXPRESSION:
+Transfer(from,to,value)
+
+IRs:
+Emit Transfer(from,to,value)"];
+}
