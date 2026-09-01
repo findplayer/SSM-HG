@@ -1,0 +1,7 @@
+nohup python main.py -u --run_mode create --train_mode line_classification --create_corpus_mode create_corpus_txt --data_dir_name time_manipulation_line --attack_type_name time_manipulation > time_manipulation_line/log 2>&1 &
+
+
+nohup python main.py -u --run_mode create --train_mode line_classification --create_corpus_mode generate_all --data_dir_name time_manipulation_line --attack_type_name time_manipulation > time_manipulation_line/log 2>&1 &
+
+
+nohup python main.py -u --run_mode line_classification_train --train_mode line_classification --create_corpus_mode no --data_dir_name time_manipulation_line --attack_type_name time_manipulation --gpu_id 1 > time_manipulation_line/log 2>&1 &

@@ -1,0 +1,8 @@
+# 先运行sol_to_dir，分割文件到对应的文件夹当中去。
+nohup python -u main.py --run_mode create --train_mode contract_classification --create_corpus_mode create_corpus_txt --data_dir_name uncheck_contract_data_augmentation --attack_type_name unchecked_low_level_calls > /data/space_station/AST-GNN/uncheck_contract_data_augmentation/log 2>&1 &
+
+
+nohup python -u main.py --run_mode create --train_mode contract_classification --create_corpus_mode generate_all --data_dir_name uncheck_contract_data_augmentation --attack_type_name unchecked_low_level_calls > /data/space_station/AST-GNN/uncheck_contract_data_augmentation/log 2>&1 &
+
+
+nohup python -u main.py --run_mode contract_classification_train --train_mode contract_classification --create_corpus_mode no --data_dir_name uncheck_contract_data_augmentation --attack_type_name unchecked_low_level_calls --gpu_id 0 > /data/space_station/AST-GNN/uncheck_contract_data_augmentation/log 2>&1 &
