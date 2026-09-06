@@ -1,6 +1,6 @@
 # SSM-HG 开发 TODO（按真实代码依赖修正）
 
-> 版本：2026-09-05（M1/M2 第五轮定向审计收尾版；Stage 0、M1、M2 完成并审计关闭；下一步进入 M3）
+> 版本：2026-09-06（M1 第六轮 uncheck_return 消费判定修复并全量重跑：540→536 节点/103→99 图；M3 完成——ir_cat.json + 581 组 _cb.pt/_feat.pt 已生成；下一步 M4 model.py）
 > 依据：论文开发手册修订版 + 当前仓库真实状态
 > 先决条件：先修好 Stage 0，再动 M2；M2 是第一最小原子模块，不要跳过。
 
@@ -131,6 +131,7 @@
   - [x] 全图 min-max 归一化
 - [x] 检查输出
   - [x] 2026-09-05 最终全量重跑（两次一致）：93551 节点中 21568 命中；reentrancy 1629 / front_running 11004 / access_control 3774 / time_manipulation 832 / uncheck_return 540 / dos 199 / arithmetic 9290（命中图数 reentrancy 263 / front_running 525 / access_control 174 / time_manipulation 134 / uncheck_return 103 / dos 73 / arithmetic 468）
+  - [x] 2026-09-06 第六轮修复后最终全量重跑：93551 节点中 21567 命中；reentrancy 1629 / front_running 11004 / access_control 3774 / time_manipulation 832 / uncheck_return 536 / dos 199 / arithmetic 9290（命中图数 reentrancy 263 / front_running 525 / access_control 174 / time_manipulation 134 / uncheck_return 99 / dos 73 / arithmetic 468）
   - [x] 样本验收：`msg.sender.call.value(_am)()` 命中 reentrancy、DAO 模式（balance 先扣、credit 后清零）命中、CEI 先扣后转不命中、跨函数（bonus）命中、`block.timestamp/now` 命中 time_manipulation、`require(token.send(...))`/IF 节点内联消费后不判 uncheck_return、`tx.origin` 命中 access_control、`i < numbers`/`listAddresses.push`/非 msg.sender send 命中 dos、`.send/.transfer` 不命中 reentrancy、局部 `acc` 不误判 front_running
 - [x] 第四轮修复与抽查（2026-09-05）
   - [x] minmax_normalize 单命中修复：全 0 保持 0、仅一个非零值置 1（旧实现 high==low 整体清零丢失唯一信号）
@@ -142,6 +143,7 @@
   - [x] 2026-09-05 八项修复复核：V1 minmax 单命中 25 图全对/全零图 7 个保持 0；V2 dos 无 STARTLOOP/ENDLOOP 命中（IFLOOP 98/IF 10/EXPRESSION 79/VARIABLE 11）；V3 exclusive_priority 581/581 与真实仲裁顺序一致；V4 前 60 图 3128 个多行节点区间展开正确；V5 全库 receive=0（0.4.x 无此关键字）/fallback=178；V6 batch 聚合全量重算一致；V7 dfg_non_table_lines 581/581 与文件实际一致（修复后）；V8 node_flags/scores/labels 键与节点 id 字符串一一对应 581/581
   - [x] 2026-09-05 召回增强：dos 锚点②扩展动态数组 length 自增模式（array.length += 1 / ++ / = array.length + 1），与 .push() 共用循环祖先+状态数组判定；dos_number 的 array.length += 1 独立命中（全库 dos 198→199，该图 dos 命中 2 节点）
   - [x] 2026-09-05 第五轮定向审计收尾：4 张非 buggy 真漏洞图逐节点核对（EtherBank / Reentrancy_cross_function / IntegerOverflowSingleTransaction 命中全语义正确；FindThisHash 全 0 漏检）；front_running 语义正样本仅 4 个（EthTxOrderDependenceMinimal / OddsAndEvens / ERC20 命中，FindThisHash 漏）；FindThisHash 为 constant 猜谜竞态孤例、无形态锚点、不扩规则，记为已知局限（手册 6.3 / 12-37）；M1/M2 审计收尾关闭，下一步进入 M3
+  - [x] 2026-09-06 第六轮修复（M1/M2 审计重开）：`_build_bool_consumed_set` 消费变量提取不跳 Slither 0.11.5 签名括号（`require(bool)(ok)`/`require(bool,string)(ok, "m")` 被误抓签名类型名 `bool` → `bool_consumed_nodes` 全库恒空、手册 6.3 判据③失效）；DAO/reentrancy 4 图 4 个 `bool ok/success = ...call...; require(ok)` 调用点被误报为 uncheck_return，修复后 uncheck_return 540→536 节点、103→99 图、总命中 21568→21567（其余六类零变动）；重跑 `m1_runner --force`（581）→ M3 `_feat.pt` 全量（`_cb.pt` 复用、仅 4 图特征变化、确定性验收通过）；手册 6.3/6.6/12-38/头部统计与 Todo 同步
 
 ## 五、M2 → PyG 适配
 - [x] convert_hetero_json_to_pyg.py 位于 scripts/ 下（无需 git restore），默认 in/out 均为 Heterogeneous graphs
@@ -156,22 +158,33 @@
   - [x] 节点元数据可供 M3/M4 使用；`x` 保持 M3 前的占位 N×1，后续由 M3 替换为 128 维
 
 ## 六、M3：双通道节点初始化
-- [ ] 文件组织（2026-09-04 再设计）：是否需要改动 = 是
-  - [ ] 只需新建 scripts/m3_build_features.py；产物 = _cb.pt + {safe}_feat.pt
-  - [ ] _feat.pt 语义锁死：MLP 之后的 128 维 h_v(0)（唯一模型输入特征）；_pyg.pt 只读、绝不写回；dataset 只组合不再过 MLP
-  - [ ] 独立验证入口：--only <图前缀> 跑单图（验收 8.8 不依赖 M4/M5）
-  - [ ] 消融变体：--variant no-prior / no-codebert → {safe}_feat_{variant}.pt（复用 _cb.pt 缓存，秒级）
-- [ ] 读取 hetero JSON + 源码 + M1 score
-- [ ] 完成节点级特征构造
-  - [ ] 结构特征 18 项
-  - [ ] IR one-hot / 类别特征
-  - [ ] M1 score 拼接
-  - [ ] 函数级 CodeBERT 双通道
-- [ ] 产出 h_v^(0)
-- [ ] 验收
-  - [ ] 1 个样本能跑通
-  - [ ] 特征维度与模型输入一致（写回后 x.shape[1] == 128）
-  - [ ] 没有因缺少 IR/functions 导致的空特征
+- [x] 文件组织（2026-09-04 再设计）：是否需要改动 = 是
+  - [x] 只需新建 scripts/m3_build_features.py；产物 = _cb.pt + {safe}_feat.pt
+  - [x] _feat.pt 语义锁死：MLP 之后的 128 维 h_v(0)（唯一模型输入特征）；_pyg.pt 只读、绝不写回；dataset 只组合不再过 MLP
+  - [x] 独立验证入口：--only <图前缀> 跑单图（验收 8.8 不依赖 M4/M5）
+  - [x] 消融变体：--variant no-prior / no-codebert → {safe}_feat_{variant}.pt（复用 _cb.pt 缓存，秒级）
+- [x] 读取 hetero JSON + 源码 + M1 score
+- [x] 完成节点级特征构造
+  - [x] 结构特征 18 项
+  - [x] IR one-hot / 类别特征
+  - [x] M1 score 拼接
+  - [x] 函数级 CodeBERT 双通道
+- [x] 产出 h_v^(0)
+- [x] 验收
+  - [x] 1 个样本能跑通
+  - [x] 特征维度与模型输入一致（写回后 x.shape[1] == 128）
+  - [x] 没有因缺少 IR/functions 导致的空特征
+
+### M3 开发进度（2026-09-05，已完成）
+- [x] A1~A3 完成并验收：CLI/数据加载行序契约（simple_dao 9 节点 s_v 与 _m1.json 逐位一致）；`Heterogeneous graphs/ir_cat.json` 全库扫描（93551 节点；IR 6 类：ASSIGNMENT 25087/SOLIDITY_CALL 13990/CONDITION 3377/HIGH_LEVEL_CALL 881/LOW_LEVEL_CALL 76/OTHER 50140；外呼 5 类）
+- [x] A4~A9 完成：`scripts/m3_build_features.py`（build_node_window 手册 8.7 原样、CodeBERT 双通道→_cb.pt、9 角色类型嵌入、18+1 结构特征 s_v 独立列 MLP in=1645、assemble+MLP→_feat.pt、变体 no-prior/no-codebert；`--codebert <本地权重目录>` 离线支持；docstring 100%、py_compile OK）。网络恢复后单图全链路验收通过：`--only nasd_simple_dao__simple_dao` feat=(9,128)、窗口与源码一致、role 分布 ENTRY3/CONDITION1/EXT_CALL1/STATE_WRITE2/RETURN1/OTHER1、重跑确定性 hash 一致、no-prior/no-codebert 与主版不同、_pyg.pt 未改动
+- [x] A10 8.8 断言全绿（shape/有限值/确定性/变体差异/行数=pyg node_id/只读红线）
+- [x] A11 全量 581 完成：93551 节点 → `_cb.pt`×581 + `_feat.pt`×581（抽查 12 图全对齐且有限）；变体单图已验，全量按需 `--variant` 生成
+- [x] A12 文档收尾（2026-09-05）：Todo/手册 8.7/架构/记忆同步
+- [x] 2026-09-05 复核修复（全库扫描驱动）：INT_CALL 补 ir INTERNAL_CALL（super/成员内部调用 24 节点不再落 OTHER）；循环体判定对齐 M1 dos（10 跳/祖先/不含自身，146 个循环头节点修正）；call_mode/call_return 修复 `callbackAddr` 子串误判（2 例）；node_has_ext_call 补 SEND/Transfer IR 指令；全量 581 `_feat.pt` 重跑，确定性/形状验收通过
+- [x] 2026-09-06 二次复核：#14 消费窗口 3 跳论证保留（3→10 仅 5 例翻转且均为无关条件误报形态，代码注释说明）；全库核查 14741 函数行号齐全、0 个 line_start=0 节点、0 个 `call{`（0.7 语法）节点；手册 8.5 #5/#7 口径补注、8.7 二次复核注记
+- [x] 2026-09-06 8.8 验收全量执行通过（/tmp/m3_88_accept.py）：①窗口文本全库参照比对 mismatch=0；②581 `_feat.pt` shape(N,128)/有限值；③func 共享逐位一致 + simple_dao withdraw 节点向量互异；④合成缺失字段容错（位置回退 0.5、行宽=4+14+5+1+类别数、assemble (N,128)）；⑤先验 dropout 模式测试（eval 原值、训练期整图置零率 ≈0.2、M3 无实际 dropout 调用）；⑥结构特征 30 列全覆盖/无 NaN/s_v∈[0,1]；手册 8.8 全部勾选 + 8.7 执行注记
+- [ ] （后续可选）全量 `--variant no-prior / no-codebert`（消融时执行，复用 `_cb.pt` 秒级）；M4 model.py
 
 ## 七、M4：图编码与读出
 - [ ] 文件组织（2026-09-04 再设计）：是否需要改动 = 否（scripts/model.py 按手册 9.5 照抄，不新增其它文件）；随机数据 smoke test（手册 9.5【检查】）作为 M4 独立验证入口

@@ -587,11 +587,38 @@ _RE_BOOL_CONSUMED = re.compile(
     r"(?:require|assert|if)\s*\(\s*!?\s*(?:[A-Za-z_]\w*)",
     re.IGNORECASE,
 )
+# Slither 0.11.5 的 require/assert 是带签名的 SolidityCall（首个括号是函数签名）：
+#   require(bool)(ok) / require(bool,string)(ok, "message") / assert(bool)(ok)
+# 提取条件变量必须跳过签名括号 `(bool[,string])` 再取参数括号内 ! 之后的标识符。
+_RE_COND_SIGNED = re.compile(
+    r"(?:require|assert)\s*\(\s*[^()]*\)\s*\(\s*!?\s*([A-Za-z_]\w*)",
+    re.IGNORECASE,
+)
+# 旧格式（无签名）require(ok) / assert(ok) 及原文 if(...) 的直接形态
+_RE_COND_PLAIN = re.compile(
+    r"(?:require|assert|if)\s*\(\s*!?\s*([A-Za-z_]\w*)",
+    re.IGNORECASE,
+)
 _RE_BOOL_ASSIGN_LHS = re.compile(
     r"(?:bool\s+)?\(?\s*(?P<varname>[A-Za-z_]\w*)\s*\)?\s*=",
 )
 # require/assert/if 内联消费低层调用返回值:require(token.send(...)) / if(!addr.send(...))
 _RE_INLINE_CHECKED = re.compile(r"^\s*(?:require|assert|if)\s*\(", re.IGNORECASE)
+
+
+def _extract_consumed_var_name(expr: str) -> str | None:
+    """从 require/assert/if 表达式提取被消费布尔变量名（粗筛信号）。
+
+    先按 Slither 0.11.5 签名形态（`require(bool)(ok)` / `require(bool,string)(ok, "m")`）
+    跳过签名括号；签名形态存在但参数非裸标识符（如 `require(bool)((ok))`）时返回 None，
+    避免回退匹配抓回签名类型名；否则回退旧格式直接取首个标识符（`require(ok)`/`if(...)`）。
+    条件为比较/复合表达式时返回其首操作数标识符（粗筛不追踪 def-use）。
+    """
+    if re.search(r"(?:require|assert)\s*\(\s*[^()]*\)\s*\(", expr, re.IGNORECASE):
+        signed = _RE_COND_SIGNED.search(expr)
+        return signed.group(1) if signed else None
+    plain = _RE_COND_PLAIN.search(expr)
+    return plain.group(1) if plain else None
 
 
 # ---------------------------------------------------------------------------
@@ -601,7 +628,11 @@ _RE_INLINE_CHECKED = re.compile(r"^\s*(?:require|assert|if)\s*\(", re.IGNORECASE
 def _build_bool_consumed_set(nodes: dict) -> set:
     """静态双遍扫描:找出返回值 bool 已被消费的 low-level call 节点 id。
 
-    遍历 1:收集所有 require/assert/if(...varname...) 中出现的变量名。
+    遍历 1:收集所有 require/assert/if(...varname...) 中出现的变量名
+    （按 Slither 0.11.5 签名形态 require(bool)(var) 跳过签名括号提取，
+    2026-09-06 修复：旧实现抓到签名类型名 "bool"，使该机制全库恒空，
+    uncheck_return 判据③失效——重入/DAO 样式中 `bool ok = ...call...; require(ok)`
+    被误报为未检查返回值）；另收集 IF 节点裸布尔条件（`if (ok)`）。
     遍历 2:send/call 节点的赋值 LHS 若命中上述变量名 → 标记为"已消费"。
 
     说明:这是单函数内的静态粗筛,不追踪跨节点 def-use;
@@ -612,14 +643,10 @@ def _build_bool_consumed_set(nodes: dict) -> set:
         function_key = (node.get("contract"), node.get("function"))
         function_names = consumed_varnames.setdefault(function_key, set())
         expr = str(node.get("expression") or "")
-        # 抓取 require/assert/if 括号内第一个标识符
-        inner = re.search(
-            r"(?:require|assert|if)\s*\(\s*!?\s*([A-Za-z_]\w*)",
-            expr,
-            re.IGNORECASE,
-        )
-        if inner:
-            function_names.add(inner.group(1).lower())
+        # 抓取 require/assert/if 条件里被消费的变量名（跳过签名括号）
+        name = _extract_consumed_var_name(expr)
+        if name:
+            function_names.add(name.lower())
             continue
         # Slither 的 IF 节点 expression 只有条件本身(无 if 关键字):
         # 形如 "ok" 或 "!ok" 的裸标识符条件也视为消费了该布尔变量。
