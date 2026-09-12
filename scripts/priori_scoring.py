@@ -35,7 +35,8 @@ NT_STATE_WRITE = "STATE_WRITE"
 NT_RETURN      = "RETURN"
 NT_OTHER       = "OTHER"
 
-# BFS 最大深度(DoS / front-running 图上下文检测,大纲明确为 ≤2)
+# BFS 默认深度（successors_bfs 的默认值；实际调用点均显式传入 max_depth=10，
+# 与手册 6.3 的 dos 锚点④/重入后向追溯口径一致；大纲未规定 ≤2，旧注释有误，2026-09-07 修正）
 BFS_MAX_DEPTH = 2
 
 # ---------------------------------------------------------------------------
@@ -383,8 +384,10 @@ def _build_rev_adj(adj_cfg: dict[str | int, list]) -> dict[str | int, list]:
 def _build_callback_nodes_from_edges(edges: Any) -> set:
     """从 *_hetero.json 的 CALLBACK_RISK 边收集 source ∪ target 节点集合。
 
-    大纲 4.1.3 步骤 2:external_callback 辅助信号(+0.5 分)只覆盖
-    CALLBACK_RISK 高置信外部调用节点及其实际连接的入口节点。
+    大纲改II 4.1.3 步骤 2 / 4.2.2：external_callback 辅助信号(+0.5 分)只覆盖
+    “高置信外部调用节点”及其实际连接的入口节点；被判据①识别但**未实际建立任何
+    CALLBACK_RISK 边**的外部调用节点不属于高置信节点、不加 0.5。由于本函数只从
+    真实边集合取端点，该“须实际建边”的约束天然成立（无需额外条件）。
     """
     callback_nodes: set = set()
     if not isinstance(edges, dict):

@@ -1,7 +1,8 @@
 # SSM-HG 开发 TODO（按真实代码依赖修正）
 
-> 版本：2026-09-06（M1 第六轮 uncheck_return 消费判定修复并全量重跑：540→536 节点/103→99 图；M3 完成——ir_cat.json + 581 组 _cb.pt/_feat.pt 已生成；下一步 M4 model.py）
-> 依据：论文开发手册修订版 + 当前仓库真实状态
+> 版本：2026-09-11（按 `研究点一细化大纲改II.docx` 复核：术语改“节点可疑度”、日志改名 `score_mean/score_std`、外部测试集改 **DIVE**、划分改固定种子 8:1:1（每类 val/内部测试 ≥20）、CALLBACK_RISK 4.2.2 重写、结构特征 18 项+四组分组消融、消融拆 5.4.1/5.4.2、新增推理输出 4.5.4）
+> 依据：论文开发手册修订版（2026-09-11 按 `改II` 复核）+ 当前仓库真实状态
+> **本轮改动状态**：**M1~M3 已按 `改II` 落地并全链重跑通过**（见三/四/六节：CALLBACK_RISK 6328→509 边、172→85 图；M1 七类 flags 不变 21567；M3 18 项+分组/单通道消融开关就绪；build×2 确定性一致、M4 22 用例全绿）；**M1–M4 抽查审计（2026-09-12）已执行**（581 图 M1 复算 0 差异、M2 回调边不变量 0 违规、13 合约语义抽样全部符合、M4 22 用例+真实前向通过；发现并修复 2 处文档口径问题，零行为改动，见四/六节）；**仍未完成**：M5 数据集（DIVE）/划分协议/日志字段/消融清单/推理输出（见八/十二节）。
 > 先决条件：先修好 Stage 0，再动 M2；M2 是第一最小原子模块，不要跳过。
 
 ## 一、项目总原则
@@ -15,7 +16,9 @@
   - Hetero（全部图产物 _hetero.json/_m1.json/_pyg.pt/M3 缓存）: Heterogeneous graphs
   - 源码根（只读数据源）: alldata(readonly)/alldata_sol_source
   - 主标签: alldata(readonly)/contract_labels.json
-  - 生成脚本: scripts/（generate_all_ast_cfg_dfg.sh、dump_cfg.py、build_cfg_centered_hetero_graph.py、m1_runner.py、convert_hetero_json_to_pyg.py、priori_scoring.py）
+  - 外部测试集（只读，改II 新增）: DIVE/（Source codes 22330 .sol、contract_labels.json 21696 条七维、DIVE_Labels.csv 含第 8 类 Bad Randomness）——仅阶段 5 泛化评估
+  - 节点覆盖评估集（只读，改II 指定）: SolidiFI/（buggy_contracts 350、buggy_logs 350、contract_labels.json 350 条七维）——仅阶段 5 层次二
+  - 生成脚本: scripts/（generate_all_ast_cfg_dfg.sh、dump_cfg.py、build_cfg_centered_hetero_graph.py、m1_runner.py、convert_hetero_json_to_pyg.py、priori_scoring.py；M3–M5：m3_build_features.py、model.py、dataset.py、metrics.py、make_splits.py、train.py、evaluate.py）
 
 ## 二、Stage 0：新目录就位 + 生成 raw 原始产物
 - [x] 文件已收拢到 scripts/
@@ -69,11 +72,15 @@
   - [x] build_cfg_centered_hetero_graph.py：expand_token_keys 补成员名回退键（self.credit→credit，与变量纯名字键对齐；msg./block./tx. 前缀除外，this.balance→balance 属正确语义）；RE_BALANCE_MAPPING 改 \b(?:balances?|mapping)\b（补 balances 复数）；parse_dfg 返回三元组并统计非表行，meta 新增 dfg_non_table_lines（2026-09-05 口径修复：排除 +--- 表边框分隔线，只计 solc 命令日志等真噪声行）；find_source_file 同名多候选时 stderr 告警；callback_avg_edges 分母口径注释（含被过滤候选）
   - [x] generate_all_ast_cfg_dfg.sh：pragma_matches_version 支持 ~x.y.z（>=x.y.z 且 <x.(y+1).0，major=0 同 caret）；新增 pragma_missing_count/no_version_count 计数并写入 filter_report（当前源码无 ~ pragma 文件，防御性修复，raw 无需重跑）
   - [x] 重跑 build → m1_runner --force → convert_pyg 两次，结果完全一致（确定性验证通过）
+- [x] 2026-09-07 M1/M2 第五轮审查修复（代码审查，行为改动仅 1 处）
+  - [x] M2 build 脚本 `RE_IR_EXT_CALL` 补 `HIGH_LEVEL_CALL`（旧版漏判：expression 不含 .call/.send/.transfer 但 ir 为 HIGH_LEVEL_CALL 的具名调用——ERC721 transferFrom、ERC20 approve 等全库 770 节点被 CALLBACK_RISK 与 M1 external_callback(+0.5) 遗漏，与手册 7.6/大纲 4.2.2 判据不符）
+  - [x] 另 2 处小修（无行为影响）：构图脚本 `skipped_no_cfg` 提前 continue 分支补计数（与记录口径一致）；priori_scoring `BFS_MAX_DEPTH` 过时注释修正（大纲无 ≤2，实际调用点均显式传 10）
+  - [x] 全量重跑并下游同步：build×2 确定性一致（hash 对比 PASS）→ CALLBACK_RISK 5914→6328、141→172 图、ext_call_node_count 5954→6717；M1 `--force`（七类 flags 命中不变 21567，node_scores 因 external_callback +0.5 变化；样例 ERC721 transferFrom 节点现成为回调源、s_v 含 +0.5）→ PyG 重转（其余边类计数不变）→ M3 全量 `_feat.pt`（`_cb.pt` 复用 581/581，离线模式）；simple_dao 特征 hash 5433b653 不变；M4 22 用例回归通过
 - [x] 2026-09-05 生成脚本第四轮修复
   - [x] build_cfg_centered_hetero_graph.py：RE_BALANCE_MAPPING 改写入方向正则（balances[x] (...) := 与 (->balances) :=；读取 -> balances[x] 不再误判，mapping 关键字分支删除；全库 CALLBACK_RISK 6171→5914、163→141 图；etherstore 纯读取节点误判 0、状态写正确识别 2，读/写方向验证通过）；parse_dfg 删除不可达死代码（非表行分支之后的 line.startswith('+')）；main 简化冗余跳过条件（cfgdetail_invalid 尚未检测不参与首个条件）；cfgdetail 路径 find_expression_span 行号回填不共享缓存（cache=None，修复同表达式跨函数错配隐患，缓存键无函数上下文）；补 walk_ast/normalize_function_name/parse_cfg_filename/node_is_state_write/node_has_transfer_or_balance 五个 docstring
   - [x] dump_cfg.py sons[0]=true 分支约定人工核对通过（抽查多个含 if/循环的 cfgdetail，then 分支第一行对应 kind=true 后继；手册 7.4.3 补记）
 - [x] 2026-09-05 60 个新样本批量审计（/tmp/audit60.py，排除已抽查样本）：图结构/m1 结构自洽 0 问题（节点数/CFG 三类计数/callback 上限/functions/ir_missing/键约定/分数范围）；标签匹配 581 图全覆盖（0 无标签）；非 buggy 真实合约召回 100%（26 条漏检全部集中在 buggy_* 噪声项目，与已定稿剔除策略一致）；发现前缀剥离顺序坑（先 nasd_ 后 asd_，已同步手册 10.2/12 新增 36/Todo 12.5）；补 m1_runner 7 个函数（parse_args/as_node_key/count_hits/build_meta/build_summary/run_one/main）与 priori_scoring.from_json_file 的 docstring
-## 三、M2：第一最小原子模块（已完成）
+## 三、M2：第一最小原子模块（节点/边/functions/PyG 已完成；**CALLBACK_RISK 按大纲改II 重开**）
 - [x] 修正 hetero 图结构，保证后续 M1/M3/M4/M5 都能消费
 - [x] 需要补齐字段（脚本已实现，待 1 个样本输出核验）
   - [x] 每个 CFGNode 补充 ir 字段（SlithIR 文本）
@@ -100,6 +107,15 @@
   - [x] 能输出 functions 列表
   - [x] 能输出 CFG_FLOW/AST_PARENT/AST_PARENT_SAME/DFG_DEP/CALLBACK_RISK
   - [x] 全量结构回归通过：节点数、CFG 三类计数、回调边同函数后继状态写入约束均一致
+- [x] **2026-09-11 按大纲改II 4.2.2 重做（已完成）——CALLBACK_RISK 收窄并全链重跑**
+  - [x] 外部调用节点收窄：仅 `call`/低级调用 + HIGH_LEVEL_CALL（ERC20 `token.transfer` 等具名调用保留）；**仅转发 2300-gas 的 `send`/`transfer` 不再作为 CALLBACK_RISK 源节点**
+    - [x] 改 `build_cfg_centered_hetero_graph.py`：`RE_EXT_CALL_TEXT` 去掉 `\.send(`/`\.transfer(`；`RE_IR_EXT_CALL` 去掉 `SEND|TRANSFER`（保留 `LOW_LEVEL_CALL`/`HIGH_LEVEL_CALL`）；新增 `RE_VALUE_TRANSFER_TEXT`（`.transfer(`/`.send(`）供状态写入/入口含转账判定
+  - [x] 高置信外部调用节点定义落地：4 条全满足（被规则 1 识别、非 view/pure、调用后同函数状态写入、**实际建立 ≥1 条边**）；仅被识别但未建边的节点**不计入** `external_callback` +0.5（M1 只取 CALLBACK_RISK 边端点集合）
+  - [x] 主实验**默认保留** CALLBACK_RISK 边（删除“收益有限即降级为节点特征”分支）；上限 4 / 不限制的选择只用验证集、不使用 DIVE
+  - [x] meta 统计按收窄口径重算：`ext_call_node_count` **6717→1465**、`callback_max_edges=4`、`callback_truncated_candidates=652`、`callback_avg_edges` 以收窄口径为分母
+  - [x] 下游全链重跑：`build`（×2 hash 一致：`6ac9c5b7…`）→ `m1_runner --force` → `convert_pyg`（581 图，edge_type 4 = 509）→ M3 `_feat.pt`（`_cb.pt` 复用 581/581，约 57s）→ M4 22 用例回归 PASS
+  - [x] 与手册 7.1/7.6/7.8 同步（已改）
+  - [x] **结果对比**：CALLBACK_RISK **6328→509 边**、**172→85 图**；降幅主因是修掉旧 `\bTRANSFER\b` 正则把 `Emit Transfer(...)`（ERC20 事件）与内建 2300-gas `addr.transfer/send`（IR `Transfer dest:`/`SEND dest:`）误当外部调用（`改II` 4.2.2 已排除）
 
 ## 四、M1：静态规则打分
 - [x] 确认 priori_scoring.py（scripts/ 下）可正常导入（m1_runner.py 导入已同步为 `from priori_scoring import ...`，import 验证通过）
@@ -144,6 +160,16 @@
   - [x] 2026-09-05 召回增强：dos 锚点②扩展动态数组 length 自增模式（array.length += 1 / ++ / = array.length + 1），与 .push() 共用循环祖先+状态数组判定；dos_number 的 array.length += 1 独立命中（全库 dos 198→199，该图 dos 命中 2 节点）
   - [x] 2026-09-05 第五轮定向审计收尾：4 张非 buggy 真漏洞图逐节点核对（EtherBank / Reentrancy_cross_function / IntegerOverflowSingleTransaction 命中全语义正确；FindThisHash 全 0 漏检）；front_running 语义正样本仅 4 个（EthTxOrderDependenceMinimal / OddsAndEvens / ERC20 命中，FindThisHash 漏）；FindThisHash 为 constant 猜谜竞态孤例、无形态锚点、不扩规则，记为已知局限（手册 6.3 / 12-37）；M1/M2 审计收尾关闭，下一步进入 M3
   - [x] 2026-09-06 第六轮修复（M1/M2 审计重开）：`_build_bool_consumed_set` 消费变量提取不跳 Slither 0.11.5 签名括号（`require(bool)(ok)`/`require(bool,string)(ok, "m")` 被误抓签名类型名 `bool` → `bool_consumed_nodes` 全库恒空、手册 6.3 判据③失效）；DAO/reentrancy 4 图 4 个 `bool ok/success = ...call...; require(ok)` 调用点被误报为 uncheck_return，修复后 uncheck_return 540→536 节点、103→99 图、总命中 21568→21567（其余六类零变动）；重跑 `m1_runner --force`（581）→ M3 `_feat.pt` 全量（`_cb.pt` 复用、仅 4 图特征变化、确定性验收通过）；手册 6.3/6.6/12-38/头部统计与 Todo 同步
+- [x] **2026-09-11 按大纲改II 复核（已完成，已随 M2 重跑）**
+  - [x] `external_callback` +0.5 只给“高置信外部调用节点 + 其实际连接的入口节点”：4 条全满足（被规则 1 识别、非 view/pure、调用后同函数状态写入、**实际建边**）；仅被识别但未建边不加分（`_build_callback_nodes_from_edges` 只取 CALLBACK_RISK 边端点）
+  - [x] 修 M2 后重跑 `m1_runner --force`（581 图）：`total_raw_hits` **21567 不变**、七类 flags 命中不变，仅 `node_scores` 的 +0.5 位置变化（6717→1465 个源/入口）
+  - [x] 验收：`addr.send/transfer`（2300 gas）不在 CALLBACK_RISK 源集合、`external_callback` 不加 0.5；ERC20 `token.transfer`（HIGH_LEVEL_CALL）仍参与
+- [x] **2026-09-12 抽查审计（M1–M4 四准则：与大纲/手册一致性、逻辑、学术可行性、案例可运行）**
+  - [x] 全库 581 图按 `m1_runner.run_one` 逐节点复算：`node_flags`/`node_scores` 与落盘 `_m1.json` **逐位一致 0 差异**（含 `pre_0_8` pragma 依赖路径；注：用 `from_any_json` 复算会漏 pragma 导致 927 处假差异，已确认是审计脚本自身问题）
+  - [x] 13 合约抽样逐条对照 6.3：simple_dao call 点（reentrancy+uncheck_return）+ 其后状态写节点（reentrancy）均命中；reentrancy_bonus CEI 正确调用点不命中/跨函数命中；`.send(`/`.transfer(` 不命中 reentrancy；`tx.origin`/`selfdestruct(`/非 msg.sender 单参 transfer 命中 access_control、`msg.sender.transfer` 退款不命中；`require(bool)(callee.call())` 不命中 uncheck_return；pre-0.8 算术全量命中；`now` 命中 time_manipulation；`i < numbers`/`array.length += 1` 命中 dos
+  - [x] 发现 1（front_running 口径未文档化，已修）：实现前置条件“节点归一化类型须为 ASSIGNMENT/STATE_WRITE”原仅在代码；全库被剔除的 718 节点 = 713 构造期初始化（`slitherConstructorVariables/ConstantVariables`，OTHER_ENTRYPOINT）+ 5 局部名遮蔽（`uint256 secret = uint256(hash)`、`address owner = childOwner[..]`），均非运行期竞态写入、**无真实漏检**；已写入手册 6.3 行内并加 6.3 抽查审计块
+  - [x] 发现 2（M3 EXT_CALL 口径交叉引用过时，已修）：`node_has_ext_call`（8.3 角色 / 8.5 #2）是**节点语义宽口径**（含内建 `\.send(`/`\.transfer(` 与 ir `SEND dest:`/`Transfer dest:`），与 7.6 收窄后的 CALLBACK_RISK 源集合本就不同；代码 docstring 已改写，手册 8.3/8.5 #2 行、7.6 提示块已同步，大纲 4.3.3 #12（外呼方式含 send/transfer）已隐含支持→大纲无需改
+  - [x] 权重/口径零行为改动验证：simple_dao `_feat.pt` 审计后重跑 sha1 与审计前一致（`e55bd664…`）
 
 ## 五、M2 → PyG 适配
 - [x] convert_hetero_json_to_pyg.py 位于 scripts/ 下（无需 git restore），默认 in/out 均为 Heterogeneous graphs
@@ -184,29 +210,60 @@
 - [x] 2026-09-05 复核修复（全库扫描驱动）：INT_CALL 补 ir INTERNAL_CALL（super/成员内部调用 24 节点不再落 OTHER）；循环体判定对齐 M1 dos（10 跳/祖先/不含自身，146 个循环头节点修正）；call_mode/call_return 修复 `callbackAddr` 子串误判（2 例）；node_has_ext_call 补 SEND/Transfer IR 指令；全量 581 `_feat.pt` 重跑，确定性/形状验收通过
 - [x] 2026-09-06 二次复核：#14 消费窗口 3 跳论证保留（3→10 仅 5 例翻转且均为无关条件误报形态，代码注释说明）；全库核查 14741 函数行号齐全、0 个 line_start=0 节点、0 个 `call{`（0.7 语法）节点；手册 8.5 #5/#7 口径补注、8.7 二次复核注记
 - [x] 2026-09-06 8.8 验收全量执行通过（/tmp/m3_88_accept.py）：①窗口文本全库参照比对 mismatch=0；②581 `_feat.pt` shape(N,128)/有限值；③func 共享逐位一致 + simple_dao withdraw 节点向量互异；④合成缺失字段容错（位置回退 0.5、行宽=4+14+5+1+类别数、assemble (N,128)）；⑤先验 dropout 模式测试（eval 原值、训练期整图置零率 ≈0.2、M3 无实际 dropout 调用）；⑥结构特征 30 列全覆盖/无 NaN/s_v∈[0,1]；手册 8.8 全部勾选 + 8.7 执行注记
-- [ ] （后续可选）全量 `--variant no-prior / no-codebert`（消融时执行，复用 `_cb.pt` 秒级）；M4 model.py
+- [x] 2026-09-07 M3/M4 第六轮审查（M4 代码无问题——detach 无实调用、无 s_v/prior/m1 引用、num_bases=5、22 用例回归 PASS）：M3 `classify_call_mode` 补内建转账指令兑底分支（ir `Transfer dest:`→transfer、`SEND dest:`→send，与 `node_has_ext_call` 兑底口径一致；当前全库 expression 均存在、防御性 0 影响——全量 581 `_feat.pt` 联合 sha1 修复前后一致 ZERO-DIFF CONFIRMED）；手册 8.4.2/8.7 多行窗口措辞修正（实际 s-1..e+1，与 8.8 验收一致）、8.6 结构特征 dropout 标注“未落地/M5 可选开关”；大纲无需改（4.3/4.4 协议文本与实现一致）
+- [ ] （后续可选）全量 `--variant no-prior / no-codebert`（消融时执行，复用 `_cb.pt` 秒级）
+- [x] **2026-09-11 按大纲改II 4.3.3/4.3.2 复核（代码已完成）**
+  - [x] 结构特征清单确认为 **18 项**（`改I` 的第 12 项 `s_v` 已移出清单；`s_v` 仍为独立输入通道，结构列宽 30 = 可见性4+布尔14+外呼5+位置1+IR6）
+  - [x] 新增**四组分组消融支持**：基础结构组（1–8）/ 漏洞语义组（9–13）/ CALLBACK_RISK 辅助组（14–16）/ 位置与指令组（17–18）；`m3_build_features.py` 加 `--feat-groups all|base|base+sem`（输出 `_feat_grp-<group>.pt`，未选中列置 0、列宽不变，复用 `_cb.pt` 秒级）
+  - [x] 新增单通道消融 `--variant no-cb-func|no-cb-node`（改II 5.4.1）；simple_dao 上 4 个新变体输出互异且均 128 维
+  - [x] 验收：主特征 `--feat-groups all` 重跑逐位一致（确定性通过）；全量 `_feat.pt` 已重跑（`_cb.pt` 复用 581/581，约 57s）
+  - [ ] （M5 实现）结构特征 dropout 0.2 仍为可选开关（大纲 4.3.4，默认关）
+  - [ ] （M5/evaluate 实现）CodeBERT 冻结三条理由写入论文（4.3.2）；“微调 vs 冻结 CodeBERT”列入 5.4.2 可选消融
+- [x] **2026-09-12 抽查审计（M1–M4 四准则）**
+  - [x] 全库扫描：`emit Transfer(...)` 等事件节点**不会**被误判为 EXT_CALL（10 个含 `emit` 节点仅 `Emitter(emitter).emit(x)` 命中，它是真实对外部合约的具名调用、ir=HIGH_LEVEL_CALL）；3535 个内建 `send`/`transfer` 节点按宽口径全部计入（本口径预期行为）
+  - [x] 口径澄清（**仅文档/注释**）：`node_has_ext_call` 旧注释“与 7.6 正则一致”已删除（`改II` 4.2.2 收窄后不成立），改为“节点语义口径（宽于 7.6 的 CALLBACK_RISK 源集合）”；模块 docstring 加“口径澄清”段
+  - [x] 结构特征行内注释编号与手册 8.5 对齐（原 #14–#17 实为 #13–#16，off-by-one 修正；`build_struct_features` 列布局 docstring 同步）
+  - [x] 零行为影响验收：`--only nasd_simple_dao__simple_dao` 重跑 `_feat.pt` sha1 与审计前一致（`e55bd664…`）；role 分布不变（ENTRY3/CONDITION1/EXT_CALL1/STATE_WRITE2/RETURN1/OTHER1）；py_compile OK
 
-## 七、M4：图编码与读出
-- [ ] 文件组织（2026-09-04 再设计）：是否需要改动 = 否（scripts/model.py 按手册 9.5 照抄，不新增其它文件）；随机数据 smoke test（手册 9.5【检查】）作为 M4 独立验证入口
-- [ ] 建立 RGCN 两层
-- [ ] 使用四类边做消息传播
-- [ ] 计算节点重要性 a_v
-- [ ] 计算图级池化 h_G
-- [ ] 产出 logits / probability
-- [ ] 验收
-  - [ ] 能从单图输出节点分数和图级输出
-  - [ ] a_v 不退化到常数
-  - [ ] 训练时日志记录 mask_mean / mask_std
+## 七、M4：图编码与读出（已完成，2026-09-07）
+- [x] 文件组织（2026-09-07 v4 定稿）：新增 `scripts/model.py`（SSMHG + helpers + smoke）、`tests/test_model_smoke.py`（22 用例，pytest/独立运行）、`docs/M4_interface.md`；不新增其它文件
+- [x] 建立 RGCN 两层（默认 num_bases=5；GCN 消融分支忽略 edge_type）
+- [x] 使用五类边（0=CFG_FLOW/1=AST_PARENT/2=AST_PARENT_SAME/3=DFG_DEP/4=CALLBACK_RISK）做消息传播
+- [x] 计算节点可疑度 a_v（=sigmoid(a_head(h_v^(L)))；node_logits 一并返回，不 detach）
+- [x] 计算图级池化 h_G（**基于传播后的 h2，绝非输入 x**；单图与批图均按图归一化）
+- [x] 产出 logits（z 未 sigmoid；单图[7]/批图[B,7]）
+- [x] 验收
+  - [x] 能从单图输出节点分数与图级输出（z,a,node_logits）
+  - [x] a_v 不退化到常数：由 M5 L_var 监控（score_std）；M4 提供 a.std 输出供观测
+  - [x] 训练时日志记录 score_mean / score_std（大纲改II 由 mask_mean/mask_std 改名）：落点在 M5（train.py），M4 不记录
+- [x] 2026-09-07 开发计划 v4 落地要点：Readout=h2-based（tests 三断言）；严格输入校验（x/edge_index/edge_type dtype·shape·值域·batch）；空边/孤立/重复边/单节点/极端 logits 用例全过（PyG 2.7.0 官方语义，无需 linear_root fallback）；forward 返回 (z,a,node_logits)；return_intermediates 字典；apply_edge_mask/safe_readout/validate_edge_types helper；批图=逐图等价；GAT 拒绝；_pyg.pt 只读 hash 未变；simple_dao 真实前向（9 节点/28 边）验收通过
+- [x] **2026-09-11 按大纲改II 4.4.1 复核（文档已对齐）**：论文关系数口径为**默认 4 类边**（AST_PARENT/CFG_FLOW/DFG_DEP/CALLBACK_RISK），实现用 5 个物理关系（+AST_PARENT_SAME）；若把 CFG_FLOW 三子类当独立关系则关系数为 6——已在手册 9.1 注明 `num_relations` 与论文口径的对应（`num_bases` 默认=关系数；消融可取 4）；`model.py` 代码无需改动
+- [x] **2026-09-12 抽查审计（M1–M4 四准则）：M4 无问题**——`python scripts/model.py` smoke 全通过；`pytest tests/test_model_smoke.py -q` → 22 passed；全库 581 图 `_pyg.pt.edge_type` 按类计数与 `_hetero.json` 五类边数零差异、`_feat.pt` 形状恒为 (N,128) 且有限；40 张真实图前向 `z=[7]` / `a=[N]` 均有限；`model.py` 与手册 9.1–9.5 逐项一致（in/hid=128、num_relations=5、num_bases=5、dropout=0.3、h2-based readout、a_v 不 detach）
 
 ## 八、M5：训练、验证、评估
-- [ ] 文件组织（2026-09-04 再设计，标注是否需要改动）
-  - [ ] dataset.py：需要新建（数据层：_pyg.pt 结构 + _feat.pt(x) + _m1(s_v) 组合、标签对齐加载断言、边级消融开关；不再过 MLP，只做组合与裁剪）
+
+> **2026-09-11 按大纲改II 复核（下列项为新增/改动，未完成）：**
+> - **数据集**：外部测试集 SmartBugs → **DIVE**（MVD-HG 内容源自 MANDO、已含 SmartBugs，超集训练/子集测试构成污染）；主实验在 **MVD-HG 内部测试 + DIVE** 两设定评估；DIVE 只做一次性外部测试，不参与训练/验证/早停/阈值/模型选择；SolidiFI 只做层次二。
+> - **划分**：唯一合约**固定种子 8:1:1**；val/内部测试每类正样本 <20 则换种子重划；报告划分种子与每类样本数；**训练种子与划分种子分离**（不再要求 `iterative-stratification` 作主方案，仅留对照快照）。
+> - **日志字段**：`mask_mean/mask_std` → **`score_mean/score_std`**（大纲 4.5.1）。
+> - **消融**：按 5.4.1 必要消融（去 DFG_DEP/CFG_FLOW/AST_PARENT/CALLBACK_RISK、上限 4 vs 不限、去函数级 CodeBERT、去节点级 CodeBERT、meanpool、关闭 L_var、关闭先验 Dropout、结构特征分组）与 5.4.2 可选消融（CALLBACK_RISK_REV、L=1/2/3、num_bases、128/256、DropEdge、微调 CodeBERT）重排；`改I` 的“去 M1 先验 s_v / RGCN→GCN / 去回调特征 / 仅 s_v 排序 / 仅 RGCN 学重要性”不再列为必做。
+> - **推理输出**：新增 4.5.4 五项输出（$p_G$、$\hat y_G$、节点可疑度列表、TopK、可选 $G_{view}$）+ 可选梯度显著性指标。
+> - **层次二**：梯度显著性类别归属规则；“$a_v$ 增量覆盖节点”统计（$s_v$ 排名 50% 之后但进 $a_v$ TopK 的节点数）。
+> - **5.5.1**：复用 DIVE 结果，不新增实验；5 项分析（PR-AUC、DIVE 全零子集每类 FPR、20–30 例人工检查、归因分层等）。
+- [x] 2026-09-07 划分已落地并验收：`scripts/dataset.py`（build_proj_labels/build_index/load_graph/Ablation/--check）与 `scripts/make_splits.py`（8:1:1、3 种子、buggy 剔除、三件套报告）已实现；`splits/` 已生成——train 396/val 50/test 49（每种子），495 训练池 / 86 buggy_ 剔除（asd_+nasd_ 两份 43 项目）/ 0 unmatched；3 种子互斥+全覆盖断言通过；simple_dao `--check` 通过（9 节点/28 边/label=reentrancy）
+- [x] M5 v5 审阅结论（2026-09-08，可行性判定见 `experiments/decisions.md` 第 0、9 节）
+  - [x] 已确认：dataset/model 契约与 M4 输出一致；class-masked BCE 分母、按图 population `L_var`、单图 DropEdge、zero-positive 类和 split API 校验升级为硬性验收项
+  - [x] **先验 dropout 前置条件升级为必做**：训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）；原“后续可选”标注已过时
+  - [x] 补充项：外部基线（CodeBERT 序列、GCN/GAT 同构图，**改II 去掉 HGT**）需单独实现位置（建议 train.py/evaluate.py 开关或独立 baselines.py）；Slither 规则基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）
+  - [x] 风险记录：**DIVE/SolidiFI 数据已就位（2026-09-11）**；层次二与 5.5.1 需先建类别映射表（SolidiFI 前缀→七类；DIVE 已剔除 Bad Randomness，7 维可直接用）；验证集可能仅约 50 图、低正样本类（4~6 个）对 macro-F1 敏感，按手册记录训练/验证差距
+- [ ] 文件组织（2026-09-08 v5：metrics/train/evaluate 与 CI smoke 仍待实现）
+  - [x] dataset.py：已完成（2026-09-07；数据层：_pyg.pt 结构 + _feat.pt(x) + 标签对齐加载断言 + 边级消融开关；不过 MLP，只组合与裁剪）
   - [ ] metrics.py：需要新建（指标层：macro/micro-F1、每类 P/R/F1、mAP/macroPR-AUC；train/evaluate/ablation 共用）
-  - [ ] make_splits.py：需要新建；除 split_seed{seed}.json 外，产出 splits/split_report.json（每类正负样本/正负比/唯一合约/多标签/全 0 统计）与 splits/unmatched_contracts.txt（匹配失败记录并报告）
-  - [ ] 匹配键（2026-09-05 定稿）：contract_name 的 `-` 后部分是合约名不是文件名（实据 send_loop-Refunder.sol 对应 send_loop.sol、timelock-TimeLock.sol 对应 timelock.sol），与 meta.source 直接比对会大面积失配；按项目前缀匹配（双方 lower 并去 asd_/nasd_，图前缀第一段 == 标签项目段），项目内多合约标签取并集；剥前缀顺序先 nasd_ 后 asd_（nasd_ 含 asd_ 子串，先剥 asd_ 会把 nasd_xxx 误剥成 nxxx，2026-09-05 审计发现）
+  - [ ] make_splits.py：**按大纲改II 改为固定种子 8:1:1**（不再以迭代分层为主方案）；划分后校验 val/内部测试每类正样本 ≥20（否则换种子重划）；输出 split 三件套 + 逐类 support + 划分种子 + `splits.csv`
+  - [x] 匹配键（2026-09-05 定稿）：已按项目前缀并集实现（先 nasd_ 后 asd_；0 unmatched 验证）
   - [ ] buggy_* 噪声处置（2026-09-05 定稿）：主实验剔除 asd_buggy_*/nasd_buggy_*（每合约同款注入噪声标签，与具体特征不对应）；另做含 buggy_* 消融对比论证剔除合理性；剔除明细写入 splits/unmatched_contracts.txt 单独一节
-  - [ ] train.py：需要新建（手册 10.4 骨架）；启动断言 x.shape[1]==128；只 import dataset/metrics/model；每轮落盘 runs/seedN/config.json（参数快照）
-  - [ ] evaluate.py：需要新建（纯评估，不承载数据/指标实现）；主实验（默认）→ runs/seedN/results.json（固定 0.5 + 验证集搜索阈值双报告）；--task ablation/baseline → eval_results/
+  - [ ] train.py：需要新建；先实现 masked BCE、按图 `L_var`、DropEdge/先验 dropout、checkpoint、JSONL 日志和 perf_counter 计时，再跑 `--limit-graphs 1`
+  - [ ] evaluate.py：需要新建（纯评估，不承载数据/指标实现）；保存 val probabilities，输出固定 0.5 + 验证集阈值双报告（**MVD-HG 内部测试 + DIVE 外部测试两设定**，DIVE 结果不回头调参/调阈值），--task ablation/baseline → eval_results/
 - [ ] 读取标签文件 alldata(readonly)/contract_labels.json
 - [ ] 建模七类多标签分类
 - [ ] 设定损失：
@@ -217,38 +274,49 @@
   - [ ] 某类正样本为 0 时跳过该类
 - [ ] 训练/验证
   - [ ] 早停：连续 5 个 epoch 验证 macro-F1 不提升
-  - [ ] 记录 mask_mean / mask_std
+  - [ ] 记录 score_mean / score_std（大纲改II 改名）
   - [ ] 检查 std 低于 0.05 时排查池化退化
 - [ ] 推理
   - [ ] 输出七类概率 p_G
-  - [ ] 输出 TopK 可疑节点排序
+  - [ ] 输出多标签预测 yhat_G
+  - [ ] 输出节点可疑度列表 {(v,a_v)}（按 a_v 降序）
+  - [ ] 输出 TopK 可疑节点集合 V*
+  - [ ] 可选可视化子图 G_view（CFG_FLOW/DFG_DEP 一跳扩展）
+  - [ ] 可选梯度显著性 g_v 及其 P@k/R@k/IoU（仅评估）
   - [ ] 只作为辅助解释，不声称真实根因定位
 - [ ] 评估
+  - [ ] 两种设定：MVD-HG 内部测试（同分布）+ DIVE 外部测试（跨数据集）
   - [ ] 验证集选阈值 0.2~0.8，步长 0.05
   - [ ] 记录固定阈值 0.5
   - [ ] >=3 个 seed 的均值 ± 标准差（runs/summary.json）
-  - [ ] SolidiFI 只报告 a_v/s_v/g_v 三类分数
+  - [ ] DIVE：各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查、归因分层
+  - [ ] SolidiFI 报告 a_v/s_v/g_v 三类分数（g_v 按注入类别归属）+ a_v 增量覆盖节点统计
 
 ## 九、收尾与验收门槛
 - [ ] 全链路在 1 个样本上跑通
-- [ ] 关键中间产物齐全（均在 Heterogeneous graphs/ 下）：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（MLP 后 h_v(0)）；splits/、runs/seedN/、eval_results/ 按架构文件归档
+- [ ] 关键中间产物齐全（均在 Heterogeneous graphs/ 下）：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（MLP 后 h_v(0)）；splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
 - [ ] 图结构字段完整，后续模块可直接消费
 - [ ] M1 结果与 M2 图结构一致
 - [ ] 训练可启动，且 validation loss / macro-F1 可观察
 - [ ] 论文中需要记录过滤统计、样本数、边类型、特征维度、损失项
 
 ## 十、下一步执行顺序（推荐）
+
+> **2026-09-11 调整（大纲改II）**：先重做 M2 CALLBACK_RISK，再向下游同步；M5 数据集/划分/消融按改II。
+
+0. ✅ **M2 CALLBACK_RISK 重做（已完成 2026-09-11）**：收窄外部调用节点（排除 2300-gas send/transfer 与 `Emit Transfer` 事件误报）→ 高置信定义 → `build`×2（hash 一致）→ `m1_runner --force` → `convert_pyg` → M3 `_feat.pt` → M4 22 用例回归（结果：509 边/85 图，详见第三节）
 1. M3 先对 1 个图实现双通道 CodeBERT、结构特征和 128 维 `x`
 2. 验证函数级向量共享、节点窗口差异、缺失字段容错及先验 dropout
-3. 批量生成 `_cb.pt` 与 `{safe}_feat.pt`（MLP 后的 128 维 h_v(0)；不写回 `_pyg.pt`；消融变体 --variant）
-4. M4 实现 RGCN 两层、`a_v` 重要性读出和 `L_var`
-5. M5 顺序：dataset.py + metrics.py → make_splits.py（含 split_report/unmatched）→ train.py 单种子 → evaluate.py 主实验 → 3 种子汇总 → 阶段 5 消融/基线（eval_results/）
+3. 批量生成 `_cb.pt` 与 `{safe}_feat.pt`（MLP 后的 128 维 h_v(0)；不写回 `_pyg.pt`；消融变体 --variant；**新增 `--feat-groups` 分组消融**）
+4. M4 实现 RGCN 两层、`a_v` 可疑度读出、h2-based Readout（**已完成 2026-09-07**：model.py + 22 用例；L_var 在 M5）
+5. M5 顺序：dataset.py + metrics.py → make_splits.py（**固定种子 8:1:1 + 每类 ≥20**，含 split_report/unmatched）→ train.py 单种子（日志用 `score_mean/score_std`）→ evaluate.py 主实验（**MVD-HG 内部测试 + DIVE 外部测试**）→ 3 种子汇总 → 阶段 5 消融（5.4.1/5.4.2）/基线（eval_results/）
 
 ## 十一、文档与文件组织同步（2026-09-04 再设计）
 - [x] 项目组织架构.md：scripts/ 新增 dataset.py/metrics.py；_pyg.pt 只读、_feat.pt 语义锁死为 MLP 后的 h_v(0)、_feat_{variant}.pt 消融变体；runs/seedN/ 增 config.json
 - [x] 论文开发手册.md：3.2 目录表、8.1/8.7（_feat.pt 语义、--only 验证入口、--variant 消融变体）、10.2（加载期一致性约束）、10.4（dataset/metrics 分层 + config.json）、12（新增 25/26）
 - [x] Todo_List.md：M3/M4/M5 文件组织与验证入口更新；新增“十二、详细代码修改方案”
 - [x] 大纲 docx：本次为代码文件组织调整，不涉及大纲规则/协议内容，无需改动（如后续需在大纲 5.x 补充产物目录说明再改）
+- [x] **2026-09-11 按 `研究点一细化大纲改II.docx` 同步**：手册（头部复核块、3.2/3.3 目录与数据集、4.5 日志改名+推理输出、6.3/6.6 external_callback、7.6/7.8 CALLBACK_RISK、8.4/8.5 结构特征、9.1 关系数、9.6 日志、10.2/10.3/10.5/10.6/10.7、11.x、12 表+新增错误 40–45、13）与 Todo（头部、一节路径、三/四/六/七/八/十/十二节）全部按 `改II` 更新，行为影响的项已回标为未完成。
 
 ## 十二、详细代码修改方案（M3/M4/M5 各文件，2026-09-04 定稿）
 
@@ -264,17 +332,20 @@
 - 输出契约：
   - `{safe}_cb.pt = {"func": {func_key: 768}, "node": {node_id: 768}}`
   - `{safe}_feat.pt = Tensor[N,128]`（MLP 后，语义锁死）
-  - `--variant no-prior`：s_v 置 0 输入、同一 MLP → `{safe}_feat_no-prior.pt`；`--variant no-codebert`：去掉 CodeBERT 两通道 → `{safe}_feat_no-codebert.pt`（复用 `_cb.pt` 缓存）
-- CLI：`--only <图前缀>`（单图验证，不跑全量）、`--in-dir/--out-dir/--m1-dir` 默认 Heterogeneous graphs、`--variant`、`--force`
+  - `--variant no-prior`：s_v 置 0 输入、同一 MLP → `{safe}_feat_no-prior.pt`；`--variant no-codebert`：去掉 CodeBERT 两通道 → `_feat_no-codebert.pt`；`--variant no-cb-func` / `no-cb-node`：分别去掉函数级 / 节点级通道（改II 5.4.1）。`--feat-groups all|base|base+sem`：未选中的结构特征列置 0（改II 4.3.3）→ `_feat_grp-<group>.pt`。均复用 `_cb.pt` 缓存（秒级）。
+- CLI：`--only <图前缀>`（单图验证，不跑全量）、`--in-dir/--out-dir/--m1-dir` 默认 Heterogeneous graphs、`--variant`、`--feat-groups base|base+sem|all`（改II 四组结构特征分组消融）、`--force`
 - 禁止：写回 `_pyg.pt`（验收：跑前后 `_pyg.pt` 的 hash 不变）
 
-### 12.2 scripts/model.py（新建，M4）
-- `SSMHG(in_dim=128, hid=128, num_relations=5, num_bases=4, num_classes=7, dropout=0.3)`：手册 9.5 照抄
-- `forward(x, edge_index, edge_type) -> (z[7], a[N])`
-- 消融开关（构造函数参数）：`use_meanpool=False`（meanpooling 替换重要性加权）、`conv_type="rgcn"|"gcn"|"gat"`（9.1 消融）
-- 底部 `if __name__ == "__main__":`：随机数据 smoke test（x=randn(9,128)，验证输出形状 (7,)/(9,)、a∈(0,1)）——M4 独立验证入口
+### 12.2 scripts/model.py（已完成，2026-09-07 v4 定稿）
+- `SSMHG(in_dim=128, hid=128, num_relations=5, num_bases=5, num_classes=7, dropout=0.3, conv_type="rgcn", use_meanpool=False)`
+- `forward(x, edge_index, edge_type, batch=None, return_intermediates=False) -> (z, a, node_logits)`；批图 z=[B,7]；return_intermediates 返回 dict{z,a,node_logits,h1,h2,alpha,hg}
+- Readout 使用**第二层传播结果 h2**（=h_v^(L)），禁用输入 x；alpha=a/(sum(a)+1e-6)，批图按图 scatter 归一化
+- 消融开关：`use_meanpool`（仅替换 Readout）、`conv_type="rgcn"|"gcn"`（**无 GAT**——普通 GAT 非关系感知，传 "gat" 抛 ValueError；如需另行实现 RGAT）、`num_bases=4`（仅消融，默认 5）
+- helper：`validate_edge_types` / `apply_edge_mask`（同步过滤边，M5 DropEdge 用）/ `safe_readout` / `_scatter_add`（index_add 实现，免 torch_scatter）
+- 底部 `if __name__ == "__main__"`：随机数据 smoke test（组合/极端图/非法输入/批图等价）——M4 独立验证入口；完整用例见 `tests/test_model_smoke.py`（22 个）
+- 空边/孤立：PyG 2.7.0 官方行为（root_weight/add_self_loops）已实测可用，无自定义 fallback
 
-### 12.3 scripts/dataset.py（新建，M5 数据层）
+### 12.3 scripts/dataset.py（已完成，2026-09-07）
 - `build_proj_labels() -> dict[str, list[list[int]]]`：读 `alldata(readonly)/contract_labels.json`，key=项目前缀（lower；剥前缀顺序先 nasd_ 后 asd_——nasd_ 含 asd_ 子串，先剥 asd_ 会把 nasd_xxx 误剥成 nxxx）
 - `build_index() -> (dict[base, label7], unmatched:list)`：扫 `Heterogeneous graphs/*_pyg.pt`，项目内多合约标签取并集；未匹配 base 收集返回（供 make_splits 写 txt）
 - `load_graph(base, label, ab: Ablation) -> dict`：
@@ -290,44 +361,81 @@
 - `per_class_prf(preds01, ys01, names) -> dict`：`precision_recall_fscore_support` 每类 P/R/F1
 - `mAP(probs, ys01) -> float`：`average_precision_score(average="macro")`
 - `subset_accuracy(preds01, ys01) -> float`（可选）
+- `search_global_threshold(probs, ys01, candidates) -> dict`：仅用于验证集，目标 validation macro-F1；并列时取较小阈值。
+- 零正类：保留 `support=0`，跳过该类 AP，并返回 `ap_classes_used`。
 - 供 train/evaluate/ablation 三处共用，不得 import dataset/model
 
-### 12.5 scripts/make_splits.py（新建，M5）
+### 12.5 scripts/make_splits.py（按大纲改II 5.1 重做）
 - 从 `dataset.build_index/build_proj_labels` 导入（不重复标签逻辑）
-- `random.Random(seed)` 打乱 8:1:1 → `splits/split_seed{seed}.json`（train/val/test base 列表）
+- **主方案（改II）**：唯一合约**固定随机种子 8:1:1** 划分为 train/val/内部测试；划分后检查三个划分的每类正样本数，若某类在 val 或内部测试 **<20** 则换种子重划；输出 `splits/split_seed{seed}.json`、逐类 support、**划分种子** 和 `splits.csv`（`sample_id,split,y0..y6`）。旧的“多标签迭代分层（`iterative-stratification`）”仅作对照快照，不作主方案。
 - 输出 `splits/split_report.json`：每类 pos/neg、正负比、唯一合约数、多标签合约数、全 0 合约数、三划分数量（手册 10.2.4）
 - 输出 `splits/unmatched_contracts.txt`：未匹配 base 列表 + 计数（手册 10.2.2 透明性报告）
-- CLI：`--seeds 0,1,2`、`--split 0.8,0.1,0.1`
+- **新增：DIVE 外部测试集构建**（手册 10.2 第 7 条）——去 Bad Randomness=1、全零标签作为负样本保留、固定种子分层抽样 ≥500 合约（每类 ≥20 正样本），输出抽样清单与类别统计到 `splits/`（不改 `splits/split_seed*.json`）
+- CLI：`--seeds 0,1,2`、`--split 0.8,0.1,0.1`、`--min-pos 20`（低频类重划阈值）、`--dive`（构建外部测试子集）
 
-### 12.6 scripts/train.py（新建，M5）
+### 12.6 scripts/train.py（新建，M5，v4）
 - 只 import：`model`、`dataset`、`metrics`、sklearn
-- CLI：`--seed 0 --epochs 80 --batch-size 32 --lr 1e-4 --weight-decay 1e-4 --drop-feat-edge 3 --feat-variant none --meanpool --conv gcn ...`（消融开关透传）
+- CLI：`--seed 0 --epochs 200 --batch-size 32 --lr 1e-4 --weight-decay 1e-4 --scheduler-patience 3 --early-stop-patience 5 --drop-feat-edge 3 --feat-variant none --meanpool --conv gcn ...`（消融开关透传）
 - 启动断言：每个图 `x.shape[1]==128`（M3 未跑直接报错）
-- pos_weight：按训练集 `neg/pos` 截断 20、正样本 0 的类置 0（10.3）
-- 损失：`l_cls + 1e-3*clamp(0.1 - a.std(), min=0)`；AdamW + `clip_grad_norm_(1.0)`；每图前向累积 batch=32 后 step
-- 早停：验证 macro-F1 连续 5 epoch 不提升；日志字段按 10.3
-- 产物：`runs/seed{seed}/log.txt`、`best.pt`、`config.json`（argparse+全部超参快照）
+- pos_weight：按训练集 `neg/pos` 截断 20；正样本为 0 的类用 class mask 从逐元素 BCE 的分子和分母中显式跳过，不传 `pos_weight=0`。
+- 损失：`l_cls + 1e-3*L_var`；`L_var` 按图计算 population `a.std(unbiased=False)` 且保留梯度，单节点图 std=0；AdamW + `clip_grad_norm_(1.0)`；使用 `ReduceLROnPlateau(mode=max, factor=0.5, patience=3)`。
+- 训练期以 0.2 概率按图切换到全量 `_feat_no-prior.pt`；验证/测试使用 `_feat.pt`。
+- 早停：验证 macro-F1 连续 5 epoch 不提升；每个 epoch 日志字段按 10.3（含 **`score_mean/score_std`**），并增加 `samples_processed/graphs_processed`；GPU 可用时增加 `gpu_mem_allocated`，CPU 写 null。
+- 产物：`runs/seed{seed}/log.txt`（epoch JSONL）、`best.pt`、`last.pt`、`config.json`、`results.json`、`thresholds.json`（argparse+全部超参快照）；记录 `run_wall_seconds/data_load_seconds/train_seconds/validation_seconds/epoch_seconds_mean/graphs_per_second` 和硬件环境。`graphs_per_second=train_graphs/train_seconds`，只统计 optimizer loop；run 总耗时不重复写入每个 epoch 行。
 
 ### 12.7 scripts/evaluate.py（新建，M5，纯评估）
 - 只 import：`model`、`dataset`、`metrics`（不实现数据/指标逻辑）
-- 主实验（默认）：加载 `runs/seed*/best.pt` → 验证集阈值搜索 0.2~0.8/步长 0.05 选 best → 测试集固定 0.5 与 best 双报告 → `runs/seedN/results.json` → 3 种子 `runs/summary.json`（均值±标准差）
-- `--task ablation|baseline` → `eval_results/`（10.6；基线含 Slither 规则七维命中、CodeBERT 序列、GCN/GAT 同构图）
+- 主实验（默认）：加载 `runs/seed*/best.pt` → 验证集阈值搜索 0.2~0.8/步长 0.05 选 best → **MVD-HG 内部测试**固定 0.5 与 best 双报告 → `runs/seedN/results.json` → 3 种子 `runs/summary.json`（均值±标准差）
+- **DIVE 外部测试（改II）**：一次性评估，不参与训练/验证/早停/阈值/模型选择；报告各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查；结果写 `eval_results/`
+- `--task ablation|baseline` → `eval_results/`（10.6；基线含 Slither 规则七维命中、CodeBERT 序列、GCN/GAT 同构图；**两种设定：MVD-HG 内部测试 + DIVE**）
+- SolidiFI 层次二：$a_v/s_v/g_v$ 的 P@k/R@k/IoU（$g_v$ 按注入类别归属）+ “$a_v$ 增量覆盖节点”统计
 - 每类 P/R/F1、macro/micro-F1、mAP 用 `metrics.py`
+- 主阈值为验证集选择的单一全局阈值；per-class 阈值仅作补充报告；记录 support=0 和 AP 跳过类别；保存所有候选阈值及 tie 选择依据到 `runs/seedN/thresholds.json`。
 
-### 12.8 消融映射（手册 10.6 → 实现位置）
+### 12.8 消融映射（手册 10.6 / 大纲改II 5.4 → 实现位置）
+
+**5.4.1 必要消融（11 项）**
+
 | 消融变体 | 实现位置 |
 | --- | --- |
-| 去 M1 先验 $s_v$ | M3 `--variant no-prior` → dataset `--feat-variant no-prior` |
-| 去 DFG_DEP / CFG_FLOW / CALLBACK_RISK 边 | dataset `--drop-feat-edge 3/0/4`（零重跑） |
-| 去 CodeBERT（仅结构特征） | M3 `--variant no-codebert` |
-| RGCN→GCN/GAT、meanpooling、num_bases | model.py 构造开关（train 透传） |
-| 去外部调用回调相关特征 | M3 结构特征第 2/3/13/14/17 项置 0 的 variant |
-| 仅 $s_v$ 排序 / 无 $s_v$ 输出偏置 | evaluate.py 节点排序分支 + model 开关 |
-| CALLBACK_RISK 上限 4/不限制 | 唯一重跑 M2 的变体（`--callback-limit 0`） |
+| 去 DFG_DEP / CFG_FLOW / AST_PARENT / CALLBACK_RISK | dataset `--drop-feat-edge 3/0/1/4`（零重跑） |
+| CALLBACK_RISK 上限 4 vs 不限制 | 唯一重跑 M2 的变体（`build --callback-limit 0`） |
+| 去函数级 CodeBERT | M3 `--variant no-cb-func`（新增；复用 `_cb.pt` 的 `node` 通道） |
+| 去节点级局部 CodeBERT | M3 `--variant no-cb-node`（新增；复用 `_cb.pt` 的 `func` 通道） |
+| meanpooling 替换节点可疑度 $a_v$ 加权 | model.py `use_meanpool=True`（train 透传） |
+| 关闭 $L_{var}$ | train.py `--lambda-var 0` |
+| 关闭先验 Dropout | train.py `--no-prior-dropout` |
+| 节点结构特征分组消融 | M3 `--feat-groups base\|base+sem\|all`（新增；报告 (a)(b)(c) 与 0.3pp） |
+
+**5.4.2 可选消融（6 项）**
+
+| 消融变体 | 实现位置 |
+| --- | --- |
+| 添加 CALLBACK_RISK_REV | 重跑 M2 加反向边（`build --callback-rev`） |
+| RGCN 层数 L=1/2/3 | model.py `num_layers`（train 透传） |
+| num_bases 不同取值 | model.py `num_bases`（train 透传；默认=关系数） |
+| 隐藏维度 128/256 | model.py `hid`（train 透传） |
+| DropEdge | M5 train（先单图 mask 再 batch；默认关） |
+| 微调 vs 冻结 CodeBERT | M3 微调分支 / M5 微调模式；评估 val macro-F1 |
+
+> **`改I` 独有、`改II` 5.4 已移出必做清单的变体**（可作补充分析，不计入主消融）：去 M1 先验 $s_v$（M3 `--variant no-prior`）、RGCN→GCN（model.py `conv_type="gcn"`，仅作 5.3 外部基线）、去外部调用回调相关特征（结构特征 2/3/12/13/16 置 0）、仅 $s_v$ 排序 / 仅 RGCN 学重要性（evaluate 排序分支 + model 开关）。
 
 ### 12.9 执行顺序（单步最小验证）
-1. `m3_build_features.py --only nasd_simple_dao__simple_dao` 验收（8.8）→ 全量
-2. `model.py` smoke test（9.5）→ `dataset.py --check` 单图自检
-3. `make_splits.py` 产出三个文件 → 检查 split_report 与 unmatched
-4. `train.py --seed 0` 单种子 → 日志字段齐全、无 NaN
-5. `evaluate.py` 主实验 → 3 种子 summary → 阶段 5 消融/基线
+> M5 正式决议（按大纲改II）：主划分用**固定种子 8:1:1 + 每类 val/内部测试 ≥20**（不再用迭代分层作主方案）；零正类用 class mask 跳过逐元素 BCE；主阈值为验证集选择的全局单值并保存全扫描；L_var 按图使用 population std 并保留梯度；ReduceLROnPlateau 监控 val macro-F1；DropEdge 先单图 mask 再 batch；至少 3 个 seed；记录可比较的训练时间和吞吐；外部泛化只用 DIVE（一次性，不参与模型选择）。
+
+M5 硬性验收：
+- [ ] 不凭 `asd_`/`nasd_` 前缀自动合并样本；support、**划分种子**与每类样本数写入 split 报告。
+- [ ] 划分后 val/内部测试每类正样本 ≥20（<20 换种子重划）。
+- [ ] 训练期按图以 0.2 概率切换 `_feat_no-prior.pt`，验证/测试使用 `_feat.pt`。
+- [ ] `best.pt`、`last.pt`、`config.json`、`log.txt`、`results.json` 均生成，epoch 日志含 `score_mean/score_std`。
+- [ ] 每 epoch 记录 `lr`、`epoch_seconds`，每次运行记录阶段耗时和硬件环境。
+- [ ] DIVE 外部测试结果不参与任何模型选择；报告各类 PR-AUC 与全零子集每类 FPR。
+- [ ] 推理输出 4.5.4 五项；SolidiFI 报 $a_v/s_v/g_v$ 与增量覆盖节点。
+- [ ] CI/smoke 覆盖 split 同 seed 稳定性、dataset batch/dropedge、model backward、train one-step 和 eval threshold；完整 3-seed 训练不放入 PR CI。
+
+0. **（改II 优先）M2 CALLBACK_RISK 重做** → `build`×2 → `m1_runner --force` → `convert_pyg` → M3 `_feat.pt` → M4 回归（详见第三节）
+1. `m3_build_features.py --only nasd_simple_dao__simple_dao` 验收（8.8）→ 全量（已完成）
+2. `model.py` smoke test（9.5）→ **已完成 2026-09-07**（model.py 自带 smoke + tests/test_model_smoke.py 22 用例）→ `dataset.py --check` 单图自检
+3. `make_splits.py` 产出三个文件（固定种子 8:1:1 + 每类 ≥20）→ 检查 split_report 与 unmatched → 构建 DIVE 外部测试子集
+4. `train.py --seed 0` 单种子 → 日志字段（含 `score_mean/score_std`）齐全、无 NaN
+5. `evaluate.py` 主实验（MVD-HG 内部测试 + DIVE）→ 3 种子 summary → 阶段 5 消融（5.4.1/5.4.2）/基线

@@ -8,12 +8,26 @@
   - A6/A7  9 角色类型嵌入与 18+1 结构特征（s_v 独立列）；
   - A8/A9  assemble+MLP → {base}_feat.pt（128 维）；变体 no-prior/no-codebert → _feat_{variant}.pt。
 
+大纲改II 对齐（2026-09-11）：
+  - 结构特征 = 18 项（`改II` 4.3.3 把 `改I` 的第 12 项 `s_v` 移出清单；`s_v` 仍作独立输入通道）；
+  - 新增分组消融 `--feat-groups all|base|base+sem`（改II 4.3.3 的 (c)(a)(b) 三设置）→ `_feat_grp-<group>.pt`；
+  - 新增 CodeBERT 单通道消融 `--variant no-cb-func` / `--variant no-cb-node`（改II 5.4.1）。
+
 复核修复（2026-09-05，全库扫描驱动，修复后全量重跑 _feat.pt）：
   - INT_CALL 补 ir 含 INTERNAL_CALL 的成员内部调用（super.xxx() 等 24 节点不再落 OTHER）；
   - 循环体判定对齐 M1 dos 锚点④口径：CFG 反向 10 跳、同函数、不含自身；
   - classify_call_mode 与 node_involves_call_return 的 .call 判定改用 EXT_CALL_RE 同形态
     （修复 `requests[i].callbackAddr = ...` 被 ".call" 子串误判，全库 2 例）；
   - node_has_ext_call 补内建转账 IR 指令（`SEND dest:` / `Transfer dest:`，expression 缺失时兜底）。
+
+口径澄清（2026-09-12 抽查审计，仅文档/注释，零行为改动）：
+  - `node_has_ext_call`（8.3 角色 EXT_CALL / 8.5 #2）是**节点语义口径**，宽于 7.6 的
+    CALLBACK_RISK 源集合：内建 `addr.send(...)` / `addr.transfer(...)` 仍计为外部调用节点
+    （大纲 4.3.3 #12 外呼方式本就含 send/transfer），但**不作为** CALLBACK_RISK 源节点；
+    旧注释“与 7.6 正则一致”已删除（`改II` 4.2.2 收窄后不再成立）。
+  - 结构特征行内注释/文档串编号与手册 8.5 表格编号对齐（清理 `改I` 编号残留：
+    bool 行 `#14-#17` 实为 `#13-#16`；外呼方式 `#13`→`#12`；IR 类别 `第 19 项`→`#18`）。
+    纯注释改动，行为零影响（simple_dao `_feat.pt` 重跑 sha1 一致 `e55bd664`）。
 
 语义锁死（后续阶段沿用）：
   - _feat.pt = MLP 后的 128 维 h_v^(0)，唯一模型输入特征；
@@ -55,11 +69,11 @@ WRITE_RE_TMPL = r"(?<![A-Za-z0-9_]){sv}(?:\s*\[[^\]\n]*\])?(?:\s*\.[A-Za-z_]\w*)
 # 外部调用正则（与手册 7.6 一致）
 EXT_CALL_RE = re.compile(r"\.\s*call\s*(\{|\(|\.)|\.\s*send\s*\(|\.\s*transfer\s*\(")
 
-# A3：固定类别字典（8.5 第 1/13 项）。可见性 4 类；外呼方式 5 类（call/send/transfer/低级调用/其他）。
+# A3：固定类别字典（手册 8.5 #1 / #12）。可见性 4 类；外呼方式 5 类（call/send/transfer/低级调用/其他）。
 VISIBILITY_ORDER = ["public", "external", "internal", "private"]
 CALL_MODE_ORDER = ["call", "send", "transfer", "low_level", "other"]
 CAT_VERSION = "m3-categories-v1"
-MAX_IR_CATEGORIES = 20                        # 前 19 类 + OTHER（8.5 第 19 行末句）
+MAX_IR_CATEGORIES = 20                        # 前 19 类 + OTHER（手册 8.5 #18 末句）
 
 
 def parse_args() -> argparse.Namespace:
@@ -93,9 +107,18 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--variant",
-        choices=["no-prior", "no-codebert"],
+        choices=["no-prior", "no-codebert", "no-cb-func", "no-cb-node"],
         default=None,
-        help="Feature ablation variant (used by later stages; parsed here for CLI stability).",
+        help="特征消融变体（大纲改II 5.4.1/5.4.2）：no-prior 置 0 s_v；no-codebert 去两 "
+             "CodeBERT 通道；no-cb-func 去函数级通道；no-cb-node 去节点级通道（均以同维 "
+             "零向量占位，MLP 输入维度不变）。",
+    )
+    parser.add_argument(
+        "--feat-groups",
+        choices=["all", "base", "base+sem"],
+        default="all",
+        help="结构特征分组消融（大纲改II 4.3.3）：all=18 项全用；base=仅基础结构组(1-8)；"
+             "base+sem=基础+漏洞语义组(1-13)。未选中的结构特征列置 0（列宽不变）。",
     )
     parser.add_argument(
         "--codebert",
@@ -121,7 +144,7 @@ def parse_args() -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 
 def classify_ir_category(ir_text: str | None) -> str:
-    """从 SlithIR 文本归纳指令类别（8.5 第 19 项）。
+    """从 SlithIR 文本归纳指令类别（手册 8.5 #18）。
 
     规则（优先级从高到低，避免被首行变量声明淹没）：
       - 含 `CONDITION` → CONDITION（条件判定 IR）；
@@ -146,7 +169,7 @@ def classify_ir_category(ir_text: str | None) -> str:
 
 
 def classify_call_mode(expression: str | None, ir_text: str | None) -> str:
-    """外部调用方式 one-hot 类别（8.5 第 13 项，按实际调用机制归类）。
+    """外部调用方式 one-hot 类别（手册 8.5 #12，按实际调用机制归类）。
 
     优先级：低层调用（ir LOW_LEVEL_CALL）→ low_level；高层调用（ir HIGH_LEVEL_CALL，
     含 ERC20 `token.transfer(...)` 这类具名函数调用）→ call；内建转账指令
@@ -162,6 +185,13 @@ def classify_call_mode(expression: str | None, ir_text: str | None) -> str:
         return "low_level"
     if "HIGH_LEVEL_CALL" in ir_text:
         return "call"
+    # 内建转账指令兜底（8.5 #12：内建 addr.transfer/send → transfer/send），
+    # 与 node_has_ext_call 的 ir 兜底口径一致（2026-09-07 补；当前全库 expression
+    # 均存在、0 数据影响，防御性对齐防止 expression 缺失时 #12 归 other 而 #2 为真）。
+    if re.search(r"\bTransfer\s+dest:", ir_text):
+        return "transfer"
+    if re.search(r"\bSEND\s+dest:", ir_text):
+        return "send"
     expression = expression or ""
     if ".transfer(" in expression:
         return "transfer"
@@ -191,7 +221,7 @@ def scan_categories(hetero_dir: Path, pattern: str) -> tuple[Counter, Counter, i
 
 
 def truncate_categories(counter: Counter) -> list[str]:
-    """按频次降序截断 IR 类别字典：最多前 19 类 + OTHER（共 ≤20 类，8.5 第 19 行末句）。"""
+    """按频次降序截断 IR 类别字典：最多前 19 类 + OTHER（共 ≤20 类，手册 8.5 #18 末句）。"""
     ordered = [category for category, _ in counter.most_common() if category != "OTHER"]
     if len(ordered) > MAX_IR_CATEGORIES - 1:
         ordered = ordered[: MAX_IR_CATEGORIES - 1]
@@ -377,11 +407,17 @@ def is_state_read(expression: str | None, state_vars: list[str]) -> bool:
 
 
 def node_has_ext_call(node: dict[str, Any]) -> bool:
-    """节点是否为外部调用（8.5 #2，与 7.6 正则一致）。
+    """节点是否为外部调用（8.3 角色 / 8.5 #2 结构特征）。
 
-    判定 = expression 命中 EXT_CALL_RE，或 ir 含 LOW_LEVEL_CALL / HIGH_LEVEL_CALL /
-    内建转账指令（`SEND dest:` / `Transfer dest:`，Slither 0.11.5 打印形态，
-    expression 缺失时兜底）。
+    **本判定是“节点语义口径”，宽于 7.6 的 CALLBACK_RISK 源集合**（`改II` 4.2.2 的
+    收窄只针对 CALLBACK_RISK 源节点，不改变节点角色与结构特征）：
+      - expression 命中 EXT_CALL_RE（`.call{`/`.call(`/`.call.`、`.send(`、`.transfer(`）；
+      - ir 含 LOW_LEVEL_CALL / HIGH_LEVEL_CALL（具名外部调用，如 ERC20 `token.transfer`）；
+      - ir 含内建转账指令（`SEND dest:` / `Transfer dest:`，Slither 0.11.5 打印形态，
+        expression 缺失时兜底）。
+    即：仅转发 2300 gas 的内建 `addr.send(...)` / `addr.transfer(...)` 仍算外部调用节点
+    （大纲 4.3.3 #12 的“外部调用方式 one-hot”本就含 send/transfer），但**不作为**
+    CALLBACK_RISK 源节点（见 `build_cfg_centered_hetero_graph.RE_EXT_CALL_TEXT`）。
     """
     if EXT_CALL_RE.search(node.get("expression") or ""):
         return True
@@ -519,9 +555,11 @@ def in_loop_body(node_id: int, adj_in: dict[int, list[int]], node_map: dict[int,
 def build_struct_features(data: dict[str, Any], ir_categories: list[str],
                           adj_out: dict[int, list[int]], adj_in: dict[int, list[int]],
                           node_map: dict[int, dict[str, Any]], fn_of: dict[int, str]) -> list[list[float]]:
-    """构造每节点结构特征行（8.5：除 s_v 外共 44 列，行序 = nodes 顺序）。
+    """构造每节点结构特征行（8.5：除 s_v 外共 44 列 = 上界，行序 = nodes 顺序）。
 
-    列布局（s_v 独立，不入本张量）：可见性4 + 布尔14 + 外呼方式5 + 归一化位置1 + IR one-hot20。
+    列布局（s_v 独立，不入本张量）：可见性4(#1) + 布尔14(#2-#11、#13-#16)
+    + 外呼方式5(#12) + 归一化位置1(#17) + IR one-hot(#18，上界 20 类、当前 6 类)。
+    行内注释的 #编号 与手册 8.5 表格编号一致。
     """
     state_vars = data["state_vars"]
     fn_table = data["fn_table"]
@@ -566,10 +604,10 @@ def build_struct_features(data: dict[str, Any], ir_categories: list[str],
             1.0 if node_uses_msg(node) else 0.0,                    # #9 msg.sender/tx.origin
             1.0 if node_involves_call_return(node) else 0.0,        # #10 调用返回值
             1.0 if loop else 0.0,                                   # #11 循环体内
-            1.0 if consumed else 0.0,                               # #14 返回值被消费
-            1.0 if post_write else 0.0,                             # #15 后继同函数状态写
-            1.0 if entry_fn else 0.0,                               # #16 入口函数 ENTRY
-            1.0 if (ext and loop) else 0.0,                         # #17 循环内外呼
+            1.0 if consumed else 0.0,                               # #13 返回值被消费
+            1.0 if post_write else 0.0,                             # #14 后继同函数状态写
+            1.0 if entry_fn else 0.0,                               # #15 入口函数 ENTRY
+            1.0 if (ext and loop) else 0.0,                         # #16 循环内外呼
         ]
 
         # 外呼方式 one-hot（5）
@@ -599,11 +637,52 @@ def build_struct_features(data: dict[str, Any], ir_categories: list[str],
     return rows
 
 
+# 结构特征 18 项 → 四组（大纲改II 4.3.3）。列布局见 build_struct_features：
+# 可见性4(base) + 布尔14[#2-#8=base(7)、#9-#11=sem(3)、#13=sem(1)、#14-#16=cb(3)]
+#   + 外呼方式5(sem, #12) + 归一化位置1(pos, #17) + IR one-hot(pos, #18)。
+STRUCT_GROUP_SETS = {
+    "all": {"base", "sem", "cb", "pos"},
+    "base": {"base"},
+    "base+sem": {"base", "sem"},
+}
+
+
+def struct_group_keep_mask(ir_categories_len: int, feat_groups: str) -> list[bool]:
+    """结构特征各列是否保留的布尔掩码（未选中组置 0；列宽不变）。
+
+    feat_groups ∈ {all, base, base+sem}，对应大纲改II 4.3.3 的 (c)(a)(b) 三设置。
+    """
+    groups = (
+        ["base"] * len(VISIBILITY_ORDER)             # 1 函数可见性
+        + ["base"] * 7 + ["sem"] * 4 + ["cb"] * 3    # 2-11,13；14-16（#12 不在本段）
+        + ["sem"] * len(CALL_MODE_ORDER)             # 12 外呼方式 one-hot
+        + ["pos"]                                    # 17 归一化位置
+        + ["pos"] * int(ir_categories_len)           # 18 IR 类别 one-hot
+    )
+    allowed = STRUCT_GROUP_SETS.get(feat_groups, STRUCT_GROUP_SETS["all"])
+    return [g in allowed for g in groups]
+
+
+def variant_tag(variant: str | None, feat_groups: str) -> str | None:
+    """输出文件后缀：显式 variant 优先；否则结构分组非 all 时用 `grp-<group>`；否则主特征。"""
+    if variant:
+        return variant
+    if feat_groups and feat_groups != "all":
+        return f"grp-{feat_groups}"
+    return None
+
+
 def assemble_feat(data: dict[str, Any], categories: dict[str, Any], cb: dict[str, Any],
-                  variant: str | None, seed: int) -> "torch.Tensor":
+                  variant: str | None, feat_groups: str, seed: int) -> "torch.Tensor":
     """拼接各通道并过 MLP → h_v^(0)（128 维；A8/A9）。
 
-    variant=None 主特征；no-prior 把 s_v 列置 0（同一 MLP）；no-codebert 去掉两 CodeBERT 通道。
+    - variant=None        主特征（CB 双通道 + 类型 + 结构 + s_v）。
+    - variant=no-prior    s_v 列置 0、其余不变（同一 MLP 配置）。
+    - variant=no-codebert 去掉函数级与节点级两 CodeBERT 通道。
+    - variant=no-cb-func  去掉函数级 CodeBERT 通道（保留节点级局部通道）。
+    - variant=no-cb-node  去掉节点级局部 CodeBERT 通道（保留函数级通道）。
+    - feat_groups=all/base/base+sem（改II 4.3.3）：未选中的结构特征列置 0，列宽不变，
+      以隔离“信息贡献”与“模型容量”两个因素。
     行序 = nodes 顺序（_feat.pt 第 i 行 ↔ _pyg.pt node_id[i]）。
     """
     import torch.nn as nn
@@ -617,7 +696,10 @@ def assemble_feat(data: dict[str, Any], categories: dict[str, Any], cb: dict[str
     role_idx = [ROLE_NAMES.index(classify_node_role(node, state_vars)) for node in nodes]
     ir_categories = categories.get("ir_categories", [])
     struct_rows = build_struct_features(data, ir_categories, adj_out, adj_in, node_map, fn_of)
-    struct = torch.tensor(struct_rows, dtype=torch.float32)          # N×44
+    struct = torch.tensor(struct_rows, dtype=torch.float32)          # N×44（IR 列数可变）
+    if feat_groups != "all" and struct.numel():
+        keep = struct_group_keep_mask(len(ir_categories), feat_groups)
+        struct = struct * torch.tensor(keep, dtype=torch.float32)    # 未选中组置 0，列宽不变
     sv = torch.tensor([[data["s_v"][str(node["id"])]] for node in nodes], dtype=torch.float32)  # N×1
 
     func_vecs = torch.stack([
@@ -629,15 +711,14 @@ def assemble_feat(data: dict[str, Any], categories: dict[str, Any], cb: dict[str
     embedding = nn.Embedding(len(ROLE_NAMES), TYPE_EMB_DIM)
     type_emb = embedding(torch.tensor(role_idx, dtype=torch.long))
 
-    use_codebert = variant != "no-codebert"
     parts: list[torch.Tensor] = []
-    if use_codebert:
-        parts += [func_vecs, node_vecs]
+    if variant != "no-codebert":
+        if variant != "no-cb-func":
+            parts.append(func_vecs)
+        if variant != "no-cb-node":
+            parts.append(node_vecs)
     parts += [type_emb, struct]
-    if variant == "no-prior":
-        parts.append(torch.zeros_like(sv))
-    else:
-        parts.append(sv)
+    parts.append(torch.zeros_like(sv) if variant == "no-prior" else sv)
     concat = torch.cat(parts, dim=1)
     mlp = nn.Linear(concat.shape[1], HID_DIM)
     return mlp(concat)
@@ -656,20 +737,25 @@ def feat_path_for(out_dir: Path, base: str, variant: str | None) -> Path:
 
 def process_graph(graph_path: Path, data: dict[str, Any], categories: dict[str, Any],
                   tok: Any, model: Any, out_dir: Path, force: bool,
-                  variant: str | None, only: bool) -> dict[str, Any]:
-    """处理单图：cb 缓存（A5）→ assemble+MLP 写 _feat（A8/A9）→ 返回统计（供 A10/A11）。"""
+                  variant: str | None, feat_groups: str, only: bool) -> dict[str, Any]:
+    """处理单图：cb 缓存（A5）→ assemble+MLP 写 _feat（A8/A9）→ 返回统计（供 A10/A11）。
+
+    输出后缀由 `variant_tag(variant, feat_groups)` 决定：主特征无后缀；
+    variant 或分组消融分别写 _feat_{tag}.pt。
+    """
     base = graph_path.name.replace("_hetero.json", "")
     cb_path = cb_path_for(out_dir, base)
     cb, reused = build_cb_cache(data, cb_path, tok, model, force)
-    feat_path = feat_path_for(out_dir, base, variant)
-    feat = assemble_feat(data, categories, cb, variant, seed=SEED)
+    tag = variant_tag(variant, feat_groups)
+    feat_path = feat_path_for(out_dir, base, tag)
+    feat = assemble_feat(data, categories, cb, variant, feat_groups, seed=SEED)
     assert feat.shape == (len(data["nodes"]), HID_DIM), f"{base}: feat shape {tuple(feat.shape)}"
     out_dir.mkdir(parents=True, exist_ok=True)
     torch.save(feat, feat_path)
     if only:
         print(f"[m3] {base}: feat={tuple(feat.shape)}  cb_reused={reused}  cb_func={len(cb['func'])} "
               f"cb_node={len(cb['node'])}")
-    return {"base": base, "nodes": len(data["nodes"]), "variant": variant,
+    return {"base": base, "nodes": len(data["nodes"]), "variant": tag,
             "feat": feat_path.name, "cb_reused": reused}
 
 
@@ -776,7 +862,8 @@ def main() -> None:
             expected = {str(node["id"]) for node in data["nodes"]}
             assert set(data["s_v"]) == expected, "s_v keys must equal node id string set"
         result = process_graph(graph_path, data, categories, tok, model,
-                               out_dir, force=args.force, variant=args.variant, only=bool(args.only))
+                               out_dir, force=args.force, variant=args.variant,
+                               feat_groups=args.feat_groups, only=bool(args.only))
         results.append(result)
         if args.only:
             print("[m3] node windows (A4 check):")
@@ -793,11 +880,12 @@ def main() -> None:
                   {role: role_counter[role] for role in ROLE_NAMES if role_counter[role]})
 
     print(f"[m3] processed {len(graph_files)} graph(s), {total_nodes} node(s); "
-          f"variant={args.variant}; feat_dir={out_dir}")
+          f"variant={args.variant}; feat_groups={args.feat_groups}; feat_dir={out_dir}")
     if not args.only:
         reused = sum(1 for r in results if r["cb_reused"])
+        tag = variant_tag(args.variant, args.feat_groups)
         print(f"[m3] cb cache reused for {reused}/{len(results)} graphs (resume OK); "
-              f"wrote {len(results)} _feat{('_' + args.variant) if args.variant else ''}.pt")
+              f"wrote {len(results)} _feat{('_' + tag) if tag else ''}.pt")
 
 
 if __name__ == "__main__":

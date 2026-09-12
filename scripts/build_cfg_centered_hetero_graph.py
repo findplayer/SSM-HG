@@ -752,14 +752,25 @@ def build_dfg_edges(cfg_nodes_by_function, dfg_map, state_vars=None):
 
 
 # ---------------------------------------------------------------------------
-# CALLBACK_RISK（大纲 4.2.2，保守回调风险先验，8 步算法）
+# CALLBACK_RISK（大纲改II 4.2.2，保守回调风险先验，8 步算法）
 # ---------------------------------------------------------------------------
 
-RE_EXT_CALL_TEXT = re.compile(
-    r"\.\s*call\s*(?:\{|\(|\.)|\.\s*send\s*\(|\.\s*transfer\s*\(", re.IGNORECASE
-)
-RE_TRANSFER_TEXT = re.compile(r"\.\s*transfer\s*\(", re.IGNORECASE)
-RE_IR_EXT_CALL = re.compile(r"\b(?:LOW_LEVEL_CALL|SEND|TRANSFER)\b", re.IGNORECASE)
+# 外部调用节点判据（大纲改II 4.2.2 规则 1，2026-09-11 收窄）：
+# 只认 call / 低级调用（`.call{` / `.call(` / `.call.`）与 ir 的 LOW_LEVEL_CALL /
+# HIGH_LEVEL_CALL（ERC20 `token.transfer(to, amt)` / `token.approve(...)` 等具名调用按
+# HIGH_LEVEL_CALL 计）。**仅转发 2300 gas 的内建 `addr.send(...)` / `addr.transfer(...)`
+# （IR `SEND dest:` / `Transfer dest:`）默认不作为 CALLBACK_RISK 源节点**——它们仍可在
+# uncheck_return / dos 等静态先验中独立标记（见 M1）。
+# 文本正则因此不含 `.send(` / `.transfer(`，避免把内建 2300-gas 转账误纳入源集合；
+# 而 ERC20 `token.transfer(...)` 靠 ir=HIGH_LEVEL_CALL 命中，不受影响。
+RE_EXT_CALL_TEXT = re.compile(r"\.\s*call\s*(?:\{|\(|\.)", re.IGNORECASE)
+# 转账（含内建 send/transfer）文本判据：仅用于「状态写入 / 入口体含转账」判定，
+# 不用于 CALLBACK_RISK 源节点。
+RE_VALUE_TRANSFER_TEXT = re.compile(r"\.\s*(?:transfer|send)\s*\(", re.IGNORECASE)
+# 外部调用的 IR 判据（手册 7.6 / 大纲改II 4.2.2）：LOW_LEVEL_CALL / HIGH_LEVEL_CALL。
+# 2026-09-07 补 HIGH_LEVEL_CALL（ERC721 transferFrom、ERC20 approve 等具名调用）；
+# 2026-09-11 按改II 去掉 SEND/TRANSFER（内建 2300-gas 转账不再是源节点）。
+RE_IR_EXT_CALL = re.compile(r"\b(?:LOW_LEVEL_CALL|HIGH_LEVEL_CALL)\b", re.IGNORECASE)
 # 余额映射**写入**判定（2026-09-05 第四轮修复）：
 # SlithIR 的读取形态是 `REF -> balances[x]`，写入形态是
 # `balances[x] (uint256) := TMP` 或 `REF (->balances) := TMP`。
@@ -774,7 +785,11 @@ RE_BALANCE_MAPPING = re.compile(
 
 
 def node_is_external_call(node):
-    """节点是否为外部调用（expression 正则或 ir 含 LOW_LEVEL_CALL/SEND/TRANSFER）。"""
+    """节点是否为 CALLBACK_RISK 源外部调用节点（大纲改II 4.2.2 规则 1）。
+
+    expression 命中 `.call{` / `.call(` / `.call.`，或 ir 含 LOW_LEVEL_CALL /
+    HIGH_LEVEL_CALL；**不含**仅转发 2300-gas 的内建 `send` / `transfer`（改II 收窄）。
+    """
     expr = node.get("expression") or ""
     ir = node.get("ir") or ""
     if RE_EXT_CALL_TEXT.search(expr):
@@ -785,12 +800,12 @@ def node_is_external_call(node):
 def node_is_state_write(node, state_vars_lower):
     """节点是否为状态写入（CALLBACK_RISK 步骤 4 用）。
 
-    三种判据：expression 含 .transfer(；赋值 LHS token 命中状态变量；
+    三种判据：expression 含转账（`.transfer(` / `.send(`）；赋值 LHS token 命中状态变量；
     ir 命中余额映射**写入**形态正则（读取 `-> balances[x]` 不算，2026-09-05）。
     """
     expr = node.get("expression") or ""
     ir = node.get("ir") or ""
-    if RE_TRANSFER_TEXT.search(expr):
+    if RE_VALUE_TRANSFER_TEXT.search(expr):
         return True
     left, _, _ = split_assignment(expr)
     if left is not None:
@@ -801,10 +816,10 @@ def node_is_state_write(node, state_vars_lower):
 
 
 def node_has_transfer_or_balance(node):
-    """节点是否含转账或余额映射写入（CALLBACK_RISK 入口过滤步骤 5 用）。"""
+    """节点是否含转账（`.transfer(` / `.send(`）或余额映射写入（CALLBACK_RISK 步骤 5 用）。"""
     expr = node.get("expression") or ""
     ir = node.get("ir") or ""
-    if RE_TRANSFER_TEXT.search(expr):
+    if RE_VALUE_TRANSFER_TEXT.search(expr):
         return True
     return bool(RE_BALANCE_MAPPING.search(ir))
 
@@ -832,8 +847,11 @@ def has_state_write_successor(
 
 
 def build_callback_risk_edges(nodes, cfg_edges, fn_table, state_vars, callback_limit):
-    """大纲 4.2.2 八步：外部调用节点 → 满足条件的入口节点（单向）。
+    """大纲改II 4.2.2 八步：外部调用节点 → 满足条件的入口节点（单向）。
 
+    源节点仅含 call / 低级调用 / HIGH_LEVEL_CALL（不含 2300-gas 内建 send/transfer，
+    2026-09-11 收窄）；仅“实际建立 ≥1 条边”的外部调用节点才算“高置信外部调用节点”
+    （供 M1 external_callback +0.5；未建边节点不加分）。主实验默认保留本类边。
     返回 (callback_edges, truncated_candidates, ext_call_node_count)。
     """
     node_by_id = {node["id"]: node for node in nodes}
@@ -934,7 +952,10 @@ def main():
         cfgdetail_invalid = False
         # 无 dot 且无 cfgdetail 才提前跳过；cfgdetail 损坏（invalid）在此处尚未检测，
         # 由下方解析后 `if not cfg_paths and not cfg_functions` 分支统一处理并计数。
+        # 本分支同样计入 skipped_no_cfg（2026-09-07 修复：旧版提前 continue 绕过计数，
+        # 与“无 CFG/无 cfgdetail 合约加 skipped_no_cfg 计数”的记录口径不符）。
         if not cfg_paths and cfgdetail_missing:
+            skipped_no_cfg += 1
             continue
         if cfgdetail_missing:
             cfg_functions = None
