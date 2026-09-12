@@ -119,21 +119,22 @@ z, a, nl = model(x, ei, et)                             # 验证/推理不调用
 - `node_logits`/`a`/`h2` 均**不 detach**；`z.sum().backward()` 后各参数梯度非空且有限。
 - 检查中间 `h2` 梯度时先 `h2.retain_grad()`（测试见 `test_gradient_flows_no_detach`）。
 - `alpha` 分母恒加 `eps=1e-6`；极端 logits（饱和到 0/1）只产生有限输出，无 NaN/Inf。
-- `a_v` 若长期塌缩为常数（`mask_std < 0.05`），由 M5 的 `L_var` 处理，模型不改公式。
+- `a_v` 若长期塌缩为常数（`score_std < 0.05`，大纲 `改II` 日志字段名），由 M5 的 `L_var` 处理，模型不改公式。
 
 ## 10. M5 归属（本文件不实现）
 
 | 功能 | 归属 |
 | --- | --- |
-| 加载 `*_feat.pt` / `*_feat_no-prior.pt` 并断言 `x.shape[1]==128` | `dataset.py` |
-| 标签匹配、固定关系消融（删 0/3/4 类边） | `dataset.py` |
+| 加载 `*_pyg.pt`（结构）+ `*_feat.pt`（schema v2 通道字典）+ `*_cb.pt`（行对齐）并断言通道契约/哈希 | `dataset.py`（`load_graph`；不再有 `_feat_no-prior.pt` 变体文件，2026-09-12 前端化退役） |
+| 标签匹配、边级消融（`--drop-edges`/`--drop-ast`＝删 relation 1+2，白名单校验） | `dataset.py` |
+| 通道融合（Embedding+MLP → `h_v^(0)`，128 维） | `model.NodeFuser`（前端化后；`x = fuser(channels)`） |
 | 批图 DataLoader（`batch` 向量） | `dataset.py`/`train.py` |
-| 先验 dropout（以 0.2 概率整图切换 `_feat_no-prior.pt`；eval 用原值） | `train.py` |
+| 先验/结构 dropout（训练期逐图 Bernoulli(0.2)，`sample_dropout_masks` 采样后传入 `NodeFuser`；eval 不置零） | `train.py` + `model.NodeFuser` |
 | DropEdge（训练期，用 `apply_edge_mask`；eval 不丢边） | `train.py` |
-| BCEWithLogitsLoss + `L_var = max(0, 0.1 - std(a))`（基于 `a`，非 logits） | `train.py` |
-| `mask_mean`/`mask_std` 日志、早停 | `train.py` |
+| BCEWithLogitsLoss + `L_var = max(0, 0.1 - std(a))`（基于 `a`，非 logits；按图分组 population std） | `train.py` |
+| `score_mean`/`score_std` 日志、早停（验证集 micro-F1） | `train.py` |
 | 阈值双报告、节点排序/梯度显著性（用 `node_logits`） | `evaluate.py` |
-| `config.json`：conv_type/num_relations/num_bases/hidden_dim/dropout/use_meanpool/… | `train.py` |
+| `config.json`：conv_type/num_relations/num_bases/hidden_dim/dropout/use_meanpool/AblationConfig/… | `train.py` |
 
 ## 11. 运行验证
 

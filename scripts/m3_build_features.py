@@ -131,6 +131,13 @@ def parse_args() -> argparse.Namespace:
         help="Only scan all graphs and write products/alldata/graphs/ir_cat.json, then exit.",
     )
     parser.add_argument(
+        "--categories",
+        default=None,
+        help="冻结的 IR 类别字典文件路径（默认 <out-dir>/ir_cat.json）。**跨数据集（DIVE/SolidiFI）"
+             "必须传入主库 products/alldata/graphs/ir_cat.json**：否则会对新数据集重新扫描生成"
+             "字典，导致 IR 列宽/类别语义与训练好的模型不一致（NodeFuser 输入维度错位）。",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help="Overwrite existing outputs / re-scan categories.",
@@ -255,9 +262,8 @@ def write_categories(out_dir: Path, ir_counter: Counter, call_counter: Counter,
     return payload
 
 
-def load_categories(out_dir: Path) -> dict[str, Any] | None:
-    """读现有 ir_cat.json；不存在返回 None。"""
-    path = categories_path(out_dir)
+def load_categories_file(path: Path) -> dict[str, Any] | None:
+    """读冻结类别字典文件（--categories；跨数据集复用主库字典用）；不存在返回 None。"""
     if not path.exists():
         return None
     return json.loads(path.read_text(encoding="utf-8"))
@@ -744,56 +750,9 @@ def build_channels(data: dict[str, Any], categories: dict[str, Any],
     }
 
 
-def assemble_feat(data: dict[str, Any], categories: dict[str, Any], cb: dict[str, Any],
-                  variant: str | None, feat_groups: str, seed: int) -> "torch.Tensor":
-    """拼接各通道并过 MLP → h_v^(0)（128 维；A8/A9）。
-
-    - variant=None        主特征（CB 双通道 + 类型 + 结构 + s_v）。
-    - variant=no-prior    s_v 列置 0、其余不变（同一 MLP 配置）。
-    - variant=no-codebert 去掉函数级与节点级两 CodeBERT 通道。
-    - variant=no-cb-func  去掉函数级 CodeBERT 通道（保留节点级局部通道）。
-    - variant=no-cb-node  去掉节点级局部 CodeBERT 通道（保留函数级通道）。
-    - feat_groups=all/base/base+sem（改II 4.3.3）：未选中的结构特征列置 0，列宽不变，
-      以隔离“信息贡献”与“模型容量”两个因素。
-    行序 = nodes 顺序（_feat.pt 第 i 行 ↔ _pyg.pt node_id[i]）。
-    """
-    import torch.nn as nn
-    torch.manual_seed(seed)
-    nodes = data["nodes"]
-    state_vars = data["state_vars"]
-    adj_out, adj_in = build_adjacency(data)
-    node_map = {int(node["id"]): node for node in nodes}
-    fn_of = {int(node["id"]): str(node.get("function")) for node in nodes}
-
-    role_idx = [ROLE_NAMES.index(classify_node_role(node, state_vars)) for node in nodes]
-    ir_categories = categories.get("ir_categories", [])
-    struct_rows = build_struct_features(data, ir_categories, adj_out, adj_in, node_map, fn_of)
-    struct = torch.tensor(struct_rows, dtype=torch.float32)          # N×44（IR 列数可变）
-    if feat_groups != "all" and struct.numel():
-        keep = struct_group_keep_mask(len(ir_categories), feat_groups)
-        struct = struct * torch.tensor(keep, dtype=torch.float32)    # 未选中组置 0，列宽不变
-    sv = torch.tensor([[data["s_v"][str(node["id"])]] for node in nodes], dtype=torch.float32)  # N×1
-
-    func_vecs = torch.stack([
-        cb["func"].get(f"{node.get('contract')}::{node.get('function')}", torch.zeros(CB_DIM))
-        for node in nodes
-    ])
-    node_vecs = torch.stack([cb["node"].get(str(node["id"]), torch.zeros(CB_DIM)) for node in nodes])
-
-    embedding = nn.Embedding(len(ROLE_NAMES), TYPE_EMB_DIM)
-    type_emb = embedding(torch.tensor(role_idx, dtype=torch.long))
-
-    parts: list[torch.Tensor] = []
-    if variant != "no-codebert":
-        if variant != "no-cb-func":
-            parts.append(func_vecs)
-        if variant != "no-cb-node":
-            parts.append(node_vecs)
-    parts += [type_emb, struct]
-    parts.append(torch.zeros_like(sv) if variant == "no-prior" else sv)
-    concat = torch.cat(parts, dim=1)
-    mlp = nn.Linear(concat.shape[1], HID_DIM)
-    return mlp(concat)
+# 2026-09-12 前端化：assemble_feat（旧「拼接+MLP→128 维」路径）已随融合迁移删除。
+# 融合与全部特征掩码（ablate_sv / feat_groups / cb_channels）在 `model.NodeFuser` 内完成；
+# 本文件只产拼接前通道（build_channels），不再有 Embedding/MLP/RNG。
 
 
 def cb_path_for(out_dir: Path, base: str) -> Path:
@@ -939,8 +898,13 @@ def main() -> None:
         print(f"  call modes: {payload['call_modes']}")
         return
 
-    categories = load_categories(out_dir)
+    cat_path = Path(args.categories) if args.categories else categories_path(out_dir)
+    categories = load_categories_file(cat_path)
     if categories is None:
+        if args.categories:
+            print(f"[m3] WARNING: --categories {cat_path} 不存在 → 回退全库扫描；"
+                  f"跨数据集（DIVE/SolidiFI）必须传入主库 products/alldata/graphs/ir_cat.json，"
+                  f"否则 IR 列宽/类别语义漂移、与已训练模型不兼容")
         # 字典缺失：为保证全库 one-hot 一致，总是做全库扫描（A3 已生成后通常不触发）
         ir_counter, call_counter, _ = scan_categories(in_dir, args.pattern)
         categories = write_categories(out_dir, ir_counter, call_counter, scope="all")

@@ -35,13 +35,14 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 ## 语义锁死项（最容易写错）
 
 - 标签顺序固定：`access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标为 4）。
-- `_pyg.pt` 是只读的纯结构（`x` 为 N×1 占位，永不改写）；`_feat.pt` = M3 经 MLP 后的 128 维 $h_v^{(0)}$，是唯一模型输入特征；`dataset.py` 只负责组合，不再过 MLP、不重算。
+- `_pyg.pt` 是只读的纯结构（`x` 为 N×1 占位，永不改写）；`_feat.pt` = M3 的**拼接前通道字典**（schema v2：`struct`/`type_id`/`sv` + 逐通道 sha256），是唯一模型输入载体；融合（Embedding+MLP）与全部掩码在 `model.NodeFuser`，`dataset.py` 只负责组合（含 `_cb.pt` 行对齐）、不再过 MLP、不重算、不做掩码。
 - M1 的 $s_v$ 是输入特征，不是标签；$a_v$ 是节点可疑度/解释信号，不是节点真值。
 - `CALLBACK_RISK` 是启发式边，不是真实跨合约调用图；主实验默认保留，不得降级为节点特征。
 - 训练与推理的 Dropout、先验 dropout 行为不同，不要混用。
-- M5 划分：唯一合约、固定种子 8:1:1 + **覆盖约束校正**（`--strategy constrained` 默认；`random` 隔离输出到 `random_snapshot/`）：C1 验证+内部测试合计每类正样本 ≥ 该类正样本总数的30%，C2 val/test 各自每类 ≥1；三种子构造达标（2026-09-12，替换 18/19/17 个，见 `coverage_swaps_seed*.txt` 与 `split_report.json`）；主种子 seed0（用途定位见 `experiments/decisions.md` §12）；**训练种子与划分种子分离**。
+- M5 划分：唯一合约、固定种子 8:1:1 + **覆盖约束校正**（`--strategy constrained` 默认；`random` 隔离输出到 `random_snapshot/`）：C1 验证+内部测试合计每类正样本 ≥ 该类正样本总数的30%，C2 val/test 各自每类 ≥1；三种子构造达标（2026-09-12，去重后替换 18/16/12 个，见 `coverage_swaps_seed*.txt` 与 `split_report.json`；预去重 18/19/17 见 decisions §12 历史记录）；主种子 seed0（用途定位见 `experiments/decisions.md` §12）；**训练种子与划分种子分离**。
 - 阈值只在验证集搜索；测试集同时报告固定 0.5 与验证集阈值两套结果。
-- 消融分层：边消融在 `dataset.py` 按 edge_type 过滤（零重跑）；特征消融跑 M3 `--variant`（复用 `_cb.pt`）；模型消融走 `model.py`/`train.py` 开关。
+- 消融分层：边消融在 `dataset.py` 按 edge_type 过滤（`--drop-edges`/`--drop-ast`，零重跑）；特征消融（去 $s_v$/CodeBERT 单通道/结构分组）在 `model.NodeFuser` 的 `AblationConfig`（通道级、零重跑，无文件变体）；模型消融走 `model.py`/`train.py` 开关。仅 CALLBACK_RISK 上限 4/不限制变体需重跑 M2（`--callback-limit 0`）。
+- 跨数据集（DIVE/SolidiFI）M3 必须传 `--categories products/alldata/graphs/ir_cat.json` 冻结 IR 字典，否则列宽/类别语义漂移、与已训练模型不兼容。
 
 ## 改动原则
 

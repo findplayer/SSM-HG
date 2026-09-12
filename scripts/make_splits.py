@@ -35,7 +35,7 @@
 产物（`--strategy constrained` 写入 `products/alldata/splits/`；random 模式写同名文件到隔离子目录）：
   - split_seed{seed}.json   {"seed":..,"ratio":..,"train":[...],"val":[...],"test":[...]}
                             （载荷保持四键不变，保证 random 模式可逐字节复现旧快照）
-  - splits.csv              seed,sample_id,split,y0..y6（1485 行 = 495×3）
+  - splits.csv              seed,sample_id,split,y0..y6（1344 行 = 448×3，去重后池）
   - split_report.json       每类正/负样本、正负比、唯一合约、多标签、全 0、三划分数量，
                             另含逐种子×三划分逐类 support、C1/C2 检查（rule_check）与替换统计
   - coverage_swaps_seed{seed}.txt  覆盖校正替换清单（换入/换出合约 ID + 各自 7 维标签向量）

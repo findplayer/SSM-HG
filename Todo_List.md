@@ -6,7 +6,7 @@
 > 先决条件：先修好 Stage 0，再动 M2；M2 是第一最小原子模块，不要跳过。
 > **2026-09-12 目录重构（方案 B）**：产物统一迁入 `products/<数据集>/`——顶层 `raw/`→`products/alldata/raw/`、`Heterogeneous graphs/`→`products/alldata/graphs/`、`splits/`→`products/alldata/splits/`；新增 `products/dive/{raw,graphs,splits}`、`products/solidifi/{raw,graphs,mapping}` 与 `runs/`、`eval_results/{ablation,baseline,dive,solidifi}/`；脚本默认路径、.gitignore、手册/架构/copilot-instructions 已同步，迁移后 compileall + bash -n + pytest（22 passed）+ `dataset.py --check` 全绿；`_m1.json`/`batch_summary.json` 内嵌旧路径已全量刷新（581 文件，数值零差异）。
 > **2026-09-12 划分门槛修订（大纲 5.1 第三条）**：“≥20 个”改为“**验证集与内部测试集中的正样本合计 ≥ 该类正样本总数的30%**”；`make_splits.py` 增补 `splits.csv`（1485 行）、`split_metadata_seed{0,1,2}.json`、逐类 support 与 `rule_check` 门槛审核（三种子划分成员不变，sha256 校验通过；仅新增字段与新文件）；实测三种子均未达标（每种子 5–6/7 类不足；随机划分下 val+test 期望占比 ≈20% < 30%，换种子不可解）→ 约束分层重划/局限记录待决策。
-> **2026-09-12 A2 落地（覆盖约束校正）**：大纲 5.1 补半句（覆盖约束校正）；`make_splits.py` 增 `--strategy {constrained(默认),random}`（random 输出隔离到 `random_snapshot/`）、`refine_coverage` 最小确定性替换与 `coverage_swaps_seed*.txt` 替换清单；三种子 C1/C2 构造达标（替换 18/19/17 个，eval 合计 44/42/43）；主种子 seed0（用途定位声明见 decisions §12）；`pytest` 25 通过。
+> **2026-09-12 A2 落地（覆盖约束校正）**：大纲 5.1 补半句（覆盖约束校正）；`make_splits.py` 增 `--strategy {constrained(默认),random}`（random 输出隔离到 `random_snapshot/`）、`refine_coverage` 最小确定性替换与 `coverage_swaps_seed*.txt` 替换清单；三种子 C1/C2 构造达标（预去重 495 池口径：替换 18/19/17 个，eval 合计 44/42/43；**去重后 448 池现行口径：替换 18/16/12 个，见 decisions §14**）；主种子 seed0（用途定位声明见 decisions §12）；`pytest` 25 通过。
 
 ## 一、项目总原则
 - 以大纲为准，旧脚本/旧手册冲突时以修订手册为准。
@@ -214,7 +214,7 @@
 - [x] 2026-09-06 二次复核：#14 消费窗口 3 跳论证保留（3→10 仅 5 例翻转且均为无关条件误报形态，代码注释说明）；全库核查 14741 函数行号齐全、0 个 line_start=0 节点、0 个 `call{`（0.7 语法）节点；手册 8.5 #5/#7 口径补注、8.7 二次复核注记
 - [x] 2026-09-06 8.8 验收全量执行通过（/tmp/m3_88_accept.py）：①窗口文本全库参照比对 mismatch=0；②581 `_feat.pt` shape(N,128)/有限值；③func 共享逐位一致 + simple_dao withdraw 节点向量互异；④合成缺失字段容错（位置回退 0.5、行宽=4+14+5+1+类别数、assemble (N,128)）；⑤先验 dropout 模式测试（eval 原值、训练期整图置零率 ≈0.2、M3 无实际 dropout 调用）；⑥结构特征 30 列全覆盖/无 NaN/s_v∈[0,1]；手册 8.8 全部勾选 + 8.7 执行注记
 - [x] 2026-09-07 M3/M4 第六轮审查（M4 代码无问题——detach 无实调用、无 s_v/prior/m1 引用、num_bases=5、22 用例回归 PASS）：M3 `classify_call_mode` 补内建转账指令兑底分支（ir `Transfer dest:`→transfer、`SEND dest:`→send，与 `node_has_ext_call` 兑底口径一致；当前全库 expression 均存在、防御性 0 影响——全量 581 `_feat.pt` 联合 sha1 修复前后一致 ZERO-DIFF CONFIRMED）；手册 8.4.2/8.7 多行窗口措辞修正（实际 s-1..e+1，与 8.8 验收一致）、8.6 结构特征 dropout 标注“未落地/M5 可选开关”；大纲无需改（4.3/4.4 协议文本与实现一致）
-- [ ] （后续可选）全量 `--variant no-prior / no-codebert`（消融时执行，复用 `_cb.pt` 秒级）
+- [x] （后续可选）~~全量 `--variant no-prior / no-codebert`（消融时执行，复用 `_cb.pt` 秒级）~~——已随前端化退役（2026-09-12）：特征消融在 `model.NodeFuser` 的 `AblationConfig` 内做，零重跑、无文件变体
 - [x] **2026-09-11 按大纲改II 4.3.3/4.3.2 复核（代码已完成）**
   - [x] 结构特征清单确认为 **18 项**（`改I` 的第 12 项 `s_v` 已移出清单；`s_v` 仍为独立输入通道，结构列宽 30 = 可见性4+布尔14+外呼5+位置1+IR6）
   - [x] 新增**四组分组消融支持**：基础结构组（1–8）/ 漏洞语义组（9–13）/ CALLBACK_RISK 辅助组（14–16）/ 位置与指令组（17–18）；`m3_build_features.py` 加 `--feat-groups all|base|base+sem`（输出 `_feat_grp-<group>.pt`，未选中列置 0、列宽不变，复用 `_cb.pt` 秒级）
@@ -247,7 +247,7 @@
 
 > **2026-09-11 按大纲改II 复核（下列项为新增/改动，未完成）：**
 > - **数据集**：外部测试集 SmartBugs → **DIVE**（MVD-HG 内容源自 MANDO、已含 SmartBugs，超集训练/子集测试构成污染）；主实验在 **MVD-HG 内部测试 + DIVE** 两设定评估；DIVE 只做一次性外部测试，不参与训练/验证/早停/阈值/模型选择；SolidiFI 只做层次二。
-> - **划分**：唯一合约**固定种子 8:1:1**；**验证+内部测试合计每类正样本 < 该类正样本总数的30% 则换种子重划**（2026-09-12 修订，原“val/内部测试 <20”；**A2 已落地：覆盖约束校正构造达标，替换 18/19/17 个**）；报告划分种子与每类样本数；**训练种子与划分种子分离**（不再要求 `iterative-stratification` 作主方案，仅留对照快照）。
+> - **划分**：唯一合约**固定种子 8:1:1**；**验证+内部测试合计每类正样本 < 该类正样本总数的30% 则换种子重划**（2026-09-12 修订，原“val/内部测试 <20”；**A2 已落地：覆盖约束校正构造达标，去重后替换 18/16/12 个**）；报告划分种子与每类样本数；**训练种子与划分种子分离**（不再要求 `iterative-stratification` 作主方案，仅留对照快照）。
 > - **日志字段**：`mask_mean/mask_std` → **`score_mean/score_std`**（大纲 4.5.1）。
 > - **消融**：按 5.4.1 必要消融（去 DFG_DEP/CFG_FLOW/AST_PARENT/CALLBACK_RISK、上限 4 vs 不限、去函数级 CodeBERT、去节点级 CodeBERT、meanpool、关闭 L_var、关闭先验 Dropout、结构特征分组）与 5.4.2 可选消融（CALLBACK_RISK_REV、L=1/2/3、num_bases、128/256、DropEdge、微调 CodeBERT）重排；`改I` 的“去 M1 先验 s_v / RGCN→GCN / 去回调特征 / 仅 s_v 排序 / 仅 RGCN 学重要性”不再列为必做。
 > - **推理输出**：新增 4.5.4 五项输出（$p_G$、$\hat y_G$、节点可疑度列表、TopK、可选 $G_{view}$）+ 可选梯度显著性指标。
@@ -259,7 +259,7 @@
   - 更新（2026-09-12 P1 两级池去重后，现行）：池 **448** / 划分 **358/45/45**（×3 种子）；C1+C2 7/7 达标；跨划分内容/地址重复均为 0
 - [x] M5 v5 审阅结论（2026-09-08，可行性判定见 `experiments/decisions.md` 第 0、9 节）
   - [x] 已确认：dataset/model 契约与 M4 输出一致；class-masked BCE 分母、按图 population `L_var`、单图 DropEdge、zero-positive 类和 split API 校验升级为硬性验收项
-  - [x] **先验 dropout 前置条件升级为必做**：训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）；原“后续可选”标注已过时
+  - [x] **先验 dropout 前置条件升级为必做**：~~训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）~~——**该方案已于 2026-09-12 前端化退役**：先验 dropout 改为 `model.NodeFuser` 内按图 Bernoulli(0.2) 置零（融合前），不再需要变体文件
   - [x] 补充项：外部基线（CodeBERT 序列、GCN/GAT 同构图，**改II 去掉 HGT**）需单独实现位置（建议 train.py/evaluate.py 开关或独立 baselines.py）；Slither 规则基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）
   - [x] 风险记录：**DIVE/SolidiFI 数据已就位（2026-09-11）**；层次二与 5.5.1 需先建类别映射表（SolidiFI 前缀→七类；DIVE 已剔除 Bad Randomness，7 维可直接用）；验证集可能仅约 50 图、低正样本类（4~6 个）对 macro-F1 敏感，按手册记录训练/验证差距
 - [ ] 文件组织（2026-09-08 v5：metrics/train/evaluate 与 CI smoke 仍待实现）
@@ -312,7 +312,7 @@
 
 ## 九、收尾与验收门槛
 - [ ] 全链路在 1 个样本上跑通
-- [ ] 关键中间产物齐全（均在 products/alldata/graphs/ 下）：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（MLP 后 h_v(0)）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
+- [ ] 关键中间产物齐全（均在 products/alldata/graphs/ 下）：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
 - [ ] 图结构字段完整，后续模块可直接消费
 - [ ] M1 结果与 M2 图结构一致
 - [ ] 训练可启动，且 validation loss / macro-F1 可观察
@@ -325,12 +325,12 @@
 0. ✅ **M2 CALLBACK_RISK 重做（已完成 2026-09-11）**：收窄外部调用节点（排除 2300-gas send/transfer 与 `Emit Transfer` 事件误报）→ 高置信定义 → `build`×2（hash 一致）→ `m1_runner --force` → `convert_pyg` → M3 `_feat.pt` → M4 22 用例回归（结果：509 边/85 图，**2026-09-12 R5 后 511 边/86 图**，详见第三节）
 1. M3 先对 1 个图实现双通道 CodeBERT、结构特征和 128 维 `x`
 2. 验证函数级向量共享、节点窗口差异、缺失字段容错及先验 dropout
-3. 批量生成 `_cb.pt` 与 `{safe}_feat.pt`（MLP 后的 128 维 h_v(0)；不写回 `_pyg.pt`；消融变体 --variant；**新增 `--feat-groups` 分组消融**）
+3. 批量生成 `_cb.pt` 与 `{safe}_feat.pt`（**schema v2 通道字典**；不写回 `_pyg.pt`；消融在 `model.NodeFuser` 的 `AblationConfig`——`--variant`/`--feat-groups` CLI 已随前端化退役，2026-09-12）
 4. M4 实现 RGCN 两层、`a_v` 可疑度读出、h2-based Readout（**已完成 2026-09-07**：model.py + 22 用例；L_var 在 M5）
 5. M5 顺序：dataset.py + metrics.py → make_splits.py（**固定种子 8:1:1 + 覆盖约束校正（C1/C2）**，含 splits.csv/split_report/coverage_swaps/metadata/unmatched）→ train.py 单种子（日志用 `score_mean/score_std`）→ evaluate.py 主实验（**MVD-HG 内部测试 + DIVE 外部测试**）→ 3 种子汇总 → 阶段 5 消融（5.4.1/5.4.2）/基线（eval_results/）
 
 ## 十一、文档与文件组织同步（2026-09-04 再设计）
-- [x] 项目组织架构.md：scripts/ 新增 dataset.py/metrics.py；_pyg.pt 只读、_feat.pt 语义锁死为 MLP 后的 h_v(0)、_feat_{variant}.pt 消融变体；runs/seedN/ 增 config.json
+- [x] 项目组织架构.md：scripts/ 新增 dataset.py/metrics.py；_pyg.pt 只读、_feat.pt 语义锁死为 schema v2 通道字典（融合在 model.NodeFuser，无变体文件，2026-09-12 前端化）；runs/seedN/ 增 config.json
 - [x] 论文开发手册.md：3.2 目录表、8.1/8.7（_feat.pt 语义、--only 验证入口、--variant 消融变体）、10.2（加载期一致性约束）、10.4（dataset/metrics 分层 + config.json）、12（新增 25/26）
 - [x] Todo_List.md：M3/M4/M5 文件组织与验证入口更新；新增“十二、详细代码修改方案”
 - [x] 大纲 docx：本次为代码文件组织调整，不涉及大纲规则/协议内容，无需改动（如后续需在大纲 5.x 补充产物目录说明再改）
@@ -338,20 +338,27 @@
 
 ## 十二、详细代码修改方案（M3/M4/M5 各文件，2026-09-04 定稿）
 
-> 原则：_pyg.pt 只读；_feat.pt 语义锁死（MLP 后的 128 维 h_v(0)）；数据/指标/训练分层；消融三层（边=dataset 零重跑，特征=M3 变体秒级，模型=开关）；每次运行落 config.json。
+> 原则：_pyg.pt 只读；_feat.pt 语义锁死（schema v2 通道字典，融合与掩码在 model.NodeFuser）；数据/指标/训练分层；消融三层（边=dataset 零重跑，特征=NodeFuser 通道级零重跑，模型=开关）；每次运行落 config.json。
 
 ### 12.1 scripts/m3_build_features.py（新建，M3）
+
+> **状态（2026-09-12）：本节旧设计（MLP 后 128 维 `_feat.pt` + 文件级变体）已随前端化退役**，
+> 以 `docs/M3_frontend_design.md`（已实施版）与手册 §8 为准：`_feat.pt` = schema v2 通道字典
+> （struct/type_id/sv + 逐通道 sha256），融合在 `model.NodeFuser`，无 `--variant`/`--feat-groups` CLI；
+> 2026-09-12 新增 `--categories`（跨数据集冻结 IR 字典，DIVE/SolidiFI 必须传主库 ir_cat.json）。
+> 以下旧函数契约仅存历史参考。
+
 - 函数契约：
   - `encode(text, tok, model, max_len) -> Tensor[768]`：手册 8.7 照抄（空文本返回 zeros(768)）
   - `build_node_window(lines, node, fn_start, fn_end) -> str`：手册 8.7 照抄
   - `build_struct_features(hetero, m1, src_lines) -> Tensor[N,S]`：8.5 的 18 项（缺失补 0，归一化位置补 0.5）
-  - `build_type_embedding(hetero) -> Tensor[N,64]`：8.3 九角色 nn.Embedding(9,64)
-  - `assemble_x(func_emb, node_emb, type_emb, struct, s_v, mlp) -> Tensor[N,128]`：拼接 `[h_cb_func; h_cb_node; type_emb; struct; s_v]` → `Linear(in,128)`；**输出即 h_v(0)，写 _feat.pt**
+  - ~~`build_type_embedding(hetero) -> Tensor[N,64]`~~（已移入 model.NodeFuser 可学习 Embedding）
+  - ~~`assemble_x(...)`~~（已删除；融合 = model.NodeFuser.proj）
 - 输出契约：
-  - `{safe}_cb.pt = {"func": {func_key: 768}, "node": {node_id: 768}}`
-  - `{safe}_feat.pt = Tensor[N,128]`（MLP 后，语义锁死）
-  - `--variant no-prior`：s_v 置 0 输入、同一 MLP → `{safe}_feat_no-prior.pt`；`--variant no-codebert`：去掉 CodeBERT 两通道 → `_feat_no-codebert.pt`；`--variant no-cb-func` / `no-cb-node`：分别去掉函数级 / 节点级通道（改II 5.4.1）。`--feat-groups all|base|base+sem`：未选中的结构特征列置 0（改II 4.3.3）→ `_feat_grp-<group>.pt`。均复用 `_cb.pt` 缓存（秒级）。
-- CLI：`--only <图前缀>`（单图验证，不跑全量）、`--in-dir/--out-dir/--m1-dir` 默认 products/alldata/graphs、`--variant`、`--feat-groups base|base+sem|all`（改II 四组结构特征分组消融）、`--force`
+  - `{safe}_cb.pt = {"func": {func_key: 768}, "node": {node_id: 768}}`（现行不变）
+  - ~~`{safe}_feat.pt = Tensor[N,128]`（MLP 后）~~（现行：schema v2 通道字典）
+  - ~~`--variant no-prior / no-codebert / no-cb-func / no-cb-node`、`--feat-groups`~~（已退役 → `model.AblationConfig` 的 `ablate_sv` / `cb_channels` / `feat_groups`）
+- CLI：`--only <图前缀>`、`--in-dir/--out-dir/--m1-dir`、`--force`、`--cb-patch`、**`--categories <冻结字典路径>`（2026-09-12 新增）**
 - 禁止：写回 `_pyg.pt`（验收：跑前后 `_pyg.pt` 的 hash 不变）
 
 ### 12.2 scripts/model.py（已完成，2026-09-07 v4 定稿）
@@ -393,37 +400,37 @@
 
 ### 12.6 scripts/train.py（新建，M5，v4）
 - 只 import：`model`、`dataset`、`metrics`、sklearn
-- CLI：`--seed 0 --epochs 200 --batch-size 32 --lr 1e-4 --weight-decay 1e-4 --scheduler-patience 3 --early-stop-patience 5 --drop-feat-edge 3 --feat-variant none --meanpool --conv gcn ...`（消融开关透传）
-- 启动断言：每个图 `x.shape[1]==128`（M3 未跑直接报错）
+- CLI：`--seed 0 --epochs 200 --batch-size 32 --lr 1e-4 --weight-decay 1e-4 --scheduler-patience 3 --early-stop-patience 5 --drop-edges 3 --drop-ast --meanpool --conv gcn --ablate-sv --cb-channels cb_node --feat-groups base ...`（消融开关透传；**2026-09-12 前端化后**：`--feat-variant`/`--drop-feat-edge` 退役，特征消融走 `model.AblationConfig`，边消融走 `dataset.Ablation` 的 `--drop-edges`/`--drop-ast`）
+- 启动断言：每个图通道契约通过（`dataset.load_graph` 的 schema/形状/哈希断言；M3 未跑或旧格式直接报错）
 - pos_weight：按训练集 `neg/pos` 截断 20；正样本为 0 的类用 class mask 从逐元素 BCE 的分子和分母中显式跳过，不传 `pos_weight=0`。
 - 损失：`l_cls + 1e-3*L_var`；`L_var` 按图计算 population `a.std(unbiased=False)` 且保留梯度，单节点图 std=0；AdamW + `clip_grad_norm_(1.0)`；使用 `ReduceLROnPlateau(mode=max, factor=0.5, patience=3)`。
-- 训练期以 0.2 概率按图切换到全量 `_feat_no-prior.pt`；验证/测试使用 `_feat.pt`。
-- 早停：验证 macro-F1 连续 5 epoch 不提升；每个 epoch 日志字段按 10.3（含 **`score_mean/score_std`**），并增加 `samples_processed/graphs_processed`；GPU 可用时增加 `gpu_mem_allocated`，CPU 写 null。
+- 训练期先验/结构 dropout：`model.sample_dropout_masks(G, prior_p=0.2, struct_p=0.2, generator)` 采样 `(G,)` 掩码 → 随 `batch` 传入 `NodeFuser`（融合前置零）；验证/测试不传掩码。
+- 早停：验证 **micro-F1** 连续 5 epoch 不提升（2026-09-12 主指标；macro-F1 同步记录作参考）；每个 epoch 日志字段按 10.3（含 **`score_mean/score_std`**），并增加 `samples_processed/graphs_processed`；GPU 可用时增加 `gpu_mem_allocated`，CPU 写 null。
 - 产物：`runs/seed{seed}/log.txt`（epoch JSONL）、`best.pt`、`last.pt`、`config.json`、`results.json`、`thresholds.json`（argparse+全部超参快照）；记录 `run_wall_seconds/data_load_seconds/train_seconds/validation_seconds/epoch_seconds_mean/graphs_per_second` 和硬件环境。`graphs_per_second=train_graphs/train_seconds`，只统计 optimizer loop；run 总耗时不重复写入每个 epoch 行。
 
 ### 12.7 scripts/evaluate.py（新建，M5，纯评估）
 - 只 import：`model`、`dataset`、`metrics`（不实现数据/指标逻辑）
 - 主实验（默认）：加载 `runs/seed*/best.pt` → 验证集阈值搜索 0.2~0.8/步长 0.05 选 best → **MVD-HG 内部测试**固定 0.5 与 best 双报告 → `runs/seedN/results.json` → 3 种子 `runs/summary.json`（均值±标准差）
 - **DIVE 外部测试（改II）**：一次性评估，不参与训练/验证/早停/阈值/模型选择；报告各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查；结果写 `eval_results/`
-- `--task ablation|baseline` → `eval_results/`（10.6；基线含 Slither 规则七维命中、CodeBERT 序列、GCN/GAT 同构图；**两种设定：MVD-HG 内部测试 + DIVE**）
+- `--task ablation|baseline` → `eval_results/`（10.6；基线含 Slither 规则七维命中、CodeBERT 序列、GCN/GAT 同构图——**实现提供 GCN（`conv_type="gcn"`）**，大纲 5.3 允许“GCN 或 GAT”二选一，GAT 需另行实现 RGAT；**两种设定：MVD-HG 内部测试 + DIVE**）
 - SolidiFI 层次二：$a_v/s_v/g_v$ 的 P@k/R@k/IoU（$g_v$ 按注入类别归属）+ “$a_v$ 增量覆盖节点”统计
 - 每类 P/R/F1、macro/micro-F1、mAP 用 `metrics.py`
 - 主阈值为验证集选择的单一全局阈值；per-class 阈值仅作补充报告；记录 support=0 和 AP 跳过类别；保存所有候选阈值及 tie 选择依据到 `runs/seedN/thresholds.json`。
 
 ### 12.8 消融映射（手册 10.6 / 大纲改II 5.4 → 实现位置）
 
-**5.4.1 必要消融（11 项）**
+**5.4.1 必要消融（11 项）**（**2026-09-12 前端化后实现位置**）
 
 | 消融变体 | 实现位置 |
 | --- | --- |
-| 去 DFG_DEP / CFG_FLOW / AST_PARENT / CALLBACK_RISK | dataset `--drop-feat-edge 3/0/1/4`（零重跑） |
-| CALLBACK_RISK 上限 4 vs 不限制 | 唯一重跑 M2 的变体（`build --callback-limit 0`） |
-| 去函数级 CodeBERT | M3 `--variant no-cb-func`（新增；复用 `_cb.pt` 的 `node` 通道） |
-| 去节点级局部 CodeBERT | M3 `--variant no-cb-node`（新增；复用 `_cb.pt` 的 `func` 通道） |
+| 去 DFG_DEP / CFG_FLOW / AST_PARENT / CALLBACK_RISK | dataset `--drop-edges 3/0/4`、`--drop-ast`（=删 relation 1+2；零重跑） |
+| CALLBACK_RISK 上限 4 vs 不限制 | 唯一重跑 M2 的变体（`build --callback-limit 0` + 下游同步） |
+| 去函数级 CodeBERT | model `AblationConfig(cb_channels=("cb_node",))`（通道级、零重跑） |
+| 去节点级局部 CodeBERT | model `AblationConfig(cb_channels=("cb_func",))`（同上） |
 | meanpooling 替换节点可疑度 $a_v$ 加权 | model.py `use_meanpool=True`（train 透传） |
 | 关闭 $L_{var}$ | train.py `--lambda-var 0` |
-| 关闭先验 Dropout | train.py `--no-prior-dropout` |
-| 节点结构特征分组消融 | M3 `--feat-groups base\|base+sem\|all`（新增；报告 (a)(b)(c) 与 0.3pp） |
+| 关闭先验 Dropout | train.py `--prior-dropout 0`（NodeFuser 掩码不采样） |
+| 节点结构特征分组消融 | model `AblationConfig(feat_groups=base\|base+sem\|all)`（报告 (a)(b)(c) 与 0.3pp） |
 
 **5.4.2 可选消融（6 项）**
 
@@ -431,21 +438,21 @@
 | --- | --- |
 | 添加 CALLBACK_RISK_REV | 重跑 M2 加反向边（`build --callback-rev`） |
 | RGCN 层数 L=1/2/3 | model.py `num_layers`（train 透传） |
-| num_bases 不同取值 | model.py `num_bases`（train 透传；默认=关系数） |
+| num_bases 不同取值 | model.py `num_bases`（train 透传；默认=关系数 5） |
 | 隐藏维度 128/256 | model.py `hid`（train 透传） |
 | DropEdge | M5 train（先单图 mask 再 batch；默认关） |
-| 微调 vs 冻结 CodeBERT | M3 微调分支 / M5 微调模式；评估 val macro-F1 |
+| 微调 vs 冻结 CodeBERT | M3 微调分支 / M5 微调模式；评估 val macro-F1（大纲 5.4.2 原文口径，未随主指标口径改动） |
 
 > **`改I` 独有、`改II` 5.4 已移出必做清单的变体**（可作补充分析，不计入主消融）：去 M1 先验 $s_v$（M3 `--variant no-prior`）、RGCN→GCN（model.py `conv_type="gcn"`，仅作 5.3 外部基线）、去外部调用回调相关特征（结构特征 2/3/12/13/16 置 0）、仅 $s_v$ 排序 / 仅 RGCN 学重要性（evaluate 排序分支 + model 开关）。
 
 ### 12.9 执行顺序（单步最小验证）
-> M5 正式决议（按大纲改II）：主划分用**固定种子 8:1:1 + 覆盖约束校正**（C1 验证+内部测试合计每类 ≥ 该类正样本总数的30%，C2 每划分每类 ≥1；2026-09-12 修订，原“每类 val/内部测试 ≥20”；不再用迭代分层作主方案）；零正类用 class mask 跳过逐元素 BCE；主阈值为验证集选择的全局单值并保存全扫描；L_var 按图使用 population std 并保留梯度；ReduceLROnPlateau 监控 val macro-F1；DropEdge 先单图 mask 再 batch；至少 3 个 seed；记录可比较的训练时间和吞吐；外部泛化只用 DIVE（一次性，不参与模型选择）。
+> M5 正式决议（按大纲改II）：主划分用**固定种子 8:1:1 + 覆盖约束校正**（C1 验证+内部测试合计每类 ≥ 该类正样本总数的30%，C2 每划分每类 ≥1；2026-09-12 修订，原“每类 val/内部测试 ≥20”；不再用迭代分层作主方案）；零正类用 class mask 跳过逐元素 BCE；主阈值为验证集选择的全局单值并保存全扫描；L_var 按图使用 population std 并保留梯度；ReduceLROnPlateau 监控 **val micro-F1**（2026-09-12 主指标口径，macro-F1 同步记录作参考）；DropEdge 先单图 mask 再 batch；至少 3 个 seed；记录可比较的训练时间和吞吐；外部泛化只用 DIVE（一次性，不参与模型选择）。
 
 M5 硬性验收：
 - [ ] 不凭 `asd_`/`nasd_` 前缀自动合并样本；support、**划分种子**与每类样本数写入 split 报告。
-- [x] 划分门槛（C1 合计 ≥30% + C2 每划分每类 ≥1）已由**覆盖约束校正**构造满足（2026-09-12）：三种子达标（替换 18/19/17 个合约；eval 合计 44/42/43；明细见 `coverage_swaps_seed*.txt`）。
+- [x] 划分门槛（C1 合计 ≥30% + C2 每划分每类 ≥1）已由**覆盖约束校正**构造满足（2026-09-12）：三种子达标（去重后替换 18/16/12 个合约；预去重 495 池口径 18/19/17 / eval 合计 44/42/43 见 decisions §12 历史记录；明细见 `coverage_swaps_seed*.txt`）。
 - [x] 主划分种子已定：**seed0**（论文主实验固定报告；seed1/2 稳健性复核；用途定位声明见 `experiments/decisions.md` §12）。
-- [ ] 训练期按图以 0.2 概率切换 `_feat_no-prior.pt`，验证/测试使用 `_feat.pt`。
+- [x] 训练期先验 dropout 按图以 0.2 概率置零已落地于 `model.NodeFuser`（融合前、仅训练期；`sample_dropout_masks` 采样，T1 无泄漏单测把守；不再需要 `_feat_no-prior.pt`，2026-09-12 前端化）。
 - [ ] `best.pt`、`last.pt`、`config.json`、`log.txt`、`results.json` 均生成，epoch 日志含 `score_mean/score_std`。
 - [ ] 每 epoch 记录 `lr`、`epoch_seconds`，每次运行记录阶段耗时和硬件环境。
 - [ ] DIVE 外部测试结果不参与任何模型选择；报告各类 PR-AUC 与全零子集每类 FPR。

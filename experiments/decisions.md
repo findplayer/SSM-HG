@@ -18,7 +18,9 @@ v5 的执行优先级是：先实现并测试数据划分与损失，再实现�
 
 ## 1. 数据划分
 
-- 主方案：多标签迭代分层，比例 8:1:1。
+> **状态（2026-09-12）：本节与 §9.3 已被 §11–§12–§14 取代。** 主方案改为「固定种子 8:1:1 + 覆盖约束校正（`--strategy constrained`）+ 两级池去重（`--dedup source-sha1+address`）」，迭代分层仅保留为对照快照；现行划分：池 448、358/45/45、替换 18/16/12。以下旧决议仅存历史参考。
+
+- 主方案：多标签迭代分层，比例 8:1:1。（**已废止**，见上）
 - 实现：固定版本的 `iterative-stratification`，记录包版本、算法版本、seed 和划分比例。
 - 样本单位：`dataset.build_index()` 产生的图前缀。不得仅凭 `asd_`/`nasd_` 前缀合并样本；若未来按内容哈希成对约束，必须作为独立实验报告。
 - 旧随机划分保留为可追溯对照，不作为主结果。
@@ -64,8 +66,8 @@ loss_cls = weighted.sum() / (batch_size * active_class_count)
 - 权重衰减：`1e-4`。
 - 梯度裁剪：`max_norm=1.0`。
 - 最大 epoch：`200`。
-- 学习率调度：`ReduceLROnPlateau(mode="max", factor=0.5, patience=3)`，监控验证集 macro-F1。
-- 早停：验证集 macro-F1 连续 5 个 epoch 不提升。
+- 学习率调度：`ReduceLROnPlateau(mode="max", factor=0.5, patience=3)`，监控验证集 **micro-F1**（2026-09-12 由 macro-F1 改，见 §13 第 2 条；macro-F1 同步记录作参考）。
+- 早停：验证集 **micro-F1** 连续 5 个 epoch 不提升（同上）。
 - DropEdge 默认关闭；启用时必须在单图上先生成 mask，再拼接 batch，并同步过滤 `edge_index` 和 `edge_type`。
 - DropEdge 启用时记录每图删除数量或比例；默认关闭不纳入主实验结论。
 - 先验 dropout（4.1.4）：**已改为模型内实现（2026-09-12 P1 前端化，已实施）**——`model.NodeFuser.forward`
@@ -75,7 +77,7 @@ loss_cls = weighted.sum() / (batch_size * active_class_count)
 
 ## 5. 阈值与评估
 
-- 主阈值：在验证集搜索全局单一阈值 `0.20, 0.25, ..., 0.80`，目标为 macro-F1。
+- 主阈值：在验证集搜索全局单一阈值 `0.20, 0.25, ..., 0.80`，目标为 **micro-F1**（2026-09-12 由 macro-F1 改，见 §13 第 2 条；macro-F1 同步记录作参考）。
 - 并列时选较小阈值，规则固定且偏向召回。
 - 测试集报告固定阈值 0.5 和验证集选择阈值两套结果。
 - per-class 阈值只作补充分析，不进入主结果。
@@ -118,9 +120,13 @@ M5 的目标是完成图级七类多标签分类的训练、验证、测试、�
 
 ### 9.2 当前实现差距
 
+> **状态（2026-09-12）：本节描述已过时。** `make_splits.py` 已按 §12/§14 实现（覆盖约束校正 + 两级去重，`--strategy constrained`），**不再需要** `iterative-stratification`（迭代分层仅作对照快照）；现行剩余差距仅 `metrics.py`、`train.py`、`evaluate.py` 与 M5 CI smoke。
+
 截至 v5 决议：`model.py`、`dataset.py` 和 M4 smoke 已完成；`make_splits.py` 当前仍使用随机划分，必须改为迭代分层；`metrics.py`、`train.py`、`evaluate.py` 和 M5 CI smoke 尚未完成。当前环境未安装 `iterative-stratification`，因此在依赖安装并通过 API 校验前不得生成新的主实验 split。
 
 ### 9.3 阶段 A：依赖与迭代分层
+
+> **状态（2026-09-12）：本阶段已被 §12（覆盖约束校正）与 §14（两级池去重）取代**，`iterative-stratification` 不再作为主方案依赖；以下旧计划仅存历史参考。
 
 修改 `scripts/make_splits.py`：
 
@@ -165,7 +171,7 @@ M5 的目标是完成图级七类多标签分类的训练、验证、测试、�
 **训练循环**
 
 - AdamW，lr=`1e-4`，weight decay=`1e-4`，梯度裁剪 max-norm=1.0，最多 200 epoch。
-- `ReduceLROnPlateau(mode="max", factor=0.5, patience=3)` 监控验证 macro-F1；连续 5 个 epoch 无提升早停。
+- `ReduceLROnPlateau(mode="max", factor=0.5, patience=3)` 监控验证 **micro-F1**（2026-09-12 由 macro-F1 改，见 §13）；连续 5 个 epoch 无提升早停。
 - 每 epoch 记录 JSONL：loss 三项、mask mean/std、val macro/micro-F1、lr、epoch_seconds、epoch/累计 graphs processed、samples processed、DropEdge 统计和 GPU memory（无 GPU 为 null）。
 - 用 `time.perf_counter()` 记录 `data_load_seconds`、`train_seconds`、`validation_seconds`、`run_wall_seconds`、平均 epoch 时间和 graphs/sec；`train_seconds` 仅含 optimizer loop。
 - 默认普通随机训练即可；`--deterministic` 开启完整确定性设置并写入 config，同时记录可能的性能代价，不把它强行设为主实验默认。
@@ -204,7 +210,9 @@ M5 v5 完成标准：主 split 由经 API 校验的迭代分层生成；单图�
 
 ## 10. v5 实施顺序
 
-1. 安装并校验 `iterative-stratification`，改造 `make_splits.py`，完成 split smoke。
+> **状态（2026-09-12）：第 1 步已废止**（`make_splits.py` 已按 §12/§14 实现，不再依赖 `iterative-stratification`）；第 2 步的 `_feat_no-prior.pt` 已随前端化退役（先验 dropout 在 `model.NodeFuser` 内实现）；其余步骤仍为 M5 执行顺序参考。
+
+1. ~~安装并校验 `iterative-stratification`，改造 `make_splits.py`，完成 split smoke。~~（已废止，见上）
 2. 生成 `_feat_no-prior.pt`，补齐 batch/DropEdge helper 及测试。
 3. 新建 `metrics.py`，实现 masked BCE、`L_var`、阈值扫描的纯函数测试。
 4. 实现 `train.py`，先 `--limit-graphs 1`，再单 seed 小规模运行。
@@ -245,6 +253,7 @@ M5 v5 完成标准：主 split 由经 API 校验的迭代分层生成；单图�
 
 - **主划分种子用途定位声明**：**seed0＝论文主实验与全部主结果的唯一划分**（固定报告；基线/消融默认使用 `split_seed0.json`/`splits.csv` 中 seed=0）；**seed1、seed2＝稳健性复核**（报告三种子均值±std，不单独作为主表结果；三者算法/约束/报告字段完全一致）；**`random_snapshot/`＝仅用于复现历史随机快照与对照分析**，不构成任何实验结果、不作为划分候选；划分算法或约束任何变更必须重跑 `make_splits.py` 并同步更新本声明。
 - **论文写作须知**：校正只换出全零合约、换入稀有类正样本，扰动约 3.4–3.8%，其余成员与随机基线一致；eval 的类别先验被人为抬高（≈43% vs 池 26%），须在论文“数据划分”小节明示；front_running/time_manipulation 的 eval 支撑仍仅 1–2（数据天花板），结合 DIVE 逐类 PR-AUC 报告。
+  - **P1 去重后口径（现行，2026-09-12 补）**：扰动 **18/16/12 个（占 448 的 4.0%/3.6%/2.7%）**；eval 正样本合计 42/41/41（占 eval 90 个的 ≈46.7%/45.6%/45.6%），**类别先验被抬高至 ≈46% vs 池 27.9%**——论文须用现行数字，引用预去重数字须注明口径。
 
 ---
 

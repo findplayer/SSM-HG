@@ -2,19 +2,23 @@
 # 自动为每个.sol文件检测pragma版本并切换solc版本，生成AST、CFG、DFG
 # 数据源：alldata(readonly)/alldata_sol_source（只读，勿改）
 # 输出：products/alldata/raw/{AST-raw,CFG-raw,DFG-raw}
+# 跨数据集复用（DIVE/SolidiFI，2026-09-12）：SRC_ROOT/AST_DIR/CFG_DIR/DFG_DIR/LOG_DIR/
+#   FILTER_REPORT 均可用同名环境变量覆盖（默认=主库）。DIVE 只处理抽样子集时，
+#   把抽样源文件拷入一个临时目录作 SRC_ROOT（详见手册 §10.2）。
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-# 输出目录（原始产物，供 build_cfg_centered_hetero_graph.py 消费）
-AST_DIR="$REPO_ROOT/products/alldata/raw/AST-raw"
-CFG_DIR="$REPO_ROOT/products/alldata/raw/CFG-raw"
-DFG_DIR="$REPO_ROOT/products/alldata/raw/DFG-raw"
+# 输出目录（原始产物，供 build_cfg_centered_hetero_graph.py 消费；环境变量可覆盖）
+AST_DIR="${AST_DIR:-$REPO_ROOT/products/alldata/raw/AST-raw}"
+CFG_DIR="${CFG_DIR:-$REPO_ROOT/products/alldata/raw/CFG-raw}"
+DFG_DIR="${DFG_DIR:-$REPO_ROOT/products/alldata/raw/DFG-raw}"
 
-# 源码根目录（只读数据源）
-SRC_ROOT="$REPO_ROOT/alldata(readonly)/alldata_sol_source"
+# 源码根目录（只读数据源；环境变量可覆盖，供 DIVE/SolidiFI 复用）
+SRC_ROOT="${SRC_ROOT:-$REPO_ROOT/alldata(readonly)/alldata_sol_source}"
 
-# 日志统一放 products/alldata/raw/logs/，不混入产物目录
-LOG_DIR="$REPO_ROOT/products/alldata/raw/logs"
+# 日志目录与过滤统计报告路径（环境变量可覆盖）
+LOG_DIR="${LOG_DIR:-$REPO_ROOT/products/alldata/raw/logs}"
+FILTER_REPORT="${FILTER_REPORT:-$REPO_ROOT/products/alldata/raw/filter_report.txt}"
 mkdir -p "$AST_DIR" "$CFG_DIR" "$DFG_DIR" "$LOG_DIR"
 
 # 日志
@@ -445,4 +449,4 @@ done < <(find "$SRC_ROOT" -name "*.sol" -print0)
         printf "no_satisfying_or_fallback_ratio=%.4f\n", nv/t;
       }'
   fi
-} > "$REPO_ROOT/products/alldata/raw/filter_report.txt"
+} > "$FILTER_REPORT"
