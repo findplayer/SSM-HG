@@ -481,7 +481,7 @@ _SOLC_VERSION_TOKEN_RE = re.compile(r"0\.(\d+)(?:\.\d+)?")
 def _resolve_source_path(meta: Any, json_path: str | Path | None) -> Path | None:
     """把 hetero meta.source_path 解析成存在的文件路径。
 
-    source_path 相对仓库根;json 文件位于 Heterogeneous graphs/ 下,
+    source_path 相对仓库根;json 文件位于 products/alldata/graphs/ 下,
     因此按 cwd、json 目录、json 上级目录三个基准依次尝试。
     """
     if not isinstance(meta, dict):

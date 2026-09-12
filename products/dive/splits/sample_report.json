@@ -1,0 +1,44 @@
+{
+ "dataset": "DIVE",
+ "protocol": {
+  "unit": "unique contract (DIVE/contract_labels.json entry)",
+  "mode": "uniform random, without replacement (no per-class quota)",
+  "seed": 0,
+  "n_main": 900,
+  "n_backstop": 1100,
+  "front_running_gate": 20,
+  "stopping_rule": "主抽 n=900；front_running<20 时 n 单调升至 1100 重抽一次；仍不足则记 report-only（如实报数）；禁止换 seed 重抽",
+  "authority": "experiments/decisions.md §13 第 5/10 条 + 论文开发手册.md 10.2 第 6 条"
+ },
+ "inputs": {
+  "label_file": "DIVE/contract_labels.json",
+  "label_count": 21696,
+  "label_file_sha256": "e4c6708d0f5c04715e1dd0a6ced26c6c9c0be705f5fba8a06850d4981f464060",
+  "source_files_present": 21696,
+  "missing_source_ids": [],
+  "missing_source_count": 0
+ },
+ "attempts": [
+  {
+   "attempt": 1,
+   "n": 900,
+   "per_class": {
+    "access_control": 682,
+    "arithmetic": 378,
+    "dos": 136,
+    "front_running": 30,
+    "reentrancy": 468,
+    "time_manipulation": 234,
+    "uncheck": 246
+   },
+   "multi_label": 614,
+   "all_zero": 105,
+   "multi_label_ratio": 0.6822,
+   "front_running_gate_ok": true
+  }
+ ],
+ "gate": "closed: n=900, front_running=30 (≥20)",
+ "output_sha256": "70d661767d1c0a6af321698013bfe0ed1769e39f8bab28eb1b75f40f909033ef",
+ "created_utc": "2026-09-12T07:45:28+00:00",
+ "selected_n": 900
+}

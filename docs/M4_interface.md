@@ -28,7 +28,7 @@
 
 | 输入 | 形状/类型 | 来源 | 说明 |
 | --- | --- | --- | --- |
-| `x` | `[N, 128]` float | M3 `*_feat.pt` | 唯一的模型输入特征（MLP 后的 `h_v^(0)`）。`_pyg.pt["x"]`（N×1 占位）**不使用、不回写**。 |
+| `x` | `[N, 128]` float | **`model.NodeFuser`**（输入为 M5 `load_graph` 的通道字典） | `x = NodeFuser(channels)`；`channels` 固定序 `(cb_func, cb_node, type_id, struct, sv)`，由 `_feat.pt`（schema v2）+ `_cb.pt` 组合。`_pyg.pt["x"]`（N×1 占位）**不使用、不回写**。置零类操作只能在 `NodeFuser` 的融合 Linear **之前**（见 `docs/M3_frontend_design.md` §3.2.1）。 |
 | `edge_index` | `[2, E]` long | M5 加载 `*_pyg.pt` | 有向边（源→目标）。 |
 | `edge_type` | `[E]` long | M5 加载 `*_pyg.pt` | 值域 `[0,5)`；GCN 分支忽略但不跳过校验。 |
 | `batch`（可选） | `[N]` long | M5 DataLoader | PyG 语义：`batch[i]` = 节点 i 所属图编号，0 起连续。`None` = 单图。 |

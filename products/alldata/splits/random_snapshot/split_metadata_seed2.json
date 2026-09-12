@@ -1,0 +1,40 @@
+{
+  "seed": 2,
+  "ratio": [
+    0.8,
+    0.1,
+    0.1
+  ],
+  "strategy": "random",
+  "constraints": {
+    "min_pos_ratio": 0.3,
+    "min_pos_per_split": 1
+  },
+  "algorithm": "random.Random(seed) 打乱 sorted(pool) 后顺序切片（旧随机快照，隔离输出，仅对照）",
+  "imports": [
+    "random.Random（stdlib）",
+    "math.ceil",
+    "dataset.build_index",
+    "dataset.is_buggy_project",
+    "dataset.project_of_base"
+  ],
+  "python_version": "3.11.3",
+  "created_utc": "2026-09-12T06:47:04+00:00",
+  "inputs": {
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+    "label_source": "/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json（经 dataset.build_index 合并为项目前缀并集）",
+    "n_pool": 495,
+    "n_buggy_excluded": 86,
+    "n_unmatched": 0,
+    "pool_digest_sha256": "3c7af7adf664ee4c073d8f4a3709a7cbe8a1322c9d6969174b045b219f24b6c1"
+  },
+  "outputs": {
+    "split_file": "split_seed2.json",
+    "sha256": "d4fb002f889695b9aff359c87ec5f5c88af1bdfeefce6936bc19597e0b285a3b",
+    "sizes": {
+      "train": 396,
+      "val": 50,
+      "test": 49
+    }
+  }
+}

@@ -1,8 +1,11 @@
 __pycache__/
 *.pyc
 slither-env/
-raw/
-Heterogeneous graphs/
+
+# 数据集产物：按数据集分区（products/<数据集>/），raw/ 与 graphs/ 体积大，不纳入版本管理
+# （products/*/splits/、products/*/mapping/ 等小文件仍纳入版本管理）
+products/**/raw/
+products/**/graphs/
 
 # 147 MB，超过 GitHub 单文件 100 MB 限制，仅保留在本地，不纳入版本管理
 DIVE/Code-based.csv

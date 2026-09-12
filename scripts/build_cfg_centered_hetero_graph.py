@@ -81,22 +81,22 @@ def parse_args():
     base = "/home/saumarez/projects/deep-learning/SSM-HG"
     parser.add_argument(
         "--ast-dir",
-        default=f"{base}/raw/AST-raw",
+        default=f"{base}/products/alldata/raw/AST-raw",
         help="Directory containing AST *.json files (output of generate_all_ast_cfg_dfg.sh).",
     )
     parser.add_argument(
         "--cfg-dir",
-        default=f"{base}/raw/CFG-raw",
+        default=f"{base}/products/alldata/raw/CFG-raw",
         help="Directory containing per-function CFG *.dot files.",
     )
     parser.add_argument(
         "--dfg-dir",
-        default=f"{base}/raw/DFG-raw",
+        default=f"{base}/products/alldata/raw/DFG-raw",
         help="Directory containing *_dfg.txt files.",
     )
     parser.add_argument(
         "--out-dir",
-        default=f"{base}/Heterogeneous graphs",
+        default=f"{base}/products/alldata/graphs",
         help="Directory to write *_hetero.json (and later *_m1.json / *_pyg.pt).",
     )
     parser.add_argument(
@@ -109,6 +109,11 @@ def parse_args():
         type=int,
         default=4,
         help="Max CALLBACK_RISK edges per external-call node (0 = unlimited).",
+    )
+    parser.add_argument(
+        "--only",
+        default=None,
+        help="只处理该 base 前缀（小样回归用，例如某张图的 `<项目>__<合约>`）。",
     )
     return parser.parse_args()
 
@@ -145,8 +150,40 @@ def offset_to_line_col(line_starts, offset):
     return line, col
 
 
+def normalize_ast(node):
+    """把 solc ≥0.8 风格 AST 归一成老式结构（`name`=节点类型 / `attributes` / `children`）。
+
+    背景（2026-09-12 R5）：`AST-raw/` 里有少数文件是 solc 0.8 风格——子节点键为 `nodes`、
+    属性直接放在节点顶层（`nodeType` / `visibility` / `stateVariable` …），而 `walk_ast`
+    只认 `children` / `attributes` → 这些图的合约/函数表整表为空（连带 AST 边、state_vars 缺失）。
+    处置：读入时归一化，下游（`walk_ast` 全链）无需任何分支。
+
+    **老式节点（含 `attributes` 或 `children` 键）原样返回**（同一对象、零改写），
+    保证既有 578 图的解析路径与产物逐位不变。新式节点：除 `nodes` 外的顶层键全部收进
+    `attributes`（含 `nodeType` 之外的原始 `name`，因此合约/函数名不会丢），节点类型写入
+    `name`（避免被 `walk_ast` 的 `node.get("name") or node.get("nodeType")` 当成类型）。
+    """
+    if not isinstance(node, dict):
+        return node
+    if "attributes" in node or "children" in node:
+        return node
+    attrs = {k: v for k, v in node.items() if k != "nodes"}
+    node_type = attrs.pop("nodeType", None) or attrs.get("name") or "UnknownNode"
+    return {
+        "id": node.get("id"),
+        "name": node_type,
+        "src": node.get("src"),
+        "attributes": attrs,
+        "children": [normalize_ast(child) for child in (node.get("nodes") or [])],
+    }
+
+
 def load_ast(ast_path):
-    """读 combined-json AST 文件，返回 (AST 根, 源文件名, sourceKey)。"""
+    """读 combined-json AST 文件，返回 (AST 根, 源文件名, sourceKey)。
+
+    兼容老式（`name`+`attributes`+`children`）与新式（`nodeType`+顶层属性+`nodes`）两种
+    solc AST 风格：新式根先经 `normalize_ast` 归一，老式根原样返回。
+    """
     with open(ast_path, "r", encoding="utf-8") as handle:
         data = json.load(handle)
     sources = data.get("sources", {})
@@ -154,6 +191,7 @@ def load_ast(ast_path):
         return None, None, None
     source_key = next(iter(sources.keys()))
     ast_root = sources[source_key].get("AST")
+    ast_root = normalize_ast(ast_root) if ast_root else ast_root
     source_list = data.get("sourceList") or []
     source_name = source_list[0] if source_list else None
     if not source_name:
@@ -225,7 +263,11 @@ def walk_ast(ast_root):
             fn_name = raw_name
             if kind in ("fallback", "receive"):
                 fn_name = kind
-            elif raw_name == "" and not is_constructor:
+            elif raw_name == "" and not is_constructor and kind != "constructor":
+                # 新式 AST（solc ≥0.8）里显式构造函数的 name 为空、kind="constructor"，
+                # 不能被误判成 fallback（否则函数表键与 CFG 请求键 (合约,"constructor") 对不上；
+                # 2026-09-12 R5 修复）。老式 AST 无此组合（`function Ownable()` 走 isConstructor
+                # 或 raw_name==contract_name），故该分支对既有 578 图是零行为变化。
                 fn_name = "fallback"
             elif kind == "constructor" or is_constructor or (raw_name and raw_name == contract_name):
                 fn_name = "constructor"
@@ -935,7 +977,7 @@ def build_callback_risk_edges(nodes, cfg_edges, fn_table, state_vars, callback_l
 
 
 def main():
-    """主流程：逐 AST 文件构建 CFG 中心异构图，写入 Heterogeneous graphs/。
+    """主流程：逐 AST 文件构建 CFG 中心异构图，写入 products/alldata/graphs/。
 
     CFG 来源优先 cfgdetail（含 seq/true/false 分支类型），缺失回退 dot 解析。
     """
@@ -943,6 +985,8 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
 
     ast_paths = sorted(Path(args.ast_dir).glob("*.json"))
+    if args.only:
+        ast_paths = [p for p in ast_paths if p.stem == args.only]
     skipped_no_cfg = 0
     for ast_path in ast_paths:
         base = ast_path.stem
@@ -1003,7 +1047,76 @@ def main():
                     "start_line": start_line,
                     "end_line": end_line,
                 }
-        functions_out = list(fn_table.values())
+        # 节点元信息（function_visibility / function_mutability）必须用**补登记前**的表：
+        # 补登记只服务函数级 CodeBERT 通道，不得顺带改写节点字段（否则 M3 结构特征一起变，
+        # 超出本次“函数级通道缺口”的口径；小样已实测 nodes/edges 逐字段不变）。
+        fn_meta_table = dict(fn_table)
+        #   ① 继承函数在 Slither 里归到**派生合约**（如 InvictusWhitelist._transferOwnership，
+        #      而 AST 表按定义处记为 Ownable._transferOwnership）→ 同名条目存在、仅限定符不同；
+        #   ② modifier 体节点（onlyOwner…）在 AST 表里不存在（walk_ast 只收 FunctionDefinition）；
+        #   ③ 老式继承构造函数（`function Ownable() public`）→ 请求名是基合约名，AST 表记 constructor
+        #      （详细依据见下方规则 ③ 的注释）。
+        # 实测（修复前）：93551 节点中 35195 行（37.6%）取不到函数键 → 函数级 CodeBERT 通道为零向量。
+        # 处置：**只为函数表补登记**（nodes/edges/其它 meta 一律不动），使 M3 能取到「所属函数 /
+        # 修饰符」的完整源码（大纲 4.3.2(1)）；补不到的键计数入 meta，不静默。
+        reconciled = {"alias": 0, "legacy_ctor": 0, "modifier": 0,
+                      "unmatched": 0, "unmatched_keys": []}
+        if cfg_functions:
+            modifier_defs: dict[tuple[str, str], object] = {}
+            for ast_node in ast_nodes.values():          # ast_nodes 为 {id: node} 字典
+                if ast_node.get("type") == "ModifierDefinition":
+                    mod_name = (ast_node.get("attributes") or {}).get("name")
+                    if mod_name:
+                        modifier_defs.setdefault((ast_node.get("contract"), mod_name),
+                                                 ast_node.get("src"))
+            # 本文件声明的合约名（老式继承构造函数判定用，见下方规则 ③）
+            contract_names = {c.get("name") for c in contracts if c.get("name")}
+            requested = {(f["contract"], normalize_function_name(f["function"], f["contract"]))
+                         for f in cfg_functions}
+            for key in sorted(requested):
+                if key in fn_table:
+                    continue
+                name = key[1]
+                same = next((v for k, v in fn_table.items() if k[1] == name), None)
+                if same is not None:
+                    fn_table[key] = dict(same, contract=key[0])
+                    reconciled["alias"] += 1
+                    continue
+                #   ③ 老式继承构造函数（2026-09-12 定论，R2）：0.4.x 的 `function Ownable() public {}`
+                #      被派生合约继承时，Slither 的 CFG 用**基合约名**当函数名 → 节点键形如
+                #      `(派生合约, 基合约名)`；而 walk_ast 见 raw_name == 所在合约名 → 记作
+                #      `(基合约, "constructor")`，两键不同名 → 原来的同名 alias 规则抓不到。
+                #      实测依据（三例）：MintableToken.Ownable → 节点行 378-380 正是 `contract
+                #      Ownable`（370 行）内的 `function Ownable() {`（378 行）；MyAdvancedToken.token
+                #      → `contract token` 的 `function token(...)`；SaleClockAuction.ClockAuction →
+                #      `contract ClockAuction` 的 `function ClockAuction(...)`。残留 `function` 类
+                #      73 键中 69 键（240 行）属此类（另 4 键见 residual_gaps.md R5）。
+                #      规则：请求名 N 是本文件声明的合约名，且 (N, "constructor") 在表中 → 别名。
+                #      注意必须**同时改写 `function` 字段**为请求名 N：只改 `contract` 的话，条目的
+                #      键仍是 (派生合约, "constructor")，既救不了请求键，还会与既有的 constructor
+                #      条目撞键、悄悄改掉它的源码窗口（2026-09-12 实测踩到，也解释了上一轮「产出
+                #      102 条别名但 0 命中」：当时正是只改了 `contract`）。
+                if (name in contract_names
+                        and (name, "constructor") in fn_table
+                        and fn_table[(name, "constructor")].get("kind") == "constructor"):
+                    fn_table[key] = dict(fn_table[(name, "constructor")],
+                                         contract=key[0], function=name)
+                    reconciled["legacy_ctor"] += 1
+                    continue
+                span = next((v for k, v in modifier_defs.items() if k[1] == name), None)
+                if span is None:
+                    reconciled["unmatched"] += 1
+                    reconciled["unmatched_keys"].append(f"{key[0]}.{key[1]}")
+                    continue
+                start_line = end_line = None
+                if span:
+                    start_line, _ = offset_to_line_col(line_starts, span[0])
+                    end_line, _ = offset_to_line_col(line_starts, max(span[1] - 1, span[0]))
+                fn_table[key] = {"contract": key[0], "function": name, "visibility": None,
+                                 "stateMutability": None, "kind": "modifier",
+                                 "start_line": start_line, "end_line": end_line}
+                reconciled["modifier"] += 1
+            functions_out = list(fn_table.values())
 
         nodes = []
         cfg_edges = set()
@@ -1043,7 +1156,7 @@ def main():
                         line_end, _ = offset_to_line_col(line_starts, max(span[1] - 1, span[0]))
                     if expr and span is None:
                         expr_span_missing += 1
-                    fn_meta = fn_table.get((contract_name, func_name)) or {}
+                    fn_meta = fn_meta_table.get((contract_name, func_name)) or {}
                     node = {
                         "id": global_id,
                         "cfg_node_type": nd.get("cfg_node_type"),
@@ -1138,7 +1251,7 @@ def main():
         )
 
         callback_edges, callback_truncated, ext_call_node_count = build_callback_risk_edges(
-            nodes, cfg_edges, fn_table, state_vars, args.callback_limit
+            nodes, cfg_edges, fn_meta_table, state_vars, args.callback_limit
         )
         callback_edge_counts = defaultdict(int)
         for src, _ in callback_edges:
@@ -1176,6 +1289,11 @@ def main():
                 "callback_max_edges": callback_max_edges,
                 "callback_avg_edges": callback_avg_edges,
                 "callback_truncated_candidates": callback_truncated,
+                "functions_reconciled_alias": reconciled["alias"],
+                "functions_reconciled_legacy_ctor": reconciled["legacy_ctor"],
+                "functions_reconciled_modifier": reconciled["modifier"],
+                "functions_unmatched": reconciled["unmatched"],
+                "functions_unmatched_keys": reconciled["unmatched_keys"][:50],
             },
             "functions": functions_out,
             "nodes": nodes,

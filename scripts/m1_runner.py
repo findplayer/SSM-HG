@@ -35,17 +35,17 @@ from priori_scoring import (
 
 
 def parse_args() -> argparse.Namespace:
-    """解析 CLI 参数：--in-dir/--out-dir（默认 Heterogeneous graphs）、--pattern、--force。"""
+    """解析 CLI 参数：--in-dir/--out-dir（默认 products/alldata/graphs）、--pattern、--force。"""
     parser = argparse.ArgumentParser(description="Batch run M1 anchor detection on *_hetero.json files.")
     base = "/home/saumarez/projects/deep-learning/SSM-HG"
     parser.add_argument(
         "--in-dir",
-        default=f"{base}/Heterogeneous graphs",
+        default=f"{base}/products/alldata/graphs",
         help="Directory containing *_hetero.json files.",
     )
     parser.add_argument(
         "--out-dir",
-        default=f"{base}/Heterogeneous graphs",
+        default=f"{base}/products/alldata/graphs",
         help="Directory where M1 JSON outputs (*_m1.json) will be written (same dir by default).",
     )
     parser.add_argument(

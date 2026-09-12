@@ -1,20 +1,20 @@
 #!/bin/bash
 # 自动为每个.sol文件检测pragma版本并切换solc版本，生成AST、CFG、DFG
 # 数据源：alldata(readonly)/alldata_sol_source（只读，勿改）
-# 输出：raw/AST-raw、raw/CFG-raw、raw/DFG-raw
+# 输出：products/alldata/raw/{AST-raw,CFG-raw,DFG-raw}
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # 输出目录（原始产物，供 build_cfg_centered_hetero_graph.py 消费）
-AST_DIR="$REPO_ROOT/raw/AST-raw"
-CFG_DIR="$REPO_ROOT/raw/CFG-raw"
-DFG_DIR="$REPO_ROOT/raw/DFG-raw"
+AST_DIR="$REPO_ROOT/products/alldata/raw/AST-raw"
+CFG_DIR="$REPO_ROOT/products/alldata/raw/CFG-raw"
+DFG_DIR="$REPO_ROOT/products/alldata/raw/DFG-raw"
 
 # 源码根目录（只读数据源）
 SRC_ROOT="$REPO_ROOT/alldata(readonly)/alldata_sol_source"
 
-# 日志统一放 raw/logs/，不混入产物目录
-LOG_DIR="$REPO_ROOT/raw/logs"
+# 日志统一放 products/alldata/raw/logs/，不混入产物目录
+LOG_DIR="$REPO_ROOT/products/alldata/raw/logs"
 mkdir -p "$AST_DIR" "$CFG_DIR" "$DFG_DIR" "$LOG_DIR"
 
 # 日志
@@ -249,7 +249,7 @@ PY
   printf '%s\n%s\n' "$workdir" "$source_basename"
 }
 
-# 过滤统计（写入 raw/filter_report.txt，大纲 4.1.1 透明性声明）
+# 过滤统计（写入 products/alldata/raw/filter_report.txt，大纲 4.1.1 透明性声明）
 total_files=0
 ast_fail_count=0
 cfg_fail_count=0
@@ -445,4 +445,4 @@ done < <(find "$SRC_ROOT" -name "*.sol" -print0)
         printf "no_satisfying_or_fallback_ratio=%.4f\n", nv/t;
       }'
   fi
-} > "$REPO_ROOT/raw/filter_report.txt"
+} > "$REPO_ROOT/products/alldata/raw/filter_report.txt"

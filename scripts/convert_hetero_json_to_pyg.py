@@ -7,17 +7,17 @@ import torch
 
 
 def parse_args():
-    """解析 CLI 参数：--in-dir/--out-dir（默认均为 Heterogeneous graphs）。"""
+    """解析 CLI 参数：--in-dir/--out-dir（默认均为 products/alldata/graphs）。"""
     parser = argparse.ArgumentParser(description="Batch convert hetero JSON graphs to PyG dict files (*_pyg.pt).")
     base = "/home/saumarez/projects/deep-learning/SSM-HG"
     parser.add_argument(
         "--in-dir",
-        default=f"{base}/Heterogeneous graphs",
+        default=f"{base}/products/alldata/graphs",
         help="Directory containing *_hetero.json files.",
     )
     parser.add_argument(
         "--out-dir",
-        default=f"{base}/Heterogeneous graphs",
+        default=f"{base}/products/alldata/graphs",
         help="Directory to write .pt PyG files (same dir as *_hetero.json by default).",
     )
     return parser.parse_args()

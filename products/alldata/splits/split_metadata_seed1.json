@@ -1,0 +1,62 @@
+{
+  "seed": 1,
+  "ratio": [
+    0.8,
+    0.1,
+    0.1
+  ],
+  "strategy": "constrained",
+  "constraints": {
+    "min_pos_ratio": 0.3,
+    "min_pos_per_split": 1
+  },
+  "dedup": {
+    "mode": "source-sha1+address",
+    "pool_before_dedup": 495,
+    "pool_after_dedup": 448,
+    "dropped_count": 47,
+    "levels": {
+      "source-sha1": {
+        "groups": 449,
+        "duplicate_groups": 46,
+        "dropped": 46
+      },
+      "address": {
+        "groups": 448,
+        "duplicate_groups": 1,
+        "dropped": 1
+      }
+    },
+    "rule": "按唯一标识（源码 sha1 → 项目标识/地址）分组，同组保留相对源码路径字典序首个"
+  },
+  "algorithm": "固定种子基线：random.Random(seed) 打乱 sorted(pool) 后顺序切（n_train=round(N·r0)，n_val=round(N·r1)）；覆盖约束校正：缺口按（池内正样本数升序，类序）处理，换入=train 顺序首个该类正样本携带者，换出=目标划分尾部首个全零合约，放置入选该类较少一侧（平局→val）；完全确定性，同环境同 seed 可复现",
+  "imports": [
+    "random.Random（stdlib）",
+    "math.ceil",
+    "dataset.build_index",
+    "dataset.is_buggy_project",
+    "dataset.project_of_base",
+    "hashlib.sha1（源码内容去重）"
+  ],
+  "python_version": "3.11.3",
+  "created_utc": "2026-09-12T07:50:49+00:00",
+  "inputs": {
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+    "label_source": "/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json（经 dataset.build_index 合并为项目前缀并集）",
+    "n_pool": 448,
+    "n_pool_before_dedup": 495,
+    "n_dedup_dropped": 47,
+    "n_buggy_excluded": 86,
+    "n_unmatched": 0,
+    "pool_digest_sha256": "e4a30ca4ae5ab44f1baba2c4f51f3f96cc383f963c9c664694d8a7ccbd2dd060"
+  },
+  "outputs": {
+    "split_file": "split_seed1.json",
+    "sha256": "060fb038bc22efb3a9a4e262e85d2878e82d99d0c565943c6dc939f9c0133203",
+    "sizes": {
+      "train": 358,
+      "val": 45,
+      "test": 45
+    }
+  }
+}

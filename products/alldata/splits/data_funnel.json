@@ -1,0 +1,1137 @@
+{
+ "meta": {
+  "created_utc": "2026-09-12T11:41:48+00:00",
+  "buggy": 86,
+  "steps": [
+   {
+    "stage": "上游 MVD-HG-dataset",
+    "name": "类别文件夹 .sol 记录数（含跨类别重复）",
+    "value": 846,
+    "source": "MVD-HG-dataset/*_contract/sol_source/**/*.sol",
+    "command": "find MVD-HG-dataset/*_contract/sol_source -name \"*.sol\" | wc -l",
+    "note": "逐类：{'access_control_contract': 114, 'arithmetic_contract': 120, 'dos_contract': 92, 'front_running_contract': 88, 'reentrancy_contract': 142, 'time_manipulation_contract': 100, 'uncheck_contract': 190}；注：上游仓库不作数据集用（只读参考）"
+   },
+   {
+    "stage": "上游 MVD-HG-dataset",
+    "name": "唯一（项目目录, 文件名）对",
+    "value": 591,
+    "source": "MVD-HG-dataset/*_contract/sol_source/*/*.sol",
+    "command": "",
+    "note": "846 去掉跨类别重复收录后的文件数"
+   },
+   {
+    "stage": "上游 MVD-HG-dataset",
+    "name": "差额：跨类别重复收录次数",
+    "value": 255,
+    "source": "同上一行",
+    "command": "",
+    "note": "846 - 591 = 255；这是**计数重复**，不是文件丢失"
+   },
+   {
+    "stage": "上游 MVD-HG-dataset",
+    "name": "唯一项目目录数 / 唯一地址数",
+    "value": {
+     "dirs": 591,
+     "addresses": 499,
+     "dual_prefix_dirs": 92
+    },
+    "source": "MVD-HG-dataset/*_contract/sol_source/<项目目录>",
+    "command": "",
+    "note": "目录名前缀分布：{'asd': 404, 'nasd': 442}；差额 = 同一地址同时存在 asd_/nasd_ 两份目录"
+   },
+   {
+    "stage": "上游 MVD-HG-dataset",
+    "name": "唯一源码内容 sha1 数",
+    "value": 743,
+    "source": "对 846 份副本逐一 sha1",
+    "command": "",
+    "note": "内容不一致的同名副本组数 85（全部位于 buggy_* 项目：85）；非 buggy 副本内容完全一致"
+   },
+   {
+    "stage": "上游 MVD-HG-dataset",
+    "name": "同一文件被 k 个类别文件夹收录的分布",
+    "value": {
+     "1": 456,
+     "2": 55,
+     "3": 40,
+     "4": 40
+    },
+    "source": "MVD-HG-dataset/*_contract/sol_source",
+    "command": "",
+    "note": "Σ(k-1)×count = 255，即差额 255 的全部构成（无其它去向）"
+   },
+   {
+    "stage": "主库 alldata",
+    "name": "源码文件数",
+    "value": 591,
+    "source": "alldata(readonly)/alldata_sol_source/*/*.sol",
+    "command": "find \"alldata(readonly)/alldata_sol_source\" -name \"*.sol\" | wc -l",
+    "note": "= 上游唯一（项目目录, 文件名）对；目录数 591（含 asd_/nasd_ 双前缀副本）"
+   },
+   {
+    "stage": "主库 alldata",
+    "name": "标签条目数（合约定义级）",
+    "value": 2002,
+    "source": "alldata(readonly)/contract_labels.json",
+    "command": "",
+    "note": "一个 .sol 内的多个合约定义各占一条（这正是 2002 的来源）"
+   },
+   {
+    "stage": "主库 alldata",
+    "name": "标签条目中正样本条数（≥1 类）",
+    "value": 257,
+    "source": "alldata(readonly)/contract_labels.json",
+    "command": "",
+    "note": ""
+   },
+   {
+    "stage": "主库 alldata",
+    "name": "标签条目中多标签条数（≥2 类）",
+    "value": 123,
+    "source": "alldata(readonly)/contract_labels.json",
+    "command": "",
+    "note": "大纲 5.1 写的 681 与本数字不符，论文以大数字为准（口径须改写）"
+   },
+   {
+    "stage": "主库 alldata",
+    "name": "逐类正样本条目数",
+    "value": {
+     "access_control": 123,
+     "arithmetic": 138,
+     "dos": 112,
+     "front_running": 110,
+     "reentrancy": 137,
+     "time_manipulation": 128,
+     "uncheck": 179
+    },
+    "source": "alldata(readonly)/contract_labels.json",
+    "command": "",
+    "note": "与 MVD-HG-dataset/<类>_contract/contract_labels.json 逐类 diff=0（脚本内校验）"
+   },
+   {
+    "stage": "主库 alldata",
+    "name": "主标签文件 vs 七类单类文件 差异条目数",
+    "value": 0,
+    "source": "alldata(readonly)/contract_labels.json ↔ MVD-HG-dataset/*_contract/contract_labels.json",
+    "command": "",
+    "note": "0 = 主标签文件是七类单类文件的并集，自洽"
+   },
+   {
+    "stage": "主库→图",
+    "name": "源码文件数（上一阶段）",
+    "value": 591,
+    "source": "products/alldata/raw/filter_report.txt",
+    "command": "bash scripts/generate_all_ast_cfg_dfg.sh",
+    "note": ""
+   },
+   {
+    "stage": "主库→图",
+    "name": "过滤：assembly>50 行",
+    "value": 1,
+    "source": "products/alldata/raw/filter_report.txt",
+    "command": "",
+    "note": ""
+   },
+   {
+    "stage": "主库→图",
+    "name": "过滤：delegatecall 动态绑定",
+    "value": 9,
+    "source": "products/alldata/raw/filter_report.txt",
+    "command": "",
+    "note": ""
+   },
+   {
+    "stage": "主库→图",
+    "name": "解析失败（AST/CFG/DFG/cfgdetail）",
+    "value": {
+     "ast_failed": 0,
+     "cfg_failed": 0,
+     "dfg_failed": 0,
+     "cfgdetail_failed": 0
+    },
+    "source": "products/alldata/raw/filter_report.txt",
+    "command": "",
+    "note": "591 - 1(assembly) - 9(delegatecall) = 581 = 已生成图数，无解析失败"
+   },
+   {
+    "stage": "图",
+    "name": "已生成异构图数",
+    "value": 581,
+    "source": "products/alldata/graphs/*_pyg.pt（经 scripts/dataset.py::build_index）",
+    "command": "python scripts/dataset.py --check <base>",
+    "note": ""
+   },
+   {
+    "stage": "图→划分",
+    "name": "标签匹配失败（未进入划分）图数",
+    "value": 0,
+    "source": "products/alldata/splits/unmatched_contracts.txt",
+    "command": "python scripts/make_splits.py",
+    "note": ""
+   },
+   {
+    "stage": "图→划分",
+    "name": "剔除 buggy_* 注入噪声项目图数",
+    "value": 86,
+    "source": "products/alldata/splits/split_report.json",
+    "command": "",
+    "note": "581 - 86 = 495；该剔除为实验室决策（大纲 5.1 未列），须在论文说明"
+   },
+   {
+    "stage": "图→划分",
+    "name": "池去重 level-1：源码内容 sha1 相同（同一份源码的副本）",
+    "value": {
+     "dropped": 46,
+     "groups": 46
+    },
+    "source": "products/alldata/splits/split_report.json::dedup",
+    "command": "python scripts/make_splits.py",
+    "note": "495 - 46 = 449"
+   },
+   {
+    "stage": "图→划分",
+    "name": "池去重 level-2：项目标识/地址相同（同合约的另一份源码，字节可能不同）",
+    "value": {
+     "dropped": 1,
+     "groups": 1
+    },
+    "source": "products/alldata/splits/split_report.json::dedup",
+    "command": "",
+    "note": "449 - 1 = 448；该组即全库唯一多标签样本（0x627fa62c…：1847 vs 1842 字节），sha1 抓不到，seed0 下曾被拆到 train/val——去重的实质收益在此"
+   },
+   {
+    "stage": "图→划分",
+    "name": "划分池样本数",
+    "value": 448,
+    "source": "products/alldata/splits/split_seed{0,1,2}.json",
+    "command": "",
+    "note": "样本单位 = 源文件（唯一标识 = 源码哈希 → 项目标识），非合约定义级"
+   },
+   {
+    "stage": "图→划分",
+    "name": "seed0 划分规模",
+    "value": {
+     "train": 358,
+     "val": 45,
+     "test": 45
+    },
+    "source": "products/alldata/splits/split_seed0.json",
+    "command": "python scripts/make_splits.py",
+    "note": "覆盖校正替换 18 个（下限修正 1）；C1+C2 7/7 类达标"
+   },
+   {
+    "stage": "图→划分",
+    "name": "seed1 划分规模",
+    "value": {
+     "train": 358,
+     "val": 45,
+     "test": 45
+    },
+    "source": "products/alldata/splits/split_seed1.json",
+    "command": "python scripts/make_splits.py",
+    "note": "覆盖校正替换 16 个（下限修正 0）；C1+C2 7/7 类达标"
+   },
+   {
+    "stage": "图→划分",
+    "name": "seed2 划分规模",
+    "value": {
+     "train": 358,
+     "val": 45,
+     "test": 45
+    },
+    "source": "products/alldata/splits/split_seed2.json",
+    "command": "python scripts/make_splits.py",
+    "note": "覆盖校正替换 12 个（下限修正 0）；C1+C2 7/7 类达标"
+   },
+   {
+    "stage": "池内标签",
+    "name": "全量图（581）标签分布",
+    "value": {
+     "n": 581,
+     "pos": 212,
+     "zero": 369,
+     "multi": 88,
+     "per_class_pos": {
+      "access_control": 91,
+      "arithmetic": 101,
+      "dos": 82,
+      "front_running": 80,
+      "reentrancy": 108,
+      "time_manipulation": 91,
+      "uncheck": 137
+     }
+    },
+    "source": "products/alldata/graphs/*_pyg.pt + alldata(readonly)/contract_labels.json",
+    "command": "",
+    "note": ""
+   },
+   {
+    "stage": "池内标签",
+    "name": "划分池（448）标签分布",
+    "value": {
+     "n": 448,
+     "pos": 125,
+     "zero": 323,
+     "multi": 1,
+     "per_class_pos": {
+      "access_control": 15,
+      "arithmetic": 15,
+      "dos": 6,
+      "front_running": 4,
+      "reentrancy": 31,
+      "time_manipulation": 5,
+      "uncheck": 50
+     }
+    },
+    "source": "同上",
+    "command": "",
+    "note": "逐类支撑决定宏平均是否可用（见 decisions §13）"
+   },
+   {
+    "stage": "图→划分",
+    "name": "去重不变量（同 sha1 / 同地址不得跨划分，逐种子）",
+    "value": {
+     "0": {
+      "content_ok": true,
+      "address_ok": true,
+      "content_cross": 0,
+      "address_cross": 0
+     },
+     "1": {
+      "content_ok": true,
+      "address_ok": true,
+      "content_cross": 0,
+      "address_cross": 0
+     },
+     "2": {
+      "content_ok": true,
+      "address_ok": true,
+      "content_cross": 0,
+      "address_cross": 0
+     }
+    },
+    "source": "products/alldata/splits/split_report.json::rule_check",
+    "command": "python scripts/make_splits.py",
+    "note": "全 0 = 大纲 5.1「同一合约及其所有重复记录不跨划分」已构造性保证"
+   },
+   {
+    "stage": "DIVE 外部测试",
+    "name": "标签条目数 / 多标签条数 / 全零条数",
+    "value": {
+     "n": 21696,
+     "multi": 14789,
+     "zero": 2686
+    },
+    "source": "DIVE/contract_labels.json",
+    "command": "",
+    "note": "多标签占比 68.2% → 外部测试可支撑「多类共存」的实证"
+   },
+   {
+    "stage": "DIVE 外部测试",
+    "name": "逐类正样本数与占比",
+    "value": {
+     "access_control": "16134 (74.36%)",
+     "arithmetic": "9183 (42.33%)",
+     "dos": "3548 (16.35%)",
+     "front_running": "530 (2.44%)",
+     "reentrancy": "10936 (50.41%)",
+     "time_manipulation": "6065 (27.95%)",
+     "uncheck": "5712 (26.33%)"
+    },
+    "source": "DIVE/contract_labels.json",
+    "command": "",
+    "note": "front_running 占比最低，决定抽样规模下限"
+   },
+   {
+    "stage": "DIVE 外部测试",
+    "name": "均匀抽样下的逐类期望（500/900）",
+    "value": {
+     "500": {
+      "per_class_expected": {
+       "access_control": 371.8,
+       "arithmetic": 211.6,
+       "dos": 81.8,
+       "front_running": 12.2,
+       "reentrancy": 252.0,
+       "time_manipulation": 139.8,
+       "uncheck": 131.6
+      },
+      "multi_label_expected": 340.8
+     },
+     "900": {
+      "per_class_expected": {
+       "access_control": 669.3,
+       "arithmetic": 380.9,
+       "dos": 147.2,
+       "front_running": 22.0,
+       "reentrancy": 453.7,
+       "time_manipulation": 251.6,
+       "uncheck": 236.9
+      },
+      "multi_label_expected": 613.5
+     },
+     "front_running_p_ge20": {
+      "500": 0.022,
+      "900": 0.7,
+      "1100": 0.936
+     }
+    },
+    "source": "DIVE/contract_labels.json",
+    "command": "",
+    "note": "大纲 5.1(6)「≥500 且每类 ≥20」在 500 规模下对 front_running 不可达（期望 12.2）；n=900 期望 22.0、P(fr≥20)=0.70，三条件自洽 → 2026-09-12 P1 定稿 n=900"
+   },
+   {
+    "stage": "图结构",
+    "name": "异构图数 / 节点数 / 边数合计",
+    "value": {
+     "graphs": 581,
+     "nodes": 93551,
+     "edges": 226511
+    },
+    "source": "products/alldata/graphs/*_hetero.json",
+    "command": "python scripts/build_cfg_centered_hetero_graph.py",
+    "note": ""
+   },
+   {
+    "stage": "图结构",
+    "name": "逐边类型：边数 / 含该边的图数 / 平均每图 / 边数占比",
+    "value": {
+     "CFG_FLOW": {
+      "edges": 71296,
+      "graphs_with_edge": 581,
+      "edges_per_graph": 122.71,
+      "share": 0.3148
+     },
+     "AST_PARENT": {
+      "edges": 1957,
+      "graphs_with_edge": 481,
+      "edges_per_graph": 3.37,
+      "share": 0.0086
+     },
+     "AST_PARENT_SAME": {
+      "edges": 6035,
+      "graphs_with_edge": 563,
+      "edges_per_graph": 10.39,
+      "share": 0.0266
+     },
+     "DFG_DEP": {
+      "edges": 146712,
+      "graphs_with_edge": 569,
+      "edges_per_graph": 252.52,
+      "share": 0.6477
+     },
+     "CALLBACK_RISK": {
+      "edges": 511,
+      "graphs_with_edge": 86,
+      "edges_per_graph": 0.88,
+      "share": 0.0023
+     }
+    },
+    "source": "products/alldata/graphs/*_hetero.json",
+    "command": "",
+    "note": "AST_PARENT 仅 1957 条（481/581 图有），边集主体是 DFG_DEP 与 CFG_FLOW"
+   },
+   {
+    "stage": "图结构",
+    "name": "AST 专项：AST_PARENT / AST_PARENT_SAME / 端点未映射到 CFGNode 的 AST 父子关系",
+    "value": {
+     "AST_PARENT": 1957,
+     "AST_PARENT_SAME": 6035,
+     "ast_unmapped": 273811
+    },
+    "source": "products/alldata/graphs/*_hetero.json（meta.ast_*_edge_count）",
+    "command": "",
+    "note": "保留为语义边的 AST 父子关系仅 AST_PARENT+SAME=7992 条（占全部边 3.53%），其余 273811 条端点未映射到 CFGNode；→ “语法从属”边几乎不承载信息，论文需给出本稀疏性统计，并据此调整“四类边”的贡献表述"
+   },
+   {
+    "stage": "图结构",
+    "name": "关系编号映射：实现 5 物理关系 → 论文 4 语义边（可选 6 关系）",
+    "value": {
+     "0": {
+      "physical": "CFG_FLOW",
+      "paper_semantic": "CFG_FLOW（含 seq/true/false 子类）"
+     },
+     "1": {
+      "physical": "AST_PARENT",
+      "paper_semantic": "AST_PARENT"
+     },
+     "2": {
+      "physical": "AST_PARENT_SAME",
+      "paper_semantic": "AST_PARENT（实现细节：多个 AST 节点落在同一 CFGNode）"
+     },
+     "3": {
+      "physical": "DFG_DEP",
+      "paper_semantic": "DFG_DEP"
+     },
+     "4": {
+      "physical": "CALLBACK_RISK",
+      "paper_semantic": "CALLBACK_RISK"
+     }
+    },
+    "source": "scripts/dataset.py::RELATION_NAMES / scripts/convert_hetero_json_to_pyg.py",
+    "command": "",
+    "note": "论文默认 4 语义边（AST_PARENT_SAME 并入 AST_PARENT 叙述）；若把 CFG_FLOW 三子类当独立关系则为 6（需新增 kind→edge_type 映射，当前未实现）；边消融口径：去 AST_PARENT = 同时删 relation 1 与 2（dataset.py::DROP_AST，加载时过白名单校验）；DROPPABLE_EDGES = 全部 5 个物理关系，load_graph 强制校验，不做物理合并（num_bases=5 不变）"
+   },
+   {
+    "stage": "口径绑定",
+    "name": "划分产物指纹 sha256（支撑数字绑定的版本）",
+    "value": {
+     "split_seed0.json": "3de35729c8fbdbdf093fee070ba414879c2d41c9ceb0df952d72f17a0a47383b",
+     "split_seed1.json": "060fb038bc22efb3a9a4e262e85d2878e82d99d0c565943c6dc939f9c0133203",
+     "split_seed2.json": "d9a14613e7c0b8d69f49cd14473947b09e37d8e5d5a98943f145fb78f7c43e3d"
+    },
+    "source": "products/alldata/splits/split_seed{0,1,2}.json",
+    "command": "python scripts/make_splits.py",
+    "note": "本报告与 decisions 中所有 val/test 支撑数字均对应此指纹（**两级去重后的现行 splits**）；任何划分产物变更（含去重口径、覆盖约束、种子）都会改变指纹 → 必须重跑本脚本并刷新 decisions/手册的支撑数字"
+   },
+   {
+    "stage": "DIVE 外部测试",
+    "name": "抽样结果（固定协议）",
+    "value": {
+     "seed": 0,
+     "n": 900,
+     "attempt": 1,
+     "per_class": {
+      "access_control": 682,
+      "arithmetic": 378,
+      "dos": 136,
+      "front_running": 30,
+      "reentrancy": 468,
+      "time_manipulation": 234,
+      "uncheck": 246
+     },
+     "multi_label": 614,
+     "all_zero": 105,
+     "gate": "closed: n=900, front_running=30 (≥20)"
+    },
+    "source": "products/dive/splits/sample_report.json",
+    "command": "python scripts/sample_dive_subset.py",
+    "note": "抽样是一次确定事件：实测支撑即结果（front_running≥20 → 闭案）；后备路径（n→1100 重抽一次，再不足则记 report-only）与“禁止换 seed 重抽”见 decisions §13"
+   }
+  ]
+ },
+ "upstream": {
+  "records": 846,
+  "pairs": 591,
+  "dirs": 591,
+  "contents": 743,
+  "k_hist": {
+   "1": 456,
+   "2": 55,
+   "3": 40,
+   "4": 40
+  },
+  "inconsistent": 85
+ },
+ "alldata": {
+  "files": 591,
+  "entries": 2002,
+  "pos": 257,
+  "multi": 123,
+  "mismatch": 0,
+  "per_class": {
+   "access_control": 123,
+   "arithmetic": 138,
+   "dos": 112,
+   "front_running": 110,
+   "reentrancy": 137,
+   "time_manipulation": 128,
+   "uncheck": 179
+  }
+ },
+ "pipeline": {
+  "pool_stats": {
+   "n": 448,
+   "pos": 125,
+   "zero": 323,
+   "multi": 1,
+   "per_class_pos": {
+    "access_control": 15,
+    "arithmetic": 15,
+    "dos": 6,
+    "front_running": 4,
+    "reentrancy": 31,
+    "time_manipulation": 5,
+    "uncheck": 50
+   }
+  },
+  "all_stats": {
+   "n": 581,
+   "pos": 212,
+   "zero": 369,
+   "multi": 88,
+   "per_class_pos": {
+    "access_control": 91,
+    "arithmetic": 101,
+    "dos": 82,
+    "front_running": 80,
+    "reentrancy": 108,
+    "time_manipulation": 91,
+    "uncheck": 137
+   }
+  },
+  "dedup": {
+   "mode": "source-sha1+address",
+   "rule": "按唯一标识（源码 sha1 → 项目标识/地址）分组，同组保留相对源码路径字典序首个",
+   "order": "先剔除 buggy_*，再去重（反序会连坐丢掉与 buggy 副本同内容的正常样本）",
+   "pool_before_dedup": 495,
+   "pool_after_dedup": 448,
+   "dropped_count": 47,
+   "levels": {
+    "source-sha1": {
+     "groups": 449,
+     "duplicate_groups": 46,
+     "dropped": 46
+    },
+    "address": {
+     "groups": 448,
+     "duplicate_groups": 1,
+     "dropped": 1
+    }
+   },
+   "dropped": [
+    {
+     "base": "nasd_0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839__0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839",
+     "level": "address",
+     "group_key": "0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839",
+     "kept": "asd_0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839__0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839/0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839/0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839.sol"
+    },
+    {
+     "base": "nasd_0x0597edbd535f2c76780818cd55cae87d7e035f5b__0x0597edbd535f2c76780818cd55cae87d7e035f5b",
+     "level": "source-sha1",
+     "group_key": "3c94ed831c5cb2db2cbfd31387ad41bc7ecaeb0a",
+     "kept": "asd_0x0597edbd535f2c76780818cd55cae87d7e035f5b__0x0597edbd535f2c76780818cd55cae87d7e035f5b",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x0597edbd535f2c76780818cd55cae87d7e035f5b/0x0597edbd535f2c76780818cd55cae87d7e035f5b.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x0597edbd535f2c76780818cd55cae87d7e035f5b/0x0597edbd535f2c76780818cd55cae87d7e035f5b.sol"
+    },
+    {
+     "base": "nasd_0x0622d8ec245f14d6ac137989fb842fb68ab6d837__0x0622d8ec245f14d6ac137989fb842fb68ab6d837",
+     "level": "source-sha1",
+     "group_key": "f151fee67ae948b6c332b218115a73033c358bb6",
+     "kept": "asd_0x0622d8ec245f14d6ac137989fb842fb68ab6d837__0x0622d8ec245f14d6ac137989fb842fb68ab6d837",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x0622d8ec245f14d6ac137989fb842fb68ab6d837/0x0622d8ec245f14d6ac137989fb842fb68ab6d837.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x0622d8ec245f14d6ac137989fb842fb68ab6d837/0x0622d8ec245f14d6ac137989fb842fb68ab6d837.sol"
+    },
+    {
+     "base": "nasd_0x0695a5d83639c4ec38244768e0e93bde775488dc__0x0695a5d83639c4ec38244768e0e93bde775488dc",
+     "level": "source-sha1",
+     "group_key": "6e6ed2e2fbbbfc5dfcf5218948c49cf3d20736ea",
+     "kept": "asd_0x0695a5d83639c4ec38244768e0e93bde775488dc__0x0695a5d83639c4ec38244768e0e93bde775488dc",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x0695a5d83639c4ec38244768e0e93bde775488dc/0x0695a5d83639c4ec38244768e0e93bde775488dc.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x0695a5d83639c4ec38244768e0e93bde775488dc/0x0695a5d83639c4ec38244768e0e93bde775488dc.sol"
+    },
+    {
+     "base": "nasd_0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc__0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc",
+     "level": "source-sha1",
+     "group_key": "fc2473d444934505dfd0af3b8110b10f4f0e5b04",
+     "kept": "asd_0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc__0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc/0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc/0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc.sol"
+    },
+    {
+     "base": "nasd_0x543a5514c5cd08dd08228f54fbc79ba9b5a47187__0x543a5514c5cd08dd08228f54fbc79ba9b5a47187",
+     "level": "source-sha1",
+     "group_key": "f089de803decd4d7887a23e952ad611f1c2144f4",
+     "kept": "asd_0x543a5514c5cd08dd08228f54fbc79ba9b5a47187__0x543a5514c5cd08dd08228f54fbc79ba9b5a47187",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x543a5514c5cd08dd08228f54fbc79ba9b5a47187/0x543a5514c5cd08dd08228f54fbc79ba9b5a47187.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x543a5514c5cd08dd08228f54fbc79ba9b5a47187/0x543a5514c5cd08dd08228f54fbc79ba9b5a47187.sol"
+    },
+    {
+     "base": "nasd_0x546aa2eae2514494eeadb7bbb35243348983c59d__0x546aa2eae2514494eeadb7bbb35243348983c59d",
+     "level": "source-sha1",
+     "group_key": "5876cc77f126192882a7fd657b6bd2a045b7d3b3",
+     "kept": "asd_0x546aa2eae2514494eeadb7bbb35243348983c59d__0x546aa2eae2514494eeadb7bbb35243348983c59d",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x546aa2eae2514494eeadb7bbb35243348983c59d/0x546aa2eae2514494eeadb7bbb35243348983c59d.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x546aa2eae2514494eeadb7bbb35243348983c59d/0x546aa2eae2514494eeadb7bbb35243348983c59d.sol"
+    },
+    {
+     "base": "nasd_0x549fbdff350c728e71280482721e805cc0916ff9__0x549fbdff350c728e71280482721e805cc0916ff9",
+     "level": "source-sha1",
+     "group_key": "94aba1ca56d395db8285c71f174476683f6c853c",
+     "kept": "asd_0x549fbdff350c728e71280482721e805cc0916ff9__0x549fbdff350c728e71280482721e805cc0916ff9",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x549fbdff350c728e71280482721e805cc0916ff9/0x549fbdff350c728e71280482721e805cc0916ff9.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x549fbdff350c728e71280482721e805cc0916ff9/0x549fbdff350c728e71280482721e805cc0916ff9.sol"
+    },
+    {
+     "base": "nasd_0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0__0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0",
+     "level": "source-sha1",
+     "group_key": "af39a5c9f8b483b53c1f02f3a56a9d48b6fc0c34",
+     "kept": "asd_0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0__0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0/0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0/0x560b63bb82ce25c2c9b7a63c96378f6b1f9ea5b0.sol"
+    },
+    {
+     "base": "nasd_0x580f18c090914eb9edbb3d6a810c9789a91c7ba4__0x580f18c090914eb9edbb3d6a810c9789a91c7ba4",
+     "level": "source-sha1",
+     "group_key": "460df53f8e5c5fe03b476600a65889dc933620b0",
+     "kept": "asd_0x580f18c090914eb9edbb3d6a810c9789a91c7ba4__0x580f18c090914eb9edbb3d6a810c9789a91c7ba4",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x580f18c090914eb9edbb3d6a810c9789a91c7ba4/0x580f18c090914eb9edbb3d6a810c9789a91c7ba4.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x580f18c090914eb9edbb3d6a810c9789a91c7ba4/0x580f18c090914eb9edbb3d6a810c9789a91c7ba4.sol"
+    },
+    {
+     "base": "nasd_0x598c9a4f069dc076984868873c01e78a905d50e6__0x598c9a4f069dc076984868873c01e78a905d50e6",
+     "level": "source-sha1",
+     "group_key": "6cc47073e64b5692945a07b392d2818c29f0527f",
+     "kept": "asd_0x598c9a4f069dc076984868873c01e78a905d50e6__0x598c9a4f069dc076984868873c01e78a905d50e6",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x598c9a4f069dc076984868873c01e78a905d50e6/0x598c9a4f069dc076984868873c01e78a905d50e6.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x598c9a4f069dc076984868873c01e78a905d50e6/0x598c9a4f069dc076984868873c01e78a905d50e6.sol"
+    },
+    {
+     "base": "nasd_0x603a595145dcb1d49782f569ff4780de98f678e6__0x603a595145dcb1d49782f569ff4780de98f678e6",
+     "level": "source-sha1",
+     "group_key": "c035d3b604aec6a96f4a9e4d9070273b018aa621",
+     "kept": "asd_0x603a595145dcb1d49782f569ff4780de98f678e6__0x603a595145dcb1d49782f569ff4780de98f678e6",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x603a595145dcb1d49782f569ff4780de98f678e6/0x603a595145dcb1d49782f569ff4780de98f678e6.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x603a595145dcb1d49782f569ff4780de98f678e6/0x603a595145dcb1d49782f569ff4780de98f678e6.sol"
+    },
+    {
+     "base": "nasd_0x603c096b5d19d631c58202931de0d11eb9accafa__0x603c096b5d19d631c58202931de0d11eb9accafa",
+     "level": "source-sha1",
+     "group_key": "4a9274da3bc7917c7a089b1960387e5d6dd90345",
+     "kept": "asd_0x603c096b5d19d631c58202931de0d11eb9accafa__0x603c096b5d19d631c58202931de0d11eb9accafa",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x603c096b5d19d631c58202931de0d11eb9accafa/0x603c096b5d19d631c58202931de0d11eb9accafa.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x603c096b5d19d631c58202931de0d11eb9accafa/0x603c096b5d19d631c58202931de0d11eb9accafa.sol"
+    },
+    {
+     "base": "nasd_0x603fc3246ef974a840ba1d7ab43d99130e8aa774__0x603fc3246ef974a840ba1d7ab43d99130e8aa774",
+     "level": "source-sha1",
+     "group_key": "bf2daf95f89c572f61fd0d9df8ad95d2091e4ab6",
+     "kept": "asd_0x603fc3246ef974a840ba1d7ab43d99130e8aa774__0x603fc3246ef974a840ba1d7ab43d99130e8aa774",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x603fc3246ef974a840ba1d7ab43d99130e8aa774/0x603fc3246ef974a840ba1d7ab43d99130e8aa774.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x603fc3246ef974a840ba1d7ab43d99130e8aa774/0x603fc3246ef974a840ba1d7ab43d99130e8aa774.sol"
+    },
+    {
+     "base": "nasd_0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a__0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a",
+     "level": "source-sha1",
+     "group_key": "60dc851638dc344f962dd17074db3364fcf21e01",
+     "kept": "asd_0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a__0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a/0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a/0x609d6f40eed97ec8a96cb9bca78d73caa6225b8a.sol"
+    },
+    {
+     "base": "nasd_0x616a74e4895bfe762da00b95877f25bef0d0d3c8__0x616a74e4895bfe762da00b95877f25bef0d0d3c8",
+     "level": "source-sha1",
+     "group_key": "284e76afad8de8d67e6232bcaefcdcaf59b6fe6c",
+     "kept": "asd_0x616a74e4895bfe762da00b95877f25bef0d0d3c8__0x616a74e4895bfe762da00b95877f25bef0d0d3c8",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x616a74e4895bfe762da00b95877f25bef0d0d3c8/0x616a74e4895bfe762da00b95877f25bef0d0d3c8.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x616a74e4895bfe762da00b95877f25bef0d0d3c8/0x616a74e4895bfe762da00b95877f25bef0d0d3c8.sol"
+    },
+    {
+     "base": "nasd_0x634ca6a844a172c053b3fdee8827c449f849fb16__0x634ca6a844a172c053b3fdee8827c449f849fb16",
+     "level": "source-sha1",
+     "group_key": "4d09b2ad5eaecb51e9de6ba6f9c5b3d4c0f5454f",
+     "kept": "asd_0x634ca6a844a172c053b3fdee8827c449f849fb16__0x634ca6a844a172c053b3fdee8827c449f849fb16",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x634ca6a844a172c053b3fdee8827c449f849fb16/0x634ca6a844a172c053b3fdee8827c449f849fb16.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x634ca6a844a172c053b3fdee8827c449f849fb16/0x634ca6a844a172c053b3fdee8827c449f849fb16.sol"
+    },
+    {
+     "base": "nasd_0x646b41183bb0d18c01f75f630688d613a5774dc7__0x646b41183bb0d18c01f75f630688d613a5774dc7",
+     "level": "source-sha1",
+     "group_key": "2a1f2f6a142147ee53b7609e51fb40701f8f5b3f",
+     "kept": "asd_0x646b41183bb0d18c01f75f630688d613a5774dc7__0x646b41183bb0d18c01f75f630688d613a5774dc7",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x646b41183bb0d18c01f75f630688d613a5774dc7/0x646b41183bb0d18c01f75f630688d613a5774dc7.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x646b41183bb0d18c01f75f630688d613a5774dc7/0x646b41183bb0d18c01f75f630688d613a5774dc7.sol"
+    },
+    {
+     "base": "nasd_0x656caef69787f1a55c1c4d4faba287163d6c109e__0x656caef69787f1a55c1c4d4faba287163d6c109e",
+     "level": "source-sha1",
+     "group_key": "3fd95e05067a59e358b341b4412d76923f045f12",
+     "kept": "asd_0x656caef69787f1a55c1c4d4faba287163d6c109e__0x656caef69787f1a55c1c4d4faba287163d6c109e",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x656caef69787f1a55c1c4d4faba287163d6c109e/0x656caef69787f1a55c1c4d4faba287163d6c109e.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x656caef69787f1a55c1c4d4faba287163d6c109e/0x656caef69787f1a55c1c4d4faba287163d6c109e.sol"
+    },
+    {
+     "base": "nasd_0x657f73cb1877eb98ddd3381d825613336d8b8dbe__0x657f73cb1877eb98ddd3381d825613336d8b8dbe",
+     "level": "source-sha1",
+     "group_key": "b1716e086bde2506b4b7ffdd6e2f650e6c612214",
+     "kept": "asd_0x657f73cb1877eb98ddd3381d825613336d8b8dbe__0x657f73cb1877eb98ddd3381d825613336d8b8dbe",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x657f73cb1877eb98ddd3381d825613336d8b8dbe/0x657f73cb1877eb98ddd3381d825613336d8b8dbe.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x657f73cb1877eb98ddd3381d825613336d8b8dbe/0x657f73cb1877eb98ddd3381d825613336d8b8dbe.sol"
+    },
+    {
+     "base": "nasd_0x662b67d00a13faf93254714dd601f5ed49ef2f51__0x662b67d00a13faf93254714dd601f5ed49ef2f51",
+     "level": "source-sha1",
+     "group_key": "21202d7f19efcf869eaf20e84e52569cbe7bd175",
+     "kept": "asd_0x662b67d00a13faf93254714dd601f5ed49ef2f51__0x662b67d00a13faf93254714dd601f5ed49ef2f51",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x662b67d00a13faf93254714dd601f5ed49ef2f51/0x662b67d00a13faf93254714dd601f5ed49ef2f51.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x662b67d00a13faf93254714dd601f5ed49ef2f51/0x662b67d00a13faf93254714dd601f5ed49ef2f51.sol"
+    },
+    {
+     "base": "nasd_0x664e6db4044f23c95de63ec299aaa9b39c59328d__0x664e6db4044f23c95de63ec299aaa9b39c59328d",
+     "level": "source-sha1",
+     "group_key": "4b289d8cb9032827c2b4f6452262f7ad1a1a682e",
+     "kept": "asd_0x664e6db4044f23c95de63ec299aaa9b39c59328d__0x664e6db4044f23c95de63ec299aaa9b39c59328d",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x664e6db4044f23c95de63ec299aaa9b39c59328d/0x664e6db4044f23c95de63ec299aaa9b39c59328d.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x664e6db4044f23c95de63ec299aaa9b39c59328d/0x664e6db4044f23c95de63ec299aaa9b39c59328d.sol"
+    },
+    {
+     "base": "nasd_0x664fb2cba871e42a7e86dba388c2e6dff68264b1__0x664fb2cba871e42a7e86dba388c2e6dff68264b1",
+     "level": "source-sha1",
+     "group_key": "418b21bdeb4483aeff13b06c56c301866d049db1",
+     "kept": "asd_0x664fb2cba871e42a7e86dba388c2e6dff68264b1__0x664fb2cba871e42a7e86dba388c2e6dff68264b1",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x664fb2cba871e42a7e86dba388c2e6dff68264b1/0x664fb2cba871e42a7e86dba388c2e6dff68264b1.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x664fb2cba871e42a7e86dba388c2e6dff68264b1/0x664fb2cba871e42a7e86dba388c2e6dff68264b1.sol"
+    },
+    {
+     "base": "nasd_0x673a5fb0639d35ab6e157c1e6377d0096ab74128__0x673a5fb0639d35ab6e157c1e6377d0096ab74128",
+     "level": "source-sha1",
+     "group_key": "51e3d62757d8cd4da2ae3c3cfd1502bcded1d81c",
+     "kept": "asd_0x673a5fb0639d35ab6e157c1e6377d0096ab74128__0x673a5fb0639d35ab6e157c1e6377d0096ab74128",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x673a5fb0639d35ab6e157c1e6377d0096ab74128/0x673a5fb0639d35ab6e157c1e6377d0096ab74128.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x673a5fb0639d35ab6e157c1e6377d0096ab74128/0x673a5fb0639d35ab6e157c1e6377d0096ab74128.sol"
+    },
+    {
+     "base": "nasd_0x675f070e80f89ddcc3f2457d9fe571814741e904__0x675f070e80f89ddcc3f2457d9fe571814741e904",
+     "level": "source-sha1",
+     "group_key": "84d06df78b7f1e53c88eb61e5f9b674bb3bd51ea",
+     "kept": "asd_0x675f070e80f89ddcc3f2457d9fe571814741e904__0x675f070e80f89ddcc3f2457d9fe571814741e904",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x675f070e80f89ddcc3f2457d9fe571814741e904/0x675f070e80f89ddcc3f2457d9fe571814741e904.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x675f070e80f89ddcc3f2457d9fe571814741e904/0x675f070e80f89ddcc3f2457d9fe571814741e904.sol"
+    },
+    {
+     "base": "nasd_0x676abde481967851b0c28e81bde8561e756d75e8__0x676abde481967851b0c28e81bde8561e756d75e8",
+     "level": "source-sha1",
+     "group_key": "b42e06dc5313a605f01e1e23a5f35be65d707b5d",
+     "kept": "asd_0x676abde481967851b0c28e81bde8561e756d75e8__0x676abde481967851b0c28e81bde8561e756d75e8",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x676abde481967851b0c28e81bde8561e756d75e8/0x676abde481967851b0c28e81bde8561e756d75e8.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x676abde481967851b0c28e81bde8561e756d75e8/0x676abde481967851b0c28e81bde8561e756d75e8.sol"
+    },
+    {
+     "base": "nasd_0x680ac5ee6db009cb7f10d745ff8c45723463edcd__0x680ac5ee6db009cb7f10d745ff8c45723463edcd",
+     "level": "source-sha1",
+     "group_key": "16f9042044dcbbdfa9ec73c7b14f11a92b0bb6fe",
+     "kept": "asd_0x680ac5ee6db009cb7f10d745ff8c45723463edcd__0x680ac5ee6db009cb7f10d745ff8c45723463edcd",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x680ac5ee6db009cb7f10d745ff8c45723463edcd/0x680ac5ee6db009cb7f10d745ff8c45723463edcd.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x680ac5ee6db009cb7f10d745ff8c45723463edcd/0x680ac5ee6db009cb7f10d745ff8c45723463edcd.sol"
+    },
+    {
+     "base": "nasd_0x682e075d92a0d5859abba7f3f73104725f1b3b05__0x682e075d92a0d5859abba7f3f73104725f1b3b05",
+     "level": "source-sha1",
+     "group_key": "1c67ef2f0c8f8f512c618153b4570bda93ce3db3",
+     "kept": "asd_0x682e075d92a0d5859abba7f3f73104725f1b3b05__0x682e075d92a0d5859abba7f3f73104725f1b3b05",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x682e075d92a0d5859abba7f3f73104725f1b3b05/0x682e075d92a0d5859abba7f3f73104725f1b3b05.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x682e075d92a0d5859abba7f3f73104725f1b3b05/0x682e075d92a0d5859abba7f3f73104725f1b3b05.sol"
+    },
+    {
+     "base": "nasd_0x684ae11a577080ec13877c6d28ac4f45b7c00966__0x684ae11a577080ec13877c6d28ac4f45b7c00966",
+     "level": "source-sha1",
+     "group_key": "d1c7551d77a0071ecd05ff969b6c54e346ea47f1",
+     "kept": "asd_0x684ae11a577080ec13877c6d28ac4f45b7c00966__0x684ae11a577080ec13877c6d28ac4f45b7c00966",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x684ae11a577080ec13877c6d28ac4f45b7c00966/0x684ae11a577080ec13877c6d28ac4f45b7c00966.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x684ae11a577080ec13877c6d28ac4f45b7c00966/0x684ae11a577080ec13877c6d28ac4f45b7c00966.sol"
+    },
+    {
+     "base": "nasd_0x685bd934b371f2ee4894225064d937a57fb03974__0x685bd934b371f2ee4894225064d937a57fb03974",
+     "level": "source-sha1",
+     "group_key": "5b9bdf9f6e5a291a23cdc266934d4be99ce1003b",
+     "kept": "asd_0x685bd934b371f2ee4894225064d937a57fb03974__0x685bd934b371f2ee4894225064d937a57fb03974",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x685bd934b371f2ee4894225064d937a57fb03974/0x685bd934b371f2ee4894225064d937a57fb03974.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x685bd934b371f2ee4894225064d937a57fb03974/0x685bd934b371f2ee4894225064d937a57fb03974.sol"
+    },
+    {
+     "base": "nasd_0x688dde13bd594a9030feefe6fa39cb353b7351c7__0x688dde13bd594a9030feefe6fa39cb353b7351c7",
+     "level": "source-sha1",
+     "group_key": "971f9c4c6877671ee8a8a85c10051e6949721320",
+     "kept": "asd_0x688dde13bd594a9030feefe6fa39cb353b7351c7__0x688dde13bd594a9030feefe6fa39cb353b7351c7",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x688dde13bd594a9030feefe6fa39cb353b7351c7/0x688dde13bd594a9030feefe6fa39cb353b7351c7.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x688dde13bd594a9030feefe6fa39cb353b7351c7/0x688dde13bd594a9030feefe6fa39cb353b7351c7.sol"
+    },
+    {
+     "base": "nasd_0x697fc9371a33a98078543b777ca7d5c8009d6d0b__0x697fc9371a33a98078543b777ca7d5c8009d6d0b",
+     "level": "source-sha1",
+     "group_key": "1adb771dc3ff0e75dac99a553f26f45aa12cd2a8",
+     "kept": "asd_0x697fc9371a33a98078543b777ca7d5c8009d6d0b__0x697fc9371a33a98078543b777ca7d5c8009d6d0b",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x697fc9371a33a98078543b777ca7d5c8009d6d0b/0x697fc9371a33a98078543b777ca7d5c8009d6d0b.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x697fc9371a33a98078543b777ca7d5c8009d6d0b/0x697fc9371a33a98078543b777ca7d5c8009d6d0b.sol"
+    },
+    {
+     "base": "nasd_0x708ba31efde01cc53901248e7c174e0a74a822a0__0x708ba31efde01cc53901248e7c174e0a74a822a0",
+     "level": "source-sha1",
+     "group_key": "b23a74729a8b7dc78d2a19f90dd779da00192613",
+     "kept": "asd_0x708ba31efde01cc53901248e7c174e0a74a822a0__0x708ba31efde01cc53901248e7c174e0a74a822a0",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x708ba31efde01cc53901248e7c174e0a74a822a0/0x708ba31efde01cc53901248e7c174e0a74a822a0.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x708ba31efde01cc53901248e7c174e0a74a822a0/0x708ba31efde01cc53901248e7c174e0a74a822a0.sol"
+    },
+    {
+     "base": "nasd_0x719ca90842a9f4d4fb52251db88703e4bc4a07ca__0x719ca90842a9f4d4fb52251db88703e4bc4a07ca",
+     "level": "source-sha1",
+     "group_key": "4d9857054de9f9f95f826dc4fb2e83fc915ed7df",
+     "kept": "asd_0x719ca90842a9f4d4fb52251db88703e4bc4a07ca__0x719ca90842a9f4d4fb52251db88703e4bc4a07ca",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x719ca90842a9f4d4fb52251db88703e4bc4a07ca/0x719ca90842a9f4d4fb52251db88703e4bc4a07ca.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x719ca90842a9f4d4fb52251db88703e4bc4a07ca/0x719ca90842a9f4d4fb52251db88703e4bc4a07ca.sol"
+    },
+    {
+     "base": "nasd_0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040__0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040",
+     "level": "source-sha1",
+     "group_key": "8b860bce8b3f7073e6632f89a01e72e5ca752cf6",
+     "kept": "asd_0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040__0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040/0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040/0x727f95ac680ccf9b5cce14bd92aed8c5c1f01040.sol"
+    },
+    {
+     "base": "nasd_0x735af341f2d9ce3663616cd84ff522dbf62fbc1f__0x735af341f2d9ce3663616cd84ff522dbf62fbc1f",
+     "level": "source-sha1",
+     "group_key": "557d2c8ffdb75fabecb4c35329de080d0bd65976",
+     "kept": "asd_0x735af341f2d9ce3663616cd84ff522dbf62fbc1f__0x735af341f2d9ce3663616cd84ff522dbf62fbc1f",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x735af341f2d9ce3663616cd84ff522dbf62fbc1f/0x735af341f2d9ce3663616cd84ff522dbf62fbc1f.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x735af341f2d9ce3663616cd84ff522dbf62fbc1f/0x735af341f2d9ce3663616cd84ff522dbf62fbc1f.sol"
+    },
+    {
+     "base": "nasd_0x736f7961adfc0f303eb65f889f3670aef81d85ef__0x736f7961adfc0f303eb65f889f3670aef81d85ef",
+     "level": "source-sha1",
+     "group_key": "371405edf9ee595b126b27e9762c77937528b00e",
+     "kept": "asd_0x736f7961adfc0f303eb65f889f3670aef81d85ef__0x736f7961adfc0f303eb65f889f3670aef81d85ef",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x736f7961adfc0f303eb65f889f3670aef81d85ef/0x736f7961adfc0f303eb65f889f3670aef81d85ef.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x736f7961adfc0f303eb65f889f3670aef81d85ef/0x736f7961adfc0f303eb65f889f3670aef81d85ef.sol"
+    },
+    {
+     "base": "nasd_0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d__0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d",
+     "level": "source-sha1",
+     "group_key": "3b742808e20e54c5b9c34e00cd525f819758bcd8",
+     "kept": "asd_0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d__0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d/0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d/0x744c9c36d1cc3268a4b9b2e28c60b1752c85e97d.sol"
+    },
+    {
+     "base": "nasd_0x746dda2ea243400d5a63e0700f190ab79f06489e__0x746dda2ea243400d5a63e0700f190ab79f06489e",
+     "level": "source-sha1",
+     "group_key": "e9a3e5bf2032c8feea4dcf4eda149ab853cbd87b",
+     "kept": "asd_0x746dda2ea243400d5a63e0700f190ab79f06489e__0x746dda2ea243400d5a63e0700f190ab79f06489e",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x746dda2ea243400d5a63e0700f190ab79f06489e/0x746dda2ea243400d5a63e0700f190ab79f06489e.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x746dda2ea243400d5a63e0700f190ab79f06489e/0x746dda2ea243400d5a63e0700f190ab79f06489e.sol"
+    },
+    {
+     "base": "nasd_0x748d84c273334af1349ebee96bb48c2a17b3b416__0x748d84c273334af1349ebee96bb48c2a17b3b416",
+     "level": "source-sha1",
+     "group_key": "1b523b3f12510074a3d058538994696b6424965a",
+     "kept": "asd_0x748d84c273334af1349ebee96bb48c2a17b3b416__0x748d84c273334af1349ebee96bb48c2a17b3b416",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x748d84c273334af1349ebee96bb48c2a17b3b416/0x748d84c273334af1349ebee96bb48c2a17b3b416.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x748d84c273334af1349ebee96bb48c2a17b3b416/0x748d84c273334af1349ebee96bb48c2a17b3b416.sol"
+    },
+    {
+     "base": "nasd_0x755cdba6ae4f479f7164792b318b2a06c759833b__0x755cdba6ae4f479f7164792b318b2a06c759833b",
+     "level": "source-sha1",
+     "group_key": "6feba594d2bf140bf6535453d9ad3df487db99a9",
+     "kept": "asd_0x755cdba6ae4f479f7164792b318b2a06c759833b__0x755cdba6ae4f479f7164792b318b2a06c759833b",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x755cdba6ae4f479f7164792b318b2a06c759833b/0x755cdba6ae4f479f7164792b318b2a06c759833b.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x755cdba6ae4f479f7164792b318b2a06c759833b/0x755cdba6ae4f479f7164792b318b2a06c759833b.sol"
+    },
+    {
+     "base": "nasd_0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72__0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72",
+     "level": "source-sha1",
+     "group_key": "aab6225c786dfd63065546da1697cecebf548bf1",
+     "kept": "asd_0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72__0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72/0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72/0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72.sol"
+    },
+    {
+     "base": "nasd_0x762d141b8d9600bde64138762e6fb38efc56dcba__0x762d141b8d9600bde64138762e6fb38efc56dcba",
+     "level": "source-sha1",
+     "group_key": "a937314bf7a9a08cece46afce0a7ed1b2efa8ad5",
+     "kept": "asd_0x762d141b8d9600bde64138762e6fb38efc56dcba__0x762d141b8d9600bde64138762e6fb38efc56dcba",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x762d141b8d9600bde64138762e6fb38efc56dcba/0x762d141b8d9600bde64138762e6fb38efc56dcba.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x762d141b8d9600bde64138762e6fb38efc56dcba/0x762d141b8d9600bde64138762e6fb38efc56dcba.sol"
+    },
+    {
+     "base": "nasd_0x763a67be94e2494dbffdcc62cee4ed8f761f6770__0x763a67be94e2494dbffdcc62cee4ed8f761f6770",
+     "level": "source-sha1",
+     "group_key": "1c92e8e63a03fd468c0bd32b0aff332b7a2636b4",
+     "kept": "asd_0x763a67be94e2494dbffdcc62cee4ed8f761f6770__0x763a67be94e2494dbffdcc62cee4ed8f761f6770",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x763a67be94e2494dbffdcc62cee4ed8f761f6770/0x763a67be94e2494dbffdcc62cee4ed8f761f6770.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x763a67be94e2494dbffdcc62cee4ed8f761f6770/0x763a67be94e2494dbffdcc62cee4ed8f761f6770.sol"
+    },
+    {
+     "base": "nasd_0x773dcefa15b47e77c7955e5d0383bafecd672734__0x773dcefa15b47e77c7955e5d0383bafecd672734",
+     "level": "source-sha1",
+     "group_key": "1229f445fad58b979079ae4aa8964e63516c7a5b",
+     "kept": "asd_0x773dcefa15b47e77c7955e5d0383bafecd672734__0x773dcefa15b47e77c7955e5d0383bafecd672734",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x773dcefa15b47e77c7955e5d0383bafecd672734/0x773dcefa15b47e77c7955e5d0383bafecd672734.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x773dcefa15b47e77c7955e5d0383bafecd672734/0x773dcefa15b47e77c7955e5d0383bafecd672734.sol"
+    },
+    {
+     "base": "nasd_0x787f552bdc17332c98aa360748884513e3cb401a__0x787f552bdc17332c98aa360748884513e3cb401a",
+     "level": "source-sha1",
+     "group_key": "83b93d5773193a6b7a6c65b065906871397c80b7",
+     "kept": "asd_0x787f552bdc17332c98aa360748884513e3cb401a__0x787f552bdc17332c98aa360748884513e3cb401a",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x787f552bdc17332c98aa360748884513e3cb401a/0x787f552bdc17332c98aa360748884513e3cb401a.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x787f552bdc17332c98aa360748884513e3cb401a/0x787f552bdc17332c98aa360748884513e3cb401a.sol"
+    },
+    {
+     "base": "nasd_0x794d1d86685d45f9297c2fe80f295aa7f8285bb4__0x794d1d86685d45f9297c2fe80f295aa7f8285bb4",
+     "level": "source-sha1",
+     "group_key": "ae459db0c56e54656a035e28c76ba2dfaffc7b24",
+     "kept": "asd_0x794d1d86685d45f9297c2fe80f295aa7f8285bb4__0x794d1d86685d45f9297c2fe80f295aa7f8285bb4",
+     "kept_source": "alldata(readonly)/alldata_sol_source/asd_0x794d1d86685d45f9297c2fe80f295aa7f8285bb4/0x794d1d86685d45f9297c2fe80f295aa7f8285bb4.sol",
+     "dropped_source": "alldata(readonly)/alldata_sol_source/nasd_0x794d1d86685d45f9297c2fe80f295aa7f8285bb4/0x794d1d86685d45f9297c2fe80f295aa7f8285bb4.sol"
+    }
+   ]
+  },
+  "invariants": {
+   "0": {
+    "content_ok": true,
+    "address_ok": true,
+    "content_cross": 0,
+    "address_cross": 0
+   },
+   "1": {
+    "content_ok": true,
+    "address_ok": true,
+    "content_cross": 0,
+    "address_cross": 0
+   },
+   "2": {
+    "content_ok": true,
+    "address_ok": true,
+    "content_cross": 0,
+    "address_cross": 0
+   }
+  },
+  "dropped": 47
+ },
+ "dive": {
+  "n": 21696,
+  "multi": 14789,
+  "per_class": {
+   "access_control": 16134,
+   "arithmetic": 9183,
+   "dos": 3548,
+   "front_running": 530,
+   "reentrancy": 10936,
+   "time_manipulation": 6065,
+   "uncheck": 5712
+  },
+  "expectations": {
+   "500": {
+    "per_class_expected": {
+     "access_control": 371.8,
+     "arithmetic": 211.6,
+     "dos": 81.8,
+     "front_running": 12.2,
+     "reentrancy": 252.0,
+     "time_manipulation": 139.8,
+     "uncheck": 131.6
+    },
+    "multi_label_expected": 340.8
+   },
+   "900": {
+    "per_class_expected": {
+     "access_control": 669.3,
+     "arithmetic": 380.9,
+     "dos": 147.2,
+     "front_running": 22.0,
+     "reentrancy": 453.7,
+     "time_manipulation": 251.6,
+     "uncheck": 236.9
+    },
+    "multi_label_expected": 613.5
+   },
+   "front_running_p_ge20": {
+    "500": 0.022,
+    "900": 0.7,
+    "1100": 0.936
+   }
+  },
+  "front_prob": {
+   "500": 0.022,
+   "900": 0.7,
+   "1100": 0.936
+  }
+ },
+ "graph": {
+  "table": {
+   "CFG_FLOW": {
+    "edges": 71296,
+    "graphs_with_edge": 581,
+    "edges_per_graph": 122.71,
+    "share": 0.3148
+   },
+   "AST_PARENT": {
+    "edges": 1957,
+    "graphs_with_edge": 481,
+    "edges_per_graph": 3.37,
+    "share": 0.0086
+   },
+   "AST_PARENT_SAME": {
+    "edges": 6035,
+    "graphs_with_edge": 563,
+    "edges_per_graph": 10.39,
+    "share": 0.0266
+   },
+   "DFG_DEP": {
+    "edges": 146712,
+    "graphs_with_edge": 569,
+    "edges_per_graph": 252.52,
+    "share": 0.6477
+   },
+   "CALLBACK_RISK": {
+    "edges": 511,
+    "graphs_with_edge": 86,
+    "edges_per_graph": 0.88,
+    "share": 0.0023
+   }
+  },
+  "nodes": 93551,
+  "edges": 226511,
+  "ast_unmapped": 273811,
+  "relation_map": {
+   "0": "CFG_FLOW（含 seq/true/false 子类）",
+   "1": "AST_PARENT",
+   "2": "AST_PARENT（实现细节：多个 AST 节点落在同一 CFGNode）",
+   "3": "DFG_DEP",
+   "4": "CALLBACK_RISK"
+  }
+ },
+ "binding": {
+  "sample": {
+   "dataset": "DIVE",
+   "protocol": {
+    "unit": "unique contract (DIVE/contract_labels.json entry)",
+    "mode": "uniform random, without replacement (no per-class quota)",
+    "seed": 0,
+    "n_main": 900,
+    "n_backstop": 1100,
+    "front_running_gate": 20,
+    "stopping_rule": "主抽 n=900；front_running<20 时 n 单调升至 1100 重抽一次；仍不足则记 report-only（如实报数）；禁止换 seed 重抽",
+    "authority": "experiments/decisions.md §13 第 5/10 条 + 论文开发手册.md 10.2 第 6 条"
+   },
+   "inputs": {
+    "label_file": "DIVE/contract_labels.json",
+    "label_count": 21696,
+    "label_file_sha256": "e4c6708d0f5c04715e1dd0a6ced26c6c9c0be705f5fba8a06850d4981f464060",
+    "source_files_present": 21696,
+    "missing_source_ids": [],
+    "missing_source_count": 0
+   },
+   "attempts": [
+    {
+     "attempt": 1,
+     "n": 900,
+     "per_class": {
+      "access_control": 682,
+      "arithmetic": 378,
+      "dos": 136,
+      "front_running": 30,
+      "reentrancy": 468,
+      "time_manipulation": 234,
+      "uncheck": 246
+     },
+     "multi_label": 614,
+     "all_zero": 105,
+     "multi_label_ratio": 0.6822,
+     "front_running_gate_ok": true
+    }
+   ],
+   "gate": "closed: n=900, front_running=30 (≥20)",
+   "output_sha256": "70d661767d1c0a6af321698013bfe0ed1769e39f8bab28eb1b75f40f909033ef",
+   "created_utc": "2026-09-12T07:45:28+00:00",
+   "selected_n": 900
+  },
+  "digests": {
+   "split_seed0.json": "3de35729c8fbdbdf093fee070ba414879c2d41c9ceb0df952d72f17a0a47383b",
+   "split_seed1.json": "060fb038bc22efb3a9a4e262e85d2878e82d99d0c565943c6dc939f9c0133203",
+   "split_seed2.json": "d9a14613e7c0b8d69f49cd14473947b09e37d8e5d5a98943f145fb78f7c43e3d"
+  }
+ }
+}

@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""M4：RGCN/GCN 两层消息传递 + 节点可疑度 + 图级 Readout（大纲 4.4，手册第 9 章 / 开发计划 v4）。
+"""M4：前端通道融合（NodeFuser）+ RGCN/GCN 两层消息传递 + 节点可疑度 + 图级 Readout
+（大纲 4.3.1/4.3.3/4.3.4/4.4，手册第 9 章 / 开发计划 v4）。
 
-契约（与 M5 dataset/train 对齐，2026-09-07）：
-  - 输入 x 来自 M3 `_feat.pt`（N×128 的 h_v^(0)）；`_pyg.pt` 只提供 edge_index/edge_type 与元数据，
-    `_pyg.pt["x"]`（N×1 占位）不被使用、也不回写。
+契约（与 M5 dataset/train 对齐，2026-09-12 前端化后）：
+  - **前端 `NodeFuser`**（本文件）：接收 `dataset.load_graph` 返回的**通道字典**
+    `{cb_func, cb_node, type_id, struct, sv}` → 输出 `h_v^(0)` ∈ R^{N×128}（与大纲 4.4 的 d=128、
+    M4 原有接口**完全一致**，对内是内蕊置换；设计稿 `docs/M3_frontend_design.md` §3.2）。
+    类型嵌入自此**可学习**（4.3.1）；结构与先验 dropout 在 `NodeFuser` 内实现（4.3.4/4.1.4），
+    **置零只能发生在融合 Linear 之前**（R4；`proj` 之后任何掩码都无效），有逐位相等单测把守。
+  - 输入 x 为 `NodeFuser` 输出或等价 128 维张量；`_pyg.pt` 只提供 edge_index/edge_type 与元数据，
+    `_pyg.pt["x"]`（N×1 占位）不被使用、也不回写；`_feat.pt` 只存三通道（不再含融合结果）。
   - 关系编号固定（手册 7.7）：0=CFG_FLOW, 1=AST_PARENT, 2=AST_PARENT_SAME, 3=DFG_DEP, 4=CALLBACK_RISK。
   - 单图 forward(x, edge_index, edge_type) -> (z[num_classes], a[N], node_logits[N])；
     batch 图 forward(..., batch=[N]) -> z[B, num_classes]，a/node_logits 仍按节点返回；Readout 按图归一化。
@@ -11,8 +17,8 @@
   - Readout 使用第二层传播结果 h2（= h_v^(L)），绝不用输入 x（曾为易错点，验收见 tests）。
   - conv_type 仅 "rgcn"/"gcn"：GCN 忽略 edge_type（非关系感知消融基线）；普通 GAT 不提供。
   - num_bases 默认 = num_relations(=5)；num_bases=4 仅作消融。
-  - DropEdge / 先验 dropout / L_var / 训练日志均属 M5（train.py/dataset.py），本文件不实现；
-    仅提供纯工具 apply_edge_mask（M5 同步过滤边用）。
+  - DropEdge / L_var / 训练日志均属 M5（train.py）；本文件提供纯工具 apply_edge_mask（M5 同步过滤边用）
+    与 `sample_dropout_masks`（逐图正则掩码采样），不含训练循环。
 
 空边与孤立节点（已在本机 PyG 2.7.0 实测验证，2026-09-07）：
   - RGCNConv(root_weight=True) 与 GCNConv(add_self_loops=True) 对 E=0 空边、纯自环、孤立节点
@@ -21,6 +27,8 @@
 """
 
 from __future__ import annotations
+
+from dataclasses import dataclass
 
 import torch
 import torch.nn as nn
@@ -35,8 +43,167 @@ RELATION_NAMES = {
     3: "DFG_DEP",
     4: "CALLBACK_RISK",
 }
-EPS = 1e-6          # attention 归一化分母保护（大纲 4.4.1 的 ε）
+EPS = 1e-6          # attention 归一化分母补护（大纲 4.4.1 的 ε）
 HID_DIM = 128       # 手册 9.1：隐藏维度 d=128（与 M3 的 h_v^(0) 维度一致）
+
+# ---------------------------------------------------------------------------
+# 前端（NodeFuser）：通道字典 → h_v^(0)。设计稿 docs/M3_frontend_design.md §3.2（R1–R11/Q1–Q9）
+# ---------------------------------------------------------------------------
+FUSER_INIT_SEED = 20260905   # ★ 仅控初始化，**独立于划分种子与训练种子**（R6/Q8；沿用旧 M3 的 SEED）
+TYPE_EMB_DIM = 64            # 类型嵌入维度（大纲 4.3.1）
+CHANNEL_ORDER = ("cb_func", "cb_node", "type_id", "struct", "sv")   # 固定拼接序（锁死）
+# 结构特征 18 项 → 四组（大纲改II 4.3.3）。列布局 = 可见性4 + 布尔14 + 外呼方式5 + 位置1 + IR 类别 N
+STRUCT_GROUP_SETS = {
+    "all": {"base", "sem", "cb", "pos"},
+    "base": {"base"},
+    "base+sem": {"base", "sem"},
+}
+
+
+def struct_group_keep_mask(ir_categories_len: int, feat_groups: str = "all") -> list[bool]:
+    """结构特征各列是否保留的布尔掩码（未选中组置 0；列宽不变）。
+
+    feat_groups ∈ {all, base, base+sem}，对应大纲改II 4.3.3 的 (c)(a)(b) 三设置。
+    2026-09-12 前端化：从 M3 移入本文件（特征级消融全部在模型侧做，零重跑）。
+    """
+    groups = (
+        ["base"] * 4                                 # 1 函数可见性
+        + ["base"] * 7 + ["sem"] * 4 + ["cb"] * 3    # 2-11,13；14-16（#12 不在本段）
+        + ["sem"] * 5                                # 12 外呼方式 one-hot
+        + ["pos"]                                    # 17 归一化位置
+        + ["pos"] * int(ir_categories_len)           # 18 IR 类别 one-hot
+    )
+    allowed = STRUCT_GROUP_SETS.get(feat_groups, STRUCT_GROUP_SETS["all"])
+    return [g in allowed for g in groups]
+
+
+@dataclass
+class AblationConfig:
+    """特征级**确定性消融**（配置层，R1）：train/eval 行为一致、无随机、进 config.json。
+
+    - `ablate_sv=True`：`s_v` 通道恒零（原 `--no-prior` / `_feat_no-prior.pt`，现已退役）；
+    - `feat_groups`：结构特征分组（未选组列置零，列宽不变）；
+    - `cb_channels`：参与拼接的 CodeBERT 通道子集（默认两通道；消融时影响 `proj` 输入维度）。
+    ★ 与训练期正则（`prior_dropout`/`struct_dropout`）**正交**：后者仅训练期、逐图随机、eval 关闭。
+    """
+    ablate_sv: bool = False
+    feat_groups: str = "all"
+    cb_channels: tuple[str, ...] = ("cb_func", "cb_node")
+
+
+class NodeFuser(nn.Module):
+    """通道字典 → h_v^{(0)} ∈ R^{N×128}（大纲 4.3.1/4.3.3/4.3.4；设计稿 §3.2）。
+
+    结构与初始化沿用原冻结投影（R6，单一变量＝可学习性）：
+      `type_emb = nn.Embedding(9, 64)`；`proj = nn.Linear(768*len(cb_channels) + 64 + D_struct + 1, 128)`，
+      均用 PyTorch 默认初始化分布；`init_seed` 控制初始化 RNG，独立于划分/训练种子。
+    ★ **置零的唯一合法位置**：`proj` 之前（`cat` 之前或按列段乘掩码）。`proj` 之后禁止任何掩码/置零（R4）。
+    ★ 模型内不做任何数据统计（R9）：无 BatchNorm、无 batch 级标准化；`s_v` 归一化在数据侧（M1）。
+    """
+
+    def __init__(self, d_struct: int, struct_layout: dict[str, int] | None = None,
+                 ablate: AblationConfig | None = None, n_roles: int = 9,
+                 type_dim: int = TYPE_EMB_DIM, hidden: int = HID_DIM,
+                 prior_dropout: float = 0.2, struct_dropout: float = 0.2,
+                 init_seed: int = FUSER_INIT_SEED):
+        super().__init__()
+        self.ablate = ablate or AblationConfig()
+        self.d_struct = int(d_struct)
+        self.struct_layout = dict(struct_layout or {})
+        self.hidden = int(hidden)
+        self.type_dim = int(type_dim)
+        self.prior_dropout = float(prior_dropout)      # 正则层（仅训练期，外部采样掩码）
+        self.struct_dropout = float(struct_dropout)
+        self.cb_channels = tuple(self.ablate.cb_channels)
+        self.init_seed = int(init_seed)
+        # 结构分组掩码（确定性）；persistent=False：不进 state_dict（由 config 完全决定）
+        ir_len = int(self.struct_layout.get("ir", 0))
+        self.register_buffer(
+            "struct_keep",
+            torch.tensor(struct_group_keep_mask(ir_len, self.ablate.feat_groups), dtype=torch.float32),
+            persistent=False)
+        # ★ 初始化（顺序固定：Embedding → Linear；与旧冻结投影同分布，供 T2 冻结等价回归）
+        with torch.random.fork_rng(devices=[]):
+            torch.manual_seed(self.init_seed)
+            self.type_emb = nn.Embedding(n_roles, self.type_dim)
+            self.proj = nn.Linear(
+                768 * len(self.cb_channels) + self.type_dim + self.d_struct + 1, self.hidden)
+
+    @property
+    def in_dim(self) -> int:
+        """融合 Linear 的输入维度（同时进 config，防错位）。"""
+        return int(self.proj.in_features)
+
+    def _expand(self, mask: torch.Tensor | None, batch: torch.Tensor | None,
+                n: int) -> torch.Tensor | None:
+        """(G,) 0/1 图级掩码 → (N,1) 系数列（batch=None 视为单图）。"""
+        if mask is None:
+            return None
+        coef = mask.detach().to(dtype=torch.float32).reshape(-1)
+        if batch is None:
+            assert coef.numel() == 1, "单图掩码长度必须为 1"
+            return coef.reshape(1, 1).expand(n, 1)
+        assert coef.numel() == int(batch.max()) + 1, "掩码长度必须等于图数 G"
+        return coef[batch].reshape(n, 1)
+
+    def forward(self, ch: dict[str, torch.Tensor], *, prior_mask: torch.Tensor | None = None,
+                struct_mask: torch.Tensor | None = None,
+                batch: torch.Tensor | None = None) -> torch.Tensor:
+        """通道字典 → h_v^{(0)}。
+
+        `prior_mask` / `struct_mask`：**(G,) 0/1 图级掩码**，仅训练期由 `sample_dropout_masks`
+        逐图采样后传入；验证/推理传 None（不置零）。两者与 `AblationConfig` 共用**同一乘法原语**，
+        使「恒零（配置）」与「随机置零（正则）」在 sv 上逐位同构（§5-T1 机器验证）。
+        """
+        sv = ch["sv"]
+        struct = ch["struct"]
+        n = int(sv.shape[0])
+        # ① 配置层（确定性，train/eval 一致）
+        if self.ablate.ablate_sv:
+            sv = torch.zeros_like(sv)
+        if self.ablate.feat_groups != "all":
+            struct = struct * self.struct_keep.to(device=struct.device, dtype=struct.dtype)
+        # ② 正则层（随机，仅训练期；掩码在 cat 之前作用）
+        sv_coef = self._expand(prior_mask, batch, n)
+        if sv_coef is not None:
+            sv = sv * sv_coef
+        st_coef = self._expand(struct_mask, batch, n)
+        if st_coef is not None:
+            struct = struct * st_coef
+        # ③ 拼接（固定序）  ④ 融合 —— ★ proj 之后禁止任何掩码/置零
+        x = torch.cat([ch[c] for c in self.cb_channels]
+                      + [self.type_emb(ch["type_id"]), struct, sv], dim=1)
+        return self.proj(x)
+
+
+def sample_dropout_masks(n_graphs: int, *, prior_p: float, struct_p: float,
+                         generator: torch.Generator | None = None) -> tuple[torch.Tensor, torch.Tensor]:
+    """训练期逐图采样正则掩码（(G,) 0/1）——**必须按图独立**，调用方可用
+    `seed + epoch + stable_graph_index` 构造 generator 以保可追溯。验证/测试不得调用本函数。
+    """
+    prior = (torch.rand(n_graphs, generator=generator) < prior_p).to(torch.float32)
+    struct = (torch.rand(n_graphs, generator=generator) < struct_p).to(torch.float32)
+    return prior, struct
+
+
+def parameter_report(**modules: nn.Module) -> dict[str, int]:
+    """参数量报告（R10）：如 `parameter_report(fuser=fuser, rgcn=model)` →
+    `{fuser_params, fuser_learnable_params, rgcn_params, rgcn_learnable_params, total_params, total_learnable_params}`。
+    448 样本下新增可学习参数是过拟合风险变量，必须与指标同表报告。
+    """
+    out: dict[str, int] = {}
+    total = total_learn = 0
+    for name, module in modules.items():
+        params = list(module.parameters())
+        p = sum(t.numel() for t in params)
+        q = sum(t.numel() for t in params if t.requires_grad)
+        out[f"{name}_params"] = p
+        out[f"{name}_learnable_params"] = q
+        total += p
+        total_learn += q
+    out["total_params"] = total
+    out["total_learnable_params"] = total_learn
+    return out
 
 
 def _scatter_add(src: torch.Tensor, index: torch.Tensor, dim_size: int) -> torch.Tensor:

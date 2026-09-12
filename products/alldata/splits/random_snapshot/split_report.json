@@ -1,0 +1,358 @@
+{
+  "strategy": "random",
+  "unique_contracts": 495,
+  "multi_label_contracts": 2,
+  "all_zero_contracts": 369,
+  "buggy_excluded_graphs": 86,
+  "unmatched_graphs": 0,
+  "per_class": {
+    "access_control": {
+      "pos": 15,
+      "neg": 480,
+      "neg_pos_ratio": 32.0
+    },
+    "arithmetic": {
+      "pos": 15,
+      "neg": 480,
+      "neg_pos_ratio": 32.0
+    },
+    "dos": {
+      "pos": 6,
+      "neg": 489,
+      "neg_pos_ratio": 81.5
+    },
+    "front_running": {
+      "pos": 4,
+      "neg": 491,
+      "neg_pos_ratio": 122.75
+    },
+    "reentrancy": {
+      "pos": 32,
+      "neg": 463,
+      "neg_pos_ratio": 14.4688
+    },
+    "time_manipulation": {
+      "pos": 5,
+      "neg": 490,
+      "neg_pos_ratio": 98.0
+    },
+    "uncheck": {
+      "pos": 51,
+      "neg": 444,
+      "neg_pos_ratio": 8.7059
+    }
+  },
+  "split_sizes": {
+    "0": {
+      "train": 396,
+      "val": 50,
+      "test": 49
+    },
+    "1": {
+      "train": 396,
+      "val": 50,
+      "test": 49
+    },
+    "2": {
+      "train": 396,
+      "val": 50,
+      "test": 49
+    }
+  },
+  "rule_check": {
+    "rule": "C1：val+test 每类正样本合计 ≥ min_pos_ratio×该类正样本数；C2：val 与 test 各自每类正样本 ≥ min_pos_per_split",
+    "min_pos_ratio": 0.3,
+    "min_pos_per_split": 1,
+    "strategy": "random",
+    "basis": "pool per-class positives（train+val+test 合计）",
+    "authority": "大纲 5.1 第三条（2026-09-12：30% 合计口径 + 覆盖约束校正半句）",
+    "seeds": {
+      "0": {
+        "per_class": {
+          "access_control": {
+            "pool_pos": 15,
+            "train_pos": 15,
+            "val_pos": 0,
+            "test_pos": 0,
+            "val_test_pos": 0,
+            "threshold": 4.5,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "arithmetic": {
+            "pool_pos": 15,
+            "train_pos": 13,
+            "val_pos": 0,
+            "test_pos": 2,
+            "val_test_pos": 2,
+            "threshold": 4.5,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "dos": {
+            "pool_pos": 6,
+            "train_pos": 3,
+            "val_pos": 1,
+            "test_pos": 2,
+            "val_test_pos": 3,
+            "threshold": 1.8,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "front_running": {
+            "pool_pos": 4,
+            "train_pos": 3,
+            "val_pos": 1,
+            "test_pos": 0,
+            "val_test_pos": 1,
+            "threshold": 1.2,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "reentrancy": {
+            "pool_pos": 32,
+            "train_pos": 24,
+            "val_pos": 4,
+            "test_pos": 4,
+            "val_test_pos": 8,
+            "threshold": 9.6,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          },
+          "time_manipulation": {
+            "pool_pos": 5,
+            "train_pos": 3,
+            "val_pos": 0,
+            "test_pos": 2,
+            "val_test_pos": 2,
+            "threshold": 1.5,
+            "c1_ok": true,
+            "c2_ok": false,
+            "ok": false
+          },
+          "uncheck": {
+            "pool_pos": 51,
+            "train_pos": 42,
+            "val_pos": 4,
+            "test_pos": 5,
+            "val_test_pos": 9,
+            "threshold": 15.3,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          }
+        },
+        "n_classes_failed": 6,
+        "failed_classes": [
+          "access_control",
+          "arithmetic",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "passed": false,
+        "coverage_fix": {
+          "swaps_count": 0,
+          "floor_fixes": 0
+        }
+      },
+      "1": {
+        "per_class": {
+          "access_control": {
+            "pool_pos": 15,
+            "train_pos": 12,
+            "val_pos": 3,
+            "test_pos": 0,
+            "val_test_pos": 3,
+            "threshold": 4.5,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "arithmetic": {
+            "pool_pos": 15,
+            "train_pos": 13,
+            "val_pos": 1,
+            "test_pos": 1,
+            "val_test_pos": 2,
+            "threshold": 4.5,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          },
+          "dos": {
+            "pool_pos": 6,
+            "train_pos": 5,
+            "val_pos": 1,
+            "test_pos": 0,
+            "val_test_pos": 1,
+            "threshold": 1.8,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "front_running": {
+            "pool_pos": 4,
+            "train_pos": 4,
+            "val_pos": 0,
+            "test_pos": 0,
+            "val_test_pos": 0,
+            "threshold": 1.2,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "reentrancy": {
+            "pool_pos": 32,
+            "train_pos": 26,
+            "val_pos": 3,
+            "test_pos": 3,
+            "val_test_pos": 6,
+            "threshold": 9.6,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          },
+          "time_manipulation": {
+            "pool_pos": 5,
+            "train_pos": 3,
+            "val_pos": 1,
+            "test_pos": 1,
+            "val_test_pos": 2,
+            "threshold": 1.5,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "uncheck": {
+            "pool_pos": 51,
+            "train_pos": 43,
+            "val_pos": 4,
+            "test_pos": 4,
+            "val_test_pos": 8,
+            "threshold": 15.3,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          }
+        },
+        "n_classes_failed": 6,
+        "failed_classes": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "uncheck"
+        ],
+        "passed": false,
+        "coverage_fix": {
+          "swaps_count": 0,
+          "floor_fixes": 0
+        }
+      },
+      "2": {
+        "per_class": {
+          "access_control": {
+            "pool_pos": 15,
+            "train_pos": 13,
+            "val_pos": 0,
+            "test_pos": 2,
+            "val_test_pos": 2,
+            "threshold": 4.5,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "arithmetic": {
+            "pool_pos": 15,
+            "train_pos": 13,
+            "val_pos": 1,
+            "test_pos": 1,
+            "val_test_pos": 2,
+            "threshold": 4.5,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          },
+          "dos": {
+            "pool_pos": 6,
+            "train_pos": 4,
+            "val_pos": 0,
+            "test_pos": 2,
+            "val_test_pos": 2,
+            "threshold": 1.8,
+            "c1_ok": true,
+            "c2_ok": false,
+            "ok": false
+          },
+          "front_running": {
+            "pool_pos": 4,
+            "train_pos": 3,
+            "val_pos": 1,
+            "test_pos": 0,
+            "val_test_pos": 1,
+            "threshold": 1.2,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "reentrancy": {
+            "pool_pos": 32,
+            "train_pos": 25,
+            "val_pos": 4,
+            "test_pos": 3,
+            "val_test_pos": 7,
+            "threshold": 9.6,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          },
+          "time_manipulation": {
+            "pool_pos": 5,
+            "train_pos": 4,
+            "val_pos": 1,
+            "test_pos": 0,
+            "val_test_pos": 1,
+            "threshold": 1.5,
+            "c1_ok": false,
+            "c2_ok": false,
+            "ok": false
+          },
+          "uncheck": {
+            "pool_pos": 51,
+            "train_pos": 40,
+            "val_pos": 6,
+            "test_pos": 5,
+            "val_test_pos": 11,
+            "threshold": 15.3,
+            "c1_ok": false,
+            "c2_ok": true,
+            "ok": false
+          }
+        },
+        "n_classes_failed": 7,
+        "failed_classes": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "passed": false,
+        "coverage_fix": {
+          "swaps_count": 0,
+          "floor_fixes": 0
+        }
+      }
+    }
+  }
+}
