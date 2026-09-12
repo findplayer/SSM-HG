@@ -401,6 +401,8 @@
 ### 12.6 scripts/train.py（新建，M5，v4）
 - 只 import：`model`、`dataset`、`metrics`、sklearn
 - CLI：`--seed 0 --epochs 200 --batch-size 32 --lr 1e-4 --weight-decay 1e-4 --scheduler-patience 3 --early-stop-patience 5 --drop-edges 3 --drop-ast --meanpool --conv gcn --ablate-sv --cb-channels cb_node --feat-groups base ...`（消融开关透传；**2026-09-12 前端化后**：`--feat-variant`/`--drop-feat-edge` 退役，特征消融走 `model.AblationConfig`，边消融走 `dataset.Ablation` 的 `--drop-edges`/`--drop-ast`）
+- **种子语义（2026-09-12 裁定，见 `experiments/decisions.md` §16）**：`--seed`=训练种子、`--split-seed`（默认=`--seed`）=读 `split_seed{split_seed}.json`；主实验 seed0/1/2 = 同名划分×同名训练种子；两类种子显式分离。
+- **批图（自实现 collate，不用 PyG DataLoader）**：通道沿节点维 cat + `edge_index` 加偏移 + `edge_type` cat + batch 向量；DropEdge 先逐图 mask 再 batch；`fuser`+`model` 双模块 `state_dict` 一起存 checkpoint；`SSMHG(in_dim=fuser.in_dim)` 回读不硬编码。
 - 启动断言：每个图通道契约通过（`dataset.load_graph` 的 schema/形状/哈希断言；M3 未跑或旧格式直接报错）
 - pos_weight：按训练集 `neg/pos` 截断 20；正样本为 0 的类用 class mask 从逐元素 BCE 的分子和分母中显式跳过，不传 `pos_weight=0`。
 - 损失：`l_cls + 1e-3*L_var`；`L_var` 按图计算 population `a.std(unbiased=False)` 且保留梯度，单节点图 std=0；AdamW + `clip_grad_norm_(1.0)`；使用 `ReduceLROnPlateau(mode=max, factor=0.5, patience=3)`。

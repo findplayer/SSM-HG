@@ -490,3 +490,16 @@ M5 v5 完成标准：主 split 由经 API 校验的迭代分层生成；单图�
 - 处置建议：**不改实现**（改映射规则会再次改变库级结构统计与 `_pyg.pt`，收益不明），但在论文数据描述与
   局限处**如实披露**：AST 关系在本实现中是高度过滤的子集（`meta.ast_unmapped_edge_count` 可复核），
   “四类边”的贡献叙述应据此调整；数字与生成方式见 `docs/data_funnel.md` §4（`audit_data_funnel.py` 自动刷新）。
+
+---
+
+## 16. M5 开发方案裁定（2026-09-12，用户确认「按推荐方式」）
+
+> 依据：设计稿 `docs/M5_dev_plan.md`（M5 = `metrics.py` + `train.py` + `evaluate.py` + M5 CI smoke）。
+> 本节记录设计过程中产生的**新口径裁定**，供实现时逐条对照；其余实现细节以设计稿为准。
+
+1. **训练/划分种子语义（定稿）**：`train.py` 引入 `--seed`（**训练种子**：模型初始化、先验/结构 dropout、训练集打乱、DropEdge 随机流）与 `--split-seed`（读 `split_seed{split_seed}.json`，**默认 = `--seed`**）。主实验 = seed0/1/2，每个 seed 用**同名划分 × 同名训练种子**，`summary.json` 报三种子均值±std、主表固定 seed0。两类种子显式分离（`--split-seed` 独立可变），满足大纲 5.1「训练种子不改变划分」的可测性，同时支持「固定划分 seed0、变训练种子」的稳健性补充实验——两种口径共用同一套代码，只差 CLI 传参。
+2. **批图 collate（定稿）**：自实现 collate，**不引入 PyG `Data`/`DataLoader`**——数据是自定义通道字典而非标准 `Data`，`NodeFuser` 接口即「批通道 + batch 向量」。拼接 = 通道沿节点维 cat + `edge_index` 加节点偏移 + `edge_type` cat + batch 向量 + labels stack；DropEdge 先逐图 mask 再 batch（`model.apply_edge_mask`），随机流 = `(train_seed, epoch, stable_graph_index)`。
+3. **checkpoint 双模块**：`fuser`（NodeFuser）与 `model`（SSMHG）是两个独立模块，`best.pt`/`last.pt` 必须同时存两者 `state_dict`；恢复时从 config 的 `d_struct/struct_layout/ablate/...` 重建。
+4. **维度回读**：`NodeFuser` 融合输入维 = `768*len(cb_channels) + 64 + D_struct + 1`（主配置 1631），`--cb-channels` 消融会改变该维；`SSMHG(in_dim=...)` 必须从 `fuser.in_dim` 回读，不得硬编码。
+5. **阶段顺序**：A `metrics.py` → B `train.py` → C `evaluate.py` → D CI smoke → E 主实验（3 seed → `summary.json`）→ F 消融/基线 → G 跨数据集（阶段 5）。任何一项未过窄范围 smoke，不进入下一项。
