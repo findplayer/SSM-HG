@@ -36,6 +36,7 @@ v5 的执行优先级是：先实现并测试数据划分与损失，再实现�
 - 若 `pos_c > 0`：`pos_weight_c = min(neg_c / pos_c, 20)`。
 - 若 `pos_c == 0`：使用 `class_mask[c] = 0` 从逐元素 BCE 的分子和分母中排除该类别，不使用 `pos_weight=0`。
 - 截断上限默认 20，`--pos-weight-cap` 可调（`0`/负数 = 不截断）。消融（2026-09-14，`runs/pw_unclamped/`）：放开截断后稀有类（dos/front_running/time_manipulation）仍 F1≈0、arithmetic 反降（0.656→0.316）、固定 0.5 主指标 micro-F1 0.906→0.815，故**维持 cap=20**；结论见 `experiments/results.md` §1.8。
+- 损失形状默认 `bce`；`--loss {focal,asl}` + `--focal-gamma/--asl-gamma-pos/--asl-gamma-neg/--asl-clip` 为消融开关，**共用同一 `pos_weight` 加权结构与 class_mask、同一分母 `B×active_class_count`**（唯一变量 = 调制因子；不采用 ASL 原文的按正样本数归一，以免损失尺度与 lr/早停混淆）。消融（2026-09-14，`runs/loss_focal/`、`runs/loss_asl/`）：验证阈值下 micro-F1 基线 0.9492 / focal 0.9503 / ASL 0.9481，逐种子差 ≤0.006（小于种子噪声）；ASL 固定 0.5 因负样本调制压零而崩溃（0.5672±0.1756）；稀有类三者在三种损失下仍 F1=0 → **维持 bce 为主实验口径**；结论见 `experiments/results.md` §1.10。
 - 若所有类别均为 zero-positive，直接报错。
 - 记录 active/skipped 类别、`pos_c`、`neg_c` 和最终权重。
 - 必须有 zero-positive 合成测试：该类 loss 被排除、训练无 NaN、日志显示 skipped 类别。
@@ -266,6 +267,7 @@ M5 v5 完成标准：主 split 由经 API 校验的迭代分层生成；单图�
 
 1. **主指标改 micro-F1**：同分布内部测试与 DIVE 外部测试均以 **micro-F1（标签对级）**为主指标；**macro-F1 降为参考指标**，且报告时必须注明其构成——池内 **3 个类的正样本 ≤6**（dos 6 / front_running 4 / time_manipulation 5；另 access_control、arithmetic 各 15），seed0 的 val/test 中支撑 ≤2 的类分别为 **3 / 5** 个（`split_report.json::rule_check`）。
 2. **阈值搜索与早停目标改 val micro-F1**（协议形状不变）：阈值候选仍 0.2–0.8 步长 0.05、只在验证集选、tie 取较小阈值、双阈值报告；早停仍为连续 5 epoch 不提升，`ReduceLROnPlateau(mode=max, factor=0.5, patience=3)`；只把目标函数由 macro-F1 换成 micro-F1，macro-F1 同步记录作参考。**与上一轮“稀有类不在 val 单独调阈”合并为本条**：per-class 阈值仅作补充分析，不进主结果。
+   - **补充分析已执行（2026-09-14，`scripts/calibrate.py` → `eval_results/calibration/`；结论见 `experiments/results.md` §1.9）**：① per-class 阈值确实抬 macro-F1（0.2455→0.3236）但压主指标 micro-F1（0.9492→0.8106）且 val→test 落差 +0.07（过拟合），**确证其只能留在补充分析、不进主结果**；② 实测连续分辨率阈值与 0.05 网格的 val micro-F1 **逐位相同** → 主协议阈值网格无分辨率损失，协议不需改；③ 全局阈值下温度缩放对 micro-F1 **数学等价于换阈值**（无收益），温度缩放的价值只在标定度量（ECE 0.175→0.067，T<1 证明欠置信）。
 3. **逐类报告强制标注 support**：每类 Precision/Recall/F1 与 per-class PR-AUC 必须与该划分上的 support 同时给出；**support ≤2 的类，其 F1 只作描述性呈现，不得用于方法间比较结论**（全量数值可进附录）。
 4. **多标签叙事降级为架构性声明**：保留“输出空间为七维 sigmoid 多标签、评估用标签对级 micro 计数”的架构性表述；**撤回“检测多类共存”的实证声明**（同分布池内多标签去重后仅 1 个）。
    **DIVE 前置核查结论（已完成）**：`DIVE/contract_labels.json` 21696 条中 **14789 条（68.2%）为 ≥2 类**，均匀 900 抽样多标签期望 **613.5**（`docs/data_funnel.md` §3）→ DIVE 不是单标签主导，**多标签的实证主张只在 DIVE 上提**，同分布不复述。措辞定稿：**架构性声明 + DIVE 外部证据**。同分布池内多标签样本去重后为 **1 个**（§14.1），不足以支撑共存主张。

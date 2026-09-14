@@ -99,6 +99,49 @@ def test_masked_weighted_bce_all_zero_positive_raises():
         masked_weighted_bce(torch.randn(5, 7), labels, pos_weight, class_mask)
 
 
+def test_focal_and_asl_degenerate_to_bce_and_are_finite():
+    """focal(gamma=0) 与 asl(g_pos=g_neg=0, clip=0) 必须**逐位等于** bce；三者均不得 NaN/Inf。
+
+    退化等价是这三条损失共用同一加权结构的可证伪校验：调制因子的默认参数取中性值时，
+    唯一差异项消失，损失必须精确回到 bce（含 class_mask 与分母口径）。
+    """
+    B, C = 8, 7
+    torch.manual_seed(0)
+    z = torch.randn(B, C) * 3.0
+    labels = torch.zeros(B, C)
+    labels[:2, 0] = 1.0
+    labels[0, 1] = 1.0
+    labels[:3, 4] = 1.0
+    pos_weight, class_mask, _, _, _ = class_stats(labels)
+
+    base = masked_weighted_bce(z, labels, pos_weight, class_mask)              # loss="bce"
+    focal0 = masked_weighted_bce(z, labels, pos_weight, class_mask,
+                                 loss="focal", focal_gamma=0.0)
+    asl0 = masked_weighted_bce(z, labels, pos_weight, class_mask, loss="asl",
+                               asl_gamma_pos=0.0, asl_gamma_neg=0.0, asl_clip=0.0)
+    # 容差用相对误差：bce 分支走 F.binary_cross_entropy_with_logits（log-sum-exp），
+    # focal/asl 分支走 softplus 分解，float32 下两者有 ~1e-7 量级的表示差异（非语义差异）。
+    assert float(focal0) == pytest.approx(float(base), rel=1e-6)
+    assert float(asl0) == pytest.approx(float(base), rel=1e-6)
+
+    # 非退化参数：有限、正、且 focal/asl 小于 bce（调制因子 ∈(0,1) → 只可能调小）
+    for kw in [dict(loss="focal", focal_gamma=2.0),
+               dict(loss="asl", asl_gamma_pos=1.0, asl_gamma_neg=4.0, asl_clip=0.05)]:
+        v = masked_weighted_bce(z, labels, pos_weight, class_mask, **kw)
+        assert torch.isfinite(v) and float(v) > 0.0
+        assert float(v) < float(base)
+
+    # 极端 logits（±80）不产生 NaN/Inf（logsigmoid/softplus 表达的目的）
+    ze = torch.full((B, C), 80.0)
+    ze[::2] = -80.0
+    for kw in [dict(), dict(loss="focal", focal_gamma=2.0),
+               dict(loss="asl", asl_gamma_pos=1.0, asl_gamma_neg=4.0, asl_clip=0.05)]:
+        assert torch.isfinite(masked_weighted_bce(ze, labels, pos_weight, class_mask, **kw))
+
+    with pytest.raises(ValueError):
+        masked_weighted_bce(z, labels, pos_weight, class_mask, loss="nope")
+
+
 # ----------------------------------------------------------------- L_var
 def test_per_graph_population_std_single_node_and_two_graphs():
     # 单节点 → std≈0（开方内 eps 防 NaN，前向值 ≈0）

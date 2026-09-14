@@ -8,7 +8,9 @@
     `(train_seed, epoch)` 构造的 `torch.Generator`（顺序 = DropEdge → prior → struct，逐图独立）；
   - **双模块** `fuser`(NodeFuser) + `model`(SSMHG)：`SSMHG(in_dim=fuser.in_dim)` 从融合层回读维度，
     不硬编码 1631/128；checkpoint 必须同时存两者 `state_dict`；
-  - 损失 = masked weighted BCE（`pos_weight` 截断默认 20、`--pos-weight-cap 0` 放开；零正类用 `class_mask` 显式跳过）+ `lambda_var·L_var`；
+  - 损失 = masked 加权分类损失（`--loss bce`（主实验默认）/`focal`/`asl` 只改调制因子，加权结构与
+    class_mask 不变；`pos_weight` 截断默认 20、`--pos-weight-cap 0` 放开；零正类用 `class_mask` 显式跳过）
+    + `lambda_var·L_var`；
     `L_var` 按图 population std（不 detach），单节点 std=0、空图报错；
   - 优化 AdamW + `clip_grad_norm_(1.0)` + `ReduceLROnPlateau(mode="max")` 监控 **val micro-F1**；
     早停 = 连续 `--early-stop-patience` epoch 不提升；
@@ -78,13 +80,46 @@ def class_stats(labels: torch.Tensor, pos_weight_cap: float = 20.0):
 
 
 def masked_weighted_bce(z: torch.Tensor, labels: torch.Tensor,
-                        pos_weight: torch.Tensor, class_mask: torch.Tensor) -> torch.Tensor:
-    """逐元素 masked weighted BCE（无平滑项，decisions §2）。分母 = B × active_class_count。"""
+                        pos_weight: torch.Tensor, class_mask: torch.Tensor,
+                        loss: str = "bce", focal_gamma: float = 2.0,
+                        asl_gamma_pos: float = 1.0, asl_gamma_neg: float = 4.0,
+                        asl_clip: float = 0.05) -> torch.Tensor:
+    """逐元素 masked 加权损失（分母恒为 B × active_class_count）。
+
+    `loss="bce"`（主实验默认，decisions §2）= 加权 BCE，无平滑项；
+    `loss="focal"` = 在加权 BCE 上乘调制因子 `(1-p_t)^gamma`（gamma=focal_gamma）；
+    `loss="asl"` = 非对称损失（Ben-Baruch et al. 2020）：正项 `(1-p)^g_pos·BCE`、负项
+      `(p_m)^g_neg·BCE`，`p_m = max(p - clip, 0)`（clip 为负样本概率裕度）。
+
+    **三条损失共用同一加权结构**（正样本 × `pos_weight`、负样本 ×1）与同一 class_mask，因此
+    三者之间**唯一的差异就是调制因子**——这是把「损失形状」与「类别加权」两个变量隔离开的必要条件。
+    分母不变（B × active_class_count）：不采用 ASL 原文的「按正样本数归一」，否则总损失尺度随损失
+    形状变化，会与 lr/早停混在一起无法归因。代价是 focal/ASL 的梯度幅度小于 BCE，属预期。
+    概率项用 `logsigmoid`/`softplus` 表达以避免 `log(0)`（`p` 恰为 0/1 时不产生 NaN/Inf）。
+    """
     active_count = int(class_mask.sum())
     if active_count <= 0:
         raise ValueError("所有类别正样本均为 0，无法训练（应报错而非静默）")
-    bce = F.binary_cross_entropy_with_logits(z, labels, reduction="none")   # [B,7]
     weight = labels * pos_weight + (1.0 - labels)                            # 正样本×pos_weight、负样本×1
+    if loss == "bce":
+        bce = F.binary_cross_entropy_with_logits(z, labels, reduction="none")   # [B,7]
+    else:
+        # 数值稳定：-log sigmoid(z) = softplus(-z)；-log(1-sigmoid(z)) = softplus(z)
+        neg_log_p = F.softplus(-z)      # = -log p
+        neg_log_1mp = F.softplus(z)     # = -log(1-p)
+        bce = labels * neg_log_p + (1.0 - labels) * neg_log_1mp
+        if loss == "focal":
+            p = torch.sigmoid(z)
+            p_t = labels * p + (1.0 - labels) * (1.0 - p)   # 预测该标签「真值那一侧」的概率
+            bce = bce * (1.0 - p_t).pow(focal_gamma)
+        elif loss == "asl":
+            p = torch.sigmoid(z)
+            p_m = torch.clamp(p - asl_clip, min=0.0)        # 负样本概率裕度
+            mod = labels * (1.0 - p).pow(asl_gamma_pos) + \
+                (1.0 - labels) * p_m.pow(asl_gamma_neg)
+            bce = bce * mod
+        else:
+            raise ValueError(f"未知 loss='{loss}'（应为 bce/focal/asl）")
     masked = bce * weight * class_mask
     return masked.sum() / (labels.shape[0] * active_count)
 
@@ -150,6 +185,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--tau-var", type=float, default=0.1)
     p.add_argument("--pos-weight-cap", type=float, default=20.0,
                    help="pos_weight 截断上限（decisions §2）；0 或负数 = 不截断（放开，稀有类真实负正比全量生效）。")
+    p.add_argument("--loss", choices=["bce", "focal", "asl"], default="bce",
+                   help="分类损失形状（默认 bce=主实验口径）；focal/asl 仅改调制因子，加权结构不变。")
+    p.add_argument("--focal-gamma", type=float, default=2.0, help="focal 调制指数（--loss focal）。")
+    p.add_argument("--asl-gamma-pos", type=float, default=1.0, help="ASL 正样本指数（--loss asl）。")
+    p.add_argument("--asl-gamma-neg", type=float, default=4.0, help="ASL 负样本指数（--loss asl）。")
+    p.add_argument("--asl-clip", type=float, default=0.05, help="ASL 负样本概率裕度 m（--loss asl）。")
     p.add_argument("--prior-dropout", type=float, default=0.2, help="消融 --prior-dropout 0。")
     p.add_argument("--struct-dropout", type=float, default=0.2)
     p.add_argument("--model-dropout", type=float, default=0.3)
@@ -310,7 +351,10 @@ def main() -> None:
             struct_mask = struct_mask.to(device)
             x = fuser(channels, prior_mask=prior_mask, struct_mask=struct_mask, batch=batch)
             z, a, _ = model(x, ei, et, batch=batch)
-            loss_cls = masked_weighted_bce(z, labels, pos_weight, class_mask)
+            loss_cls = masked_weighted_bce(
+                z, labels, pos_weight, class_mask, loss=args.loss,
+                focal_gamma=args.focal_gamma, asl_gamma_pos=args.asl_gamma_pos,
+                asl_gamma_neg=args.asl_gamma_neg, asl_clip=args.asl_clip)
             std = per_graph_population_std(a, batch, B)
             loss_var = torch.relu(args.tau_var - std).mean()
             loss = loss_cls + args.lambda_var * loss_var

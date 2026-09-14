@@ -1,0 +1,564 @@
+{
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "classes": [
+    "access_control",
+    "arithmetic",
+    "dos",
+    "front_running",
+    "reentrancy",
+    "time_manipulation",
+    "uncheck"
+  ],
+  "std_ddof": 1,
+  "temperature": {
+    "0": {
+      "T": 0.709855,
+      "bce_before": 0.335561,
+      "bce_after": 0.321346
+    },
+    "1": {
+      "T": 0.392328,
+      "bce_before": 0.359485,
+      "bce_after": 0.276434
+    },
+    "2": {
+      "T": 0.205319,
+      "bce_before": 0.412542,
+      "bce_after": 0.233662
+    }
+  },
+  "global_threshold": {
+    "0": {
+      "raw": 0.75,
+      "calibrated": 0.8,
+      "raw_val_micro_f1": 0.955556,
+      "calibrated_val_micro_f1": 0.942857,
+      "calibrated_effective_raw": 0.727915
+    },
+    "1": {
+      "raw": 0.6,
+      "calibrated": 0.7,
+      "raw_val_micro_f1": 0.949206,
+      "calibrated_val_micro_f1": 0.939683,
+      "calibrated_effective_raw": 0.582348
+    },
+    "2": {
+      "raw": 0.55,
+      "calibrated": 0.7,
+      "raw_val_micro_f1": 0.95873,
+      "calibrated_val_micro_f1": 0.95873,
+      "calibrated_effective_raw": 0.543382
+    }
+  },
+  "per_class_thresholds_raw": {
+    "0": {
+      "access_control": 0.45,
+      "arithmetic": 0.55,
+      "dos": 0.2,
+      "front_running": 0.2,
+      "reentrancy": 0.75,
+      "time_manipulation": 0.2,
+      "uncheck": 0.75
+    },
+    "1": {
+      "access_control": 0.4,
+      "arithmetic": 0.45,
+      "dos": 0.2,
+      "front_running": 0.2,
+      "reentrancy": 0.6,
+      "time_manipulation": 0.25,
+      "uncheck": 0.55
+    },
+    "2": {
+      "access_control": 0.4,
+      "arithmetic": 0.5,
+      "dos": 0.2,
+      "front_running": 0.2,
+      "reentrancy": 0.55,
+      "time_manipulation": 0.25,
+      "uncheck": 0.55
+    }
+  },
+  "test_schemes": {
+    "baseline_fixed_0.5": {
+      "micro_f1": {
+        "mean": 0.90582,
+        "std": 0.039693,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.229982,
+        "std": 0.042845,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.592592,
+        "std": 0.08981,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.655556,
+          "std": 0.150308,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.566449,
+          "std": 0.112702,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.387872,
+          "std": 0.098418,
+          "n": 3
+        }
+      }
+    },
+    "baseline_val_threshold": {
+      "micro_f1": {
+        "mean": 0.949206,
+        "std": 0.014548,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.245465,
+        "std": 0.071988,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.674074,
+        "std": 0.078042,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.711111,
+          "std": 0.07698,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.77381,
+          "std": 0.215275,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.233333,
+          "std": 0.251661,
+          "n": 3
+        }
+      }
+    },
+    "temperature_global_threshold": {
+      "micro_f1": {
+        "mean": 0.94709,
+        "std": 0.017484,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.26346,
+        "std": 0.048086,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.674074,
+        "std": 0.06789,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.711111,
+          "std": 0.07698,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.789803,
+          "std": 0.189387,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.343305,
+          "std": 0.142272,
+          "n": 3
+        }
+      }
+    },
+    "per_class_threshold": {
+      "micro_f1": {
+        "mean": 0.810582,
+        "std": 0.040448,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.323639,
+        "std": 0.105858,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.266667,
+        "std": 0.225531,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.177778,
+          "std": 0.167774,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.711111,
+          "std": 0.07698,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.055556,
+          "std": 0.096225,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.166667,
+          "std": 0.288675,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.77381,
+          "std": 0.215275,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.022222,
+          "std": 0.03849,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.358333,
+          "std": 0.150693,
+          "n": 3
+        }
+      }
+    },
+    "temperature_per_class_threshold": {
+      "micro_f1": {
+        "mean": 0.910053,
+        "std": 0.040448,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.282113,
+        "std": 0.054134,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.592592,
+        "std": 0.071434,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.111111,
+          "std": 0.19245,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.711111,
+          "std": 0.07698,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.743183,
+          "std": 0.160325,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.409382,
+          "std": 0.122553,
+          "n": 3
+        }
+      }
+    },
+    "fine_grid_raw_threshold": {
+      "micro_f1": {
+        "mean": 0.94709,
+        "std": 0.012019,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.231179,
+        "std": 0.047253,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.659259,
+        "std": 0.055925,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.711111,
+          "std": 0.07698,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.77381,
+          "std": 0.215275,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.133333,
+          "std": 0.11547,
+          "n": 3
+        }
+      }
+    },
+    "fine_grid_calibrated_threshold": {
+      "micro_f1": {
+        "mean": 0.94709,
+        "std": 0.012019,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.231179,
+        "std": 0.047253,
+        "n": 3
+      },
+      "subset_accuracy": {
+        "mean": 0.659259,
+        "std": 0.055925,
+        "n": 3
+      },
+      "per_class_f1": {
+        "access_control": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "arithmetic": {
+          "mean": 0.711111,
+          "std": 0.07698,
+          "n": 3
+        },
+        "dos": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "front_running": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "reentrancy": {
+          "mean": 0.77381,
+          "std": 0.215275,
+          "n": 3
+        },
+        "time_manipulation": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "uncheck": {
+          "mean": 0.133333,
+          "std": 0.11547,
+          "n": 3
+        }
+      }
+    }
+  },
+  "calibration": {
+    "val_raw": {
+      "macro_ece": {
+        "mean": 0.17478,
+        "std": 0.083824,
+        "n": 3
+      },
+      "macro_brier": {
+        "mean": 0.108623,
+        "std": 0.011824,
+        "n": 3
+      }
+    },
+    "val_calibrated": {
+      "macro_ece": {
+        "mean": 0.077467,
+        "std": 0.006415,
+        "n": 3
+      },
+      "macro_brier": {
+        "mean": 0.074795,
+        "std": 0.021956,
+        "n": 3
+      }
+    },
+    "test_raw": {
+      "macro_ece": {
+        "mean": 0.17483,
+        "std": 0.081883,
+        "n": 3
+      },
+      "macro_brier": {
+        "mean": 0.109587,
+        "std": 0.0125,
+        "n": 3
+      }
+    },
+    "test_calibrated": {
+      "macro_ece": {
+        "mean": 0.066948,
+        "std": 0.009682,
+        "n": 3
+      },
+      "macro_brier": {
+        "mean": 0.075732,
+        "std": 0.023587,
+        "n": 3
+      }
+    }
+  },
+  "overfit_audit": {
+    "0": {
+      "per_class_threshold": {
+        "val_macro_f1": 0.345578,
+        "test_macro_f1": 0.229252,
+        "val_test_gap": 0.116326,
+        "test_oracle_macro_f1": 0.391592,
+        "regret_vs_test_oracle": 0.16234
+      },
+      "temperature_per_class_threshold": {
+        "val_macro_f1": 0.310714,
+        "test_macro_f1": 0.220827,
+        "val_test_gap": 0.089887,
+        "test_oracle_macro_f1": 0.391592
+      }
+    },
+    "1": {
+      "per_class_threshold": {
+        "val_macro_f1": 0.403794,
+        "test_macro_f1": 0.303571,
+        "val_test_gap": 0.100223,
+        "test_oracle_macro_f1": 0.421151,
+        "regret_vs_test_oracle": 0.11758
+      },
+      "temperature_per_class_threshold": {
+        "val_macro_f1": 0.325397,
+        "test_macro_f1": 0.323413,
+        "val_test_gap": 0.001984,
+        "test_oracle_macro_f1": 0.421151
+      }
+    },
+    "2": {
+      "per_class_threshold": {
+        "val_macro_f1": 0.430736,
+        "test_macro_f1": 0.438095,
+        "val_test_gap": -0.007359,
+        "test_oracle_macro_f1": 0.585698,
+        "regret_vs_test_oracle": 0.147603
+      },
+      "temperature_per_class_threshold": {
+        "val_macro_f1": 0.356061,
+        "test_macro_f1": 0.302098,
+        "val_test_gap": 0.053963,
+        "test_oracle_macro_f1": 0.585698
+      }
+    }
+  },
+  "note": "标定/per-class 阈值仅为补充分析，不进主结果；AP/ROC-AUC/mAP 对逐类单调变换不变。"
+}

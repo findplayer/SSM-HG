@@ -1,0 +1,126 @@
+{
+  "args": {
+    "seed": 1,
+    "split_seed": null,
+    "epochs": 200,
+    "batch_size": 32,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "lambda_var": 0.001,
+    "tau_var": 0.1,
+    "pos_weight_cap": 20.0,
+    "loss": "asl",
+    "focal_gamma": 2.0,
+    "asl_gamma_pos": 1.0,
+    "asl_gamma_neg": 4.0,
+    "asl_clip": 0.05,
+    "prior_dropout": 0.2,
+    "struct_dropout": 0.2,
+    "model_dropout": 0.3,
+    "scheduler_patience": 3,
+    "early_stop_patience": 5,
+    "drop_edge_prob": 0.0,
+    "limit_graphs": 0,
+    "drop_edges": "",
+    "drop_ast": false,
+    "conv": "rgcn",
+    "meanpool": false,
+    "num_bases": 5,
+    "hid": 128,
+    "ablate_sv": false,
+    "cb_channels": "cb_func,cb_node",
+    "feat_groups": "all",
+    "deterministic": false,
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+    "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
+    "out_dir": "runs/loss_asl",
+    "verify_channel_hash": false
+  },
+  "split_seed": 1,
+  "derived": {
+    "D_struct": 30,
+    "struct_layout": {
+      "visibility": 4,
+      "bool": 14,
+      "call_mode": 5,
+      "position": 1,
+      "ir": 6
+    },
+    "fuser_in_dim": 1631,
+    "fuser_hidden": 128,
+    "num_relations": 5,
+    "num_classes": 7,
+    "pos_weight": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      16.047619,
+      20.0,
+      9.228572
+    ],
+    "class_mask": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "active_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "skipped_classes": [],
+    "train_pos": [
+      10,
+      10,
+      4,
+      2,
+      21,
+      3,
+      35
+    ],
+    "train_neg": [
+      348,
+      348,
+      354,
+      356,
+      337,
+      355,
+      323
+    ],
+    "train_graphs": 358,
+    "val_graphs": 45,
+    "parameter_report": {
+      "fuser_params": 209472,
+      "fuser_learnable_params": 209472,
+      "rgcn_params": 205754,
+      "rgcn_learnable_params": 205754,
+      "total_params": 415226,
+      "total_learnable_params": 415226
+    }
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3",
+    "torch_num_threads": 12
+  },
+  "timing": {
+    "run_wall_seconds": 38.5529,
+    "data_load_seconds": 26.6049,
+    "train_seconds": 9.947,
+    "validation_seconds": 0.7922,
+    "epoch_seconds_mean": 0.4296,
+    "graphs_per_second": 899.7643,
+    "train_graphs": 8950,
+    "epochs_completed": 25
+  }
+}

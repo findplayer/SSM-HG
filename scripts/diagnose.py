@@ -244,7 +244,7 @@ def main() -> None:
     summary = aggregate(per_seed)
     (runs_dir / "diagnosis_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"跨种子聚合 → runs/diagnosis_summary.json")
+    print(f"跨种子聚合 → {runs_dir / 'diagnosis_summary.json'}")
 
 
 if __name__ == "__main__":
