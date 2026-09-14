@@ -22,6 +22,8 @@ M5 的核心交付物是三件脚本 + M5 CI smoke，完成「图级七类多标
 
 阶段 A–E 是 **M5 本体**（本文主体）；F、G 依赖 M5 跑通后执行，本文给出可执行路线与关键口径，但不阻塞 M5 本体。
 
+> **执行状态（2026-09-13）**：阶段 A–D（`metrics.py`/`train.py`/`evaluate.py` + M5 CI smoke）已实现并验收（`pytest tests/` **64 passed**）；阶段 E 主实验已跑通（CUDA/RTX 4070 Laptop）——micro-F1（主指标）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；结果与训练时间/吞吐见 `runs/summary.json`、`runs/seed*/config.json::timing` 与 `experiments/decisions.md` §17；阶段 F/G 待执行。
+
 > 边界：DIVE 只做一次性外部测试，不参与训练/验证/早停/阈值/模型选择；SolidiFI 只做层次二合成注入节点覆盖评估。两者均不进入 `runs/`。
 
 ---
@@ -361,7 +363,7 @@ train 358 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；�
 3. **checkpoint 双模块**：`fuser` 与 `model` 是独立模块，漏存其一即恢复失败——已列为 smoke 断言。
 4. **val 只有 45 图、多类 support=1**：val micro-F1 会因单图翻转而抖动，早停/阈值选择在极小集上敏感；按手册记录 train/val 差距，不据此调协议。测试集 support≤2 的类仅描述性呈现。
 5. **CPU 训练耗时**：见 §8.3，单 seed 约 10–30 分钟，可行；不引入 AMP/warmup/ensemble（decisions §8 不纳入主方案）。
-6. **`NodeFuser` 输入维 1631** 固定由 `D_struct=30`/`cb_channels=2`/`type_dim=64` 决定；`--cb-channels` 消融会改变 `proj.in_features`，必须从 `fuser.in_dim` 回读传给 `SSMHG(in_dim=...)`，不得硬编码 128/1631。
+6. **`NodeFuser` 融合输入维 1631** 固定由 `D_struct=30`/`cb_channels=2`/`type_dim=64` 决定；`--cb-channels` 消融会改变 `proj.in_features`（仅影响融合层自身）。`SSMHG(in_dim=...)` 接收 fuser 的**输出** h_v^(0) ∈ R^128，必须从 `fuser.hidden`（恒 128）回读，不得硬编码 128/1631。~~原稿误写 `fuser.in_dim`~~（已更正为 `fuser.hidden`，2026-09-12 实现期发现）。
 
 ---
 

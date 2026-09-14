@@ -9,3 +9,7 @@ products/**/graphs/
 
 # 147 MB，超过 GitHub 单文件 100 MB 限制，仅保留在本地，不纳入版本管理
 DIVE/Code-based.csv
+
+# M5 训练产物：checkpoint（best.pt/last.pt/val_best_probs.pt 大文件）不纳入版本管理；
+# JSON 实验记录（config.json/log.txt/results.json/thresholds.json/summary.json）仍纳入
+runs/**/*.pt

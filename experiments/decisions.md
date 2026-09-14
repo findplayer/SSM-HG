@@ -35,6 +35,7 @@ v5 的执行优先级是：先实现并测试数据划分与损失，再实现�
 - 只使用训练集统计 `pos_c` 和 `neg_c`。
 - 若 `pos_c > 0`：`pos_weight_c = min(neg_c / pos_c, 20)`。
 - 若 `pos_c == 0`：使用 `class_mask[c] = 0` 从逐元素 BCE 的分子和分母中排除该类别，不使用 `pos_weight=0`。
+- 截断上限默认 20，`--pos-weight-cap` 可调（`0`/负数 = 不截断）。消融（2026-09-14，`runs/pw_unclamped/`）：放开截断后稀有类（dos/front_running/time_manipulation）仍 F1≈0、arithmetic 反降（0.656→0.316）、固定 0.5 主指标 micro-F1 0.906→0.815，故**维持 cap=20**；结论见 `experiments/results.md` §1.8。
 - 若所有类别均为 zero-positive，直接报错。
 - 记录 active/skipped 类别、`pos_c`、`neg_c` 和最终权重。
 - 必须有 zero-positive 合成测试：该类 loss 被排除、训练无 NaN、日志显示 skipped 类别。
@@ -501,5 +502,10 @@ M5 v5 完成标准：主 split 由经 API 校验的迭代分层生成；单图�
 1. **训练/划分种子语义（定稿）**：`train.py` 引入 `--seed`（**训练种子**：模型初始化、先验/结构 dropout、训练集打乱、DropEdge 随机流）与 `--split-seed`（读 `split_seed{split_seed}.json`，**默认 = `--seed`**）。主实验 = seed0/1/2，每个 seed 用**同名划分 × 同名训练种子**，`summary.json` 报三种子均值±std、主表固定 seed0。两类种子显式分离（`--split-seed` 独立可变），满足大纲 5.1「训练种子不改变划分」的可测性，同时支持「固定划分 seed0、变训练种子」的稳健性补充实验——两种口径共用同一套代码，只差 CLI 传参。
 2. **批图 collate（定稿）**：自实现 collate，**不引入 PyG `Data`/`DataLoader`**——数据是自定义通道字典而非标准 `Data`，`NodeFuser` 接口即「批通道 + batch 向量」。拼接 = 通道沿节点维 cat + `edge_index` 加节点偏移 + `edge_type` cat + batch 向量 + labels stack；DropEdge 先逐图 mask 再 batch（`model.apply_edge_mask`），随机流 = `(train_seed, epoch, stable_graph_index)`。
 3. **checkpoint 双模块**：`fuser`（NodeFuser）与 `model`（SSMHG）是两个独立模块，`best.pt`/`last.pt` 必须同时存两者 `state_dict`；恢复时从 config 的 `d_struct/struct_layout/ablate/...` 重建。
-4. **维度回读**：`NodeFuser` 融合输入维 = `768*len(cb_channels) + 64 + D_struct + 1`（主配置 1631），`--cb-channels` 消融会改变该维；`SSMHG(in_dim=...)` 必须从 `fuser.in_dim` 回读，不得硬编码。
+4. **维度回读**：`NodeFuser` 融合输入维 = `768*len(cb_channels) + 64 + D_struct + 1`（主配置 1631，`--cb-channels` 消融会改变该维，仅影响融合层自身）；`SSMHG(in_dim=...)` 接收 fuser 的**输出** h_v^(0) ∈ R^128，必须从 `fuser.hidden`（恒 128）回读，不得硬编码。~~原稿误写 `fuser.in_dim`~~（那是融合输入 1631，已更正为 `fuser.hidden`，2026-09-12 实现期发现）。
 5. **阶段顺序**：A `metrics.py` → B `train.py` → C `evaluate.py` → D CI smoke → E 主实验（3 seed → `summary.json`）→ F 消融/基线 → G 跨数据集（阶段 5）。任何一项未过窄范围 smoke，不进入下一项。
+
+## 17. 主实验结果（2026-09-13 执行记录）
+
+> 3 种子主实验已跑通（CUDA/RTX 4070 Laptop，torch 2.0.1+cu118）：micro-F1（主指标）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；macro-F1 参考 0.2300±0.0428；mAP 0.4139±0.1070。
+> 完整明细（逐种子/逐类/训练时间与吞吐/产物清单）见 `experiments/results.md` §1，结果数字单一维护于此、本文不重复。

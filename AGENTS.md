@@ -12,7 +12,8 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 
 ## 运行环境
 
-- 一律在 **conda base** 环境运行：slither 0.11.5、solc-select、python 3.11、torch 2.0.1（CPU 版）、torch_geometric 2.7.0、transformers 4.29.2。
+- 一律在 **conda base** 环境运行：slither 0.11.5、solc-select、python 3.11、torch 2.0.1+cu118（GPU 版，RTX 4070；无 CUDA 时自动回退 CPU）、torch_geometric 2.7.0（含 torch-scatter/sparse/cluster 的 CUDA 扩展）、transformers 4.29.2。
+- 训练/推理设备：`train.py`/`evaluate.py` 自动 `cuda if available else cpu`，数据经 `collate(..., device=...)` 上设备、模型 `.to(device)`；无 GPU 时行为与 CPU 版完全一致。
 - 脚本统一**从仓库根目录**运行：`python scripts/xxx.py`。不要 `cd scripts`，也不要从根目录直接 `import` 脚本。
 - 测试：`pytest tests/ -q`，或 `python tests/test_model_smoke.py`。
 - 批量运行前先 `--help` 或显式传参确认，不要依赖默认路径盲跑。
@@ -59,9 +60,9 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 需要裁定的要给出几种方案的区别、优劣、产物差异、对论文的影响，便于裁定。
 - 提交前确认没有把只读数据源或超过 100 MB 的文件加入提交。
 
-## 当前进度（2026-09-12）
+## 当前进度（2026-09-13）
 
 - 已完成：M1–M4；`scripts/` 中 `dataset.py`、`make_splits.py` 已实现（2026-09-12：覆盖约束校正 `--strategy constrained`（默认）+ `coverage_swaps_seed*.txt`、`splits.csv`、split metadata；三种子 C1/C2 构造达标，主种子 seed0）。
-- 待实现：`scripts/metrics.py`、`scripts/train.py`、`scripts/evaluate.py`（M5）。
+- 已完成（2026-09-12）：M5 主体 `scripts/{metrics,train,evaluate}.py` 落地，`pytest tests/` **64 passed**，train/evaluate/summary 全链路 smoke 通过。**3 种子主实验已跑通（2026-09-13，CUDA/RTX 4070 Laptop）**：micro-F1（主指标，标签对级）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**；macro-F1（参考）固定 0.5 = 0.2300±0.0428；mAP = 0.4139±0.1070；训练时间/吞吐见 `runs/seed*/config.json::timing`（wall 40.8/16.3/16.0 s、graphs/s 924/660/1003）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
 - 2026-09-12 目录重构（方案 B）：数据集产物统一迁入 `products/<数据集>/`；脚本默认路径、.gitignore 与文档已同步；`products/{dive,solidifi}/`、`runs/`、`eval_results/{ablation,baseline,dive,solidifi}/` 已建。
 - 目录与状态详情见 `项目组织架构.md` 末节。

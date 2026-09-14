@@ -1,0 +1,432 @@
+#!/usr/bin/env python3
+"""M5 训练闭环（手册 10.3/10.4/12.6；大纲改II 4.5.1；`docs/M5_dev_plan.md` §5）。
+
+契约（只 import `model`/`dataset`/`metrics`/stdlib；**不引入 PyG DataLoader**）：
+  - 数据 = `dataset.load_graph` 的 `GraphSample` 列表（通道字典 + 边 + 标签），一次性进内存；
+  - 批图 = **自实现 collate**：通道沿节点维 cat + `edge_index` 加节点偏移 + `edge_type` cat +
+    batch 向量 + labels stack；DropEdge 先逐图 mask 再 batch（`model.apply_edge_mask`），随机流 =
+    `(train_seed, epoch)` 构造的 `torch.Generator`（顺序 = DropEdge → prior → struct，逐图独立）；
+  - **双模块** `fuser`(NodeFuser) + `model`(SSMHG)：`SSMHG(in_dim=fuser.in_dim)` 从融合层回读维度，
+    不硬编码 1631/128；checkpoint 必须同时存两者 `state_dict`；
+  - 损失 = masked weighted BCE（`pos_weight` 截断默认 20、`--pos-weight-cap 0` 放开；零正类用 `class_mask` 显式跳过）+ `lambda_var·L_var`；
+    `L_var` 按图 population std（不 detach），单节点 std=0、空图报错；
+  - 优化 AdamW + `clip_grad_norm_(1.0)` + `ReduceLROnPlateau(mode="max")` 监控 **val micro-F1**；
+    早停 = 连续 `--early-stop-patience` epoch 不提升；
+  - 训练期先验/结构 dropout：`sample_dropout_masks` 逐图采样，随 batch 传入 `NodeFuser`；验证不传掩码；
+  - 日志 JSONL（每 epoch 一行）：epoch/loss_total/loss_cls/loss_var/**score_mean/score_std**（训练期
+    a_v 统计，见 10.4 骨架）/val_macro_f1/val_micro_f1/lr/epoch_seconds/samples_processed（累计节点）/
+    graphs_processed（累计图）/gpu_mem_allocated（CPU 为 null）；
+  - 种子语义（`experiments/decisions.md` §16）：`--seed`=训练种子（SSMHG 初始化/先验+结构 dropout/
+    训练集打乱/DropEdge 随机流）、`--split-seed`（默认=`--seed`）读 `split_seed{split_seed}.json`。
+
+产物（`runs/seed{seed}/`）：`config.json`（全量参数+派生量+环境/计时）、`log.txt`（epoch JSONL）、
+`best.pt`/`last.pt`（fuser+model+optimizer+config+seed）、`val_best_probs.pt`（best epoch 的 val
+probs/labels/threshold，供 evaluate 复用免重复推理）、`thresholds.json`（best epoch 全候选扫描）。
+`results.json`（内部测试双报告）由 `evaluate.py` 写，本文件不写。
+
+smoke：`python scripts/train.py --seed 0 --limit-graphs 1 --epochs 2` 完成前向/反向/checkpoint/日志。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import platform
+import random
+import time
+from pathlib import Path
+
+import torch
+import torch.nn.functional as F
+
+import metrics
+from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, collate,
+                     load_graph)
+from model import (AblationConfig, NodeFuser, SSMHG, parameter_report,
+                   sample_dropout_masks)
+
+BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
+DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
+DEFAULT_OUT_DIR = f"{BASE}/runs"
+NUM_CLASSES = 7
+NUM_RELATIONS = 5
+STD_EPS = 1e-8          # 开方内 eps：防 std=0（单节点图）时 sqrt 反向梯度 NaN；前向值 ≈0 不变语义
+
+
+# --------------------------------------------------------------------------- 纯函数（可单测）
+def class_stats(labels: torch.Tensor, pos_weight_cap: float = 20.0):
+    """训练集类别统计 → (pos_weight[7], class_mask[7], active_count, train_pos, train_neg)。
+
+    pos_weight_c = min(neg_c/pos_c, pos_weight_cap)（pos_c>0；pos_weight_cap<=0 时不截断）；
+    pos_c==0 → pos_weight=0 且 class_mask=0（从逐元素 BCE 的分子分母显式排除，
+    **不传 pos_weight=0 给 BCE**，decisions §2）。默认 cap=20（主实验）；`--pos-weight-cap 0`
+    放开截断（消融欠置信根因，稀有类真实负正比 88–178 全量生效）。
+    """
+    train_pos = labels.sum(0)
+    n = float(labels.shape[0])
+    train_neg = n - train_pos
+    ratio = train_neg / train_pos.clamp(min=1.0)
+    if pos_weight_cap > 0:
+        ratio = torch.clamp(ratio, max=pos_weight_cap)
+    pos_weight = torch.where(
+        train_pos > 0,
+        ratio,
+        torch.zeros_like(train_pos))
+    class_mask = (train_pos > 0).float()
+    active_count = int(class_mask.sum())
+    return pos_weight, class_mask, active_count, train_pos, train_neg
+
+
+def masked_weighted_bce(z: torch.Tensor, labels: torch.Tensor,
+                        pos_weight: torch.Tensor, class_mask: torch.Tensor) -> torch.Tensor:
+    """逐元素 masked weighted BCE（无平滑项，decisions §2）。分母 = B × active_class_count。"""
+    active_count = int(class_mask.sum())
+    if active_count <= 0:
+        raise ValueError("所有类别正样本均为 0，无法训练（应报错而非静默）")
+    bce = F.binary_cross_entropy_with_logits(z, labels, reduction="none")   # [B,7]
+    weight = labels * pos_weight + (1.0 - labels)                            # 正样本×pos_weight、负样本×1
+    masked = bce * weight * class_mask
+    return masked.sum() / (labels.shape[0] * active_count)
+
+
+def per_graph_population_std(a: torch.Tensor, batch: torch.Tensor, n_graphs: int) -> torch.Tensor:
+    """按图 population std（unbiased=False，等价 torch.std；**不 detach**，decisions §3）。
+
+    a:[N]、batch:[N] long → [n_graphs]。用 sum/sum-of-squares/count 分组；n==1 → std=0（精确），
+    n==0 → 报错。var 做非负 clamp 再开方，防浮点负零。
+    """
+    if n_graphs <= 0 or int(a.numel()) == 0:
+        raise ValueError("per_graph_population_std：空输入（无图或无节点）")
+    cnt = torch.zeros(n_graphs, dtype=a.dtype, device=a.device)
+    cnt.index_add_(0, batch, torch.ones_like(a))
+    if bool((cnt <= 0).any()):
+        raise ValueError("per_graph_population_std：存在节点数为 0 的空图")
+    s = torch.zeros(n_graphs, dtype=a.dtype, device=a.device)
+    s.index_add_(0, batch, a)
+    ss = torch.zeros(n_graphs, dtype=a.dtype, device=a.device)
+    ss.index_add_(0, batch, a * a)
+    mean = s / cnt
+    var = torch.clamp(ss / cnt - mean * mean, min=0.0)
+    return torch.sqrt(var + STD_EPS)
+
+
+def build_fuser_model(meta: dict, ablation: AblationConfig, cfg: argparse.Namespace):
+    """从图 meta 读取维度 → (fuser, model)。`SSMHG(in_dim=fuser.in_dim)` 回读，不硬编码。
+
+    顺序：先建 fuser（内部 fork_rng、不动全局 RNG），再 `torch.manual_seed(seed)` 建 SSMHG
+    （训练种子只控制 SSMHG 初始化 + 训练期随机流；fuser 初始化由固定 FUSER_INIT_SEED 决定）。
+    """
+    d_struct = int(meta["D_struct"])
+    struct_layout = dict(meta["struct_layout"])
+    fuser = NodeFuser(d_struct, struct_layout, ablate=ablation,
+                      prior_dropout=cfg.prior_dropout, struct_dropout=cfg.struct_dropout)
+    torch.manual_seed(cfg.seed)
+    # SSMHG 接收 fuser 的**输出** h_v^(0) ∈ R^128 → in_dim = fuser.hidden（而非融合输入 fuser.in_dim=1631）。
+    model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=NUM_RELATIONS,
+                  num_bases=cfg.num_bases, num_classes=NUM_CLASSES, dropout=cfg.model_dropout,
+                  conv_type=cfg.conv, use_meanpool=cfg.meanpool)
+    return fuser, model
+
+
+def _to_list(t: torch.Tensor) -> list:
+    return [round(float(v), 6) for v in t.detach().cpu().tolist()]
+
+
+def _int_list(t: torch.Tensor) -> list:
+    return [int(v) for v in t.detach().cpu().tolist()]
+
+
+def parse_args() -> argparse.Namespace:
+    """CLI（对齐 `docs/M5_dev_plan.md` §5.6；消融开关透传到 dataset/model）。"""
+    p = argparse.ArgumentParser(description="M5 train: graph-level 7-way multi-label classification.")
+    p.add_argument("--seed", type=int, default=0, help="训练种子（SSMHG 初始化/dropout/打乱/DropEdge）。")
+    p.add_argument("--split-seed", type=int, default=None,
+                   help="读 split_seed{split-seed}.json；默认 = --seed（decisions §16）。")
+    p.add_argument("--epochs", type=int, default=200)
+    p.add_argument("--batch-size", type=int, default=32)
+    p.add_argument("--lr", type=float, default=1e-4)
+    p.add_argument("--weight-decay", type=float, default=1e-4)
+    p.add_argument("--lambda-var", type=float, default=1e-3, help="L_var 系数（消融 --lambda-var 0）。")
+    p.add_argument("--tau-var", type=float, default=0.1)
+    p.add_argument("--pos-weight-cap", type=float, default=20.0,
+                   help="pos_weight 截断上限（decisions §2）；0 或负数 = 不截断（放开，稀有类真实负正比全量生效）。")
+    p.add_argument("--prior-dropout", type=float, default=0.2, help="消融 --prior-dropout 0。")
+    p.add_argument("--struct-dropout", type=float, default=0.2)
+    p.add_argument("--model-dropout", type=float, default=0.3)
+    p.add_argument("--scheduler-patience", type=int, default=3)
+    p.add_argument("--early-stop-patience", type=int, default=5)
+    p.add_argument("--drop-edge-prob", type=float, default=0.0, help="DropEdge（默认关，先单图 mask 再 batch）。")
+    p.add_argument("--limit-graphs", type=int, default=0,
+                   help="小样：只取前 N 个 train/val 图（smoke）。0=全量。")
+    p.add_argument("--drop-edges", default="", help="边级消融：逗号分隔物理关系编号（白名单外报错）。")
+    p.add_argument("--drop-ast", action="store_true", help="边级消融：删 relation 1+2（AST_PARENT+AST_PARENT_SAME）。")
+    p.add_argument("--conv", choices=["rgcn", "gcn"], default="rgcn")
+    p.add_argument("--meanpool", action="store_true")
+    p.add_argument("--num-bases", type=int, default=5)
+    p.add_argument("--hid", type=int, default=128)
+    p.add_argument("--ablate-sv", action="store_true", help="特征消融：s_v 通道恒零（AblationConfig）。")
+    p.add_argument("--cb-channels", default="cb_func,cb_node",
+                   help="特征消融：参与拼接的 CodeBERT 通道子集（逗号分隔，如 cb_node=去函数级）。")
+    p.add_argument("--feat-groups", choices=["all", "base", "base+sem"], default="all")
+    p.add_argument("--deterministic", action="store_true", help="完整确定性开关（非主实验默认）。")
+    p.add_argument("--graph-dir", default=DEFAULT_GRAPH_DIR)
+    p.add_argument("--split-dir", default=DEFAULT_SPLIT_DIR)
+    p.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
+    p.add_argument("--verify-channel-hash", action="store_true", help="额外校验 cb 两通道哈希。")
+    return p.parse_args()
+
+
+def _load_split_samples(split_path: str, graph_dir: str, ab: Ablation, index: dict,
+                        verify: str, limit: int):
+    """读 split json → 按序 load_graph（train/val 各限前 `limit` 个）。返回 (train, val, meta)。"""
+    with open(split_path, encoding="utf-8") as fh:
+        split = json.load(fh)
+    # --limit-graphs 为 smoke 专用：取前 N 个**含正样本**的 train 图（保证 masked BCE 的
+    # active_count>0，否则前若干图多为全零样本会触发「全零正类报错」）；val 直接取前 N 个。
+    if limit:
+        train_bases = [b for b in split["train"] if any(index[b])][:limit]
+        val_bases = split["val"][:limit]
+    else:
+        train_bases = split["train"]
+        val_bases = split["val"]
+    train = [load_graph(b, graph_dir=graph_dir, ab=ab, index=index, verify_channels=verify)
+             for b in train_bases]
+    val = [load_graph(b, graph_dir=graph_dir, ab=ab, index=index, verify_channels=verify)
+           for b in val_bases]
+    meta = train[0].meta
+    for s in train + val:
+        assert int(s.meta["D_struct"]) == int(meta["D_struct"]) and \
+            s.meta["struct_layout"] == meta["struct_layout"], \
+            "train/val 图之间的 D_struct/struct_layout 不一致（数据契约破坏）"
+    return train, val, meta
+
+
+def main() -> None:
+    args = parse_args()
+    split_seed = args.split_seed if args.split_seed is not None else args.seed
+    if args.deterministic:
+        torch.set_num_threads(1)
+        torch.manual_seed(args.seed)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    run_dir = Path(args.out_dir) / f"seed{args.seed}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    t_run_start = time.perf_counter()
+
+    # ---- 数据加载（计时）----
+    t0 = time.perf_counter()
+    index, _ = build_index(Path(args.graph_dir))
+    ab = Ablation(drop_edges={int(t) for t in args.drop_edges.split(",") if t.strip()},
+                  drop_ast=args.drop_ast)
+    verify = "all" if args.verify_channel_hash else "cheap"
+    train_samples, val_samples, meta = _load_split_samples(
+        f"{args.split_dir}/split_seed{split_seed}.json", args.graph_dir, ab, index,
+        verify, args.limit_graphs)
+    data_load_seconds = time.perf_counter() - t0
+
+    # ---- 模型组装（维度从 meta 回读）----
+    ablation = AblationConfig(ablate_sv=args.ablate_sv, feat_groups=args.feat_groups,
+                              cb_channels=tuple(args.cb_channels.split(",")))
+    fuser, model = build_fuser_model(meta, ablation, args)
+    fuser.to(device)
+    model.to(device)
+
+    # ---- 类别统计（只用训练集）----
+    train_labels = torch.stack([s.label for s in train_samples])
+    pos_weight, class_mask, active_count, train_pos, train_neg = class_stats(
+        train_labels, pos_weight_cap=args.pos_weight_cap)
+    active_classes = [i for i in range(NUM_CLASSES) if int(class_mask[i]) == 1]
+    skipped_classes = [i for i in range(NUM_CLASSES) if int(class_mask[i]) == 0]
+
+    params = list(fuser.parameters()) + list(model.parameters())
+    opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        opt, mode="max", factor=0.5, patience=args.scheduler_patience)
+
+    # ---- config（全量参数 + 派生量 + 环境；计时在结束追加）----
+    config = {
+        "args": vars(args),
+        "split_seed": split_seed,
+        "derived": {
+            "D_struct": int(meta["D_struct"]),
+            "struct_layout": meta["struct_layout"],
+            "fuser_in_dim": fuser.in_dim,          # 融合 Linear 输入维（主配置 1631；--cb-channels 消融会变）
+            "fuser_hidden": fuser.hidden,          # fuser 输出维 = SSMHG 输入维（恒 128）
+            "num_relations": NUM_RELATIONS,
+            "num_classes": NUM_CLASSES,
+            "pos_weight": _to_list(pos_weight),
+            "class_mask": _to_list(class_mask),
+            "active_classes": active_classes,
+            "skipped_classes": skipped_classes,
+            "train_pos": _int_list(train_pos),
+            "train_neg": _int_list(train_neg),
+            "train_graphs": len(train_samples),
+            "val_graphs": len(val_samples),
+            "parameter_report": parameter_report(fuser=fuser, rgcn=model),
+        },
+        "environment": {
+            "device": device,
+            "torch_version": torch.__version__,
+            "python_version": platform.python_version(),
+            "torch_num_threads": torch.get_num_threads(),
+        },
+    }
+
+    # ---- 训练设备：损失权重随 batch 上 device（模型在组装后已 .to(device)）----
+    pos_weight = pos_weight.to(device)
+    class_mask = class_mask.to(device)
+
+    # ---- 训练循环 ----
+    best_micro_f1 = float("-inf")
+    best_val_probs = None
+    bad_epochs = 0
+    train_seconds = 0.0
+    validation_seconds = 0.0
+    train_graphs_total = 0
+    cum_nodes = 0
+    log_lines: list[str] = []
+
+    for epoch in range(args.epochs):
+        t_epoch = time.perf_counter()
+
+        # -------- 训练 --------
+        model.train()
+        fuser.train()
+        order = list(range(len(train_samples)))
+        random.Random(args.seed * 100000 + epoch).shuffle(order)
+        gen = torch.Generator().manual_seed(args.seed * 100000 + epoch)
+        tot = {"loss_total": 0.0, "loss_cls": 0.0, "loss_var": 0.0,
+               "score_mean": 0.0, "score_std": 0.0}
+        n_batches = 0
+        t_train = time.perf_counter()
+        for i in range(0, len(order), args.batch_size):
+            samples = [train_samples[j] for j in order[i:i + args.batch_size]]
+            B = len(samples)
+            channels, ei, et, batch, labels = collate(
+                samples, drop_edge_prob=args.drop_edge_prob, generator=gen,
+                training=True, device=device)
+            prior_mask, struct_mask = sample_dropout_masks(
+                B, prior_p=args.prior_dropout, struct_p=args.struct_dropout, generator=gen)
+            prior_mask = prior_mask.to(device)
+            struct_mask = struct_mask.to(device)
+            x = fuser(channels, prior_mask=prior_mask, struct_mask=struct_mask, batch=batch)
+            z, a, _ = model(x, ei, et, batch=batch)
+            loss_cls = masked_weighted_bce(z, labels, pos_weight, class_mask)
+            std = per_graph_population_std(a, batch, B)
+            loss_var = torch.relu(args.tau_var - std).mean()
+            loss = loss_cls + args.lambda_var * loss_var
+            opt.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(params, 1.0)
+            opt.step()
+            tot["loss_total"] += float(loss.item())
+            tot["loss_cls"] += float(loss_cls.item())
+            tot["loss_var"] += float(loss_var.item())
+            tot["score_mean"] += float(a.detach().mean())
+            tot["score_std"] += float(std.detach().mean())
+            n_batches += 1
+            train_graphs_total += B
+            cum_nodes += int(a.numel())
+        train_seconds += time.perf_counter() - t_train
+
+        # -------- 验证（不采样掩码、不丢边）-----
+        t_val = time.perf_counter()
+        model.eval()
+        fuser.eval()
+        val_probs_list, val_labels_list = [], []
+        with torch.no_grad():
+            for i in range(0, len(val_samples), args.batch_size):
+                chunk = val_samples[i:i + args.batch_size]
+                B = len(chunk)
+                channels, ei, et, batch, labels = collate(chunk, training=False, device=device)
+                x = fuser(channels, batch=batch)
+                z, a, _ = model(x, ei, et, batch=batch)
+                val_probs_list.append(torch.sigmoid(z))
+                val_labels_list.append(labels)
+        val_probs = torch.cat(val_probs_list, dim=0)
+        val_labels = torch.cat(val_labels_list, dim=0)
+        validation_seconds += time.perf_counter() - t_val
+
+        thr = metrics.search_global_threshold(val_probs, val_labels)
+        val_micro_f1 = float(thr["best_micro_f1"])
+        val_macro_f1 = float(thr["best_macro_f1"])
+
+        scheduler.step(val_micro_f1)
+        epoch_seconds = time.perf_counter() - t_epoch
+
+        # -------- checkpoint / 早停 --------
+        improved = val_micro_f1 > best_micro_f1
+        if improved:
+            best_micro_f1 = val_micro_f1
+            bad_epochs = 0
+            best_val_probs = {"probs": val_probs, "labels": val_labels,
+                              "sample_ids": [s.name for s in val_samples],
+                              "threshold": thr["best_threshold"]}
+            torch.save({
+                "model_state_dict": model.state_dict(),
+                "fuser_state_dict": fuser.state_dict(),
+                "optimizer_state_dict": opt.state_dict(),
+                "epoch": epoch, "best_micro_f1": best_micro_f1,
+                "config": config, "seed": args.seed,
+            }, run_dir / "best.pt")
+            torch.save(best_val_probs, run_dir / "val_best_probs.pt")
+            (run_dir / "thresholds.json").write_text(
+                json.dumps(thr, ensure_ascii=False, indent=2), encoding="utf-8")
+        else:
+            bad_epochs += 1
+        torch.save({
+            "model_state_dict": model.state_dict(),
+            "fuser_state_dict": fuser.state_dict(),
+            "optimizer_state_dict": opt.state_dict(),
+            "epoch": epoch, "best_micro_f1": best_micro_f1,
+            "config": config, "seed": args.seed,
+        }, run_dir / "last.pt")
+
+        # -------- 日志（JSONL + 终端一行）-----
+        n = max(n_batches, 1)
+        row = {
+            "epoch": epoch,
+            "loss_total": tot["loss_total"] / n,
+            "loss_cls": tot["loss_cls"] / n,
+            "loss_var": tot["loss_var"] / n,
+            "score_mean": tot["score_mean"] / n,
+            "score_std": tot["score_std"] / n,
+            "val_macro_f1": val_macro_f1,
+            "val_micro_f1": val_micro_f1,
+            "lr": float(opt.param_groups[0]["lr"]),
+            "epoch_seconds": round(epoch_seconds, 4),
+            "samples_processed": cum_nodes,
+            "graphs_processed": train_graphs_total,
+            "gpu_mem_allocated": int(torch.cuda.memory_allocated()) if device == "cuda" else None,
+        }
+        log_lines.append(json.dumps(row, ensure_ascii=False))
+        print(f"epoch {epoch:3d} loss {row['loss_total']:.4f} clss {row['loss_cls']:.4f} "
+              f"var {row['loss_var']:.4f} sc_mean {row['score_mean']:.4f} sc_std {row['score_std']:.4f} "
+              f"val_micro {val_micro_f1:.4f} val_macro {val_macro_f1:.4f} "
+              f"lr {row['lr']:.2e} {epoch_seconds:.1f}s", flush=True)
+        if bad_epochs >= args.early_stop_patience:
+            print(f"early stop at epoch {epoch}（连续 {bad_epochs} epoch val micro-F1 不提升）")
+            break
+
+    # ---- 收尾：计时 + config.json + log.txt ----
+    run_wall_seconds = time.perf_counter() - t_run_start
+    epoch_seconds_mean = (train_seconds + validation_seconds) / max(epoch + 1, 1)
+    config["timing"] = {
+        "run_wall_seconds": round(run_wall_seconds, 4),
+        "data_load_seconds": round(data_load_seconds, 4),
+        "train_seconds": round(train_seconds, 4),
+        "validation_seconds": round(validation_seconds, 4),
+        "epoch_seconds_mean": round(epoch_seconds_mean, 4),
+        "graphs_per_second": round(train_graphs_total / train_seconds, 4) if train_seconds > 0 else 0.0,
+        "train_graphs": train_graphs_total,
+        "epochs_completed": epoch + 1,
+    }
+    (run_dir / "config.json").write_text(
+        json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
+    (run_dir / "log.txt").write_text("\n".join(log_lines) + "\n", encoding="utf-8")
+    print(f"done seed{args.seed} (split_seed{split_seed}): best val micro-F1={best_micro_f1:.4f} "
+          f"@ epoch; wall={run_wall_seconds:.1f}s train={train_seconds:.1f}s "
+          f"graphs/s={config['timing']['graphs_per_second']:.2f} → {run_dir}")
+
+
+if __name__ == "__main__":
+    main()

@@ -292,6 +292,50 @@ def load_graph(base: str, graph_dir: str = DEFAULT_GRAPH_DIR,
                        label=label, name=base, node_id=payload["node_id"], meta=sample_meta)
 
 
+def collate(samples, drop_edge_prob: float = 0.0, generator: "torch.Generator | None" = None,
+            training: bool = True, device: "str | torch.device | None" = None):
+    """list[GraphSample] → (channels, edge_index, edge_type, batch, labels)。
+
+    自实现批图（**不引入 PyG DataLoader**；decisions §16.2）：
+    - DropEdge（training 且 prob>0）：先对每个单图生成 keep mask 再过滤（等价 `model.apply_edge_mask`，
+      本层内联以避免 dataset→model 依赖），**绝不跨图**；
+    - 通道沿节点维 cat；`edge_index` 加节点偏移、`edge_type` cat；`batch`=[ΣN]（PyG 语义）；
+      `labels`=stack [B,7]。train/evaluate 共用。
+    - `device`（可选）：非 None 时把全部张量 `.to(device)` 后返回（GPU 训练/推理用；默认 None=留在
+      CPU，保持纯函数语义与既有单测不变）。
+    """
+    b = len(samples)
+    labels = torch.stack([s.label for s in samples])                     # [B,7]
+    channel_parts = {k: [] for k in CHANNEL_ORDER}
+    edge_parts, type_parts, node_counts = [], [], []
+    offset = 0
+    for s in samples:
+        ei, et = s.edge_index, s.edge_type
+        if training and drop_edge_prob > 0.0:
+            keep = torch.rand(int(ei.shape[1]), generator=generator) > drop_edge_prob
+            idx = keep.nonzero(as_tuple=False).squeeze(1)
+            ei, et = ei[:, idx], et[idx]
+        n = int(s.channels["sv"].shape[0])
+        edge_parts.append(ei + offset)
+        type_parts.append(et)
+        node_counts.append(n)
+        for k in CHANNEL_ORDER:
+            channel_parts[k].append(s.channels[k])
+        offset += n
+    channels = {k: torch.cat(channel_parts[k], dim=0) for k in CHANNEL_ORDER}
+    edge_index = torch.cat(edge_parts, dim=1) if edge_parts else torch.empty((2, 0), dtype=torch.long)
+    edge_type = torch.cat(type_parts, dim=0) if type_parts else torch.empty(0, dtype=torch.long)
+    batch = torch.repeat_interleave(torch.arange(b),
+                                    torch.tensor(node_counts, dtype=torch.long))
+    if device is not None:
+        channels = {k: v.to(device) for k, v in channels.items()}
+        edge_index = edge_index.to(device)
+        edge_type = edge_type.to(device)
+        batch = batch.to(device)
+        labels = labels.to(device)
+    return channels, edge_index, edge_type, batch, labels
+
+
 def parse_args() -> argparse.Namespace:
     """CLI：--check <base> 单图自检；--drop-ast / --drop-edges 演示边级消融；--verify-channel-hash。"""
     parser = argparse.ArgumentParser(description="M5 dataset layer (channel composition + checks).")

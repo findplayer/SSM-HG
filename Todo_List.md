@@ -3,6 +3,8 @@
 > 版本：2026-09-11（按 `研究点一细化大纲改II.docx` 复核：术语改“节点可疑度”、日志改名 `score_mean/score_std`、外部测试集改 **DIVE**、划分改固定种子 8:1:1（门槛 2026-09-12 修订：验证+内部测试合计每类正样本 ≥ 该类正样本总数的30%，原“≥20”）、CALLBACK_RISK 4.2.2 重写、结构特征 18 项+四组分组消融、消融拆 5.4.1/5.4.2、新增推理输出 4.5.4）
 > 依据：论文开发手册修订版（2026-09-11 按 `改II` 复核）+ 当前仓库真实状态
 > **本轮改动状态**：**M1~M3 已按 `改II` 落地并全链重跑通过**（见三/四/六节：CALLBACK_RISK 6328→509 边、172→85 图（**2026-09-12 R5 后 511 边/86 图**）；M1 七类 flags 21567（**R5 后 21571**）；M3 18 项+分组/单通道消融开关就绪；build×2 确定性一致、M4 22 用例全绿）；**M1–M4 抽查审计（2026-09-12）已执行**（581 图 M1 复算 0 差异、M2 回调边不变量 0 违规、13 合约语义抽样全部符合、M4 22 用例+真实前向通过；发现并修复 2 处文档口径问题，零行为改动，见四/六节）；**仍未完成**：M5 数据集（DIVE）/划分协议/日志字段/消融清单/推理输出（见八/十二节）。
+> **2026-09-12 M5 主体实现（阶段 A→D 完成）**：`scripts/{metrics,train,evaluate}.py` 已实现并验收——主指标 **micro-F1**、masked weighted BCE（pos_weight 截断 20 + 零正类 class_mask）+ 按图 population `L_var`（开方内 eps 防 std=0 反向 NaN）+ AdamW/ReduceLROnPlateau(val micro-F1)/早停、自实现批图 collate（`dataset.collate`，不用 PyG DataLoader）、双模块 checkpoint（fuser+model）、种子语义（`--seed`/`--split-seed`）、阈值双报告（固定 0.5 + val 阈值，`--summarize` 均值±std）；新增 `tests/{test_metrics,test_train_utils,test_evaluate}.py` 21 用例，`pytest tests/` **64 passed**；`train.py --limit-graphs 12 --epochs 3` → `evaluate.py --seed 0` → `--summarize` 全链路 smoke 通过（含 checkpoint 双模块 round-trip）。实现期修正：`SSMHG(in_dim=fuser.hidden)`（fuser 输出 128，非融合输入 1631，已同步 decisions §16/§11.6/Todo 12.6）；`--limit-graphs` 取前 N 个含正样本图（保证 smoke 损失可定义）。**3 种子主实验已完成（2026-09-13，CUDA/RTX 4070 Laptop）**，结果与训练时间/吞吐见下方 2026-09-13 记录；阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
+> **2026-09-13 M5 阶段 E 主实验完成（CUDA/RTX 4070 Laptop，torch 2.0.1+cu118）**：`train.py --seed {0,1,2} --epochs 200 --batch-size 32` → `evaluate.py --seed {0,1,2}` → `--summarize` 全跑通，`runs/seed{0,1,2}/` + `summary.json` 就绪。主指标 micro-F1（标签对级）：固定 0.5 = **0.9058±0.0397**（0.8603/0.9238/0.9333）、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；macro-F1（参考）固定 0.5 = 0.2300±0.0428；mAP = 0.4139±0.1070。训练时间/吞吐（§11.4 口径，`runs/seed*/config.json::timing`）：seed0/1/2 wall 40.8/16.3/16.0 s、train_seconds 7.4/6.0/3.2 s、graphs/s 924/660/1003、早停@epoch 18/10/8（best val micro-F1 0.9556/0.9492/0.9587）。完整结果（逐种子/逐类/计时/产物）见 `experiments/results.md` §1；七类逐类 F1/macro-F1 见 §1.4、逐类诊断与改进线索见 §1.7（`scripts/diagnose.py` 生成）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
 > 先决条件：先修好 Stage 0，再动 M2；M2 是第一最小原子模块，不要跳过。
 > **2026-09-12 目录重构（方案 B）**：产物统一迁入 `products/<数据集>/`——顶层 `raw/`→`products/alldata/raw/`、`Heterogeneous graphs/`→`products/alldata/graphs/`、`splits/`→`products/alldata/splits/`；新增 `products/dive/{raw,graphs,splits}`、`products/solidifi/{raw,graphs,mapping}` 与 `runs/`、`eval_results/{ablation,baseline,dive,solidifi}/`；脚本默认路径、.gitignore、手册/架构/copilot-instructions 已同步，迁移后 compileall + bash -n + pytest（22 passed）+ `dataset.py --check` 全绿；`_m1.json`/`batch_summary.json` 内嵌旧路径已全量刷新（581 文件，数值零差异）。
 > **2026-09-12 划分门槛修订（大纲 5.1 第三条）**：“≥20 个”改为“**验证集与内部测试集中的正样本合计 ≥ 该类正样本总数的30%**”；`make_splits.py` 增补 `splits.csv`（1485 行）、`split_metadata_seed{0,1,2}.json`、逐类 support 与 `rule_check` 门槛审核（三种子划分成员不变，sha256 校验通过；仅新增字段与新文件）；实测三种子均未达标（每种子 5–6/7 类不足；随机划分下 val+test 期望占比 ≈20% < 30%，换种子不可解）→ 约束分层重划/局限记录待决策。
@@ -264,7 +266,7 @@
   - [x] 风险记录：**DIVE/SolidiFI 数据已就位（2026-09-11）**；层次二与 5.5.1 需先建类别映射表（SolidiFI 前缀→七类；DIVE 已剔除 Bad Randomness，7 维可直接用）；验证集可能仅约 50 图、低正样本类（4~6 个）对 macro-F1 敏感，按手册记录训练/验证差距
 - [ ] 文件组织（2026-09-08 v5：metrics/train/evaluate 与 CI smoke 仍待实现）
   - [x] dataset.py：已完成（2026-09-07；数据层：_pyg.pt 结构 + _feat.pt(x) + 标签对齐加载断言 + 边级消融开关；不过 MLP，只组合与裁剪）
-  - [ ] metrics.py：需要新建（指标层：**micro-F1（主）**/macro-F1（参考，须标注 support）、每类 P/R/F1、mAP/macroPR-AUC；阈值扫描目标改 val micro-F1；train/evaluate/ablation 共用）
+  - [x] metrics.py：已实现（2026-09-12；指标层：**micro-F1（主）**/macro-F1（参考，须标注 support）、每类 P/R/F1、mAP/macroPR-AUC、subset accuracy、`search_global_threshold`（目标 val micro-F1、tie 取小、零正类跳过）；纯函数不 import dataset/model；`tests/test_metrics.py` 9 用例）
   - [x] make_splits.py（A2，2026-09-12）：`--strategy constrained`（默认）=固定种子随机基线 + **覆盖约束校正**（最小确定性替换；C1 合计 ≥30%、C2 每划分每类 ≥1）；输出 split_seed*/splits.csv/split_report（含 rule_check C1+C2、去重不变量与 coverage_fix）/coverage_swaps_seed*/split_metadata_seed*/dedup_dropped.txt/unmatched；`--strategy random` 输出隔离到 `random_snapshot/`（旧快照可逐字节复现）
   - [x] **T-A 两级池去重（2026-09-12 P1，已落地）**：`--dedup source-sha1+address`（默认）：level-1 源码内容 sha1 丢 46（内容相同的 asd_/nasd_ 副本，全为全零样本）+ level-2 项目标识/地址丢 1（**全库唯一多标签样本** 0x627fa62c…，两份源码 1847 vs 1842 字节、sha1 抓不到，曾跨 train/val）→ 池 **495 → 448**；`dedup_dropped.txt` + `split_report.json::dedup` 记录明细；`tests/test_make_splits.py` 新增两级去重用例 + 黄金值改写
   - [x] 划分门槛收口：由覆盖约束校正构造达标（三种子全部通过，去重后替换 18/16/12 个合约）；主划分种子＝seed0（用途定位声明见 `experiments/decisions.md` §12）
@@ -277,8 +279,8 @@
   - [x] **残留函数级通道缺口（R1/R3/R4 保持现状，已记档）**：待办与裁定入口 **`docs/residual_gaps.md`**（**R1 合成作用域 2356 行不可编码**（保持零向量 + 披露）；**R2 老式继承构造函数已闭合**；**R3 可见性元信息已被三轮连带解决**——27556 节点经 M3 `fn_table` 回退获得真实值，属修正性结构通道变化；**R4** `--cb-patch` 不删多余键；**R5 三图 AST 格式已闭合**；**附：AST 映射丢弃率 97.2% / 18 图无 AST 边 → 披露项**）
   - [x] 匹配键（2026-09-05 定稿）：已按项目前缀并集实现（先 nasd_ 后 asd_；0 unmatched 验证）
   - [ ] buggy_* 噪声处置（2026-09-05 定稿）：主实验剔除 asd_buggy_*/nasd_buggy_*（每合约同款注入噪声标签，与具体特征不对应）；另做含 buggy_* 消融对比论证剔除合理性；剔除明细写入 products/alldata/splits/unmatched_contracts.txt 单独一节
-  - [ ] train.py：需要新建；先实现 masked BCE、按图 `L_var`、DropEdge/先验 dropout、checkpoint、JSONL 日志和 perf_counter 计时，再跑 `--limit-graphs 1`
-  - [ ] evaluate.py：需要新建（纯评估，不承载数据/指标实现）；保存 val probabilities，输出固定 0.5 + 验证集阈值双报告（**MVD-HG 内部测试 + DIVE 外部测试两设定**，DIVE 结果不回头调参/调阈值），--task ablation/baseline → eval_results/
+  - [x] train.py：已实现（2026-09-12；masked BCE + 按图 `L_var`（population std、开方内 eps 防 NaN）+ DropEdge/先验 dropout + 双模块 checkpoint + JSONL 日志（含 `score_mean/score_std`）+ perf_counter 计时；`--limit-graphs` 取前 N 个含正样本图；`--seed`/`--split-seed` 分离）；`tests/test_train_utils.py` 9 用例；`--limit-graphs 12 --epochs 3` smoke 通过
+  - [x] evaluate.py：已实现（2026-09-12；纯评估，只 import model/dataset/metrics）；复用 val_best_probs.pt 选阈值、内部测试固定 0.5 + val 阈值双报告、`--summarize` 汇总 mean±std；`tests/test_evaluate.py` 3 用例。**DIVE 外部测试两设定**与 `--task ablation/baseline` 属阶段 F/G（待主实验跑通后）
 - [ ] 读取标签文件 alldata(readonly)/contract_labels.json
 - [ ] 建模七类多标签分类
 - [ ] 设定损失：
@@ -300,15 +302,15 @@
   - [ ] 可选梯度显著性 g_v 及其 P@k/R@k/IoU（仅评估）
   - [ ] 只作为辅助解释，不声称真实根因定位
 - [ ] 评估
-  - [ ] 两种设定：MVD-HG 内部测试（同分布）+ DIVE 外部测试（跨数据集）
-  - [ ] **主指标 micro-F1**；macro-F1 标为参考并注明含 3 个池内 ≤6 支撑类
-  - [ ] **逐类 F1 与 per-class PR-AUC 均随 support 报告；support ≤2 的类仅描述性呈现、不进比较结论**
-  - [ ] 验证集选阈值 0.2~0.8，步长 0.05，**目标 val micro-F1**；稀有类不单独调阈
-  - [ ] **口径报表**：论文数字取自 `docs/data_funnel.md`（`python scripts/audit_data_funnel.py`）；多标签主张按“架构性声明 + DIVE 外部证据”
-  - [ ] 记录固定阈值 0.5
-  - [ ] >=3 个 seed 的均值 ± 标准差（runs/summary.json）
-  - [ ] DIVE：各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查、归因分层
-  - [ ] SolidiFI 报告 a_v/s_v/g_v 三类分数（g_v 按注入类别归属）+ a_v 增量覆盖节点统计
+  - [ ] 两种设定：MVD-HG 内部测试（同分布，**已完成 2026-09-13**）+ DIVE 外部测试（跨数据集，阶段 G）
+  - [x] **主指标 micro-F1**；macro-F1 标为参考并注明含 3 个池内 ≤6 支撑类
+  - [x] **逐类 F1 与 per-class PR-AUC 均随 support 报告；support ≤2 的类仅描述性呈现、不进比较结论**
+  - [x] 验证集选阈值 0.2~0.8，步长 0.05，**目标 val micro-F1**；稀有类不单独调阈
+  - [ ] **口径报表**：论文数字取自 `docs/data_funnel.md`（`python scripts/audit_data_funnel.py`）；多标签主张按“架构性声明 + DIVE 外部证据”（DIVE 证据待阶段 G）
+  - [x] 记录固定阈值 0.5
+  - [x] >=3 个 seed 的均值 ± 标准差（runs/summary.json）
+  - [ ] DIVE：各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查、归因分层（阶段 G）
+  - [ ] SolidiFI 报告 a_v/s_v/g_v 三类分数（g_v 按注入类别归属）+ a_v 增量覆盖节点统计（阶段 G）
 
 ## 九、收尾与验收门槛
 - [ ] 全链路在 1 个样本上跑通
@@ -402,7 +404,7 @@
 - 只 import：`model`、`dataset`、`metrics`、sklearn
 - CLI：`--seed 0 --epochs 200 --batch-size 32 --lr 1e-4 --weight-decay 1e-4 --scheduler-patience 3 --early-stop-patience 5 --drop-edges 3 --drop-ast --meanpool --conv gcn --ablate-sv --cb-channels cb_node --feat-groups base ...`（消融开关透传；**2026-09-12 前端化后**：`--feat-variant`/`--drop-feat-edge` 退役，特征消融走 `model.AblationConfig`，边消融走 `dataset.Ablation` 的 `--drop-edges`/`--drop-ast`）
 - **种子语义（2026-09-12 裁定，见 `experiments/decisions.md` §16）**：`--seed`=训练种子、`--split-seed`（默认=`--seed`）=读 `split_seed{split_seed}.json`；主实验 seed0/1/2 = 同名划分×同名训练种子；两类种子显式分离。
-- **批图（自实现 collate，不用 PyG DataLoader）**：通道沿节点维 cat + `edge_index` 加偏移 + `edge_type` cat + batch 向量；DropEdge 先逐图 mask 再 batch；`fuser`+`model` 双模块 `state_dict` 一起存 checkpoint；`SSMHG(in_dim=fuser.in_dim)` 回读不硬编码。
+- **批图（自实现 collate，不用 PyG DataLoader）**：通道沿节点维 cat + `edge_index` 加偏移 + `edge_type` cat + batch 向量；DropEdge 先逐图 mask 再 batch；`fuser`+`model` 双模块 `state_dict` 一起存 checkpoint；`SSMHG(in_dim=fuser.hidden)` 回读不硬编码（fuser 输出 128，非融合输入 1631）。
 - 启动断言：每个图通道契约通过（`dataset.load_graph` 的 schema/形状/哈希断言；M3 未跑或旧格式直接报错）
 - pos_weight：按训练集 `neg/pos` 截断 20；正样本为 0 的类用 class mask 从逐元素 BCE 的分子和分母中显式跳过，不传 `pos_weight=0`。
 - 损失：`l_cls + 1e-3*L_var`；`L_var` 按图计算 population `a.std(unbiased=False)` 且保留梯度，单节点图 std=0；AdamW + `clip_grad_norm_(1.0)`；使用 `ReduceLROnPlateau(mode=max, factor=0.5, patience=3)`。
@@ -455,11 +457,11 @@ M5 硬性验收：
 - [x] 划分门槛（C1 合计 ≥30% + C2 每划分每类 ≥1）已由**覆盖约束校正**构造满足（2026-09-12）：三种子达标（去重后替换 18/16/12 个合约；预去重 495 池口径 18/19/17 / eval 合计 44/42/43 见 decisions §12 历史记录；明细见 `coverage_swaps_seed*.txt`）。
 - [x] 主划分种子已定：**seed0**（论文主实验固定报告；seed1/2 稳健性复核；用途定位声明见 `experiments/decisions.md` §12）。
 - [x] 训练期先验 dropout 按图以 0.2 概率置零已落地于 `model.NodeFuser`（融合前、仅训练期；`sample_dropout_masks` 采样，T1 无泄漏单测把守；不再需要 `_feat_no-prior.pt`，2026-09-12 前端化）。
-- [ ] `best.pt`、`last.pt`、`config.json`、`log.txt`、`results.json` 均生成，epoch 日志含 `score_mean/score_std`。
-- [ ] 每 epoch 记录 `lr`、`epoch_seconds`，每次运行记录阶段耗时和硬件环境。
+- [x] `best.pt`、`last.pt`、`config.json`、`log.txt`、`results.json` 均生成，epoch 日志含 `score_mean/score_std`（2026-09-12：train/evaluate 已实现，smoke 验证）。
+- [x] 每 epoch 记录 `lr`、`epoch_seconds`，每次运行记录阶段耗时和硬件环境（`config.json::timing` + `environment`，2026-09-12）。
 - [ ] DIVE 外部测试结果不参与任何模型选择；报告各类 PR-AUC 与全零子集每类 FPR。
 - [ ] 推理输出 4.5.4 五项；SolidiFI 报 $a_v/s_v/g_v$ 与增量覆盖节点。
-- [ ] CI/smoke 覆盖 split 同 seed 稳定性、dataset batch/dropedge、model backward、train one-step 和 eval threshold；完整 3-seed 训练不放入 PR CI。
+- [x] CI/smoke 覆盖 split 同 seed 稳定性、dataset batch/dropedge、model backward、train one-step 和 eval threshold；完整 3-seed 训练不放入 PR CI（2026-09-12：`pytest tests/` **64 passed**，含 6 类窄范围测试）。
 
 0. **（改II 优先）M2 CALLBACK_RISK 重做** → `build`×2 → `m1_runner --force` → `convert_pyg` → M3 `_feat.pt` → M4 回归（详见第三节）
 1. `m3_build_features.py --only nasd_simple_dao__simple_dao` 验收（8.8）→ 全量（已完成）
