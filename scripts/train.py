@@ -38,12 +38,14 @@ import random
 import time
 from pathlib import Path
 
+import hashlib
+
 import torch
 import torch.nn.functional as F
 
 import metrics
 from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, collate,
-                     load_graph)
+                     load_graph, resolve_label_file, resolve_label_key_mode)
 from model import (AblationConfig, NodeFuser, SSMHG, parameter_report,
                    sample_dropout_masks)
 
@@ -213,15 +215,35 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--graph-dir", default=DEFAULT_GRAPH_DIR)
     p.add_argument("--split-dir", default=DEFAULT_SPLIT_DIR)
     p.add_argument("--out-dir", default=DEFAULT_OUT_DIR)
+    p.add_argument("--label-file", default=None,
+                   help="标签文件路径（省略则走 SSMHG_LABEL_FILE 环境变量，再默认主库 "
+                        "contract_labels.json）。跑第二语料时**必须**与新语料的划分一致。")
+    p.add_argument("--label-key-mode", choices=["project", "stem"], default=None,
+                   help="标签键模式（省略则走 SSMHG_LABEL_KEY_MODE，再默认 project）。"
+                        "扁平/词干命名语料（augmentation）必须传 stem，否则键对不上。")
     p.add_argument("--verify-channel-hash", action="store_true", help="额外校验 cb 两通道哈希。")
     return p.parse_args()
 
 
 def _load_split_samples(split_path: str, graph_dir: str, ab: Ablation, index: dict,
                         verify: str, limit: int):
-    """读 split json → 按序 load_graph（train/val 各限前 `limit` 个）。返回 (train, val, meta)。"""
+    """读 split json → 按序 load_graph（train/val 各限前 `limit` 个）。返回 (train, val, meta)。
+
+    先做「划分内 base 是否都在标签索引里」的硬校验：标签文件/键模式错配时，
+    下游 `index[b]` 只会抛裸 `KeyError`（看不出根因），这里提前给出可诊断的报错。
+    """
     with open(split_path, encoding="utf-8") as fh:
         split = json.load(fh)
+    missing = [b for b in split["train"] + split["val"] if b not in index]
+    if missing:
+        raise SystemExit(
+            f"[train] 划分内有 {len(missing)}/{len(split['train']) + len(split['val'])} 个合约"
+            f"不在标签索引中（标签文件或 --label-key-mode 与划分不一致？）例：{missing[:5]}")
+    if not limit:
+        missing_test = [b for b in split.get("test", []) if b not in index]
+        if missing_test:
+            raise SystemExit(f"[train] test 划分内有 {len(missing_test)} 个合约不在标签索引中；"
+                             f"例：{missing_test[:5]}")
     # --limit-graphs 为 smoke 专用：取前 N 个**含正样本**的 train 图（保证 masked BCE 的
     # active_count>0，否则前若干图多为全零样本会触发「全零正类报错」）；val 直接取前 N 个。
     if limit:
@@ -255,7 +277,9 @@ def main() -> None:
 
     # ---- 数据加载（计时）----
     t0 = time.perf_counter()
-    index, _ = build_index(Path(args.graph_dir))
+    index, unmatched = build_index(Path(args.graph_dir),
+                                   label_file=args.label_file,
+                                   key_mode=args.label_key_mode)
     ab = Ablation(drop_edges={int(t) for t in args.drop_edges.split(",") if t.strip()},
                   drop_ast=args.drop_ast)
     verify = "all" if args.verify_channel_hash else "cheap"
@@ -284,9 +308,19 @@ def main() -> None:
         opt, mode="max", factor=0.5, patience=args.scheduler_patience)
 
     # ---- config（全量参数 + 派生量 + 环境；计时在结束追加）----
+    label_path = resolve_label_file(args.label_file)
+    label_source = {
+        "file": str(label_path),
+        "sha256": hashlib.sha256(label_path.read_bytes()).hexdigest()
+        if label_path.exists() else None,
+        "key_mode": resolve_label_key_mode(args.label_key_mode),
+        "n_index": len(index),
+        "n_unmatched": len(unmatched),
+    }
     config = {
         "args": vars(args),
         "split_seed": split_seed,
+        "label_source": label_source,
         "derived": {
             "D_struct": int(meta["D_struct"]),
             "struct_layout": meta["struct_layout"],

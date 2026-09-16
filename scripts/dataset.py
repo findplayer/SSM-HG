@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -38,6 +39,13 @@ import torch
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
 LABEL_FILE = f"{BASE}/alldata(readonly)/contract_labels.json"
 DEFAULT_GRAPH_DIR = f"{BASE}/products/alldata/graphs"
+
+# ---- 语料化标签层（2026-09-14；默认路径与行为逐字节不变）----
+# 主库口径：图 base 形如 `<项目>__<合约>`，标签 key = 项目前缀（剥 asd_/nasd_）。
+# 新语料口径：图 base 就是 `.sol` 词干，标签 key = 该词干本身（词干内可含 `__`，不可再切）。
+ENV_LABEL_FILE = "SSMHG_LABEL_FILE"        # 覆盖标签文件路径
+ENV_LABEL_KEY_MODE = "SSMHG_LABEL_KEY_MODE"  # 覆盖键模式：project | stem
+LABEL_KEY_MODES = ("project", "stem")
 
 # ---- 通道契约（设计稿 §2；M3 产出侧 `import dataset` 复用这几个定义，避免口径分叉）----
 SCHEMA_VERSION = 2                 # `_feat.pt` schema（R8）；版本不符直接报错，不做兼容分支
@@ -110,36 +118,79 @@ def is_buggy_project(proj: str) -> bool:
     return proj.startswith("buggy_")
 
 
-def build_proj_labels() -> dict[str, list[list[int]]]:
-    """读主标签文件 → {规范化项目名: [targets, ...]}（同项目多条目保留，供取并集）。
+def resolve_label_file(explicit: Path | str | None = None) -> Path:
+    """标签文件解析：显式参数 > 环境变量 `SSMHG_LABEL_FILE` > 主库 `LABEL_FILE`（默认不变）。"""
+    if explicit is not None:
+        return Path(explicit)
+    env = os.environ.get(ENV_LABEL_FILE)
+    return Path(env) if env else Path(LABEL_FILE)
 
-    标签 `contract_name` 的 `-` 前部分是项目名（`send_loop-Refunder.sol` → `send_loop`），
-    后部分是合约名而非文件名，不能与 meta.source 直接比对（手册 10.2.2）。
+
+def resolve_label_key_mode(explicit: str | None = None) -> str:
+    """键模式解析：显式参数 > 环境变量 `SSMHG_LABEL_KEY_MODE` > `"project"`（默认不变）。"""
+    mode = explicit if explicit is not None else os.environ.get(ENV_LABEL_KEY_MODE, "project")
+    if mode not in LABEL_KEY_MODES:
+        raise ValueError(f"未知 label key mode {mode!r}；允许 {LABEL_KEY_MODES}")
+    return mode
+
+
+def stem_key_of(contract_name: str) -> str:
+    """`<词干>-<合约>.sol` → 词干（`stem` 键模式）。
+
+    新语料命名固定为 `<词干>-<合约>.sol` 且词干内不含 `-`（1780/1780 实测），
+    故取首个 `-` 之前即 `.sol` 词干 = 图 base（M2 由 `.sol` 词干生成）＝标签键。
+
+    与 `project` 模式的两点差别（都是刻意的）：**不做 lower**、**不剥 asd_/nasd_ 前缀**——
+    两侧来自同一批文件名，精确匹配即可；若出现大小写漂移，应当在 `unmatched` 里显式暴露，
+    而不是被规范化悄悄掩盖。
     """
-    with open(LABEL_FILE, "r", encoding="utf-8") as handle:
+    return str(contract_name).split("-", 1)[0]
+
+
+def build_proj_labels(label_file: Path | str | None = None,
+                      key_mode: str | None = None) -> dict[str, list[list[int]]]:
+    """读标签文件 → {键: [targets, ...]}（同键多条目保留，供取并集）。
+
+    `project` 模式（默认，主库）：标签 `contract_name` 的 `-` 前部分是项目名
+    （`send_loop-Refunder.sol` → `send_loop`），后部分是合约名而非文件名，
+    不能与 meta.source 直接比对（手册 10.2.2）；无 `-` 的条目整体跳过。
+    `stem` 模式（跨语料）：键 = `.sol` 词干（见 `stem_key_of`），不要求 `-`。
+    """
+    mode = resolve_label_key_mode(key_mode)
+    with open(resolve_label_file(label_file), "r", encoding="utf-8") as handle:
         entries = json.load(handle)
     labels: dict[str, list[list[int]]] = defaultdict(list)
     for entry in entries:
         contract_name = entry.get("contract_name") or ""
-        if "-" not in contract_name:
-            continue
-        project = strip_project_prefix(contract_name.split("-", 1)[0])
-        labels[project].append([int(v) for v in entry.get("targets", [])])
+        if mode == "stem":
+            key = stem_key_of(contract_name)
+        else:
+            if "-" not in contract_name:
+                continue
+            key = strip_project_prefix(contract_name.split("-", 1)[0])
+        labels[key].append([int(v) for v in entry.get("targets", [])])
     return dict(labels)
 
 
-def build_index(graph_dir: Path | str = DEFAULT_GRAPH_DIR) -> tuple[dict[str, list[int]], list[str]]:
-    """扫 `*_pyg.pt` → {base: 7 维标签（项目内多合约 targets 并集）}。
+def build_index(graph_dir: Path | str = DEFAULT_GRAPH_DIR,
+                label_file: Path | str | None = None,
+                key_mode: str | None = None) -> tuple[dict[str, list[int]], list[str]]:
+    """扫 `*_pyg.pt` → {base: 7 维标签（同键多合约 targets 并集）}。
+
+    `key_mode="project"`（默认，主库）：标签键 = 图 base 的项目前缀；
+    `key_mode="stem"`（跨语料）：标签键 = 图 base 本身。
+    未知键模式报错而非回退默认（静默回退会把两份语料的标签对错）。
 
     返回 (index, unmatched)：未匹配到标签的 base 收集返回（供 make_splits 写
     unmatched_contracts.txt 透明性报告，不静默丢弃）。
     """
-    proj_labels = build_proj_labels()
+    mode = resolve_label_key_mode(key_mode)
+    proj_labels = build_proj_labels(label_file=label_file, key_mode=mode)
     index: dict[str, list[int]] = {}
     unmatched: list[str] = []
     for path in sorted(Path(graph_dir).glob("*_pyg.pt")):
         base = path.name.replace("_pyg.pt", "")
-        targets_list = proj_labels.get(project_of_base(base))
+        targets_list = proj_labels.get(base if mode == "stem" else project_of_base(base))
         if not targets_list:
             unmatched.append(base)
             continue

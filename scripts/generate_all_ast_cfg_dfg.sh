@@ -301,11 +301,13 @@ then
     continue
   fi
 
-  # delegatecall 动态绑定统计（调用目标不是 0x 字面量地址）
+  # delegatecall 动态绑定：**仅记账，不再剔除**（2026-09-14 修订）。
+  # 原规则「含 delegatecall 且调用目标不是 0x 字面量地址 → 直接剔除」是与标签相关的选择偏差：
+  # 它系统性删掉的正是 SWC-112 访问控制模式样本本身（proxy.sol / FibonacciBalance.sol，
+  # 源码里还留着 `// <report> ACCESS_CONTROL` 与 `@vulnerable_at_lines` 标注）。
+  # 改为照常生成 AST/CFG/DFG；真正的构建失败由 ast_failed/cfg_failed/dfg_failed/cfgdetail_failed 记账。
   if grep -E 'delegatecall' "$solfile" | grep -qvE '0x[0-9a-fA-F]{40}'; then
     delegatecall_dyn_count=$((delegatecall_dyn_count + 1))
-    echo "$solfile: filtered (dynamic delegatecall binding)" >> "$AST_ERR"
-    continue
   fi
 
   # 检测pragma solidity版本
@@ -431,7 +433,10 @@ done < <(find "$SRC_ROOT" -name "*.sol" -print0)
   echo "cfg_retried_lower_version=$cfg_retry_count"
   echo "slither_error_contracts=$slither_error_count"
   echo "assembly_gt50_lines=$assembly_gt50_count"
+  echo "assembly_gt50_filtered=$assembly_gt50_count"
+  # 2026-09-14 起仅记账、不再剔除（见循环内注释）；保留键名以兼容下游口径脚本
   echo "delegatecall_dynamic_binding=$delegatecall_dyn_count"
+  echo "delegatecall_dynamic_binding_filtered=0"
   echo "pragma_missing=$pragma_missing_count"
   echo "no_satisfying_or_fallback_version=$no_version_count"
   if [ "$total_files" -gt 0 ]; then

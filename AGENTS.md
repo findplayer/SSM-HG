@@ -2,6 +2,8 @@
 
 CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水线为 M1–M5。
 
+只能读取该目录下的内容，不允许越界！！！目录地址： /home/saumarez/projects/deep-learning/SSM-HG
+
 ## 权威文档（冲突时按此优先级）
 
 1. `研究点一细化大纲改II.docx` —— 论文大纲，最高权威
@@ -27,8 +29,11 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 
 ## 数据边界（硬规则）
 
-- 只读、绝不写入或改名：`alldata(readonly)/`、`DIVE/`、`SolidiFI/`、`MVD-HG-dataset/`。
-- 中间产物只能写到 `products/<数据集>/`（`products/alldata/{raw,graphs,splits}`、`products/dive/…`、`products/solidifi/…`）以及 `runs/`、`eval_results/`。
+- 只读、绝不写入或改名（共 5 个）：`alldata(readonly)/`、`alldata_augmentation/`、`DIVE/`、`SolidiFI/`、`MVD-HG-dataset/`。
+  - 其中 **`alldata_augmentation/` 已在 `.gitignore` 中**（2026-09-14）：它只读、可由 `MVD-HG-dataset` 派生重建，不纳入版本管理——「提交全部」不会把它扫进去。其余 4 个只读源历史上已入库，不在忽略之列。
+- 中间产物只能写到 `products/<数据集>/`（`products/alldata/{raw,graphs,splits}`、`products/augmentation/{raw,graphs,splits}`、`products/dive/…`、`products/solidifi/…`）以及 `runs/`、`eval_results/`。
+- `alldata_augmentation/` 是 **MVD-HG 论文增强集**，与 `alldata(readonly)` **并行的第二个数据集**（2026-09-14 置入）：1780 个**扁平** `.sol` + 9026 条 7 维标签（同类别序）。**2026-09-16 裁定：两组结果集并存**（`decisions.md` §23、总表 `results.md` §0）——① 主库（池 453，真实部署合约、含天然极稀缺类）与 ② 增强集（池 1774，单标签、正样本充足）**各自独立完整、并列呈现**；**禁止**跨组比较绝对值、**禁止**合并成一个数字、**禁止**用 ② 的数字宣称 ① 的问题已解决。
+- ⚠ **该集的标签必须用修正版**：只读源里的 `contract_labels.json` 有 298 个 `{类}__buggy_N`（同名不同内容）被并集规则推成 `1111111`，正样本 59% 虚高。**正典标签 = `products/augmentation/contract_labels_repaired.json`**（`scripts/repair_augmentation_labels.py` 生成，逐类 7383→2997）；只读源原文件仅留痕。该集是**单标签**数据集（每条非零恰一类），勿套用主库多标签叙事。详见 `experiments/decisions.md` §19.3.1。
 - 路径含空格/括号（`alldata(readonly)/`、`DIVE/Source codes/`），命令中必须加引号；产物区 `products/…` 无空格。
 - `products/alldata/raw/` 与 `products/alldata/graphs/` 存放约 581 个合约的批量产物（原 `raw/`、`Heterogeneous graphs/`，2026-09-12 迁入），不要整目录列举或全量读取，按需读单个文件。
 - 不要提交超过 100 MB 的文件。`DIVE/Code-based.csv`（147 MB）已在 `.gitignore` 中，仅保留在本地。
@@ -60,9 +65,52 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 需要裁定的要给出几种方案的区别、优劣、产物差异、对论文的影响，便于裁定。
 - 提交前确认没有把只读数据源或超过 100 MB 的文件加入提交。
 
-## 当前进度（2026-09-13）
+## 当前进度（2026-09-15）
 
+- **★ 2026-09-16 裁定：两组结果集并存**（`decisions.md` §23、总表 `results.md` §0）。两组**各自独立完整、并列呈现，禁止跨组比较绝对值或合并成一个数字**：
+
+  | | ① 主库 `alldata(readonly)` | ② 增强集 `alldata_augmentation` |
+  | --- | --- | --- |
+  | 池 | **453**（590 − 90 buggy − 47 去重） | **1774**（0 剔除） |
+  | 逐类正样本 | 17/15/**6**/**4**/31/**5**/50 | 200/251/143/171/182/106/361 |
+  | 标签结构 | 多标签 | **单标签** |
+  | 跨划分近重复对 | 69/68/76（已披露） | **0/0/0** |
+  | micro-F1 @0.5 | **0.8954±0.0211** | **0.9744±0.0128** |
+  | micro-F1 @val_thr | **0.9296±0.0090** | **0.9847±0.0077** |
+  | mAP | **0.2980±0.0127** | **0.9804±0.0090** |
+
+  ① 回答「真实部署合约（含天然极稀缺类）上能检出什么」，宏观指标低是**数据事实**、非方法失效；② 回答「训练信号充足时的能力上限」，**不得**解读为 ① 的问题已解决。三条例外臂（`runs/neardup/`、`runs/withbuggy/`、`runs/augmentation_dedup/`）均不进两表。
 - 已完成：M1–M4；`scripts/` 中 `dataset.py`、`make_splits.py` 已实现（2026-09-12：覆盖约束校正 `--strategy constrained`（默认）+ `coverage_swaps_seed*.txt`、`splits.csv`、split metadata；三种子 C1/C2 构造达标，主种子 seed0）。
-- 已完成（2026-09-12）：M5 主体 `scripts/{metrics,train,evaluate}.py` 落地，`pytest tests/` **64 passed**，train/evaluate/summary 全链路 smoke 通过。**3 种子主实验已跑通（2026-09-13，CUDA/RTX 4070 Laptop）**：micro-F1（主指标，标签对级）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**；macro-F1（参考）固定 0.5 = 0.2300±0.0428；mAP = 0.4139±0.1070；训练时间/吞吐见 `runs/seed*/config.json::timing`（wall 40.8/16.3/16.0 s、graphs/s 924/660/1003）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
+- **2026-09-16 第二数据集 `alldata_augmentation` M1–M5 全链跑通（见 `experiments/results.md` §6）**。产物隔离在 `products/augmentation/`、`runs/augmentation{,_dedup}/`；**主库数字与产物零改动**。
+  - 语料：池 **1774**（0 精确重复、0 buggy 剔除、0 标签未匹配；全零 362、多标签 2、**单标签**语料），逐类正样本 106–361。**M3 在 GPU 上全量重建**（`--device cuda --force`，1774 图 49 分 10 秒，`cb_reused=0/1774`）。
+  - 跨语料契约逐项相等（`D_struct=30`、`struct_layout`、schema v2、role_names），不一致 0 个；节点合计 463,264。
+  - **两臂均零泄漏**（连通分量簇原子 0/0/0；近重复去重按构造 0），覆盖校正替换 **0** 次：
+    | 臂 | 池 | micro-F1@0.5 | micro-F1@val_thr | macro-F1@val_thr | mAP |
+    | --- | --- | --- | --- | --- | --- |
+    | **簇原子（正表）** | 1774 | **0.9744±0.0128** | **0.9847±0.0077** | 0.9415±0.0305 | 0.9804±0.0090 |
+    | 近重复去重 | 1400 | 0.9786±0.0150 | 0.9850±0.0092 | 0.9416±0.0420 | 0.9844±0.0116 |
+  - **C1 在 aug 上算术不可行**（正样本率 79.7% > 66.7% = s/r，与种子无关），已 `--min-pos-ratio 0` 关闭 C1、保留 C2；
+    该语料每类 val/test support ≥8（最低 time_manipulation val 9 / test 12），C1 的目的由数据本身满足。证明与替代方案见 `decisions.md` §22。
+  - 计时（`config.json::timing`，跨工具对比用，GPU）：簇原子臂 3 种子 wall 348.3 s / train 258.4 s、graphs/s 579–630。
+  - **披露 5 项**（`results.md` §6.7）：去注释源使 `_cb.pt` 文本口径与主库不同；aug 的 M3 在 GPU 构建；单标签语料勿套多标签叙事；C1 关闭；该语料显著更"易"（0.97 vs 主库 0.86），不能解读为主库问题已解决。
+- **2026-09-15 泄漏处置（见 `experiments/decisions.md` §21）**：主库现行划分的同源泄漏已量化并给出可证零泄漏对照臂。
+  - 现行划分跨划分近重复对 seed0/1/2 = **69/68/76**（最高 Jaccard **1.00**）→ §1.2 的 micro-F1 0.8954 **含泄漏**。
+  - 新增 `near_dup_clusters.py --cluster-mode {complete,components}`：`complete`（默认，全链接）报"紧密孪生"；
+    **`components`（连通分量）用于划分防泄漏，跨划分近重复对可证恒为 0**（主库实测 0/0/0，C1/C2 仍 7/7 达标，
+    分量最大 15）。⚠ §20.2"必须全链接、不能用并查集"仅对**未加 Jaccard 归一化的初版**成立，勿误读为矛盾。
+  - **零泄漏对照臂 `runs/neardup/`（划分 `products/alldata/splits/neardup_snapshot/`）**：
+    micro-F1@0.5 **0.8561±0.0379**（现行 0.8954±0.0211，**−3.9 点**）、@val_thr 0.9397±0.0095（+0.0101）、
+    mAP 0.3033（+0.0054）。结论：泄漏的抬升集中在**固定 0.5 工作点**；**主库正典数字口径不变**，
+    是否升为正典待裁定。
+  - 审计入口：`python scripts/near_dup_clusters.py --print --audit-split <seed0,seed1,seed2> --audit-out <out.json>`。
+- **2026-09-15 M3 设备与缓存加固**：`m3_build_features.py` 新增 `--device {cpu,cuda,auto}`（**默认 cpu，主库路径逐字节不变**），
+  GPU 实测 **6.2×**（44.6→7.2 ms/节点）、数值差 max|Δ|=5.6e-05；新增 `cache_usable()`（0 字节残缺文件视为未缓存）
+  与 `atomic_torch_save()`（临时文件 + `os.replace`）——**因本机 WSL 整机会重启**（2026-09-15 20:31 腰斩 M3，留下 2 个 0 字节缓存）。
+  `train.py`/`evaluate.py` 新增显式 `--label-file`/`--label-key-mode` + 划分内 base 标签硬校验；`train.py` 把
+  `label_source`（路径+sha256+key_mode）记入 config；`evaluate.py` 按 CLI→环境变量→**checkpoint 记录**回退，保证同源。
+- 已完成（2026-09-12）：M5 主体 `scripts/{metrics,train,evaluate}.py` 落地，train/evaluate/summary 全链路 smoke 通过（`pytest tests/` 现行 **97 passed**）。
+- **3 种子主实验（2026-09-14 现行口径，CUDA/RTX 4070 Laptop）**：micro-F1（主指标，标签对级）固定 0.5 = **0.8954±0.0211**、验证集阈值 = **0.9296±0.0090**；macro-F1（参考）0.1918±0.0728；mAP = 0.2980±0.0127。语料口径：590 图 → 剔 90 buggy → 池 **453**（正 127、全零 326）。**2026-09-13 的旧数字（581 图 / 池 448 / micro-F1 0.9058±0.0397）已存档于 `runs/prior_448pool/`，两者不可跨口径混用。** 改动与对照臂见 `experiments/decisions.md` §18。
+- **2026-09-14 过滤规则修订 + 对照臂**：`generate_all_ast_cfg_dfg.sh` 的 `delegatecall 动态绑定` 规则改为**仅记账、不再剔除**（原规则系统性删掉 SWC-112 访问控制样本本身；恢复 9 个文件、图 581→590、access_control 池级 15→17）；新增 `make_splits.py --include-buggy`（含 buggy 对照臂，隔离到 `withbuggy_snapshot/` + `runs/withbuggy/`）与 `--buggy-policy`；新增 `scripts/near_dup_clusters.py` 近重复簇检测（主库现行划分实测带同源泄漏：seed0 test↔train 17 对、最高 Jaccard 0.98）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行；`alldata_augmentation` 第二数据集的 M1–M5 全链待跑（产物区 `products/augmentation/`）。
 - 2026-09-12 目录重构（方案 B）：数据集产物统一迁入 `products/<数据集>/`；脚本默认路径、.gitignore 与文档已同步；`products/{dive,solidifi}/`、`runs/`、`eval_results/{ablation,baseline,dive,solidifi}/` 已建。
+- 2026-09-14 并行第二数据集：新增只读源 `alldata_augmentation/`（MVD-HG 论文增强集；1780 扁平 `.sol` + 9026 条 7 维标签），只读源 4→5；新增 `products/augmentation/{raw,graphs,splits}/` 空骨架，产物区 三→四区。**2026-09-16 该集已全链跑通并裁定与主库结果集并存**（见下方 09-16 条目与 `decisions.md` §23）。`MVD-HG-dataset/` 删除后已恢复，审计链与 `docs/data_funnel.md` 保持有效。决议见 `experiments/decisions.md` §19。
 - 目录与状态详情见 `项目组织架构.md` 末节。

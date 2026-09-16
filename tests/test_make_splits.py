@@ -28,14 +28,14 @@ MIN_RATIO = 0.30
 
 # 2026-09-12 真实池黄金值（T-A 两级去重后池 448 = 358/45/45；支撑顺序同 VULN_NAMES）
 GOLDEN = {
-    0: {"swaps": 18, "floor_fixes": 1,
-        "val": [3, 3, 1, 1, 5, 1, 8], "test": [2, 2, 1, 1, 5, 2, 7]},
-    1: {"swaps": 16, "floor_fixes": 0,
-        "val": [3, 3, 1, 1, 5, 1, 8], "test": [2, 2, 1, 1, 5, 1, 7]},
-    2: {"swaps": 12, "floor_fixes": 0,
-        "val": [3, 2, 1, 1, 5, 1, 8], "test": [2, 3, 1, 1, 5, 1, 7]},
+    0: {"swaps": 17, "floor_fixes": 1,
+        "val": [3, 3, 1, 1, 5, 1, 8], "test": [3, 2, 1, 1, 5, 2, 7]},
+    1: {"swaps": 15, "floor_fixes": 0,
+        "val": [3, 3, 1, 1, 6, 1, 8], "test": [3, 2, 1, 1, 6, 1, 7]},
+    2: {"swaps": 15, "floor_fixes": 0,
+        "val": [3, 2, 1, 1, 5, 1, 8], "test": [3, 3, 1, 1, 5, 1, 7]},
 }
-GOLDEN_POOL = 448
+GOLDEN_POOL = 453
 GOLDEN_DROPPED = {"source-sha1": 46, "address": 1}
 
 
@@ -94,7 +94,7 @@ def test_refine_coverage_real_pool_golden():
     graph_dir = Path(BASE) / "products/alldata/graphs"
     index, _ = build_index(graph_dir)
     pre_dedup = {b for b in index if not is_buggy_project(project_of_base(b))}
-    assert len(pre_dedup) == 495, "去重前池（剔 buggy_* 后）"
+    assert len(pre_dedup) == 500, "去重前池（剔 buggy_* 后；2026-09-14 过滤规则修订后 495→500）"
     kept, dropped, _ = dedup_pool(pre_dedup, graph_dir)
     assert len(kept) == GOLDEN_POOL, "T-A 两级去重后池"
     dropped_by_level = {}
@@ -109,7 +109,7 @@ def test_refine_coverage_real_pool_golden():
         assert stats["floor_fixes"] == golden["floor_fixes"]
         assert _counts(val, index) == golden["val"]
         assert _counts(test, index) == golden["test"]
-        assert (len(train), len(val), len(test)) == (358, 45, 45)
+        assert (len(train), len(val), len(test)) == (362, 45, 46)
         assert not (set(train) & set(val)) and not (set(train) & set(test)) \
             and not (set(val) & set(test))
         assert set(train) | set(val) | set(test) == included

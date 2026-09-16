@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import os
 import time
 from pathlib import Path
 
@@ -29,8 +30,8 @@ import numpy as np
 import torch
 
 import metrics
-from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, collate,
-                     load_graph)
+from dataset import (DEFAULT_GRAPH_DIR, ENV_LABEL_FILE, ENV_LABEL_KEY_MODE, Ablation,
+                     build_index, collate, load_graph, resolve_label_key_mode)
 from model import AblationConfig, NodeFuser, SSMHG
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
@@ -50,6 +51,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--graph-dir", default=DEFAULT_GRAPH_DIR)
     p.add_argument("--split-dir", default=DEFAULT_SPLIT_DIR)
     p.add_argument("--runs-dir", default=DEFAULT_RUNS_DIR)
+    p.add_argument("--label-file", default=None,
+                   help="标签文件路径；省略时按 CLI → SSMHG_LABEL_FILE → checkpoint 记录的 "
+                        "label_source.file 依次回退（评估必须与训练同源，否则逐类 support 对错）。")
+    p.add_argument("--label-key-mode", choices=["project", "stem"], default=None,
+                   help="标签键模式；省略时按 CLI → SSMHG_LABEL_KEY_MODE → checkpoint 记录回退。")
     return p.parse_args()
 
 
@@ -126,7 +132,18 @@ def eval_seed(seed: int, args: argparse.Namespace) -> dict:
 
     with open(f"{args.split_dir}/split_seed{split_seed}.json", encoding="utf-8") as fh:
         split = json.load(fh)
-    index, _ = build_index(Path(args.graph_dir))
+    # 标签来源优先级：CLI → 环境变量 → checkpoint 的 label_source（评估必须与训练同源）
+    saved = config.get("label_source") or {}
+    lab_file = (args.label_file or os.environ.get(ENV_LABEL_FILE) or saved.get("file"))
+    lab_mode = (args.label_key_mode or os.environ.get(ENV_LABEL_KEY_MODE)
+                or saved.get("key_mode"))
+    if lab_file or lab_mode:
+        print(f"[evaluate] 标签来源：file={lab_file or '(默认)'} key_mode={lab_mode or '(默认)'}")
+    index, _unmatched = build_index(Path(args.graph_dir), label_file=lab_file, key_mode=lab_mode)
+    missing = [b for b in split["val"] + split["test"] if b not in index]
+    if missing:
+        raise SystemExit(f"[evaluate] 划分内有 {len(missing)} 个合约不在标签索引中"
+                         f"（标签文件或 --label-key-mode 与训练不一致？）例：{missing[:5]}")
     ab = _load_ablation(config)
     verify = "all" if config["args"].get("verify_channel_hash") else "cheap"
 

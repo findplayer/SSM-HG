@@ -30,7 +30,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-BASE = Path("/home/saumarez/projects/deep-learning/SSM-HG")
+BASE = Path(__file__).resolve().parents[1]  # 仓库根（scripts/ 的上一级）；从任意 cwd 运行都成立
 sys.path.insert(0, str(BASE / "scripts"))
 import dataset  # noqa: E402  （标签/池口径与训练完全一致）
 import make_splits  # noqa: E402  （池去重口径与 make_splits 同一条代码路径，避免二次实现）
@@ -67,6 +67,15 @@ def sha256_file(path: Path) -> str:
         return hashlib.sha256(handle.read()).hexdigest()
 
 
+def redundancy_total(k_hist: dict) -> int:
+    """Σ(k-1)×count：同一文件被多个类别文件夹重复收录所贡献的计数差额。
+
+    纯函数，登记（stage_upstream）与渲染（render_md）共用，避免两处各算一遍而漂移。
+    键可能是 str（已序列化）或 int（内存态）。
+    """
+    return sum((int(k) - 1) * v for k, v in k_hist.items())
+
+
 # ---------------------------------------------------------------- 上游（MVD-HG-dataset）
 def stage_upstream() -> dict:
     """上游类别文件夹记录 → 唯一文件/目录/内容，并拆解 846→591 的 255。"""
@@ -91,14 +100,13 @@ def stage_upstream() -> dict:
     inconsistent_buggy = {k for k in inconsistent if k[0].startswith(("asd_buggy", "nasd_buggy"))}
 
     per_class = collections.Counter(cls for cls, *_ in records)
-    dircount = collections.Counter()
-    for _, dn, _, _ in records:
-        dircount[dn] += 1
 
     step("上游 MVD-HG-dataset", "类别文件夹 .sol 记录数（含跨类别重复）", len(records),
          "MVD-HG-dataset/*_contract/sol_source/**/*.sol",
          'find MVD-HG-dataset/*_contract/sol_source -name "*.sol" | wc -l',
-         f"逐类：{dict(sorted(per_class.items()))}；注：上游仓库不作数据集用（只读参考）")
+         f"逐类：{dict(sorted(per_class.items()))}；注：上游仓库不作数据集用（只读参考）。"
+         "**键为上游类别文件夹名（`<类>_contract`）**，统计口径是「该文件夹下的 .sol 记录数」；"
+         "与下一阶段「主库逐类正样本条目数」**不是同一量**（文件夹记录数 vs 标签条目数），勿直接对比")
     step("上游 MVD-HG-dataset", "唯一（项目目录, 文件名）对", len(uniq_pairs),
          "MVD-HG-dataset/*_contract/sol_source/*/*.sol", "", "846 去掉跨类别重复收录后的文件数")
     step("上游 MVD-HG-dataset", "差额：跨类别重复收录次数", len(records) - len(uniq_pairs),
@@ -117,10 +125,13 @@ def stage_upstream() -> dict:
 
     # 同一文件被 k 个类别文件夹收录的分布（解释 255 的构成）
     k_hist = collections.Counter(len(v) for v in content_of.values())
+    assert redundancy_total(k_hist) == len(records) - len(uniq_pairs), \
+        f"Σ(k-1)×count {redundancy_total(k_hist)} != {len(records)} - {len(uniq_pairs)}"
     step("上游 MVD-HG-dataset", "同一文件被 k 个类别文件夹收录的分布",
          {str(k): v for k, v in sorted(k_hist.items())},
          "MVD-HG-dataset/*_contract/sol_source", "",
-         "Σ(k-1)×count = 255，即差额 255 的全部构成（无其它去向）")
+         f"Σ(k-1)×count = {redundancy_total(k_hist)}，即差额 {len(records) - len(uniq_pairs)}"
+         " 的全部构成（无其它去向）")
     return {"records": len(records), "pairs": len(uniq_pairs), "dirs": len(uniq_dirs),
             "contents": len(uniq_contents), "k_hist": {str(k): v for k, v in sorted(k_hist.items())},
             "inconsistent": len(inconsistent)}
@@ -132,6 +143,9 @@ def stage_alldata() -> dict:
     files = sorted(ALDDATA_SRC.glob("*/*.sol"))
     dirs = {p.parent.name for p in files}
     entries = json.loads(LABEL_FILE.read_text(encoding="utf-8"))
+    for e in entries:
+        assert len(e["targets"]) == len(CLASSES), \
+            f"targets 长度 {len(e['targets'])} != {len(CLASSES)}（列序即语义，禁止列宽漂移）"
     pos = sum(1 for e in entries if any(int(v) for v in e["targets"]))
     multi = sum(1 for e in entries if sum(int(v) for v in e["targets"]) >= 2)
     per_class = {c: sum(1 for e in entries if int(e["targets"][i]))
@@ -154,6 +168,9 @@ def stage_alldata() -> dict:
          "与 MVD-HG-dataset/<类>_contract/contract_labels.json 逐类 diff=0（脚本内校验）")
 
     # 自洽校验：主标签文件 vs 七类单类文件
+    # 口径：逐类比较「主标签文件里第 i 类为正的合约名集合」↔「单类文件里任一类别为正的合约名集合」。
+    # 左侧按第 i 类取，右侧按“有任一正标签”取（不做逐类归一）——这是**刻意从严**：单类文件里
+    # 若混入只对别的类为正的合约，会被计入 mismatch，从而能抓出跨类别串类，比“两侧都按第 i 类取”更强。
     mismatch = 0
     for i, c in enumerate(CLASSES):
         per_file = {e["contract_name"].lower() for e in
@@ -163,7 +180,7 @@ def stage_alldata() -> dict:
         mismatch += len(per_file ^ main)
     step("主库 alldata", "主标签文件 vs 七类单类文件 差异条目数", mismatch,
          "alldata(readonly)/contract_labels.json ↔ MVD-HG-dataset/*_contract/contract_labels.json",
-         "", "0 = 主标签文件是七类单类文件的并集，自洽")
+         "", "0 = 逐类自洽（且单类文件无跨类串类）；对称差口径见脚本内注释，为刻意从严的比较方式")
     return {"files": len(files), "entries": len(entries), "pos": pos, "multi": multi,
             "mismatch": mismatch, "per_class": per_class}
 
@@ -172,8 +189,16 @@ def stage_alldata() -> dict:
 def stage_pipeline() -> dict:
     """581 图 → 495（剔 buggy_*）→ 448（两级池去重）→ 358/45/45，含池内标签分布。"""
     report = json.loads((SPLITS_DIR / "split_report.json").read_text(encoding="utf-8"))
-    filter_txt = FILTER_REPORT.read_text(encoding="utf-8")
-    filt = dict(re.findall(r"^(\w+)=(\S+)$", filter_txt, flags=re.M))
+    if not FILTER_REPORT.exists():
+        raise FileNotFoundError(f"缺过滤报告 {FILTER_REPORT}（决定 591→581 的口径来源，不能缺失）")
+    filt = dict(re.findall(r"^(\w+)=(\S+)$", FILTER_REPORT.read_text(encoding="utf-8"), flags=re.M))
+    # 所有取用的键都必须真实存在：`.get(k, 0)` 会把「解析失败」伪装成「数字为 0」写进论文表
+    need = ("total_source_files", "assembly_gt50_lines", "delegatecall_dynamic_binding",
+            "ast_failed", "cfg_failed", "dfg_failed", "cfgdetail_failed")
+    missing_keys = [k for k in need if k not in filt]
+    if missing_keys:
+        raise ValueError(f"无法从 {FILTER_REPORT} 解析出 {missing_keys}；该文件为 `key=value` 单行格式，"
+                         "解析失败即口径不明，不应用默认值掩盖")
 
     index, unmatched = dataset.build_index()
     pre_dedup = sorted(b for b in index
@@ -181,6 +206,22 @@ def stage_pipeline() -> dict:
     # 池去重走 make_splits.dedup_pool（与划分同一条代码路径）
     kept, _dropped, _dstat = make_splits.dedup_pool(pre_dedup, BASE / "products/alldata/graphs")
     pool = sorted(kept)
+    # 漏斗不变量（任一步口径漂移即报错，不静默）
+    n_buggy = int(report.get("buggy_excluded_graphs", 0))
+    assert len(index) - n_buggy == len(pre_dedup), \
+        f"{len(index)} - {n_buggy} != {len(pre_dedup)}"
+    # 去重逐级钉死：中间量（level-1 之后、level-2 之前的池规模）必须单独成立，
+    # 否则「sha1 丢 45 + 地址丢 2」（和仍为 47）会让 448 依旧通过、而文档里的 449 已经错了。
+    lv = report["dedup"]["levels"]
+    lv1, lv2 = lv["source-sha1"]["dropped"], lv["address"]["dropped"]
+    n_after_lv1 = len(pre_dedup) - lv1
+    assert lv1 + lv2 == int(report["dedup"]["dropped_count"]), \
+        f"逐级丢弃 {lv1}+{lv2} != dropped_count {report['dedup']['dropped_count']}（去重级别可能增删）"
+    assert lv["source-sha1"]["groups"] == n_after_lv1, \
+        f"level-1 组数 {lv['source-sha1']['groups']} != {len(pre_dedup)} - {lv1} = {n_after_lv1}"
+    assert n_after_lv1 - lv2 == len(pool), f"{n_after_lv1} - {lv2} != {len(pool)}"
+    assert len(pool) == int(report["unique_contracts"]), \
+        f"pool {len(pool)} != report.unique_contracts {report['unique_contracts']}"
 
     def stats(names):
         per = collections.Counter()
@@ -196,43 +237,52 @@ def stage_pipeline() -> dict:
         return {"n": len(names), "pos": pos, "zero": zero, "multi": multi,
                 "per_class_pos": {c: per[c] for c in CLASSES}}
 
-    step("主库→图", "源码文件数（上一阶段）", int(filt.get("total_source_files", 0)),
+    n_src, n_asm, n_dyn = (int(filt["total_source_files"]),
+                           int(filt["assembly_gt50_lines"]), int(filt["delegatecall_dynamic_binding"]))
+    step("主库→图", "源码文件数（上一阶段）", n_src,
          "products/alldata/raw/filter_report.txt", "bash scripts/generate_all_ast_cfg_dfg.sh")
-    step("主库→图", "过滤：assembly>50 行", int(filt.get("assembly_gt50_lines", 0)),
+    step("主库→图", "过滤：assembly>50 行", n_asm,
          "products/alldata/raw/filter_report.txt", "")
-    step("主库→图", "过滤：delegatecall 动态绑定", int(filt.get("delegatecall_dynamic_binding", 0)),
+    step("主库→图", "过滤：delegatecall 动态绑定", n_dyn,
          "products/alldata/raw/filter_report.txt", "")
     step("主库→图", "解析失败（AST/CFG/DFG/cfgdetail）",
-         {k: int(filt.get(k, 0)) for k in ("ast_failed", "cfg_failed", "dfg_failed", "cfgdetail_failed")},
+         {k: int(filt[k]) for k in ("ast_failed", "cfg_failed", "dfg_failed", "cfgdetail_failed")},
          "products/alldata/raw/filter_report.txt", "",
-         "591 - 1(assembly) - 9(delegatecall) = 581 = 已生成图数，无解析失败")
+         # 差额从两个真实数字相减得出（不写死分解式）：过滤器规则增删后这里仍自洽
+         f"{n_src} - {n_src - len(index)}(被过滤) = {len(index)} = 已生成图数，无解析失败；"
+         f"其中 assembly>50 行 {n_asm} 个；delegatecall 动态绑定 {n_dyn} 个"
+         "（2026-09-14 起仅记账、不再剔除——原规则系统性删掉 SWC-112 访问控制样本本身）")
     step("图", "已生成异构图数", len(index),
          "products/alldata/graphs/*_pyg.pt（经 scripts/dataset.py::build_index）",
          "python scripts/dataset.py --check <base>")
     step("图→划分", "标签匹配失败（未进入划分）图数", len(unmatched),
          "products/alldata/splits/unmatched_contracts.txt", "python scripts/make_splits.py")
-    step("图→划分", "剔除 buggy_* 注入噪声项目图数", int(report.get("buggy_excluded_graphs", 0)),
+    step("图→划分", "剔除 buggy_* 注入噪声项目图数", n_buggy,
          "products/alldata/splits/split_report.json", "",
-         "581 - 86 = 495；该剔除为实验室决策（大纲 5.1 未列），须在论文说明")
-    lv = report["dedup"]["levels"]
+         f"{len(index)} - {n_buggy} = {len(pre_dedup)}；"
+         "该剔除为实验室决策（大纲 5.1 未列），须在论文说明")
     step("图→划分", "池去重 level-1：源码内容 sha1 相同（同一份源码的副本）",
-         {"dropped": lv["source-sha1"]["dropped"],
-          "groups": lv["source-sha1"]["duplicate_groups"]},
+         {"dropped": lv1, "groups": lv["source-sha1"]["duplicate_groups"]},
          "products/alldata/splits/split_report.json::dedup",
-         "python scripts/make_splits.py", "495 - 46 = 449")
+         "python scripts/make_splits.py", f"{len(pre_dedup)} - {lv1} = {n_after_lv1}")
     step("图→划分", "池去重 level-2：项目标识/地址相同（同合约的另一份源码，字节可能不同）",
-         {"dropped": lv["address"]["dropped"], "groups": lv["address"]["duplicate_groups"]},
+         {"dropped": lv2, "groups": lv["address"]["duplicate_groups"]},
          "products/alldata/splits/split_report.json::dedup", "",
-         "449 - 1 = 448；该组即全库唯一多标签样本（0x627fa62c…：1847 vs 1842 字节），"
-         "sha1 抓不到，seed0 下曾被拆到 train/val——去重的实质收益在此")
-    step("图→划分", "划分池样本数", int(report.get("unique_contracts", 0)),
+         f"{n_after_lv1} - {lv2} = {len(pool)}；该组即全库唯一多标签样本"
+         "（0x627fa62c…：1847 vs 1842 字节），sha1 抓不到，seed0 下曾被拆到 train/val"
+         "——去重的实质收益在此")
+    step("图→划分", "划分池样本数", len(pool),
          "products/alldata/splits/split_seed{0,1,2}.json", "",
-         "样本单位 = 源文件（唯一标识 = 源码哈希 → 项目标识），非合约定义级")
+         "样本单位 = 源文件（唯一标识 = 源码哈希 → 项目标识），非合约定义级；"
+         "与 split_report.json::unique_contracts 逐次运行校验相等（脚本内断言）")
+    split_sizes: dict[str, dict] = {}
     for seed in (0, 1, 2):
         d = json.loads((SPLITS_DIR / f"split_seed{seed}.json").read_text(encoding="utf-8"))
+        sizes = {"train": len(d["train"]), "val": len(d["val"]), "test": len(d["test"])}
+        assert sum(sizes.values()) == len(pool), f"seed{seed} 划分规模之和 != 池规模 {len(pool)}"
+        split_sizes[str(seed)] = sizes
         rc = report["rule_check"]["seeds"][str(seed)]
-        step("图→划分", f"seed{seed} 划分规模",
-             {"train": len(d["train"]), "val": len(d["val"]), "test": len(d["test"])},
+        step("图→划分", f"seed{seed} 划分规模", sizes,
              f"products/alldata/splits/split_seed{seed}.json", "python scripts/make_splits.py",
              f"覆盖校正替换 {rc['coverage_fix']['swaps_count']} 个"
              f"（下限修正 {rc['coverage_fix']['floor_fixes']}）；"
@@ -258,18 +308,28 @@ def stage_pipeline() -> dict:
          "全 0 = 大纲 5.1「同一合约及其所有重复记录不跨划分」已构造性保证")
     return {"index": index, "pool": pool, "pool_stats": pool_stats, "all_stats": all_stats,
             "dedup": report["dedup"], "invariants": invariants,
-            "dropped": report["dedup"]["dropped_count"]}
+            "dropped": report["dedup"]["dropped_count"],
+            "pre_dedup_n": len(pre_dedup), "buggy": n_buggy, "split_sizes": split_sizes,
+            # 漏斗起点：以 `*_pyg.pt`（可训练样本）为口径的图数。与 stage_graph_structure 的
+            # `*_hetero.json` 图数是**两个来源**，main 里断言相等（孤立 _hetero.json / 缺 .pt 即报错）
+            "n_graphs_indexed": len(index),
+            "report": report}
 
 
 # ---------------------------------------------------------------- DIVE 抽样门槛
 def stage_dive() -> dict:
     """DIVE 外部测试集抽样门槛核查（含多标签期望）。"""
+    if not DIVE_LABELS.exists():
+        raise FileNotFoundError(f"缺 DIVE 标签 {DIVE_LABELS}（外部测试门槛无法评估，不能静默跳过）")
     entries = json.loads(DIVE_LABELS.read_text(encoding="utf-8"))
     n = len(entries)
+    if n == 0:
+        raise ValueError(f"{DIVE_LABELS} 为空")
     per = collections.Counter()
     multi = 0
     for e in entries:
-        t = [int(v) for v in e["targets"][:7]]
+        t = [int(v) for v in e["targets"]]
+        assert len(t) == len(CLASSES), f"targets 长度 {len(t)} != {len(CLASSES)}（列序即语义，须先对齐）"
         for i, v in enumerate(t):
             per[CLASSES[i]] += v
         multi += 1 if sum(t) >= 2 else 0
@@ -280,18 +340,23 @@ def stage_dive() -> dict:
         out[str(size)] = {"per_class_expected": {c: round(exp[c], 1) for c in CLASSES},
                           "multi_label_expected": round(multi / n * size, 1)}
     # front_running ≥ 20 的超几何概率（均匀无放回抽样）
+    # 边界：该类正样本为 0 时超几何无定义（sf 会报错或恒 0）→ 显式记 0 并注明不可达
     prob = None
-    try:
-        from scipy.stats import hypergeom
-        for size in (500, 900, 1100):
-            p = float(hypergeom.sf(19, n, per["front_running"], size))
-            out.setdefault("front_running_p_ge20", {})[str(size)] = round(p, 3)
-        prob = out["front_running_p_ge20"]
-    except Exception:  # scipy 不可用则只给期望
-        pass
+    if per["front_running"] > 0:
+        try:
+            from scipy.stats import hypergeom
+            for size in (500, 900, 1100):
+                p = float(hypergeom.sf(19, n, per["front_running"], size))
+                out.setdefault("front_running_p_ge20", {})[str(size)] = round(p, 3)
+            prob = out["front_running_p_ge20"]
+        except Exception:  # scipy 不可用则只给期望
+            pass
+    else:
+        out["front_running_p_ge20"] = {str(s): 0.0 for s in (500, 900, 1100)}
+        out["front_running_p_ge20_note"] = "DIVE 内 front_running 正样本为 0，≥20 不可达（P=0）"
 
     step("DIVE 外部测试", "标签条目数 / 多标签条数 / 全零条数",
-         {"n": n, "multi": multi, "zero": sum(1 for e in entries if sum(int(v) for v in e["targets"][:7]) == 0)},
+         {"n": n, "multi": multi, "zero": sum(1 for e in entries if sum(int(v) for v in e["targets"]) == 0)},
          "DIVE/contract_labels.json", "",
          "多标签占比 %.1f%% → 外部测试可支撑「多类共存」的实证" % (100 * multi / n))
     step("DIVE 外部测试", "逐类正样本数与占比",
@@ -305,36 +370,63 @@ def stage_dive() -> dict:
 
 
 # ---------------------------------------------------------------- 图结构口径
-RELATION_MAP = {
-    0: ("CFG_FLOW", "CFG_FLOW（含 seq/true/false 子类）"),
-    1: ("AST_PARENT", "AST_PARENT"),
-    2: ("AST_PARENT_SAME", "AST_PARENT（实现细节：多个 AST 节点落在同一 CFGNode）"),
-    3: ("DFG_DEP", "DFG_DEP"),
-    4: ("CALLBACK_RISK", "CALLBACK_RISK"),
+# 物理关系名的**单一事实来源**是 dataset.RELATION_NAMES（{编号: 名}）；此处只保留论文侧的语义注解。
+# 注意不要用 enumerate(RELATION_NAMES)（那是 dict，迭代得到的是编号而非名字）。
+PAPER_SEMANTIC = {
+    0: "CFG_FLOW（含 seq/true/false 子类）",
+    1: "AST_PARENT",
+    2: "AST_PARENT（实现细节：多个 AST 节点落在同一 CFGNode）",
+    3: "DFG_DEP",
+    4: "CALLBACK_RISK",
 }
+assert len(dataset.RELATION_NAMES) == 5, f"物理关系数变了：{dataset.RELATION_NAMES}"
+assert set(PAPER_SEMANTIC) == set(dataset.RELATION_NAMES), (PAPER_SEMANTIC, dataset.RELATION_NAMES)
+EDGE_TYPES: tuple[str, ...] = tuple(dataset.RELATION_NAMES[k] for k in sorted(dataset.RELATION_NAMES))
+RELATION_MAP = {k: (dataset.RELATION_NAMES[k], PAPER_SEMANTIC[k]) for k in sorted(dataset.RELATION_NAMES)}
 
 
-def stage_graph_structure() -> dict:
-    """图结构口径：逐边类型规模与覆盖图数、AST 稀疏性、关系编号映射（论文 4 语义边 / 实现 5 物理关系）。"""
-    graphs = sorted((BASE / "products/alldata/graphs").glob("*_hetero.json"))
+def accumulate_graph_structure(graphs: list[Path]) -> dict:
+    """逐 `_hetero.json` 累计边类型规模 / 覆盖图数 / 节点数 / AST 未映射数（纯读，可单测）。
+
+    边类型键**必须是物理关系名**（`dataset.RELATION_NAMES` 的值）。若键对不上（例如换成编号），
+    `Counter` 的默认值会让后续查表静默返回 0、产出一张“全 0 表”；故此处直接报错而非容忍。
+    """
     totals: collections.Counter = collections.Counter()
     graphs_with: collections.Counter = collections.Counter()
     nodes = 0
     ast_unmapped = 0
     for path in graphs:
-        data = json.loads(path.read_text(encoding="utf-8"))
-        nodes += len(data["nodes"])
-        for key, edges in data["edges"].items():
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        edges_by_type = data.get("edges")
+        if not isinstance(edges_by_type, dict):
+            raise ValueError(f"{Path(path).name} 缺 edges 字段（期望 {{边类型: 边列表}}）")
+        unknown = set(edges_by_type) - set(EDGE_TYPES)
+        if unknown:
+            raise ValueError(f"{Path(path).name} 出现未知边类型键 {sorted(unknown)}；"
+                             f"期望 {list(EDGE_TYPES)}（dataset.RELATION_NAMES）")
+        nodes += len(data.get("nodes", []))
+        for key, edges in edges_by_type.items():
             totals[key] += len(edges)
             if edges:
                 graphs_with[key] += 1
-        ast_unmapped += int(data["meta"].get("ast_unmapped_edge_count") or 0)
+        ast_unmapped += int(data.get("meta", {}).get("ast_unmapped_edge_count") or 0)
+    return {"totals": totals, "graphs_with": graphs_with, "nodes": nodes,
+            "ast_unmapped": ast_unmapped, "n_graphs": len(graphs)}
+
+
+def stage_graph_structure() -> dict:
+    """图结构口径：逐边类型规模与覆盖图数、AST 稀疏性、关系编号映射（论文 4 语义边 / 实现 5 物理关系）。"""
+    graphs = sorted((BASE / "products/alldata/graphs").glob("*_hetero.json"))
+    acc = accumulate_graph_structure(graphs)
+    totals, graphs_with = acc["totals"], acc["graphs_with"]
+    nodes, ast_unmapped = acc["nodes"], acc["ast_unmapped"]
 
     total_edges = sum(totals.values())
     table = {key: {"edges": totals[key], "graphs_with_edge": graphs_with[key],
                    "edges_per_graph": round(totals[key] / len(graphs), 2),
                    "share": round(totals[key] / total_edges, 4)}
-             for key in ("CFG_FLOW", "AST_PARENT", "AST_PARENT_SAME", "DFG_DEP", "CALLBACK_RISK")}
+             for key in EDGE_TYPES}
+    assert sum(v["edges"] for v in table.values()) == total_edges, "逐边类型表未覆盖全部边"
 
     step("图结构", "异构图数 / 节点数 / 边数合计",
          {"graphs": len(graphs), "nodes": nodes, "edges": total_edges},
@@ -358,6 +450,7 @@ def stage_graph_structure() -> dict:
          "边消融口径：去 AST_PARENT = 同时删 relation 1 与 2（dataset.py::DROP_AST，加载时过白名单校验）；"
          "DROPPABLE_EDGES = 全部 5 个物理关系，load_graph 强制校验，不做物理合并（num_bases=5 不变）")
     return {"table": table, "nodes": nodes, "edges": total_edges, "ast_unmapped": ast_unmapped,
+            "graphs": acc["n_graphs"],
             "relation_map": {str(k): v[1] for k, v in RELATION_MAP.items()}}
 
 
@@ -397,6 +490,13 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
     add = lines.append
     lv1 = pipe["dedup"]["levels"]["source-sha1"]["dropped"]
     lv2 = pipe["dedup"]["levels"]["address"]["dropped"]
+    n_all = pipe["n_graphs_indexed"]      # 漏斗起点：以 *_pyg.pt 计的图数（§0 用）
+    n_pool = pipe["pool_stats"]["n"]
+    # 三个划分种子规模一致（make_splits 固定比例）→ 写成 train/val/test 三元组
+    sizes = {tuple(sorted(v.items())) for v in pipe["split_sizes"].values()}
+    assert len(sizes) == 1, f"三种子划分规模不一致，不能合并书写：{pipe['split_sizes']}"
+    s0 = pipe["split_sizes"]["0"]
+    split_str = f"{s0['train']}/{s0['val']}/{s0['test']}"
     add("# 数据口径追溯（由 `scripts/audit_data_funnel.py` 生成，勿手改）")
     add("")
     add(f"> 生成时间（UTC）：{meta['created_utc']}；运行方式：`python scripts/audit_data_funnel.py`")
@@ -408,8 +508,8 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         f"（跨类别重复收录），去重后唯一（目录,文件）**{up['pairs']}** 个。")
     add(f"- 主库 `alldata(readonly)`：**{ald['files']}** 个 `.sol`；标签文件 **{ald['entries']}** 条"
         f"（合约定义级），其中正样本 {ald['pos']} 条、多标签 {ald['multi']} 条。")
-    add(f"- 图与划分：**581** 图 → 剔除 {int(meta['buggy'])} 个 `buggy_*` → 池 **495** → 两级去重"
-        f"（sha1 丢 {lv1}、地址丢 {lv2}）→ **{pipe['pool_stats']['n']}** → 358/45/45；"
+    add(f"- 图与划分：**{n_all}** 图 → 剔除 {meta['buggy']} 个 `buggy_*` → 池 **{pipe['pre_dedup_n']}** → 两级去重"
+        f"（sha1 丢 {lv1}、地址丢 {lv2}）→ **{n_pool}** → {split_str}；"
         f"池内正样本 {pipe['pool_stats']['pos']}、全零 {pipe['pool_stats']['zero']}、"
         f"多标签 **{pipe['pool_stats']['multi']}**。")
     add("")
@@ -421,9 +521,8 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
     add("")
     add("| 同一文件被 k 个类别文件夹收录 | 文件数 | 贡献的重复计数 (k-1)×文件数 |")
     add("| --- | --- | --- |")
-    total = 0
+    total = redundancy_total(up["k_hist"])
     for k, v in up["k_hist"].items():
-        total += (int(k) - 1) * v
         add(f"| k={k} | {v} | {(int(k)-1)*v} |")
     add(f"| **合计** | **{sum(up['k_hist'].values())}** | **{total}** |")
     add("")
@@ -437,17 +536,19 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
     add("| 阶段 | 口径 | 数值 | 出处（产物/命令） | 备注 |")
     add("| --- | --- | --- | --- | --- |")
     for s in STEPS:
-        val = s["value"] if not isinstance(s["value"], (dict, list)) else f"`{json.dumps(s['value'], ensure_ascii=False)}`"
+        val = (str(s["value"]) if not isinstance(s["value"], (dict, list))
+               else f"`{json.dumps(s['value'], ensure_ascii=False)}`")
+        # 单元格内不得出现裸 `|`（会截断 Markdown 表格）；dict 经 json.dumps 后同样可能带 `|`，一并转义
         src = s["source"].replace("|", "/")
         cmd = f"<br>`{s['command']}`" if s["command"] else ""
         note = (s["note"] or "").replace("|", "/")
-        add(f"| {s['stage']} | {s['name']} | {val} | {src}{cmd} | {note} |")
+        add(f"| {s['stage']} | {s['name']} | {val.replace('|', '/')} | {src}{cmd} | {note} |")
     add("")
     add("## 3. DIVE 外部测试抽样门槛")
     add("")
     add(f"- DIVE 标签 {dive['n']} 条，多标签 {dive['multi']} 条（{100*dive['multi']/dive['n']:.1f}%）。")
     for size, info in dive["expectations"].items():
-        if size == "front_running_p_ge20":
+        if size in ("front_running_p_ge20", "front_running_p_ge20_note"):
             continue
         add(f"- n={size} 均匀抽样：多标签期望 {info['multi_label_expected']}；"
             f"逐类期望 {info['per_class_expected']}")
@@ -459,7 +560,8 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
     add("")
     add("## 4. 图结构口径（AST 稀疏性 / 关系数映射）")
     add("")
-    add(f"- 581 图 / {graph['nodes']} 节点 / {graph['edges']} 边。")
+    add(f"- {graph['graphs']} 图 / {graph['nodes']} 节点 / {graph['edges']} 边"
+        "（本节全部来自 `*_hetero.json`；与 §0 的 `*_pyg.pt` 图数相等，脚本内断言）。")
     add("")
     add("| 边类型（物理关系） | 边数 | 含该边的图数 | 平均每图 | 边数占比 |")
     add("| --- | --- | --- | --- | --- |")
@@ -504,8 +606,10 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
     add("")
     add("## 6. 论文口径写法（按本表）")
     add("")
-    add("- 训练/验证/内部测试：**448 个源文件级样本**（非 2002 个合约定义），并说明 2002 的来由与差额；")
-    add("- 正/负样本：池内正样本 125、全零 323；多标签 **1** → 多标签证据改由 DIVE 承担；")
+    add(f"- 训练/验证/内部测试：**{n_pool} 个源文件级样本**（非 {ald['entries']} 个合约定义），"
+        f"并说明 {ald['entries']} 的来由与差额；")
+    add(f"- 正/负样本：池内正样本 {pipe['pool_stats']['pos']}、全零 {pipe['pool_stats']['zero']}；"
+        f"多标签 **{pipe['pool_stats']['multi']}** → 多标签证据改由 DIVE 承担；")
     add("- 去重口径：两级（源码内容 sha1 → 项目标识/地址），保两级的跨划分不变量均为 0；")
     add("- 逐类支撑必须随指标一起报告（见 `experiments/decisions.md` §13）。")
     add("")
@@ -522,20 +626,26 @@ def main() -> None:
     pipe = stage_pipeline()
     dive = stage_dive()
     graph = stage_graph_structure()
+    # 两个图数来源必须一致：`*_pyg.pt`（漏斗/划分口径）与 `*_hetero.json`（边结构口径）。
+    # 不等即说明有孤立 _hetero.json 或缺失 .pt，此时任何“N 图”的写法都会有两套数字。
+    assert pipe["n_graphs_indexed"] == graph["graphs"], (
+        f"可训练图数({pipe['n_graphs_indexed']} = *_pyg.pt) != 异构图数({graph['graphs']} = *_hetero.json)；"
+        "先查 products/alldata/graphs/ 下是否有孤立 _hetero.json 或缺失 .pt")
     binding = stage_binding()
-    report = json.loads((SPLITS_DIR / "split_report.json").read_text(encoding="utf-8"))
+    report = pipe["report"]  # 与 stage_pipeline 同一次读取，避免两份来源漂移
     meta = {"created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "buggy": report.get("buggy_excluded_graphs", 0),
+            "buggy": pipe["buggy"],
             "steps": STEPS}
 
     payload = {"meta": meta, "upstream": up, "alldata": ald,
-               "pipeline": {k: v for k, v in pipe.items() if k not in ("index", "pool")},
+               "pipeline": {k: v for k, v in pipe.items() if k not in ("index", "pool", "report")},
                "dive": dive, "graph": graph, "binding": binding}
 
     summary = {
         "上游记录/唯一文件": f"{up['records']} → {up['pairs']}（差额 {up['records'] - up['pairs']}）",
         "主库文件/标签条目": f"{ald['files']} / {ald['entries']}（正 {ald['pos']}，多标签 {ald['multi']}）",
-        "图/池": f"{len(pipe['index'])} → 495（buggy 剔除 {meta['buggy']}）→ {pipe['pool_stats']['n']}（两级去重）",
+        "图/池": f"{pipe['all_stats']['n']} → {pipe['pre_dedup_n']}（buggy 剔除 {meta['buggy']}）"
+                 f"→ {pipe['pool_stats']['n']}（两级去重）",
         "池内正/全零/多标签": f"{pipe['pool_stats']['pos']} / {pipe['pool_stats']['zero']} / {pipe['pool_stats']['multi']}",
         "去重级别/丢弃": f"sha1 {pipe['dedup']['levels']['source-sha1']['dropped']} + "
                         f"address {pipe['dedup']['levels']['address']['dropped']} = {pipe['dropped']}",

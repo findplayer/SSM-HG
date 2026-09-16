@@ -1,7 +1,7 @@
 {
  "meta": {
-  "created_utc": "2026-09-12T11:41:48+00:00",
-  "buggy": 86,
+  "created_utc": "2026-09-14T13:42:44+00:00",
+  "buggy": 90,
   "steps": [
    {
     "stage": "上游 MVD-HG-dataset",
@@ -9,7 +9,7 @@
     "value": 846,
     "source": "MVD-HG-dataset/*_contract/sol_source/**/*.sol",
     "command": "find MVD-HG-dataset/*_contract/sol_source -name \"*.sol\" | wc -l",
-    "note": "逐类：{'access_control_contract': 114, 'arithmetic_contract': 120, 'dos_contract': 92, 'front_running_contract': 88, 'reentrancy_contract': 142, 'time_manipulation_contract': 100, 'uncheck_contract': 190}；注：上游仓库不作数据集用（只读参考）"
+    "note": "逐类：{'access_control_contract': 114, 'arithmetic_contract': 120, 'dos_contract': 92, 'front_running_contract': 88, 'reentrancy_contract': 142, 'time_manipulation_contract': 100, 'uncheck_contract': 190}；注：上游仓库不作数据集用（只读参考）。**键为上游类别文件夹名（`<类>_contract`）**，统计口径是「该文件夹下的 .sol 记录数」；与下一阶段「主库逐类正样本条目数」**不是同一量**（文件夹记录数 vs 标签条目数），勿直接对比"
    },
    {
     "stage": "上游 MVD-HG-dataset",
@@ -114,7 +114,7 @@
     "value": 0,
     "source": "alldata(readonly)/contract_labels.json ↔ MVD-HG-dataset/*_contract/contract_labels.json",
     "command": "",
-    "note": "0 = 主标签文件是七类单类文件的并集，自洽"
+    "note": "0 = 逐类自洽（且单类文件无跨类串类）；对称差口径见脚本内注释，为刻意从严的比较方式"
    },
    {
     "stage": "主库→图",
@@ -151,12 +151,12 @@
     },
     "source": "products/alldata/raw/filter_report.txt",
     "command": "",
-    "note": "591 - 1(assembly) - 9(delegatecall) = 581 = 已生成图数，无解析失败"
+    "note": "591 - 1(被过滤) = 590 = 已生成图数，无解析失败；其中 assembly>50 行 1 个；delegatecall 动态绑定 9 个（2026-09-14 起仅记账、不再剔除——原规则系统性删掉 SWC-112 访问控制样本本身）"
    },
    {
     "stage": "图",
     "name": "已生成异构图数",
-    "value": 581,
+    "value": 590,
     "source": "products/alldata/graphs/*_pyg.pt（经 scripts/dataset.py::build_index）",
     "command": "python scripts/dataset.py --check <base>",
     "note": ""
@@ -172,10 +172,10 @@
    {
     "stage": "图→划分",
     "name": "剔除 buggy_* 注入噪声项目图数",
-    "value": 86,
+    "value": 90,
     "source": "products/alldata/splits/split_report.json",
     "command": "",
-    "note": "581 - 86 = 495；该剔除为实验室决策（大纲 5.1 未列），须在论文说明"
+    "note": "590 - 90 = 500；该剔除为实验室决策（大纲 5.1 未列），须在论文说明"
    },
    {
     "stage": "图→划分",
@@ -186,7 +186,7 @@
     },
     "source": "products/alldata/splits/split_report.json::dedup",
     "command": "python scripts/make_splits.py",
-    "note": "495 - 46 = 449"
+    "note": "500 - 46 = 454"
    },
    {
     "stage": "图→划分",
@@ -197,68 +197,68 @@
     },
     "source": "products/alldata/splits/split_report.json::dedup",
     "command": "",
-    "note": "449 - 1 = 448；该组即全库唯一多标签样本（0x627fa62c…：1847 vs 1842 字节），sha1 抓不到，seed0 下曾被拆到 train/val——去重的实质收益在此"
+    "note": "454 - 1 = 453；该组即全库唯一多标签样本（0x627fa62c…：1847 vs 1842 字节），sha1 抓不到，seed0 下曾被拆到 train/val——去重的实质收益在此"
    },
    {
     "stage": "图→划分",
     "name": "划分池样本数",
-    "value": 448,
+    "value": 453,
     "source": "products/alldata/splits/split_seed{0,1,2}.json",
     "command": "",
-    "note": "样本单位 = 源文件（唯一标识 = 源码哈希 → 项目标识），非合约定义级"
+    "note": "样本单位 = 源文件（唯一标识 = 源码哈希 → 项目标识），非合约定义级；与 split_report.json::unique_contracts 逐次运行校验相等（脚本内断言）"
    },
    {
     "stage": "图→划分",
     "name": "seed0 划分规模",
     "value": {
-     "train": 358,
+     "train": 362,
      "val": 45,
-     "test": 45
+     "test": 46
     },
     "source": "products/alldata/splits/split_seed0.json",
     "command": "python scripts/make_splits.py",
-    "note": "覆盖校正替换 18 个（下限修正 1）；C1+C2 7/7 类达标"
+    "note": "覆盖校正替换 17 个（下限修正 1）；C1+C2 7/7 类达标"
    },
    {
     "stage": "图→划分",
     "name": "seed1 划分规模",
     "value": {
-     "train": 358,
+     "train": 362,
      "val": 45,
-     "test": 45
+     "test": 46
     },
     "source": "products/alldata/splits/split_seed1.json",
     "command": "python scripts/make_splits.py",
-    "note": "覆盖校正替换 16 个（下限修正 0）；C1+C2 7/7 类达标"
+    "note": "覆盖校正替换 15 个（下限修正 0）；C1+C2 7/7 类达标"
    },
    {
     "stage": "图→划分",
     "name": "seed2 划分规模",
     "value": {
-     "train": 358,
+     "train": 362,
      "val": 45,
-     "test": 45
+     "test": 46
     },
     "source": "products/alldata/splits/split_seed2.json",
     "command": "python scripts/make_splits.py",
-    "note": "覆盖校正替换 12 个（下限修正 0）；C1+C2 7/7 类达标"
+    "note": "覆盖校正替换 15 个（下限修正 0）；C1+C2 7/7 类达标"
    },
    {
     "stage": "池内标签",
     "name": "全量图（581）标签分布",
     "value": {
-     "n": 581,
-     "pos": 212,
-     "zero": 369,
-     "multi": 88,
+     "n": 590,
+     "pos": 218,
+     "zero": 372,
+     "multi": 92,
      "per_class_pos": {
-      "access_control": 91,
-      "arithmetic": 101,
-      "dos": 82,
-      "front_running": 80,
-      "reentrancy": 108,
-      "time_manipulation": 91,
-      "uncheck": 137
+      "access_control": 97,
+      "arithmetic": 105,
+      "dos": 86,
+      "front_running": 84,
+      "reentrancy": 112,
+      "time_manipulation": 95,
+      "uncheck": 141
      }
     },
     "source": "products/alldata/graphs/*_pyg.pt + alldata(readonly)/contract_labels.json",
@@ -269,12 +269,12 @@
     "stage": "池内标签",
     "name": "划分池（448）标签分布",
     "value": {
-     "n": 448,
-     "pos": 125,
-     "zero": 323,
+     "n": 453,
+     "pos": 127,
+     "zero": 326,
      "multi": 1,
      "per_class_pos": {
-      "access_control": 15,
+      "access_control": 17,
       "arithmetic": 15,
       "dos": 6,
       "front_running": 4,
@@ -384,9 +384,9 @@
     "stage": "图结构",
     "name": "异构图数 / 节点数 / 边数合计",
     "value": {
-     "graphs": 581,
-     "nodes": 93551,
-     "edges": 226511
+     "graphs": 590,
+     "nodes": 95918,
+     "edges": 229898
     },
     "source": "products/alldata/graphs/*_hetero.json",
     "command": "python scripts/build_cfg_centered_hetero_graph.py",
@@ -397,51 +397,51 @@
     "name": "逐边类型：边数 / 含该边的图数 / 平均每图 / 边数占比",
     "value": {
      "CFG_FLOW": {
-      "edges": 71296,
-      "graphs_with_edge": 581,
-      "edges_per_graph": 122.71,
-      "share": 0.3148
+      "edges": 73118,
+      "graphs_with_edge": 590,
+      "edges_per_graph": 123.93,
+      "share": 0.318
      },
      "AST_PARENT": {
-      "edges": 1957,
-      "graphs_with_edge": 481,
-      "edges_per_graph": 3.37,
-      "share": 0.0086
+      "edges": 1992,
+      "graphs_with_edge": 489,
+      "edges_per_graph": 3.38,
+      "share": 0.0087
      },
      "AST_PARENT_SAME": {
-      "edges": 6035,
-      "graphs_with_edge": 563,
-      "edges_per_graph": 10.39,
-      "share": 0.0266
+      "edges": 6142,
+      "graphs_with_edge": 572,
+      "edges_per_graph": 10.41,
+      "share": 0.0267
      },
      "DFG_DEP": {
-      "edges": 146712,
-      "graphs_with_edge": 569,
-      "edges_per_graph": 252.52,
-      "share": 0.6477
+      "edges": 148132,
+      "graphs_with_edge": 577,
+      "edges_per_graph": 251.07,
+      "share": 0.6443
      },
      "CALLBACK_RISK": {
-      "edges": 511,
-      "graphs_with_edge": 86,
-      "edges_per_graph": 0.88,
-      "share": 0.0023
+      "edges": 514,
+      "graphs_with_edge": 88,
+      "edges_per_graph": 0.87,
+      "share": 0.0022
      }
     },
     "source": "products/alldata/graphs/*_hetero.json",
     "command": "",
-    "note": "AST_PARENT 仅 1957 条（481/581 图有），边集主体是 DFG_DEP 与 CFG_FLOW"
+    "note": "AST_PARENT 仅 1992 条（489/590 图有），边集主体是 DFG_DEP 与 CFG_FLOW"
    },
    {
     "stage": "图结构",
     "name": "AST 专项：AST_PARENT / AST_PARENT_SAME / 端点未映射到 CFGNode 的 AST 父子关系",
     "value": {
-     "AST_PARENT": 1957,
-     "AST_PARENT_SAME": 6035,
-     "ast_unmapped": 273811
+     "AST_PARENT": 1992,
+     "AST_PARENT_SAME": 6142,
+     "ast_unmapped": 281161
     },
     "source": "products/alldata/graphs/*_hetero.json（meta.ast_*_edge_count）",
     "command": "",
-    "note": "保留为语义边的 AST 父子关系仅 AST_PARENT+SAME=7992 条（占全部边 3.53%），其余 273811 条端点未映射到 CFGNode；→ “语法从属”边几乎不承载信息，论文需给出本稀疏性统计，并据此调整“四类边”的贡献表述"
+    "note": "保留为语义边的 AST 父子关系仅 AST_PARENT+SAME=8134 条（占全部边 3.54%），其余 281161 条端点未映射到 CFGNode；→ “语法从属”边几乎不承载信息，论文需给出本稀疏性统计，并据此调整“四类边”的贡献表述"
    },
    {
     "stage": "图结构",
@@ -476,9 +476,9 @@
     "stage": "口径绑定",
     "name": "划分产物指纹 sha256（支撑数字绑定的版本）",
     "value": {
-     "split_seed0.json": "3de35729c8fbdbdf093fee070ba414879c2d41c9ceb0df952d72f17a0a47383b",
-     "split_seed1.json": "060fb038bc22efb3a9a4e262e85d2878e82d99d0c565943c6dc939f9c0133203",
-     "split_seed2.json": "d9a14613e7c0b8d69f49cd14473947b09e37d8e5d5a98943f145fb78f7c43e3d"
+     "split_seed0.json": "17be7e24d3fd9937282b25abf1ebd99ae89da01404493d1e2df2d71c665d2fa1",
+     "split_seed1.json": "99fcdc8ae330292eb075132e9841995eeb5d530af3f92f05e94b414f933a4604",
+     "split_seed2.json": "9f6c3e1ab63fe5b60dce559497cb9c5e560be299ee19c5a0e8fbf056206e56f9"
     },
     "source": "products/alldata/splits/split_seed{0,1,2}.json",
     "command": "python scripts/make_splits.py",
@@ -541,12 +541,12 @@
  },
  "pipeline": {
   "pool_stats": {
-   "n": 448,
-   "pos": 125,
-   "zero": 323,
+   "n": 453,
+   "pos": 127,
+   "zero": 326,
    "multi": 1,
    "per_class_pos": {
-    "access_control": 15,
+    "access_control": 17,
     "arithmetic": 15,
     "dos": 6,
     "front_running": 4,
@@ -556,35 +556,35 @@
    }
   },
   "all_stats": {
-   "n": 581,
-   "pos": 212,
-   "zero": 369,
-   "multi": 88,
+   "n": 590,
+   "pos": 218,
+   "zero": 372,
+   "multi": 92,
    "per_class_pos": {
-    "access_control": 91,
-    "arithmetic": 101,
-    "dos": 82,
-    "front_running": 80,
-    "reentrancy": 108,
-    "time_manipulation": 91,
-    "uncheck": 137
+    "access_control": 97,
+    "arithmetic": 105,
+    "dos": 86,
+    "front_running": 84,
+    "reentrancy": 112,
+    "time_manipulation": 95,
+    "uncheck": 141
    }
   },
   "dedup": {
    "mode": "source-sha1+address",
    "rule": "按唯一标识（源码 sha1 → 项目标识/地址）分组，同组保留相对源码路径字典序首个",
    "order": "先剔除 buggy_*，再去重（反序会连坐丢掉与 buggy 副本同内容的正常样本）",
-   "pool_before_dedup": 495,
-   "pool_after_dedup": 448,
+   "pool_before_dedup": 500,
+   "pool_after_dedup": 453,
    "dropped_count": 47,
    "levels": {
     "source-sha1": {
-     "groups": 449,
+     "groups": 454,
      "duplicate_groups": 46,
      "dropped": 46
     },
     "address": {
-     "groups": 448,
+     "groups": 453,
      "duplicate_groups": 1,
      "dropped": 1
     }
@@ -988,7 +988,27 @@
     "address_cross": 0
    }
   },
-  "dropped": 47
+  "dropped": 47,
+  "pre_dedup_n": 500,
+  "buggy": 90,
+  "split_sizes": {
+   "0": {
+    "train": 362,
+    "val": 45,
+    "test": 46
+   },
+   "1": {
+    "train": 362,
+    "val": 45,
+    "test": 46
+   },
+   "2": {
+    "train": 362,
+    "val": 45,
+    "test": 46
+   }
+  },
+  "n_graphs_indexed": 590
  },
  "dive": {
   "n": 21696,
@@ -1042,39 +1062,40 @@
  "graph": {
   "table": {
    "CFG_FLOW": {
-    "edges": 71296,
-    "graphs_with_edge": 581,
-    "edges_per_graph": 122.71,
-    "share": 0.3148
+    "edges": 73118,
+    "graphs_with_edge": 590,
+    "edges_per_graph": 123.93,
+    "share": 0.318
    },
    "AST_PARENT": {
-    "edges": 1957,
-    "graphs_with_edge": 481,
-    "edges_per_graph": 3.37,
-    "share": 0.0086
+    "edges": 1992,
+    "graphs_with_edge": 489,
+    "edges_per_graph": 3.38,
+    "share": 0.0087
    },
    "AST_PARENT_SAME": {
-    "edges": 6035,
-    "graphs_with_edge": 563,
-    "edges_per_graph": 10.39,
-    "share": 0.0266
+    "edges": 6142,
+    "graphs_with_edge": 572,
+    "edges_per_graph": 10.41,
+    "share": 0.0267
    },
    "DFG_DEP": {
-    "edges": 146712,
-    "graphs_with_edge": 569,
-    "edges_per_graph": 252.52,
-    "share": 0.6477
+    "edges": 148132,
+    "graphs_with_edge": 577,
+    "edges_per_graph": 251.07,
+    "share": 0.6443
    },
    "CALLBACK_RISK": {
-    "edges": 511,
-    "graphs_with_edge": 86,
-    "edges_per_graph": 0.88,
-    "share": 0.0023
+    "edges": 514,
+    "graphs_with_edge": 88,
+    "edges_per_graph": 0.87,
+    "share": 0.0022
    }
   },
-  "nodes": 93551,
-  "edges": 226511,
-  "ast_unmapped": 273811,
+  "nodes": 95918,
+  "edges": 229898,
+  "ast_unmapped": 281161,
+  "graphs": 590,
   "relation_map": {
    "0": "CFG_FLOW（含 seq/true/false 子类）",
    "1": "AST_PARENT",
@@ -1129,9 +1150,9 @@
    "selected_n": 900
   },
   "digests": {
-   "split_seed0.json": "3de35729c8fbdbdf093fee070ba414879c2d41c9ceb0df952d72f17a0a47383b",
-   "split_seed1.json": "060fb038bc22efb3a9a4e262e85d2878e82d99d0c565943c6dc939f9c0133203",
-   "split_seed2.json": "d9a14613e7c0b8d69f49cd14473947b09e37d8e5d5a98943f145fb78f7c43e3d"
+   "split_seed0.json": "17be7e24d3fd9937282b25abf1ebd99ae89da01404493d1e2df2d71c665d2fa1",
+   "split_seed1.json": "99fcdc8ae330292eb075132e9841995eeb5d530af3f92f05e94b414f933a4604",
+   "split_seed2.json": "9f6c3e1ab63fe5b60dce559497cb9c5e560be299ee19c5a0e8fbf056206e56f9"
   }
  }
 }

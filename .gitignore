@@ -10,6 +10,11 @@ products/**/graphs/
 # 147 MB，超过 GitHub 单文件 100 MB 限制，仅保留在本地，不纳入版本管理
 DIVE/Code-based.csv
 
+# 只读数据源，不纳入版本管理（2026-09-14，防「一键提交」误纳入）
+# 注：其余 4 个只读源（alldata(readonly)/、DIVE/、SolidiFI/、MVD-HG-dataset/）历史上已入库，
+#     此处刻意不跟从该惯例——本目录只读、可由 MVD-HG-dataset 派生重建，无需占版本体积。
+alldata_augmentation/
+
 # M5 训练产物：checkpoint（best.pt/last.pt/val_best_probs.pt 大文件）不纳入版本管理；
 # JSON 实验记录（config.json/log.txt/results.json/thresholds.json/summary.json）仍纳入
 runs/**/*.pt

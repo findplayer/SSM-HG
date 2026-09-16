@@ -56,11 +56,13 @@ import json
 import math
 import platform
 import random
+import re
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from dataset import BASE, build_index, is_buggy_project, project_of_base
+from dataset import (BASE, LABEL_KEY_MODES, build_index, is_buggy_project,
+                     project_of_base, resolve_label_key_mode)
 
 VULN_NAMES = ["access_control", "arithmetic", "dos", "front_running",
               "reentrancy", "time_manipulation", "uncheck"]
@@ -104,9 +106,58 @@ def source_path_of(base: str, graph_dir: Path | str) -> Path:
     raise FileNotFoundError(f"{base}: 找不到源码文件（试过 {meta_path} 的 meta.source_path 与 {cand}）")
 
 
+BUGGY_POLICIES = ("project-prefix", "stem-noise", "none")
+# 新语料的“每类各放一份”注入族：`<类>__buggy_<N>`（实测 288 个键，其中 273 个标签为全七类为 1）。
+# 注意它**不**匹配 `project_of_base`（那是 `<类>`，不以 buggy_ 开头），故主库口径反而会留下它。
+STEM_NOISE_RE = re.compile(r"^[a-z][a-z_]*__buggy_\d+$")
+
+
+def exclude_buggy(index: dict[str, list[int]],
+                  policy: str = "project-prefix") -> tuple[set[str], list[str]]:
+    """按语料口径剔除注入噪声图 → (保留集合, 被剔列表，升序)。
+
+    `project-prefix`（默认＝主库现行口径）：`is_buggy_project(project_of_base(base))`。
+        注意：把本函数套到新语料上会**剔反**——`buggy_<n><地址>_…`（634 个真实单类样本）
+        会因前缀 `buggy_` 被误剔，而 `<类>__buggy_N`（273 个全 1 噪声）反被保留。
+    `stem-noise`（新语料口径）：词干匹配 `<类>__buggy_<N>`，即那 288 个全 1/多标签噪声；
+        `buggy_<n><地址>_…` 族标签是单类的，**不剔**。
+    `none`：全保留。
+    """
+    if policy not in BUGGY_POLICIES:
+        raise ValueError(f"未知 --buggy-policy {policy!r}；允许 {BUGGY_POLICIES}")
+    if policy == "none":
+        return set(index), []
+    if policy == "stem-noise":
+        kept = {b for b in index if not STEM_NOISE_RE.match(b)}
+    else:
+        kept = {b for b in index if not is_buggy_project(project_of_base(b))}
+    return kept, sorted(set(index) - kept)
+
+
+def drop_near_dup_members(bases: list[str], groups: dict[str, str],
+                          rel_of: dict[str, str]) -> tuple[list[str], list[dict]]:
+    """近重复簇内只保留相对源码路径字典序首个（`--near-dup-mode drop`）。
+
+    与 `dedup_pool` 的保留规则同构；但**这不是分子级精度**的等价替换：簇内成员是"改动过的
+    孪生"，丢掉 ≠ 保住同一份信息。因此该模式只作对照臂，池统计必须单列。
+    """
+    by_cluster: dict[str, list[str]] = defaultdict(list)
+    for b in bases:
+        if b in groups:
+            by_cluster[groups[b]].append(b)
+    keep = [b for b in bases if b not in groups]
+    dropped: list[dict] = []
+    for key, members in sorted(by_cluster.items()):
+        members.sort(key=lambda b: (rel_of.get(b, b), b))
+        keep.append(members[0])
+        for dup in members[1:]:
+            dropped.append({"base": dup, "level": "near-dup", "group_key": key, "kept": members[0]})
+    return sorted(keep), dropped
+
+
 def dedup_pool(bases: list[str] | set[str], graph_dir: Path | str,
                levels: tuple[str, ...] = ("source-sha1", "address"),
-               source_of=None) -> tuple[list[str], list[dict], dict]:
+               source_of=None, key_of=None) -> tuple[list[str], list[dict], dict]:
     """两级池去重（大纲 5.1 第三条「唯一标识优先源码哈希，并可使用合约地址/项目标识」）。
 
     level-1 `source-sha1`：按源码文件内容 sha1 分组；
@@ -114,9 +165,14 @@ def dedup_pool(bases: list[str] | set[str], graph_dir: Path | str,
     前缀，同组样本标签向量必然相等，字节可能不同（sha1 抓不到）；
     每级均为「同组保留**相对源码路径字典序首个**（平局再按 base 名）」，逐级串行，完全确定性。
     返回 (kept 升序列表, dropped 明细[base/level/group_key/kept], stats)。
-    `source_of` 可注入（便于单测用临时目录，不需要真实产物）。
+
+    `source_of` / `key_of` 可注入（便于单测用临时目录，不需要真实产物）。
+    `key_of` 默认 `project_of_base`（主库口径）。**跨语料必须传语料自己的键函数**：
+    新语料的图 base 就是 `.sol` 词干（可含 `__`），若仍走 `project_of_base`，
+    形如 `dos__buggy_3` 的 300 个样本会被塌缩成 7 组（`dos`/`uncheck`/…），level-2 一次丢 293 个。
     """
     source_of = source_of or (lambda b: source_path_of(b, graph_dir))
+    key_of = key_of or project_of_base
     ordered = sorted(bases)
     hash_of: dict[str, str] = {}
     rel_of: dict[str, str] = {}
@@ -134,7 +190,7 @@ def dedup_pool(bases: list[str] | set[str], graph_dir: Path | str,
     for level in levels:
         groups: dict[str, list[str]] = defaultdict(list)
         for base in kept:
-            key = hash_of[base] if level == "source-sha1" else project_of_base(base)
+            key = hash_of[base] if level == "source-sha1" else key_of(base)
             groups[key].append(base)
         next_kept: list[str] = []
         dup_groups = 0
@@ -165,9 +221,68 @@ def class_pos_counts(bases: list[str], index: dict[str, list[int]]) -> list[int]
     return counts
 
 
+def load_cluster_map(path: Path | str, included: set[str]) -> tuple[dict[str, str], dict]:
+    """读近重复簇文件 → ({base: cluster_key}, meta)。
+
+    `included` 中若有 base 不在簇文件里（未登记 = 自成一簇，合法）不报错；
+    反过来，**簇文件里有 base 不在池内**说明簇文件是旧池生成的，报错并给出前几个，
+    避免用过期的分组去做"防泄漏"划分（那等于没有防）。
+    """
+    import near_dup_clusters  # 延迟导入：仅在使用簇功能时才需要
+    mapping, meta = near_dup_clusters.load_clusters(path)
+    stale = sorted(set(mapping) - set(included))
+    if stale:
+        raise ValueError(f"{path} 含 {len(stale)} 个不在当前池内的 base（如前 {stale[:5]}）；"
+                         "簇文件与池不匹配，请对当前池重新运行 near_dup_clusters.py")
+    return mapping, meta
+
+
+def cluster_members(bases: list[str] | set[str], groups: dict[str, str]) -> dict[str, list[str]]:
+    """group_key → 升序成员列表；`groups` 中未登记的 base 各自成单元素簇。"""
+    out: dict[str, list[str]] = defaultdict(list)
+    for base in bases:
+        out[groups.get(base, f"__single__{base}")].append(base)
+    return {k: sorted(v) for k, v in out.items()}
+
+
+def cluster_atomic_split(seed: int, included: set[str], groups: dict[str, str],
+                         ratio: list[float]) -> tuple[list[str], list[str], list[str], dict]:
+    """**簇为原子单位**的 8:1:1 基线（确定性；防近重复泄漏）。
+
+    与 `make_split_for_seed` 的随机基线同构，只是分配单位由「单个合约」换成「整个簇」：
+      ① 归簇（未登记的自成一簇），簇键升序；
+      ② `random.Random(seed)` 打乱簇序 → 确定性的 `rank`；
+      ③ 按（簇大小降序, rank）依次把**整簇**放入剩余容量最大的划分
+         （平局取 train → val → test 的顺序），`remaining -= len(cluster)`；
+      ④ 各划分内 base 升序返回。
+
+    后果（须在报告中如实给出）：划分规模会偏离精确 8:1:1，偏差上界为最大簇的大小。
+    """
+    members = cluster_members(included, groups)
+    keys = sorted(members)
+    shuffled = list(keys)
+    random.Random(seed).shuffle(shuffled)
+    rank = {k: i for i, k in enumerate(shuffled)}
+    total = len(included)
+    names = ("train", "val", "test")
+    remaining = [total * ratio[0], total * ratio[1], total * ratio[2]]
+    assign: dict[str, list[str]] = {n: [] for n in names}
+    for key in sorted(keys, key=lambda k: (-len(members[k]), rank[k])):
+        target = max(range(3), key=lambda i: (remaining[i], -i))
+        assign[names[target]].extend(members[key])
+        remaining[target] -= len(members[key])
+    train, val, test = (sorted(assign[n]) for n in names)
+    assert len(train) + len(val) + len(test) == total, "簇原子划分规模不符"
+    stats = {"swaps_count": 0, "floor_fixes": 0, "swaps": [], "groups_mode": True,
+             "n_clusters": len(keys), "max_cluster": max((len(v) for v in members.values()), default=1),
+             "sizes": [len(train), len(val), len(test)]}
+    return train, val, test, stats
+
+
 def refine_coverage(train: list[str], val: list[str], test: list[str],
                     index: dict[str, list[int]], ratio: float,
-                    per_split: int = MIN_POS_PER_SPLIT
+                    per_split: int = MIN_POS_PER_SPLIT,
+                    groups: dict[str, str] | None = None
                     ) -> tuple[list[str], list[str], list[str], dict]:
     """覆盖约束校正（大纲 5.1，2026-09-12）：在随机划分基础上做最小确定性替换。
 
@@ -178,6 +293,13 @@ def refine_coverage(train: list[str], val: list[str], test: list[str],
     第一个 7 维全零合约（绝不换出正样本）；放置＝放入该类当前较少的一侧（平局→val）。
     不可行时抛 RuntimeError（由实验方按大纲更换种子重划）。
     返回 (train, val, test, stats)，stats 含 swaps_count/floor_fixes/swaps[(换入, 换出)]。
+
+    `groups` 给定时换入/换出改为**整簇**进行（防近重复泄漏）：
+      换入 = train 中「含第 i 类正样本」的**最小簇**（平局取簇内首 base 字典序）；
+      换出 = target 中「整簇成员全零」的簇（优先与换入簇同大小，否则取最小）；
+    因此 val/test 的规模会有小幅偏移（上界为簇大小），且在簇模式下换出条件更严
+    （要求整簇全零），可能更早触发 RuntimeError。
+    末尾断言「任何簇不得跨划分」；`groups=None` 时函数体与既有行为逐行一致。
     """
     train, val, test = list(train), list(val), list(test)
     pool = train + val + test
@@ -186,24 +308,75 @@ def refine_coverage(train: list[str], val: list[str], test: list[str],
     swaps: list[tuple[str, str]] = []
     floor_fixes = 0
 
+    # C1 可行性预检（2026-09-15）：Σ_i req_i 是 val+test 必须容纳的「类-样本」计数下界；
+    # 每个样本最多贡献**自身类别数**个计数，故上界 = 池内类别数最多的 (|val|+|test|) 个样本的
+    # 类别数之和。need > upper 即**算术上不可行，与随机种子无关**——换种子不可能成功。
+    # 原始报错（"无可换出的全零合约/簇"）只在机制耗尽时才出现，看不出根因，故在此显式判死。
+    cap = len(val) + len(test)
+    upper = sum(sorted((sum(1 for x in index[b] if x) for b in pool), reverse=True)[:cap])
+    need = sum(req)
+    if need > upper:
+        raise RuntimeError(
+            f"覆盖约束校正失败：C1 在算术上不可行（与种子无关）——val+test 只有 {cap} 个样本，"
+            f"却需容纳 Σ_i ceil({ratio}×该类池内正样本数) = {need} 个「类-样本」计数，"
+            f"而按每样本类别数计算的上界只有 {upper}。"
+            f"处置：正样本占比过高的语料应关闭 C1（--min-pos-ratio 0，仅保留 C2），"
+            f"或调高 val+test 占比（--split，例如 7:1.5:1.5）。")
+
     def count(arr: list[str], i: int) -> int:
         return sum(1 for b in arr if index[b][i])
 
     def swap_in(i: int, target: list[str], which: str) -> None:
-        carrier = next((b for b in train if index[b][i] > 0), None)
-        if carrier is None:
+        if groups is None:
+            carrier = next((b for b in train if index[b][i] > 0), None)
+            if carrier is None:
+                raise RuntimeError(f"覆盖约束校正失败：训练集内无 {VULN_NAMES[i]} 正样本可换入")
+            evicted = None
+            for k in range(len(target) - 1, -1, -1):
+                if not any(index[target[k]]):
+                    evicted = target.pop(k)
+                    break
+            if evicted is None:
+                raise RuntimeError(f"覆盖约束校正失败：{which} 划分内无可换出的全零合约")
+            train.remove(carrier)
+            target.append(carrier)
+            train.append(evicted)
+            swaps.append((carrier, evicted))
+            return
+        _swap_in_cluster(i, target, which)
+
+    def _clusters_in(arr: list[str]) -> dict[str, list[str]]:
+        """该划分内的簇 → 成员（按 base 升序）。"""
+        out: dict[str, list[str]] = defaultdict(list)
+        for b in arr:
+            out[groups.get(b, f"__single__{b}")].append(b)
+        return {k: sorted(v) for k, v in out.items()}
+
+    def _swap_in_cluster(i: int, target: list[str], which: str) -> None:
+        """整簇换入/换出：换入含第 i 类正样本的最小簇，换出整簇全零的簇。"""
+        in_train = _clusters_in(train)
+        carriers = [(len(v), v[0], v) for v in in_train.values() if any(index[b][i] > 0 for b in v)]
+        if not carriers:
             raise RuntimeError(f"覆盖约束校正失败：训练集内无 {VULN_NAMES[i]} 正样本可换入")
-        evicted = None
-        for k in range(len(target) - 1, -1, -1):
-            if not any(index[target[k]]):
-                evicted = target.pop(k)
-                break
-        if evicted is None:
-            raise RuntimeError(f"覆盖约束校正失败：{which} 划分内无可换出的全零合约")
-        train.remove(carrier)
-        target.append(carrier)
-        train.append(evicted)
-        swaps.append((carrier, evicted))
+        carriers.sort()
+        carrier_cluster = carriers[0][2]
+
+        in_target = _clusters_in(target)
+        zero_clusters = [(len(v), v[0], v) for v in in_target.values() if all(not any(index[b]) for b in v)]
+        if not zero_clusters:
+            raise RuntimeError(f"覆盖约束校正失败：{which} 划分内无可换出的全零簇")
+        # 优先与换入簇同大小（保持划分规模不变），否则取最小全零簇
+        same = [z for z in zero_clusters if z[0] == len(carrier_cluster)]
+        evicted_cluster = sorted(same or zero_clusters)[0][2]
+
+        for b in carrier_cluster:
+            train.remove(b)
+            target.append(b)
+        for b in evicted_cluster:
+            target.remove(b)
+            train.append(b)
+        assert not any(any(index[b]) for b in evicted_cluster), "换出的簇必须整簇全零"
+        swaps.append((carrier_cluster[0], evicted_cluster[0]))
 
     # C1 配额修正（稀有类优先）
     for i in sorted(range(len(VULN_NAMES)), key=lambda i: (count(pool, i), i)):
@@ -228,6 +401,13 @@ def refine_coverage(train: list[str], val: list[str], test: list[str],
             raise RuntimeError(f"覆盖约束校正失败：{name} 未满足每划分 ≥{per_split}")
     for _, evicted in swaps:
         assert not any(index[evicted]), "换出的必须是全零合约"
+    if groups is not None:
+        # 簇原子性：任何簇都不得跨划分（校正的整簇换入/换出不应破坏该性质）
+        for key, members in cluster_members(pool, groups).items():
+            where = {name for name, arr in (("train", train), ("val", val), ("test", test))
+                     if set(members) & set(arr)}
+            if len(where) > 1:
+                raise RuntimeError(f"覆盖约束校正失败：簇 {key} 跨划分 {sorted(where)}")
     return train, val, test, {
         "swaps_count": len(swaps),
         "floor_fixes": floor_fixes,
@@ -237,23 +417,32 @@ def refine_coverage(train: list[str], val: list[str], test: list[str],
 
 def make_split_for_seed(seed: int, included: set[str], index: dict[str, list[int]],
                         ratio: list[float], strategy: str,
-                        min_pos_ratio: float) -> tuple[list[str], list[str], list[str], dict]:
+                        min_pos_ratio: float,
+                        groups: dict[str, str] | None = None
+                        ) -> tuple[list[str], list[str], list[str], dict]:
     """为单个 seed 生成划分：固定种子随机基线（+ 可选覆盖约束校正）。
 
+    `groups` 给定时基线换成**簇原子**分配（`cluster_atomic_split`），覆盖校正亦为整簇换；
+    `groups=None` 时与既有行为逐行一致。
     返回 (train, val, test, coverage_stats)；strategy="random" 时 coverage_stats 为零值。
     """
-    order = sorted(included)
-    random.Random(seed).shuffle(order)
-    total = len(order)
-    n_train = int(round(total * ratio[0]))
-    n_val = int(round(total * ratio[1]))
-    train = order[:n_train]
-    val = order[n_train:n_train + n_val]
-    test = order[n_train + n_val:]
-    assert len(train) + len(val) + len(test) == total, "split sizes mismatch"
-    stats = {"swaps_count": 0, "floor_fixes": 0, "swaps": []}
+    if groups is None:
+        order = sorted(included)
+        random.Random(seed).shuffle(order)
+        total = len(order)
+        n_train = int(round(total * ratio[0]))
+        n_val = int(round(total * ratio[1]))
+        train = order[:n_train]
+        val = order[n_train:n_train + n_val]
+        test = order[n_train + n_val:]
+        assert len(train) + len(val) + len(test) == total, "split sizes mismatch"
+        stats = {"swaps_count": 0, "floor_fixes": 0, "swaps": []}
+    else:
+        train, val, test, stats = cluster_atomic_split(seed, included, groups, ratio)
     if strategy == "constrained":
-        train, val, test, stats = refine_coverage(train, val, test, index, min_pos_ratio)
+        train, val, test, stats = refine_coverage(train, val, test, index, min_pos_ratio,
+                                                  groups=groups)
+        stats.setdefault("groups_mode", groups is not None)
     return train, val, test, stats
 
 
@@ -278,11 +467,32 @@ def parse_args() -> argparse.Namespace:
                         help="Directory containing *_pyg.pt.")
     parser.add_argument("--out-dir", default=f"{BASE}/products/alldata/splits",
                         help="Output directory for split files.")
+    parser.add_argument("--label-file", default=None,
+                        help="标签文件（默认 None = 环境变量 SSMHG_LABEL_FILE > 主库 "
+                             "alldata(readonly)/contract_labels.json）；跨语料必传。")
+    parser.add_argument("--label-key-mode", choices=list(LABEL_KEY_MODES), default=None,
+                        help="标签键模式（默认 None = 环境变量 SSMHG_LABEL_KEY_MODE > project）："
+                             "project=图 base 的项目前缀（主库）；stem=图 base 本身（扁平语料）。")
+    parser.add_argument("--near-dup-clusters", default=None,
+                        help="近重复簇 JSON（`scripts/near_dup_clusters.py` 产出）。给定后按 "
+                             "`--near-dup-mode` 启用防泄漏：cluster=簇为原子单位参与划分；"
+                             "drop=簇内只留一份（对照臂，池会变小）。")
+    parser.add_argument("--near-dup-mode", choices=("cluster", "drop"), default="cluster",
+                        help="近重复处理方式（仅在 --near-dup-clusters 给定时生效）。")
+    parser.add_argument("--buggy-policy", choices=list(BUGGY_POLICIES), default="project-prefix",
+                        help="注入噪声剔除口径：project-prefix=主库现行（is_buggy_project）；"
+                             "stem-noise=按 `<类>__buggy_<N>` 词干剔（新语料口径）；none=全保留。"
+                             "注意 project-prefix 套在新语料上会剔反（误剔 634 个真实单类样本）。")
+    parser.add_argument("--include-buggy", action="store_true",
+                        help="对照臂：**不**剔除 buggy_* 注入噪声项目，输出隔离到 "
+                             "<out-dir>/withbuggy_snapshot/（正典划分不受影响）。"
+                             "注意 buggy_* 为七类全 1 的注入标签、与具体注入特征不对应，"
+                             "本臂结果不得当作主结果（见手册 §10.2.6）。")
     return parser.parse_args()
 
 
 def main() -> None:
-    """主流程：建索引 → 剔除 buggy_* → 逐种子 8:1:1（默认加覆盖约束校正）→ 写 splits/ 全套。"""
+    """主流程：建索引 → 剔除 buggy_*（`--include-buggy` 时保留）→ 逐种子 8:1:1 → 写 splits/ 全套。"""
     args = parse_args()
     seeds = [int(s) for s in args.seeds.split(",")]
     ratio = [float(r) for r in args.split.split(",")]
@@ -293,22 +503,54 @@ def main() -> None:
     if args.strategy == "random":
         out_dir = out_dir / "random_snapshot"      # 输出隔离：random 永不触碰正典产物
         print(f"[random 对照模式] 输出隔离至 {out_dir}（不覆盖正典划分）")
+    if args.include_buggy:
+        out_dir = out_dir / "withbuggy_snapshot"   # 输出隔离：对照臂永不触碰正典产物
+        print(f"[含 buggy_* 对照臂] 输出隔离至 {out_dir}（不覆盖正典划分）")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    index, unmatched = build_index(Path(args.graph_dir))
-    pre_dedup = {base for base in index if not is_buggy_project(project_of_base(base))}
-    buggy_excluded = sorted(set(index) - pre_dedup)
+    index, unmatched = build_index(Path(args.graph_dir), label_file=args.label_file,
+                                   key_mode=args.label_key_mode)
+    # 跨语料：图 base 就是标签键时不能再按 `__` 切（否则 300 个含 `__` 的样本被切成 7 组）
+    key_mode = resolve_label_key_mode(args.label_key_mode)
+    key_of = (lambda b: b) if key_mode == "stem" else project_of_base
+    if args.include_buggy:
+        # 对照臂：buggy_* 不剔除（全部进池）；buggy_excluded 记录为 0 以保持报告字段自洽
+        pre_dedup = set(index)
+        buggy_excluded: list[str] = []
+    else:
+        pre_dedup, buggy_excluded = exclude_buggy(index, policy=args.buggy_policy)
     unmatched = sorted(unmatched)
 
     # ---- 0) 两级池去重（大纲 5.1 第三条；剔 buggy_* 之后、划分之前）----
     kept, dropped, dedup_stats = dedup_pool(pre_dedup, args.graph_dir,
-                                            levels=DEDUP_LEVELS[args.dedup])
+                                            levels=DEDUP_LEVELS[args.dedup],
+                                            key_of=key_of)
+    # ---- 0b) 近重复簇（可选；防"改动过的孪生"跨划分）----
+    near_dup_meta: dict = {}
+    groups: dict[str, str] | None = None
+    if args.near_dup_clusters:
+        cluster_map, near_dup_meta = load_cluster_map(args.near_dup_clusters, pre_dedup)
+        if args.near_dup_mode == "drop":
+            n_before_drop = len(kept)
+            kept, nd_dropped = drop_near_dup_members(kept, cluster_map, dedup_stats["rel_of"])
+            dropped = dropped + nd_dropped
+            dedup_stats["levels"]["near-dup"] = {
+                "groups": len(set(cluster_map.values())),
+                "duplicate_groups": len({d["group_key"] for d in nd_dropped}),
+                "dropped": len(nd_dropped)}
+            print(f"[near-dup drop] 池 {n_before_drop} → {len(kept)}（丢 {len(nd_dropped)}）")
+        else:
+            groups = cluster_map
+            print(f"[near-dup cluster] 簇为原子单位参与划分：{len(set(cluster_map.values()))} 个簇，"
+                  f"覆盖 {len(cluster_map)}/{len(pre_dedup)} 个样本")
     included = set(kept)
     hash_of = dedup_stats["hash_of"]
     dedup = {
         "mode": args.dedup,
         "rule": dedup_stats["rule"],
-        "order": "先剔除 buggy_*，再去重（反序会连坐丢掉与 buggy 副本同内容的正常样本）",
+        "order": ("含 buggy_* 对照臂：不剔除，直接对全量图去重"
+                  if args.include_buggy else
+                  "先剔除 buggy_*，再去重（反序会连坐丢掉与 buggy 副本同内容的正常样本）"),
         "pool_before_dedup": len(pre_dedup),
         "pool_after_dedup": len(included),
         "dropped_count": len(dropped),
@@ -322,7 +564,7 @@ def main() -> None:
     coverage_by_seed: dict[int, dict] = {}
     for seed in seeds:
         train, val, test, coverage_stats = make_split_for_seed(
-            seed, included, index, ratio, args.strategy, args.min_pos_ratio)
+            seed, included, index, ratio, args.strategy, args.min_pos_ratio, groups=groups)
         total = len(included)
         payload = {"seed": seed, "ratio": ratio,
                    "train": train, "val": val, "test": test}
@@ -366,7 +608,8 @@ def main() -> None:
     def dedup_invariants(split: dict[str, list[str]]) -> dict:
         """两级去重不变量逐种子校验：同源码 sha1 / 同项目标识（地址）不得跨划分。"""
         out: dict = {}
-        for level in ("content", "address"):
+        levels = ("content", "address") + (("group",) if groups is not None else ())
+        for level in levels:
             seen: dict[str, str] = {}
             cross: list[list[str]] = []
             for split_name in ("train", "val", "test"):
@@ -374,8 +617,12 @@ def main() -> None:
                     if level == "content":
                         key = hash_of.get(base)
                         shown = key[:12] if key else None
+                    elif level == "group":
+                        key = shown = groups.get(base)
+                        if key is None:
+                            continue      # 未登记 = 自成一簇，不参与该级校验
                     else:
-                        key = shown = project_of_base(base)
+                        key = shown = key_of(base)
                     if key is None:
                         continue
                     if key in seen and seen[key] != split_name:
@@ -429,6 +676,8 @@ def main() -> None:
         "multi_label_contracts": multi_label,
         "all_zero_contracts": all_zero,
         "buggy_excluded_graphs": len(buggy_excluded),
+        # 对照臂标记（正典为 false）：区分“本臂不剔 buggy_*”与“本臂剔了 0 个”
+        "include_buggy": bool(args.include_buggy),
         "unmatched_graphs": len(unmatched),
         "per_class": {
             name: {"pos": per_class[i][0], "neg": per_class[i][1],

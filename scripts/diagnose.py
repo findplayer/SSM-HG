@@ -148,12 +148,19 @@ def diagnose_seed(seed: int, args: argparse.Namespace) -> dict:
     val_pos = val_labels.sum(0).astype(int)
 
     # ---- 测试集推理（缓存 test_probs.pt 免重复）----
+    # 缓存必须按**内容**校验：只判“文件存在”会在划分变更后静默沿用旧划分的推理结果，
+    # 逐类 support 与诊断结论随之错位（2026-09-14 实际发生过）。与 evaluate.py 同一校验方式。
     tp_path = seed_dir / "test_probs.pt"
-    if tp_path.exists():
-        tb = torch.load(tp_path, map_location="cpu")
+    test_bases = split["test"]
+    tb = torch.load(tp_path, map_location="cpu") if tp_path.exists() else None
+    if tb is not None and list(tb.get("sample_ids", [])) != test_bases:
+        print(f"[warn] {tp_path.name} 的 sample_ids 与当前划分不符"
+              f"（缓存 {len(tb.get('sample_ids', []))} 行 vs 划分 {len(test_bases)} 行）"
+              "→ 忽略缓存、重新推理")
+        tb = None
+    if tb is not None:
         test_probs, test_labels = tb["probs"].numpy(), tb["labels"].numpy()
     else:
-        test_bases = split["test"]
         test_samples = [load_graph(b, graph_dir=args.graph_dir, ab=ab, index=index,
                                    verify_channels=verify) for b in test_bases]
         tp, tl = infer(test_samples, fuser, model, args.batch_size, device=device)

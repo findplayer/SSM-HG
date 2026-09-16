@@ -49,6 +49,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 from collections import Counter
 from datetime import datetime, timezone
@@ -59,6 +60,8 @@ import torch
 
 # 通道契约（CB_DIM/ROLE_NAMES/SCHEMA_VERSION/哈希）由 dataset.py 统一持有，
 # 生产侧与消费侧共用同一份定义，避免口径分叉（设计稿 §2.4/§4）。
+import multiprocessing  # noqa: E402
+from concurrent.futures import ProcessPoolExecutor  # noqa: E402
 from dataset import (CB_DIM, ROLE_NAMES, SCHEMA_VERSION,  # noqa: E402
                      channel_sha256, combined_sha256)
 
@@ -141,6 +144,25 @@ def parse_args() -> argparse.Namespace:
         "--force",
         action="store_true",
         help="Overwrite existing outputs / re-scan categories.",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="并行进程数（默认 1 = 原单进程行为）。>1 时按图并行（spawn + ProcessPoolExecutor）。"
+             "**数值路径与单进程完全一致**（不是批量化；已实测张量逐元素相同、channel/combined_sha256 相同，"
+             "仅 meta.created_utc 时间戳不同）。注意：每个 worker 各加载一份 CodeBERT（约 480MB + torch 运行时），"
+             "需按内存定 worker 数——本机 7.8GB 实测 4 workers 会被 OOM 杀掉，**本机只适合 workers=1**；"
+             "另：不能用 fork（父进程导入 torch 后 fork 会因 OpenMP 加锁互斥量而全体死锁）。",
+    )
+    parser.add_argument(
+        "--device",
+        choices=("cpu", "cuda", "auto"),
+        default="cpu",
+        help="CodeBERT 推理设备（默认 cpu = 与主库既有 _cb.pt 的构建路径逐字节一致；"
+             "auto = 有 CUDA 用 cuda）。GPU 能大幅缩短 A5 长杆（CPU 实测约 1.7 图/分）。"
+             "输出一律回 CPU，_cb.pt/_feat.pt 的 dtype 与布局不变；"
+             "GPU/CPU 浮点差异量级与实测值见 论文开发手册 §3.2。",
     )
     return parser.parse_args()
 
@@ -294,27 +316,69 @@ def build_node_window(lines: list[str], node: dict[str, Any],
 
 
 def encode(text: str, tok: Any, model: Any, max_len: int) -> "torch.Tensor":
-    """CodeBERT 编码一段文本 → [CLS] 向量（空文本返回 zeros(768)，不调模型）。"""
+    """CodeBERT 编码一段文本 → [CLS] 向量（空文本返回 zeros(768)，不调模型）。
+
+    设备取自**模型参数所在设备**（不新增签名参数）：模型在 CUDA 时把 token 输入搬上去，
+    输出一律 `.cpu()` 回来 —— 保证 `_cb.pt` 永远是 CPU 张量，与下游
+    `torch.load(..., map_location="cpu")` 及主库既有缓存同构。
+    """
     if not text:
         return torch.zeros(CB_DIM)
     ids = tok(text, truncation=True, max_length=max_len, return_tensors="pt")
+    dev = next(model.parameters()).device
+    ids = {k: v.to(dev) for k, v in ids.items()}
     with torch.no_grad():
         out = model(**ids).last_hidden_state[:, 0, :].cpu()
     return out[0]
 
 
-def load_codebert(name: str = CODEBERT) -> tuple[Any, Any]:
+def load_codebert(name: str = CODEBERT, device: str = "cpu") -> tuple[Any, Any]:
     """加载并冻结 codebert（AutoTokenizer + AutoModel，eval 模式）。
 
     name 可为 HF 模型 id（默认 microsoft/codebert-base）或**本地权重目录**路径；
     网络不可达时建议传入本地目录（--codebert <dir>），A5 即可离线跑通。
+    `device` 默认 `"cpu"` —— 与主库既有 `_cb.pt` 的构建路径逐字节一致；
+    传 `"cuda"` 时模型上卡（输入随之搬移，输出仍回 CPU）。
     """
     from transformers import AutoModel, AutoTokenizer
     tok = AutoTokenizer.from_pretrained(name)
     model = AutoModel.from_pretrained(name).eval()
     for param in model.parameters():
         param.requires_grad = False
-    return tok, model
+    return tok, model.to(device)
+
+
+def resolve_device(spec: str) -> str:
+    """`--device` 取值解析：`auto` → 有 CUDA 用 cuda，否则 cpu；其余原样返回。"""
+    if spec == "auto":
+        return "cuda" if torch.cuda.is_available() else "cpu"
+    return spec
+
+
+def cache_usable(path: Path) -> bool:
+    """缓存文件是否**可用**（存在且非空）。
+
+    只判 `.exists()` 是不够的：写入中途被中断（本机 WSL 整机重启实测发生）会留下
+    0 字节文件，`torch.load` 会在读回时抛 `EOFError`，或更糟——若被当作"已缓存"跳过，
+    对应图就永久缺失通道。故一律要求 `st_size > 0`，残缺文件自动重算。
+    """
+    try:
+        return path.exists() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
+def atomic_torch_save(obj: Any, path: Path) -> None:
+    """原子落盘：先写同目录临时文件再 `os.replace` 覆盖。
+
+    直接 `torch.save` 到目标路径时，进程被杀/整机断电（本机 WSL 重启实测，留下 2 个
+    0 字节 `_cb.pt`）会得到**半截文件**，而半截文件比没有文件更危险（见 `cache_usable`）。
+    临时名带 pid，避免并行 worker 相互踩。
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f"{path.name}.tmp{os.getpid()}")
+    torch.save(obj, tmp)
+    os.replace(tmp, path)
 
 
 def build_cb_cache(data: dict[str, Any], cb_path: Path, tok: Any, model: Any,
@@ -323,9 +387,9 @@ def build_cb_cache(data: dict[str, Any], cb_path: Path, tok: Any, model: Any,
 
     返回 (cache, reused)。cache = {"func": {"contract::function": Tensor768},
     "node": {str(id): Tensor768}}。函数级同函数共享；节点级窗口文本按 sha 复用编码。
-    已有文件且未 --force → 直接读回复用（断点续跑）。
+    已有文件且未 --force → 直接读回复用（断点续跑）；**0 字节残缺文件视为未缓存**。
     """
-    if cb_path.exists() and not force:
+    if cache_usable(cb_path) and not force:
         return torch.load(cb_path, map_location="cpu"), True
     nodes = data["nodes"]
     fn_table = data["fn_table"]
@@ -353,7 +417,7 @@ def build_cb_cache(data: dict[str, Any], cb_path: Path, tok: Any, model: Any,
 
     cache = {"func": func_cache, "node": node_cache}
     cb_path.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(cache, cb_path)
+    atomic_torch_save(cache, cb_path)
     return cache, False
 
 
@@ -395,7 +459,7 @@ def patch_cb_cache(data: dict[str, Any], cb_path: Path, tok: Any, model: Any) ->
 
     rewritten = bool(func_added or node_added)
     if rewritten:
-        torch.save({"func": func_cache, "node": node_cache}, cb_path)
+        atomic_torch_save({"func": func_cache, "node": node_cache}, cb_path)
     return {"func_added": func_added, "func_total": len(func_cache),
             "node_added": node_added, "node_total": len(node_cache), "rewritten": rewritten}
 
@@ -768,36 +832,53 @@ def feat_path_for(out_dir: Path, base: str) -> Path:
 _CB_CACHE: dict[str, tuple[Any, Any]] = {}
 
 
-def get_codebert(name: str = CODEBERT) -> tuple[Any, Any]:
+def get_codebert(name: str = CODEBERT, device: str = "cpu") -> tuple[Any, Any]:
     """惰性加载并缓存 CodeBERT：仅当**需要生成** `_cb.pt` 时调用。
 
     `_cb.pt` 全部命中时（全量重跑的常态）完全不加载模型 → 更快，且不依赖网络。
+    缓存键为 `(name, device)` —— 同一次运行里 cpu/cuda 各自的模型互不覆盖。
     """
-    if name not in _CB_CACHE:
-        _CB_CACHE[name] = load_codebert(name)
-    return _CB_CACHE[name]
+    key = (name, device)
+    if key not in _CB_CACHE:
+        _CB_CACHE[key] = load_codebert(name, device)
+    return _CB_CACHE[key]
+
+
+def _process_one(job: tuple) -> dict[str, Any]:
+    """并行工作单元：在子进程里处理单图（`--workers > 1`）。
+
+    只做「读图 → process_graph」两件事，不含任何打印——避免多进程输出交错。
+    数值路径与单进程逐行相同；子进程为 spawn 启动，各自惰性加载 CodeBERT。
+    """
+    graph_path, m1_dir, categories, out_dir, force, codebert, cb_patch, device = job
+    gp = Path(graph_path)
+    m1_path = Path(m1_dir) / gp.name.replace("_hetero.json", "_m1.json")
+    data = load_graph(gp, m1_path)
+    return process_graph(gp, data, categories, Path(out_dir), force=force,
+                         codebert=codebert, only=False, cb_patch=cb_patch, device=device)
 
 
 def process_graph(graph_path: Path, data: dict[str, Any], categories: dict[str, Any],
                   out_dir: Path, force: bool, codebert: str, only: bool,
-                  cb_patch: bool = False) -> dict[str, Any]:
+                  cb_patch: bool = False, device: str = "cpu") -> dict[str, Any]:
     """处理单图：cb 缓存（A5）→ 写通道字典 _feat.pt（schema v2）。
 
     `cb_patch=True`（S5 缺口修复）：**不重编已有向量**，只补缺失的 func/node 键（见 `patch_cb_cache`），
     再照常构建 `_feat.pt`；与 `--force` 的区别是后者会把该图全部向量重算一遍（≈ 7.9 s/图）。
+    `device` 决定 CodeBERT 跑在哪（默认 cpu = 主库既有路径，逐字节不变）。
     """
     base = graph_path.name.replace("_hetero.json", "")
     cb_path = cb_path_for(out_dir, base)
     patch_stats: dict[str, int] | None = None
-    if cb_patch and cb_path.exists() and not force:
-        tok, model = get_codebert(codebert)
+    if cb_patch and cache_usable(cb_path) and not force:
+        tok, model = get_codebert(codebert, device)
         patch_stats = patch_cb_cache(data, cb_path, tok, model)
         cb = torch.load(cb_path, map_location="cpu")
         reused = True
     else:
         tok = model = None
-        if force or not cb_path.exists():
-            tok, model = get_codebert(codebert)
+        if force or not cache_usable(cb_path):
+            tok, model = get_codebert(codebert, device)
         cb, reused = build_cb_cache(data, cb_path, tok, model, force)
     payload = build_channels(data, categories, cb)
 
@@ -809,7 +890,7 @@ def process_graph(graph_path: Path, data: dict[str, Any], categories: dict[str, 
 
     feat_path = feat_path_for(out_dir, base)
     out_dir.mkdir(parents=True, exist_ok=True)
-    torch.save(payload, feat_path)
+    atomic_torch_save(payload, feat_path)
     if only:
         print(f"[m3] {base}: struct={tuple(payload['struct'].shape)} "
               f"type_id={tuple(payload['type_id'].shape)} sv={tuple(payload['sv'].shape)}  "
@@ -888,6 +969,8 @@ def main() -> None:
     in_dir = Path(args.in_dir)
     out_dir = Path(args.out_dir)
     m1_dir = Path(args.m1_dir)
+    device = resolve_device(args.device)
+    print(f"[m3] device={device} (requested={args.device})", flush=True)
 
     # A3：先保证类别字典存在（--scan-only 只做这一步）
     if args.scan_only:
@@ -917,6 +1000,30 @@ def main() -> None:
 
     results = []
     total_nodes = 0
+    if args.workers > 1 and not args.only:
+        # 并行分支（--workers > 1）：语义与单进程逐图相同，仅吞吐不同。
+        # ★ 必须用 **spawn**（不能用 fork）：父进程导入 torch 后已起 OpenMP 线程池，
+        #   fork 出的子进程会继承处于加锁状态的互斥量 → 全体 0% CPU 死锁
+        #   （2026-09-14 实测：3 张图 10 分钟零进展）。spawn 让每个 worker 重新初始化，
+        #   代价是各加载一份 CodeBERT（约 480MB/worker，本机 7GB 需控制 worker 数）。
+        jobs = [(str(p), str(m1_dir), categories, str(out_dir), args.force,
+                 args.codebert, args.cb_patch, device) for p in graph_files]
+        done = 0
+        ctx = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(max_workers=args.workers, mp_context=ctx) as ex:
+            for result in ex.map(_process_one, jobs, chunksize=1):
+                results.append(result)
+                done += 1
+                if done % 25 == 0 or done == len(jobs):
+                    print(f"[m3] {done}/{len(jobs)} graphs done", flush=True)
+        total_nodes = sum(int(r.get("nodes", 0)) for r in results)
+        print(f"[m3] processed {len(graph_files)} graph(s), {total_nodes} node(s); "
+              f"schema=v{SCHEMA_VERSION}; feat_dir={out_dir}", flush=True)
+        reused = sum(1 for r in results if r["cb_reused"])
+        print(f"[m3] cb cache reused for {reused}/{len(results)} graphs (resume OK); "
+              f"wrote {len(graph_files)} _feat.pt channel dicts (workers={args.workers})", flush=True)
+        return
+
     for graph_path in graph_files:
         m1_path = m1_dir / graph_path.name.replace("_hetero.json", "_m1.json")
         data = load_graph(graph_path, m1_path)
@@ -929,7 +1036,8 @@ def main() -> None:
             assert set(data["s_v"]) == expected, "s_v keys must equal node id string set"
         result = process_graph(graph_path, data, categories,
                                out_dir, force=args.force, codebert=args.codebert,
-                               only=bool(args.only), cb_patch=args.cb_patch)
+                               only=bool(args.only), cb_patch=args.cb_patch,
+                               device=device)
         results.append(result)
         if args.only:
             print("[m3] node windows (A4 check):")

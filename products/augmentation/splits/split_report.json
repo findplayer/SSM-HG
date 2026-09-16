@@ -1,0 +1,376 @@
+{
+  "strategy": "constrained",
+  "unique_contracts": 1774,
+  "dedup": {
+    "mode": "source-sha1+address",
+    "rule": "按唯一标识（源码 sha1 → 项目标识/地址）分组，同组保留相对源码路径字典序首个",
+    "order": "先剔除 buggy_*，再去重（反序会连坐丢掉与 buggy 副本同内容的正常样本）",
+    "pool_before_dedup": 1774,
+    "pool_after_dedup": 1774,
+    "dropped_count": 0,
+    "levels": {
+      "source-sha1": {
+        "groups": 1774,
+        "duplicate_groups": 0,
+        "dropped": 0
+      },
+      "address": {
+        "groups": 1774,
+        "duplicate_groups": 0,
+        "dropped": 0
+      }
+    },
+    "dropped": []
+  },
+  "multi_label_contracts": 2,
+  "all_zero_contracts": 362,
+  "buggy_excluded_graphs": 0,
+  "include_buggy": false,
+  "unmatched_graphs": 0,
+  "per_class": {
+    "access_control": {
+      "pos": 200,
+      "neg": 1574,
+      "neg_pos_ratio": 7.87
+    },
+    "arithmetic": {
+      "pos": 251,
+      "neg": 1523,
+      "neg_pos_ratio": 6.0677
+    },
+    "dos": {
+      "pos": 143,
+      "neg": 1631,
+      "neg_pos_ratio": 11.4056
+    },
+    "front_running": {
+      "pos": 171,
+      "neg": 1603,
+      "neg_pos_ratio": 9.3743
+    },
+    "reentrancy": {
+      "pos": 182,
+      "neg": 1592,
+      "neg_pos_ratio": 8.7473
+    },
+    "time_manipulation": {
+      "pos": 106,
+      "neg": 1668,
+      "neg_pos_ratio": 15.7358
+    },
+    "uncheck": {
+      "pos": 361,
+      "neg": 1413,
+      "neg_pos_ratio": 3.9141
+    }
+  },
+  "split_sizes": {
+    "0": {
+      "train": 1419,
+      "val": 178,
+      "test": 177
+    },
+    "1": {
+      "train": 1419,
+      "val": 178,
+      "test": 177
+    },
+    "2": {
+      "train": 1419,
+      "val": 178,
+      "test": 177
+    }
+  },
+  "rule_check": {
+    "rule": "C1：val+test 每类正样本合计 ≥ min_pos_ratio×该类正样本数；C2：val 与 test 各自每类正样本 ≥ min_pos_per_split",
+    "min_pos_ratio": 0.0,
+    "min_pos_per_split": 1,
+    "strategy": "constrained",
+    "basis": "pool per-class positives（train+val+test 合计）",
+    "authority": "大纲 5.1 第三条（2026-09-12：30% 合计口径 + 覆盖约束校正半句）",
+    "seeds": {
+      "0": {
+        "per_class": {
+          "access_control": {
+            "pool_pos": 200,
+            "train_pos": 151,
+            "val_pos": 25,
+            "test_pos": 24,
+            "val_test_pos": 49,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "arithmetic": {
+            "pool_pos": 251,
+            "train_pos": 192,
+            "val_pos": 26,
+            "test_pos": 33,
+            "val_test_pos": 59,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "dos": {
+            "pool_pos": 143,
+            "train_pos": 108,
+            "val_pos": 17,
+            "test_pos": 18,
+            "val_test_pos": 35,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "front_running": {
+            "pool_pos": 171,
+            "train_pos": 136,
+            "val_pos": 21,
+            "test_pos": 14,
+            "val_test_pos": 35,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "reentrancy": {
+            "pool_pos": 182,
+            "train_pos": 144,
+            "val_pos": 24,
+            "test_pos": 14,
+            "val_test_pos": 38,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "time_manipulation": {
+            "pool_pos": 106,
+            "train_pos": 85,
+            "val_pos": 9,
+            "test_pos": 12,
+            "val_test_pos": 21,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "uncheck": {
+            "pool_pos": 361,
+            "train_pos": 293,
+            "val_pos": 34,
+            "test_pos": 34,
+            "val_test_pos": 68,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          }
+        },
+        "n_classes_failed": 0,
+        "failed_classes": [],
+        "passed": true,
+        "content_dedup_ok": true,
+        "cross_split_content_dups": [],
+        "address_dedup_ok": true,
+        "cross_split_address_dups": [],
+        "group_dedup_ok": true,
+        "cross_split_group_dups": [],
+        "coverage_fix": {
+          "swaps_count": 0,
+          "floor_fixes": 0
+        }
+      },
+      "1": {
+        "per_class": {
+          "access_control": {
+            "pool_pos": 200,
+            "train_pos": 157,
+            "val_pos": 16,
+            "test_pos": 27,
+            "val_test_pos": 43,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "arithmetic": {
+            "pool_pos": 251,
+            "train_pos": 190,
+            "val_pos": 30,
+            "test_pos": 31,
+            "val_test_pos": 61,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "dos": {
+            "pool_pos": 143,
+            "train_pos": 109,
+            "val_pos": 13,
+            "test_pos": 21,
+            "val_test_pos": 34,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "front_running": {
+            "pool_pos": 171,
+            "train_pos": 136,
+            "val_pos": 16,
+            "test_pos": 19,
+            "val_test_pos": 35,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "reentrancy": {
+            "pool_pos": 182,
+            "train_pos": 147,
+            "val_pos": 25,
+            "test_pos": 10,
+            "val_test_pos": 35,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "time_manipulation": {
+            "pool_pos": 106,
+            "train_pos": 82,
+            "val_pos": 11,
+            "test_pos": 13,
+            "val_test_pos": 24,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "uncheck": {
+            "pool_pos": 361,
+            "train_pos": 289,
+            "val_pos": 36,
+            "test_pos": 36,
+            "val_test_pos": 72,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          }
+        },
+        "n_classes_failed": 0,
+        "failed_classes": [],
+        "passed": true,
+        "content_dedup_ok": true,
+        "cross_split_content_dups": [],
+        "address_dedup_ok": true,
+        "cross_split_address_dups": [],
+        "group_dedup_ok": true,
+        "cross_split_group_dups": [],
+        "coverage_fix": {
+          "swaps_count": 0,
+          "floor_fixes": 0
+        }
+      },
+      "2": {
+        "per_class": {
+          "access_control": {
+            "pool_pos": 200,
+            "train_pos": 153,
+            "val_pos": 29,
+            "test_pos": 18,
+            "val_test_pos": 47,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "arithmetic": {
+            "pool_pos": 251,
+            "train_pos": 196,
+            "val_pos": 27,
+            "test_pos": 28,
+            "val_test_pos": 55,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "dos": {
+            "pool_pos": 143,
+            "train_pos": 113,
+            "val_pos": 16,
+            "test_pos": 14,
+            "val_test_pos": 30,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "front_running": {
+            "pool_pos": 171,
+            "train_pos": 133,
+            "val_pos": 21,
+            "test_pos": 17,
+            "val_test_pos": 38,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "reentrancy": {
+            "pool_pos": 182,
+            "train_pos": 145,
+            "val_pos": 14,
+            "test_pos": 23,
+            "val_test_pos": 37,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "time_manipulation": {
+            "pool_pos": 106,
+            "train_pos": 78,
+            "val_pos": 11,
+            "test_pos": 17,
+            "val_test_pos": 28,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          },
+          "uncheck": {
+            "pool_pos": 361,
+            "train_pos": 287,
+            "val_pos": 35,
+            "test_pos": 39,
+            "val_test_pos": 74,
+            "threshold": 0.0,
+            "c1_ok": true,
+            "c2_ok": true,
+            "ok": true
+          }
+        },
+        "n_classes_failed": 0,
+        "failed_classes": [],
+        "passed": true,
+        "content_dedup_ok": true,
+        "cross_split_content_dups": [],
+        "address_dedup_ok": true,
+        "cross_split_address_dups": [],
+        "group_dedup_ok": true,
+        "cross_split_group_dups": [],
+        "coverage_fix": {
+          "swaps_count": 0,
+          "floor_fixes": 0
+        }
+      }
+    }
+  }
+}

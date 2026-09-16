@@ -4,11 +4,13 @@
 背景（`docs/cb_func_gapfix_plan.md`）：CFG 节点请求的 `(contract, function)` 键在
 `_hetero.json::functions` 表里查不到 → `_cb.pt` 的 func 通道取零向量（node 通道无缺口）。
 
-分类（每个缺失键）：
+分类（每个缺失键；判定前先剥离注释，避免注释里的 `* function foo(` 被误判）：
+  0. `source_missing` 该图 `meta.source_path` 缺失/失效 → 源码读不到，**分类整体失效**，
+                   单列统计并报出（不得混入 `none`，`none` 是停止条件口径）；
   1. `alias`      同名条目在表中存在、但 contract 不同（继承函数：Slither 归到派生合约，
                    AST 表归到定义合约）→ 键错位，可补登记；
   2. `legacy_ctor` 名字是本文件声明的合约名（0.4.x 老式构造函数 `function Ownable() public`，
-                   被继承时 Slither 用基合约名当函数名）→ 可补登记（2026-09-12 已修，R2）；
+                   被继承时 Slither 用基合约名当函数名；含 `abstract contract`）→ 可补登记（2026-09-12 已修，R2）；
   3. `modifier`   名字在同源文件里是 `modifier X` 定义（AST walk 只收 FunctionDefinition）；
   4. `function`   名字在同源文件里有 `function X(` 定义但表中无同名 → 需人工核查；
   5. `none`       源码里也找不到定义 → 不可编码，必须报出（停止条件）。
@@ -35,7 +37,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-BASE = Path("/home/saumarez/projects/deep-learning/SSM-HG")
+BASE = Path(__file__).resolve().parents[1]  # 仓库根（scripts/ 的上一级）；从任意 cwd 运行都成立
 sys.path.insert(0, str(BASE / "scripts"))
 import dataset  # noqa: E402
 
@@ -43,17 +45,96 @@ GRAPHS = Path(dataset.DEFAULT_GRAPH_DIR)
 OUT_JSON = BASE / "products/alldata/splits/cb_func_gap.json"
 OUT_MD = BASE / "docs/cb_func_gap.md"
 
+def strip_comments(source: str) -> str:
+    """剥离 `//` 行注释与 `/* */` 块注释；最小状态机（代码 / 字符串 / 行注释 / 块注释）。
+
+    为什么不用纯正则：正则认不出字符串字面量，会被源码本身带偏——
+    `string s = "// not a comment";` 会把该行剩余部分当注释吞掉；
+    `string s = "/*";` 更会一路吞到下一个 `*/`（可能横跨整个文件），
+    把大量真实定义删掉、把它们误判成 `none`（“不可编码，必须报出”的停止条件）。
+    本脚本的结论进论文，故用状态机而非正则。
+
+    约定：注释字符替换为空格、**换行原样保留**（维持 `^` 行锚定的匹配行为）；
+    字符串内容原样保留（Solidity 字符串不跨行，故行锚定的定义匹配对字符串内容是安全的）。
+    """
+    out: list[str] = []
+    i, n = 0, len(source)
+    state = "code"          # code | string | line_comment | block_comment
+    quote = ""
+    while i < n:
+        ch = source[i]
+        nxt = source[i + 1] if i + 1 < n else ""
+        if state == "code":
+            if ch in "\"'":
+                state, quote = "string", ch
+                out.append(ch)
+                i += 1
+            elif ch == "/" and nxt == "/":
+                state = "line_comment"
+                out.append("  ")
+                i += 2
+            elif ch == "/" and nxt == "*":
+                state = "block_comment"
+                out.append("  ")
+                i += 2
+            else:
+                out.append(ch)
+                i += 1
+        elif state == "string":
+            if ch == "\\" and nxt:      # 转义序列整体跳过，避免 `\"` 提前结束字符串
+                out.append(ch)
+                out.append(nxt)
+                i += 2
+            else:
+                if ch == quote:
+                    state = "code"
+                out.append(ch)
+                i += 1
+        elif state == "line_comment":
+            if ch == "\n":
+                state = "code"
+                out.append(ch)
+            else:
+                out.append(" ")
+            i += 1
+        else:                            # block_comment：仅换行保留，其余抹平
+            if ch == "*" and nxt == "/":
+                state = "code"
+                out.append("  ")
+                i += 2
+            else:
+                out.append(ch if ch == "\n" else " ")
+                i += 1
+    return "".join(out)
+
+
 def classify(name: str, source: str, same_name_contracts: list[str]) -> str:
-    """缺失键分类（优先级：alias > legacy_ctor > modifier > function > none）。"""
+    """缺失键分类（优先级：source_missing > alias > legacy_ctor > modifier > function > none）。"""
+    if not source:
+        # 源码读不到时**不得**落到 none：none 是“不可编码，必须报出”的停止条件，
+        # 用它承载“源码缺失”会伪造停止条件、误导修复优先级。
+        return "source_missing"
     if same_name_contracts:
         return "alias"
-    if re.search(r"(?m)^\s*(?:contract|interface|library)\s+" + re.escape(name) + r"\b", source):
+    if re.search(r"(?m)^\s*(?:abstract\s+)?(?:contract|interface|library)\s+" + re.escape(name) + r"\b",
+                 source):
         return "legacy_ctor"
     if re.search(r"(?m)^\s*modifier\s+" + re.escape(name) + r"\s*[\(\{]", source):
         return "modifier"
     if re.search(r"(?m)^\s*function\s+" + re.escape(name) + r"\s*\(", source):
         return "function"
     return "none"
+
+
+# 每个类别的处置动作（模块级：新增类别时必须同步补条目，单测会校验覆盖面）
+ACTION = {
+    "alias": "补登记：按同名定义补 (派生合约, 函数名) 条目",
+    "legacy_ctor": "补登记：0.4.x 老式构造函数（合约名当函数名），已修（R2）",
+    "modifier": "补收集：AST walk 增收 ModifierDefinition（kind=modifier）",
+    "function": "人工核查：同名定义存在但不入表",
+    "source_missing": "源码缺失 → 分类失效，先修 source_path 再重跑（不是停止条件）",
+    "none": "不可编码 → 计划停止条件，需裁定",
+}
 
 
 def main() -> None:
@@ -77,6 +158,8 @@ def main() -> None:
     key_rows: dict[tuple[str, str], dict] = {}
     class_nodes = collections.Counter()
     class_keys = collections.Counter()
+    class_conflicts: dict[tuple[str, str], list[str]] = {}
+    source_missing_graphs: list[str] = []
     total_nodes = total_missing_rows = 0
 
     for hetero in sorted(graph_dir.glob("*_hetero.json")):
@@ -87,10 +170,13 @@ def main() -> None:
         for c, f in table:
             by_name[f].append(c)
 
+        # 源码：读不到时置空字符串并在 classify 里归入 source_missing（不静默当成 none）
         source = ""
         src_path = data.get("meta", {}).get("source_path")
         if src_path and Path(src_path).exists():
-            source = Path(src_path).read_text(encoding="utf-8", errors="ignore")
+            source = strip_comments(Path(src_path).read_text(encoding="utf-8", errors="ignore"))
+        else:
+            source_missing_graphs.append(base)
 
         missing_rows = collections.Counter()
         for node in data.get("nodes", []):
@@ -106,6 +192,11 @@ def main() -> None:
                                  "same_name_in_table": sorted(by_name.get(key[1], [])),
                                  "graphs": 0, "node_rows": 0}
                 class_keys[cls] += 1
+            else:
+                # 同一键在不同图里被分成两类（前提是各图 source 一致）：不静默取首次分类，计入冲突
+                cls = classify(str(key[1]), source, by_name.get(key[1], []))
+                if cls != key_rows[key]["class"]:
+                    class_conflicts[key] = sorted({key_rows[key]["class"], cls})
         if missing_rows:
             per_graph[base] = {
                 "nodes": len(data.get("nodes", [])),
@@ -119,6 +210,12 @@ def main() -> None:
                 key_rows[key]["node_rows"] += cnt
                 class_nodes[key_rows[key]["class"]] += cnt
 
+    # 不变量：逐图缺口行之和 == 全局缺口行数；逐类节点行之和 == 全局缺口行数
+    assert sum(g["missing_rows"] for g in per_graph.values()) == total_missing_rows, \
+        (sum(g["missing_rows"] for g in per_graph.values()), total_missing_rows)
+    assert sum(class_nodes.values()) == total_missing_rows, \
+        (dict(class_nodes), total_missing_rows)
+
     payload = {
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "graphs_total": len(list(graph_dir.glob("*_hetero.json"))),
@@ -129,19 +226,20 @@ def main() -> None:
         "keys_total": len(key_rows),
         "class_key_counts": dict(class_keys),
         "class_node_row_counts": dict(class_nodes),
+        "class_conflicts": {f"{k[0]}::{k[1]}": v for k, v in sorted(class_conflicts.items())},
+        "source_missing_graphs": sorted(source_missing_graphs),
         "keys": [dict(key=list(k), **v) for k, v in sorted(key_rows.items())],
         "graphs": per_graph,
-    }
-    action = {
-        "alias": "补登记：按同名定义补 (派生合约, 函数名) 条目",
-        "modifier": "补收集：AST walk 增收 ModifierDefinition（kind=modifier）",
-        "function": "人工核查：同名定义存在但不入表",
-        "none": "不可编码 → 计划停止条件，需裁定",
     }
     print(f"图 {payload['graphs_total']} / 节点 {total_nodes}；缺口 {total_missing_rows} 行"
           f"（{payload['missing_rows_share']:.1%}）/ {len(per_graph)} 图 / {len(key_rows)} 键")
     for cls, n in class_keys.most_common():
-        print(f"  {cls:9s} 键 {n:3d}  节点行 {class_nodes[cls]:6d}  → {action[cls]}")
+        print(f"  {cls:14s} 键 {n:3d}  节点行 {class_nodes[cls]:6d}  → {ACTION[cls]}")
+    if source_missing_graphs:
+        print(f"  ⚠ 源码缺失图 {len(source_missing_graphs)} 个（分类失效）："
+              f"{source_missing_graphs[:5]}{' …' if len(source_missing_graphs) > 5 else ''}")
+    if class_conflicts:
+        print(f"  ⚠ 同键分类冲突 {len(class_conflicts)} 个：{list(class_conflicts)[:5]}")
 
     if args.print_only:
         return
@@ -155,7 +253,15 @@ def main() -> None:
              f"{len(key_rows)} 个去重键。", "",
              "| 类别 | 键数 | 节点行 | 处置 |", "| --- | --- | --- | --- |"]
     for cls, n in class_keys.most_common():
-        lines.append(f"| `{cls}` | {n} | {class_nodes[cls]} | {action[cls]} |")
+        lines.append(f"| `{cls}` | {n} | {class_nodes[cls]} | {ACTION[cls]} |")
+    if source_missing_graphs:
+        lines += ["", f"> ⚠ **{len(source_missing_graphs)} 个图的源码缺失**（`meta.source_path` 无效），"
+                      "这些图的缺失键分类不可信（已归入 `source_missing`），修复路径后须重跑：",
+                  "", "> `" + "`, `".join(source_missing_graphs[:20]) + "`"]
+    if class_conflicts:
+        lines += ["", f"> ⚠ **{len(class_conflicts)} 个键在不同图中被分成不同类**"
+                      "（各图 source 不一致），md 中取首次分类，需人工复核：",
+                  "", "> " + ", ".join(f"`{k[0]}::{k[1]}` → {v}" for k, v in list(class_conflicts.items())[:20])]
     lines += ["", "## 逐键明细", "", "| contract | function | 类别 | 表中同名的合约 | 涉及图 | 节点行 |",
               "| --- | --- | --- | --- | --- | --- |"]
     for key, info in sorted(key_rows.items(), key=lambda kv: -kv[1]["node_rows"]):
