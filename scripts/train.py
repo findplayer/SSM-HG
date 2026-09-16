@@ -222,6 +222,10 @@ def parse_args() -> argparse.Namespace:
                    help="标签键模式（省略则走 SSMHG_LABEL_KEY_MODE，再默认 project）。"
                         "扁平/词干命名语料（augmentation）必须传 stem，否则键对不上。")
     p.add_argument("--verify-channel-hash", action="store_true", help="额外校验 cb 两通道哈希。")
+    p.add_argument("--overwrite", action="store_true",
+                   help="允许覆盖已存在的 <out-dir>/seed{N}/。**默认拒绝**：若该目录已有 "
+                        "config.json 且本次参数与产出它的那次不同，直接报错退出（防止换数据集或"
+                        "做消融时无声销毁 runs/seed{0,1,2}/ 的正典结果）。")
     return p.parse_args()
 
 
@@ -264,6 +268,35 @@ def _load_split_samples(split_path: str, graph_dir: str, ab: Ablation, index: di
     return train, val, meta
 
 
+_VOLATILE_KEYS = {"overwrite"}      # 不参与「是否为同一次实验」判定
+
+
+def run_dir_conflict(run_dir: Path, args: argparse.Namespace, split_seed: int) -> str | None:
+    """既有 `runs/seed{N}/` 是否与本次调用属于**同一次实验**；不同则返回差异描述。
+
+    判定依据 = 已保存的 `config.json`（`args` + `split_seed`）。任一**双方都记录过**的键不同，
+    就说明本次要跑的不是产出该目录的那次实验；直接覆盖会**无声销毁**已报告的结果
+    （`runs/seed{0,1,2}/` 是论文正典，消融/换数据集必须另开 `--out-dir`）。
+
+    只比较**两边都存在的键**：老 `config.json` 里没有的新键（如后续版本新增的开关）不算冲突，
+    避免把"同一次实验"误判成冲突而拒绝。返回 None = 无冲突（目录不存在或逐项相同）。
+    """
+    prev = run_dir / "config.json"
+    if not prev.exists():
+        return None
+    try:
+        old = json.loads(prev.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return f"既有 {prev.name} 无法解析（疑为中断的残留）"
+    old_args = {k: v for k, v in (old.get("args") or {}).items() if k not in _VOLATILE_KEYS}
+    cur_args = {k: v for k, v in vars(args).items() if k not in _VOLATILE_KEYS}
+    diffs = [f"{k}: {old_args[k]!r} → {cur_args[k]!r}"
+             for k in sorted(set(old_args) & set(cur_args)) if old_args[k] != cur_args[k]]
+    if old.get("split_seed") != split_seed:
+        diffs.insert(0, f"split_seed: {old.get('split_seed')!r} → {split_seed!r}")
+    return "；".join(diffs) if diffs else None
+
+
 def main() -> None:
     args = parse_args()
     split_seed = args.split_seed if args.split_seed is not None else args.seed
@@ -272,6 +305,15 @@ def main() -> None:
         torch.manual_seed(args.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     run_dir = Path(args.out_dir) / f"seed{args.seed}"
+    conflict = run_dir_conflict(run_dir, args, split_seed)
+    if conflict and not args.overwrite:
+        raise SystemExit(
+            f"[train] 拒绝覆盖 {run_dir}：该目录已有 config.json，且本次参数与产出它的那次实验不同——\n"
+            f"  {conflict}\n"
+            f"  这是为了防止无声销毁已报告的结果（runs/seed{{0,1,2}}/ 是论文正典）。\n"
+            f"  换数据集/做消融请改用 `--out-dir <新臂名>`；确实要覆盖时加 `--overwrite`。")
+    if conflict:
+        print(f"[train] ⚠ --overwrite 生效，即将覆盖 {run_dir}（差异：{conflict}）", flush=True)
     run_dir.mkdir(parents=True, exist_ok=True)
     t_run_start = time.perf_counter()
 

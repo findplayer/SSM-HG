@@ -27,7 +27,70 @@ sys.path.insert(0, str(REPO / "scripts"))
 from dataset import CHANNEL_ORDER, GraphSample, collate  # noqa: E402
 from model import AblationConfig, sample_dropout_masks  # noqa: E402
 from train import (build_fuser_model, class_stats,  # noqa: E402
-                   masked_weighted_bce, per_graph_population_std)
+                   masked_weighted_bce, per_graph_population_std,
+                   run_dir_conflict)
+
+
+# ---------------------------------------------------------------- 覆盖保护
+def _cfg(tmp_path: Path, **args) -> Path:
+    """造一个 <tmp>/seed0/config.json，返回 run_dir。"""
+    import json
+    run_dir = tmp_path / "seed0"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "config.json").write_text(
+        json.dumps({"args": args, "split_seed": args.get("split_seed", 0)},
+                   ensure_ascii=False), encoding="utf-8")
+    return run_dir
+
+
+def test_run_dir_conflict_missing_dir_is_none(tmp_path):
+    """目录不存在（首次运行）不得报冲突。"""
+    from train import run_dir_conflict as f
+    assert f(tmp_path / "seed0", argparse.Namespace(a=1), 0) is None
+
+
+def test_run_dir_conflict_same_args_is_none(tmp_path):
+    """逐项同参（复跑）不得报冲突——否则会把正常复现挡在门外。"""
+    from train import run_dir_conflict as f
+    run_dir = _cfg(tmp_path, lr=1e-4, epochs=200, split_seed=0)
+    assert f(run_dir, argparse.Namespace(lr=1e-4, epochs=200), 0) is None
+
+
+@pytest.mark.parametrize("key,old,new", [
+    ("lr", 1e-4, 1e-3),                       # 换超参 = 另一次实验
+    ("split_dir", "/a/splits", "/b/splits"),  # 换划分臂（消融最常见）
+    ("graph_dir", "/a/graphs", "/b/graphs"),  # 换数据集
+])
+def test_run_dir_conflict_detects_arg_change(tmp_path, key, old, new):
+    from train import run_dir_conflict as f
+    run_dir = _cfg(tmp_path, **{key: old})
+    msg = f(run_dir, argparse.Namespace(**{key: new}), 0)
+    assert msg is not None and key in msg, msg
+
+
+def test_run_dir_conflict_detects_split_seed_change(tmp_path):
+    """换划分种子同样必须拦——划分不同就不是同一份结果。"""
+    from train import run_dir_conflict as f
+    run_dir = _cfg(tmp_path, lr=1e-4)
+    msg = f(run_dir, argparse.Namespace(lr=1e-4), 2)
+    assert msg is not None and "split_seed" in msg, msg
+
+
+def test_run_dir_conflict_ignores_keys_absent_from_old_config(tmp_path):
+    """老 config.json 没有的新键不得算冲突（否则新版本会拒绝复跑旧实验）。"""
+    from train import run_dir_conflict as f
+    run_dir = _cfg(tmp_path, lr=1e-4, split_seed=0)
+    # 本次多了老配置没记录的 `overwrite` 与 `新开关`
+    assert f(run_dir, argparse.Namespace(lr=1e-4, overwrite=True, brand_new_flag=7), 0) is None
+
+
+def test_run_dir_conflict_unparseable_config(tmp_path):
+    """中断残留的坏 config.json 必须报冲突（宁可疑、不可无声覆盖）。"""
+    from train import run_dir_conflict as f
+    run_dir = tmp_path / "seed0"
+    run_dir.mkdir(parents=True)
+    (run_dir / "config.json").write_text("{ 半截", encoding="utf-8")
+    assert f(run_dir, argparse.Namespace(a=1), 0) is not None
 
 LAYOUT = {"visibility": 4, "bool": 14, "call_mode": 5, "position": 1, "ir": 6}
 

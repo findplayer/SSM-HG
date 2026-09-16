@@ -37,6 +37,9 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 路径含空格/括号（`alldata(readonly)/`、`DIVE/Source codes/`），命令中必须加引号；产物区 `products/…` 无空格。
 - `products/alldata/raw/` 与 `products/alldata/graphs/` 存放约 581 个合约的批量产物（原 `raw/`、`Heterogeneous graphs/`，2026-09-12 迁入），不要整目录列举或全量读取，按需读单个文件。
 - 不要提交超过 100 MB 的文件。`DIVE/Code-based.csv`（147 MB）已在 `.gitignore` 中，仅保留在本地。
+- **复现所需的最小集必须入库**（2026-09-16 起，此前被整目录忽略是错的）：
+  - `products/**/raw/filter_report.txt`（样本过滤透明性声明）与 `products/**/graphs/ir_cat.json`（**冻结 IR 类别字典 = 跨语料语义锚点**，几 KB）——两者的父目录仍是内容式忽略 + `!` 白名单纳入，改动 `.gitignore` 时**不要**把父目录改回目录式忽略（目录式排除无法用 `!` 取反）。
+  - `runs/**/best.pt`（`evaluate.py` 的唯一权重输入）+ `val_best_probs.pt`/`test_probs.pt`（推理缓存）→ 使已报告指标可**离线重算、无需重训**；全库 115 MB、单文件 4.77 MB。`last.pt` 仍排除（仅断点续训用，入库会使体积翻倍）。
 
 ## 语义锁死项（最容易写错）
 
@@ -57,6 +60,10 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 审查外部或 AI 建议时：先判断是否与大纲冲突；合理的吸收，不合理的明确反驳并给出理由，不要照单全收。
 - 全量重跑代价高（M2 全量重跑会带动下游 581 个图）。能用 `--only <图前缀>` 或 `--variant` 小样验证就先小样验证。
 - 等批量脚本跑完再校验产物：脚本会先删旧文件再逐个重生成，中途读取会得到"缺失/归零"的假象。
+- **换数据集/做消融必须改道输出目录，四处默认值全指向正典区**（2026-09-16 起 `train.py` 已默认拒绝覆盖）：
+  `train.py`→`runs`、`make_splits.py`→`products/alldata/splits`、`m3_build_features.py`→`products/alldata/graphs`、
+  `generate_all_ast_cfg_dfg.sh` **开工先 `find -delete` 清空目标目录**（用默认目录跑＝删掉主库 raw 产物）。
+  安全模板见手册 §12 第 51 条。
 
 ## 记录与沟通
 

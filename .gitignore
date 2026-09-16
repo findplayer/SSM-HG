@@ -4,8 +4,11 @@ slither-env/
 
 # 数据集产物：按数据集分区（products/<数据集>/），raw/ 与 graphs/ 体积大，不纳入版本管理
 # （products/*/splits/、products/*/mapping/ 等小文件仍纳入版本管理）
-products/**/raw/
-products/**/graphs/
+products/**/raw/*
+!products/**/raw/filter_report.txt
+products/**/graphs/*
+!products/**/graphs/ir_cat.json
+!products/**/graphs/.gitkeep
 
 # 147 MB，超过 GitHub 单文件 100 MB 限制，仅保留在本地，不纳入版本管理
 DIVE/Code-based.csv
@@ -15,6 +18,12 @@ DIVE/Code-based.csv
 #     此处刻意不跟从该惯例——本目录只读、可由 MVD-HG-dataset 派生重建，无需占版本体积。
 alldata_augmentation/
 
-# M5 训练产物：checkpoint（best.pt/last.pt/val_best_probs.pt 大文件）不纳入版本管理；
-# JSON 实验记录（config.json/log.txt/results.json/thresholds.json/summary.json）仍纳入
+# M5 训练产物：JSON 实验记录（config.json/log.txt/results.json/thresholds.json/summary.json）全部纳入；
+# 权重与推理缓存**按"重算指标所需的最小集"纳入**（2026-09-16 起）：
+#   best.pt（evaluate.py 的唯一权重输入，4.77 MB/个）+ val_best_probs.pt + test_probs.pt（共 0.3 MB）
+#   —— 三者合起来即可**离线重算全部已报告指标、无需重训**；全套实测 115 MB，单文件均 <5 MB。
+# last.pt 刻意排除：仅断点续训用、与报告数字无关，却会使体积翻倍（+114 MB）。
 runs/**/*.pt
+!runs/**/best.pt
+!runs/**/val_best_probs.pt
+!runs/**/test_probs.pt
