@@ -995,3 +995,87 @@ micro-F1（双阈值）、macro-F1、`mAP`、逐类 AP 数组、逐类 support�
 `m3_build_features.py`→`products/alldata/graphs`、`generate_all_ast_cfg_dfg.sh` **开工先 `find -delete` 清空目标目录**。
 2026-09-16 起 `train.py` **默认拒绝覆盖**（`run_dir_conflict()`：参数与产出该目录的那次不同即报错退出，
 需 `--overwrite`），补上了原先唯一无保护的覆盖点；其余三处仍**只靠显式传目录的约定**保护。
+
+---
+
+## 25. 消融准备：四处覆盖守卫 + 开关接线验证 + 阻断项（2026-09-16）
+
+### 25.1 四处覆盖点全部加守卫（用户裁定「为三中的内容加同样的守卫」）
+
+`results.md`/本文件此前只把 `train.py` 列为"唯一无保护的覆盖点"，实测**四处默认值全指向正典产物区**：
+
+| 命令 | 默认输出 | 破坏方式 | 守卫 |
+| --- | --- | --- | --- |
+| `generate_all_ast_cfg_dfg.sh` | 主库 `raw/{AST,CFG,DFG}-raw` + `raw/logs` + `raw/filter_report.txt`（**六条路径**） | `find -delete` 清空目录（实测将删 27,129 个文件）+ **`> "$FILTER_REPORT"` 重写报告** | 任一非空/非空文件时要求 `SSMHG_ALLOW_WIPE=1`，否则 exit 2 并列出将清空清单 + 打印**六条路径全貌** |
+| `make_splits.py` | `products/alldata/splits` | 静默重写 `split_seed*.json` 等 | `split_dir_conflict()` + `--overwrite` |
+| `m3_build_features.py` | `products/alldata/graphs` | 外部语料特征写进主库目录 | `run_guard.corpus_conflict()` + `--overwrite` |
+| `train.py` | `runs` | 同 `--seed` 覆盖 `runs/seed{N}/` | `run_dir_conflict()` + `--overwrite`（§24.4 已加） |
+
+判定逻辑统一抽到新增的 **`scripts/run_guard.py`**（不分散在各 CLI 里，避免复制多份后各自烂掉），
+并由 `tests/test_run_guard.py`（20 用例）锁死。
+
+**实施中踩到并修掉一个真 bug**：实验自述里记的是**绝对路径**，而命令行常传**相对路径**，
+直接比字符串会把"同一个目录"判成冲突（实测把同参数复跑误拒）。
+故 `run_guard.canonical_args()` 对已知路径型参数统一 `Path(...).resolve()` 后再比——
+**两侧都归一化**，故即使某参数不是真实路径（如 HF 模型 id）也只得到一致结果。
+回归测试：`test_relative_and_absolute_same_dir_is_not_a_conflict`（train 与 make_splits 各一）。
+
+**⚠ 2026-09-16 事故与修正（必须记）**：shell 守卫的**初版只检查 AST/CFG/DFG 三个目录，且位置在日志截断之后**。
+我用它自测"部分覆盖环境变量"时，只改了 `AST_DIR/CFG_DIR/DFG_DIR/LOG_DIR/SRC_ROOT`、**漏改 `FILTER_REPORT`** →
+`FILTER_REPORT` 落回主库默认路径，脚本"合法地"把全 0 报告写进了正典
+`products/alldata/raw/filter_report.txt`（`total_source_files=591` → `0`）。已从 HEAD 逐字节恢复。
+两处修正：① 守卫覆盖**全部六条路径**（含 `LOG_DIR` 与 `FILTER_REPORT`）；
+② 守卫**前移到所有清空/截断动作之前**（`mkdir -p` 之后、`> "$AST_ERR"` 与 `find -delete` 之前）；
+③ 拒绝时额外打印**六条路径全貌**，让"改了一半"一眼可见。
+回归测试 `tests/test_run_guard.py::test_raw_script_refuses_and_touches_nothing`：
+以默认路径跑一次，断言 exit 2 且 `filter_report.txt` / `ast_error.log` 的 sha1 **前后不变**。
+
+> 教训："部分覆盖环境变量"是最可能的误用方式，而初版守卫恰好对它免疫——**守卫的覆盖面必须等于破坏面**，
+> 且必须在**任何写动作之前**执行。这条同样适用于另外三个 CLI。
+
+`m3_build_features.py` 的守卫判据是"out-dir 已有的 `_feat.pt` 与 in-dir 的输入图**完全不相交**"——
+只要有交集就放行（断点续跑/增量补图/`--force` 全量重建都合法）。
+**与 `--force` 语义不同**：`--force` 是重算向量，不改变语料归属。
+
+### 25.2 消融开关接线验证（`tests/test_ablation_switches.py`，20 用例 + 2 skip + 1 xfail）
+
+**为什么要单独验证**：消融的价值全在"只有一个变量在动"。若某开关其实是空操作，跑出的"结论"是假的，
+且从指标数字上几乎发现不了。故逐个验证**作用机制**（扰动被剔除的通道 → 输出必须不变），
+而非只验证"命令能跑通"。已机器验证：4 项边消融 + `--drop-ast` + 白名单拒绝、
+`ablate_sv` / `cb_channels` 单通道 / `feat_groups base` 的列级掩码、`meanpool`（改变 z 且不增参数）、
+`num_bases` / `hid`、`L_var` 复合式（由既有 `log.txt` 验证 `loss_total = loss_cls + λ·loss_var`，零新计算）。
+
+### 25.3 ★ 阻断项：「关闭先验 Dropout」无法按意图表达（**待裁定**）
+
+**实测**：`model.sample_dropout_masks` 返回 `rand < prior_p`，掩码**乘法**作用于 s_v（0=置零、1=保留），
+故 `prior_p` 是**保留率**。两个后果：
+
+1. 默认 `--prior-dropout 0.2` 实际**置零 80% 的图**；而大纲 4.1.4 与手册 §8.6 的**散文**写的是
+   「以概率 **0.2** 把 $s_v$ **置 0**」（丢弃率 0.2）→ 默认强度**差 4 倍**，且 §1.2 全部结果都带这个口径。
+   > 文档自身对这一点是**矛盾**的：同段又写"按图 Bernoulli(0.2)"（若 1=保留，则丢弃 0.8）。
+   > 但下面这条在两种读法下都错。
+2. `--prior-dropout 0` → `rand < 0` 恒 False → **每张图都置零**，**等价于 `--ablate-sv`**。
+   即 5.4.1 的「关闭先验 Dropout」跑不出它该测的东西，会与另一项消融得出同一结果。
+
+既有测试（`tests/test_frontend.py`）只验证了**机制**（mask=0 → sv 置零），从未验证**比率**，故未被发现。
+现以 `xfail(strict=True)` 钉住（修好即报错，强制同步文档与结果）。
+
+| 方案 | 做法 | 代价 |
+| --- | --- | --- |
+| A（推荐） | 修 `rand >= p`（丢弃率语义），**重跑全部结果** | 主库+增强集+各对照臂全部重训，`results.md` 数字全部刷新 |
+| B | 保留实现，把参数定义为保留率并**同步大纲** | 偏离大纲 4.1.4 原文；第 10 项改 `--prior-dropout 1` 表"关闭"（语义别扭） |
+| C | 只补 `--no-prior-dropout`，默认口径不动 | 现有结果不失效，但"默认 80% vs 大纲 20%"的背离仍在，须在论文披露 |
+
+### 25.4 消融就绪盘点（详见 `experiments/ablation_plan.md`）
+
+17 项（5.4.1 十一 + 5.4.2 六）中：**12 项可直接跑**（零重跑或秒级）、**1 项需先造 M2 变体**、
+**1 项被 §25.3 阻断**、**3 项需开发**（CALLBACK_RISK_REV 无反向边开关、RGCN 层数硬编码两层、微调 CodeBERT 无路径）。
+3 个开发项已用 `@pytest.mark.skip` 显式登记，**不会在 CI 里假绿**。
+
+顺带实测两条对消融设计有用的事实：
+- **`--callback-limit 4` 确实在截断**：全库 CALLBACK_RISK 源节点出边数分布 `{1:47, 2:62, 3:21, 4:70}`，
+  最大恰为 4 且堆在 4；单图实测 limit=0 得 25 条边 vs 默认 20 条。故"上限 4 vs 不限"**不是空操作**，
+  但影响面有限（全库 ~70 个节点）→ 预期指标变化很小。
+- **M2 变体的空间代价可压到 0.15 GB**：`_cb.pt` 占主库图产物的 **14.6 GB / 15 GB**，而它只依赖源码文本、
+  与边无关 → 变体可**软链复用**；`_feat.pt` 不可复用（M1 的 $s_v$ 依赖 CALLBACK_RISK 端点），
+  但 `_cb.pt` 命中时 M3 不加载 CodeBERT，全库约 41 s。

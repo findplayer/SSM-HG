@@ -60,10 +60,12 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 审查外部或 AI 建议时：先判断是否与大纲冲突；合理的吸收，不合理的明确反驳并给出理由，不要照单全收。
 - 全量重跑代价高（M2 全量重跑会带动下游 581 个图）。能用 `--only <图前缀>` 或 `--variant` 小样验证就先小样验证。
 - 等批量脚本跑完再校验产物：脚本会先删旧文件再逐个重生成，中途读取会得到"缺失/归零"的假象。
-- **换数据集/做消融必须改道输出目录，四处默认值全指向正典区**（2026-09-16 起 `train.py` 已默认拒绝覆盖）：
-  `train.py`→`runs`、`make_splits.py`→`products/alldata/splits`、`m3_build_features.py`→`products/alldata/graphs`、
-  `generate_all_ast_cfg_dfg.sh` **开工先 `find -delete` 清空目标目录**（用默认目录跑＝删掉主库 raw 产物）。
-  安全模板见手册 §12 第 51 条。
+- **换数据集/做消融必须改道输出目录，四处默认值全指向正典区**，且**四处均已有守卫**（2026-09-16，逻辑统一在
+  `scripts/run_guard.py`，测试 `tests/test_run_guard.py`）：
+  `train.py`→`runs`、`make_splits.py`→`products/alldata/splits`、`m3_build_features.py`→`products/alldata/graphs`
+  三者在"本次参数与产出该目录的那次不同"时报错退出（需 `--overwrite`）；
+  `generate_all_ast_cfg_dfg.sh` **开工先 `find -delete` 清空目标目录**，故目标非空时要求 `SSMHG_ALLOW_WIPE=1`（否则 exit 2）。
+  消融一律**新开 `--out-dir`**（如 `runs/ablation/<item>`），不要加 `--overwrite`。安全模板见手册 §12 第 51 条。
 
 ## 记录与沟通
 
@@ -87,6 +89,19 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   | mAP | **0.2980±0.0127** | **0.9804±0.0090** |
 
   ① 回答「真实部署合约（含天然极稀缺类）上能检出什么」，宏观指标低是**数据事实**、非方法失效；② 回答「训练信号充足时的能力上限」，**不得**解读为 ① 的问题已解决。三条例外臂（`runs/neardup/`、`runs/withbuggy/`、`runs/augmentation_dedup/`）均不进两表。
+- **2026-09-16 消融准备完成（阶段 F **尚未开跑**；计划见 `experiments/ablation_plan.md`，决议见 `decisions.md` §25）**：
+  - 四处覆盖点全部加守卫（`scripts/run_guard.py` + 各自 `--overwrite`；shell 脚本用 `SSMHG_ALLOW_WIPE=1`）。
+  - 消融开关接线验证 `tests/test_ablation_switches.py`：4 项边消融 + `--drop-ast` + 白名单、三项特征消融的列级掩码、
+    `meanpool`、`num_bases`/`hid`、`L_var` 复合式（读既有日志验证，零新计算）。
+  - **就绪盘点：17 项（5.4.1×11 + 5.4.2×6）中 12 项可直接跑**（零重跑，12 项×3 种子 ≈ 15 分钟 GPU）；
+    **1 项**（CALLBACK_RISK 上限 4 vs 不限）需先造 M2 变体（空间可压到 0.15 GB：`_cb.pt` 占 14.6/15 GB
+    且与边无关 → 软链复用）；**3 项需开发**（CALLBACK_RISK_REV 无反向边开关、RGCN 层数硬编码两层、微调 CodeBERT 无路径），
+    已用 `@pytest.mark.skip` 显式登记不假绿。
+  - ⚠ **1 项被 bug 阻断：「关闭先验 Dropout」**。`sample_dropout_masks` 返回 `rand < prior_p`，掩码乘法作用于 s_v，
+    故 **`prior_p` 是保留率**：默认 `--prior-dropout 0.2` 实际**置零 80% 的图**（大纲 4.1.4 的散文写的是丢弃率 0.2
+    → **默认强度差 4 倍，且现有全部结果都带此口径**）；而 `--prior-dropout 0` 会**每张图都置零 = 等价于 `--ablate-sv`**，
+    使该项跑不出它该测的东西。**待裁定，三方案见 `decisions.md` §25.3；裁定前不要跑第 10 项。**
+    测试已用 `xfail(strict=True)` 钉住（修好即报错，强制同步文档与结果）。
 - 已完成：M1–M4；`scripts/` 中 `dataset.py`、`make_splits.py` 已实现（2026-09-12：覆盖约束校正 `--strategy constrained`（默认）+ `coverage_swaps_seed*.txt`、`splits.csv`、split metadata；三种子 C1/C2 构造达标，主种子 seed0）。
 - **2026-09-16 第二数据集 `alldata_augmentation` M1–M5 全链跑通（见 `experiments/results.md` §6）**。产物隔离在 `products/augmentation/`、`runs/augmentation{,_dedup}/`；**主库数字与产物零改动**。
   - 语料：池 **1774**（0 精确重复、0 buggy 剔除、0 标签未匹配；全零 362、多标签 2、**单标签**语料），逐类正样本 106–361。**M3 在 GPU 上全量重建**（`--device cuda --force`，1774 图 49 分 10 秒，`cb_reused=0/1774`）。

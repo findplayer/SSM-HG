@@ -61,6 +61,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+import run_guard
 from dataset import (BASE, LABEL_KEY_MODES, build_index, is_buggy_project,
                      project_of_base, resolve_label_key_mode)
 
@@ -483,12 +484,58 @@ def parse_args() -> argparse.Namespace:
                         help="注入噪声剔除口径：project-prefix=主库现行（is_buggy_project）；"
                              "stem-noise=按 `<类>__buggy_<N>` 词干剔（新语料口径）；none=全保留。"
                              "注意 project-prefix 套在新语料上会剔反（误剔 634 个真实单类样本）。")
+    parser.add_argument("--overwrite", action="store_true",
+                        help="允许覆盖已存在的划分目录。**默认拒绝**：若该目录已有 split_metadata_seed*.json 且本次参数与产出它的那次不同，直接报错退出（防止换数据集或做消融时无声销毁正典划分）。")
     parser.add_argument("--include-buggy", action="store_true",
                         help="对照臂：**不**剔除 buggy_* 注入噪声项目，输出隔离到 "
                              "<out-dir>/withbuggy_snapshot/（正典划分不受影响）。"
                              "注意 buggy_* 为七类全 1 的注入标签、与具体注入特征不对应，"
                              "本臂结果不得当作主结果（见手册 §10.2.6）。")
     return parser.parse_args()
+
+
+def split_dir_conflict(out_dir: Path, args: argparse.Namespace,
+                       ratio: list[float]) -> list[str]:
+    """既有划分目录是否与本次调用属于**同一次实验**；返回逐种子的差异描述（空 = 无冲突）。
+
+    判据 = 该目录下每份 `split_metadata_seed{seed}.json` 记录的身份信息：
+    `inputs.graph_dir` / `strategy` / `ratio` / `dedup.mode` / `constraints.min_pos_ratio`，
+    以及（新版才有的）`args` 快照中**双方都记录过**的键。任一不同即说明本次要写的
+    不是产出该目录的那次实验——直接覆盖会**无声销毁已报告的划分**
+    （`products/*/splits/` 的正典划分只有一份，消融/换数据集必须另开 `--out-dir`）。
+
+    比较逻辑（含**路径归一化**）复用 `run_guard`：命令行常传相对路径而 metadata 记的是绝对
+    路径，不归一化会把"同一个目录"误判成冲突（2026-09-16 实测踩到）。
+    """
+    out: list[str] = []
+    for meta_path in sorted(Path(out_dir).glob("split_metadata_seed*.json")):
+        old = run_guard.read_record(meta_path)
+        if isinstance(old, str):                   # 坏文件 → 宁可疑，不可无声覆盖
+            out.append(old)
+            continue
+        if not old:
+            continue
+        diffs: list[str] = []
+        old_inputs = old.get("inputs") or {}
+        if old_inputs.get("graph_dir"):
+            old_g, new_g = (run_guard.canonical_path(old_inputs["graph_dir"]),
+                            run_guard.canonical_path(args.graph_dir))
+            if old_g != new_g:
+                diffs.append(f"graph_dir: {old_g!r} → {new_g!r}")
+        if old.get("strategy") is not None and old["strategy"] != args.strategy:
+            diffs.append(f"strategy: {old['strategy']!r} → {args.strategy!r}")
+        if old.get("ratio") is not None and list(old["ratio"]) != list(ratio):
+            diffs.append(f"ratio: {old['ratio']} → {ratio}")
+        old_dedup = (old.get("dedup") or {}).get("mode")
+        if old_dedup is not None and old_dedup != args.dedup:
+            diffs.append(f"dedup: {old_dedup!r} → {args.dedup!r}")
+        old_mp = (old.get("constraints") or {}).get("min_pos_ratio")
+        if old_mp is not None and float(old_mp) != float(args.min_pos_ratio):
+            diffs.append(f"min_pos_ratio: {old_mp} → {args.min_pos_ratio}")
+        diffs += run_guard.diff_args(old.get("args"), vars(args))
+        if diffs:
+            out.append(f"{meta_path.name}: " + "；".join(diffs))
+    return out
 
 
 def main() -> None:
@@ -506,6 +553,14 @@ def main() -> None:
     if args.include_buggy:
         out_dir = out_dir / "withbuggy_snapshot"   # 输出隔离：对照臂永不触碰正典产物
         print(f"[含 buggy_* 对照臂] 输出隔离至 {out_dir}（不覆盖正典划分）")
+    conflicts = split_dir_conflict(out_dir, args, ratio)
+    if conflicts and not args.overwrite:
+        raise SystemExit(run_guard.guard_message(
+            str(out_dir), conflicts,
+            "换数据集/做消融请改用 `--out-dir <新目录>`（正典划分只有一份）；"
+            "确实要覆盖时加 `--overwrite`。"))
+    if conflicts:
+        print(run_guard.warn_message(str(out_dir), conflicts))
     out_dir.mkdir(parents=True, exist_ok=True)
 
     index, unmatched = build_index(Path(args.graph_dir), label_file=args.label_file,
@@ -697,6 +752,8 @@ def main() -> None:
         split_path = out_dir / f"split_seed{seed}.json"
         metadata = {
             "seed": seed,
+            # 完整参数快照：供 split_dir_conflict 判定「是否同一次实验」（2026-09-16）
+            "args": {k: v for k, v in vars(args).items() if k not in run_guard.VOLATILE_KEYS},
             "ratio": ratio,
             "strategy": args.strategy,
             "constraints": {"min_pos_ratio": args.min_pos_ratio,

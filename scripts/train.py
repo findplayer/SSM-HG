@@ -44,6 +44,7 @@ import torch
 import torch.nn.functional as F
 
 import metrics
+import run_guard
 from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, collate,
                      load_graph, resolve_label_file, resolve_label_key_mode)
 from model import (AblationConfig, NodeFuser, SSMHG, parameter_report,
@@ -268,9 +269,6 @@ def _load_split_samples(split_path: str, graph_dir: str, ab: Ablation, index: di
     return train, val, meta
 
 
-_VOLATILE_KEYS = {"overwrite"}      # 不参与「是否为同一次实验」判定
-
-
 def run_dir_conflict(run_dir: Path, args: argparse.Namespace, split_seed: int) -> str | None:
     """既有 `runs/seed{N}/` 是否与本次调用属于**同一次实验**；不同则返回差异描述。
 
@@ -278,20 +276,17 @@ def run_dir_conflict(run_dir: Path, args: argparse.Namespace, split_seed: int) -
     就说明本次要跑的不是产出该目录的那次实验；直接覆盖会**无声销毁**已报告的结果
     （`runs/seed{0,1,2}/` 是论文正典，消融/换数据集必须另开 `--out-dir`）。
 
-    只比较**两边都存在的键**：老 `config.json` 里没有的新键（如后续版本新增的开关）不算冲突，
-    避免把"同一次实验"误判成冲突而拒绝。返回 None = 无冲突（目录不存在或逐项相同）。
+    比较逻辑（含路径归一化）复用 `run_guard`：命令行常传相对路径而 config 记的是绝对路径，
+    不归一化会把"同一个目录"误判成冲突（2026-09-16 实测踩到）。
+    返回 None = 无冲突（目录不存在或逐项相同）。
     """
     prev = run_dir / "config.json"
     if not prev.exists():
         return None
-    try:
-        old = json.loads(prev.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return f"既有 {prev.name} 无法解析（疑为中断的残留）"
-    old_args = {k: v for k, v in (old.get("args") or {}).items() if k not in _VOLATILE_KEYS}
-    cur_args = {k: v for k, v in vars(args).items() if k not in _VOLATILE_KEYS}
-    diffs = [f"{k}: {old_args[k]!r} → {cur_args[k]!r}"
-             for k in sorted(set(old_args) & set(cur_args)) if old_args[k] != cur_args[k]]
+    old = run_guard.read_record(prev)
+    if isinstance(old, str):                      # 坏文件 → 宁可疑，不可无声覆盖
+        return old
+    diffs = run_guard.diff_args(old.get("args"), vars(args))
     if old.get("split_seed") != split_seed:
         diffs.insert(0, f"split_seed: {old.get('split_seed')!r} → {split_seed!r}")
     return "；".join(diffs) if diffs else None
@@ -307,13 +302,12 @@ def main() -> None:
     run_dir = Path(args.out_dir) / f"seed{args.seed}"
     conflict = run_dir_conflict(run_dir, args, split_seed)
     if conflict and not args.overwrite:
-        raise SystemExit(
-            f"[train] 拒绝覆盖 {run_dir}：该目录已有 config.json，且本次参数与产出它的那次实验不同——\n"
-            f"  {conflict}\n"
-            f"  这是为了防止无声销毁已报告的结果（runs/seed{{0,1,2}}/ 是论文正典）。\n"
-            f"  换数据集/做消融请改用 `--out-dir <新臂名>`；确实要覆盖时加 `--overwrite`。")
+        raise SystemExit(run_guard.guard_message(
+            str(run_dir), [conflict],
+            "换数据集/做消融请改用 `--out-dir <新臂名>`（runs/seed{0,1,2}/ 是论文正典）；"
+            "确实要覆盖时加 `--overwrite`。"))
     if conflict:
-        print(f"[train] ⚠ --overwrite 生效，即将覆盖 {run_dir}（差异：{conflict}）", flush=True)
+        print(run_guard.warn_message(str(run_dir), [conflict]), flush=True)
     run_dir.mkdir(parents=True, exist_ok=True)
     t_run_start = time.perf_counter()
 

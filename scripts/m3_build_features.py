@@ -62,6 +62,7 @@ import torch
 # 生产侧与消费侧共用同一份定义，避免口径分叉（设计稿 §2.4/§4）。
 import multiprocessing  # noqa: E402
 from concurrent.futures import ProcessPoolExecutor  # noqa: E402
+import run_guard  # noqa: E402
 from dataset import (CB_DIM, ROLE_NAMES, SCHEMA_VERSION,  # noqa: E402
                      channel_sha256, combined_sha256)
 
@@ -154,6 +155,13 @@ def parse_args() -> argparse.Namespace:
              "仅 meta.created_utc 时间戳不同）。注意：每个 worker 各加载一份 CodeBERT（约 480MB + torch 运行时），"
              "需按内存定 worker 数——本机 7.8GB 实测 4 workers 会被 OOM 杀掉，**本机只适合 workers=1**；"
              "另：不能用 fork（父进程导入 torch 后 fork 会因 OpenMP 加锁互斥量而全体死锁）。",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="允许写入**属于另一语料**的 out-dir。**默认拒绝**：若 out-dir 已有的 _feat.pt 与 "
+             "in-dir 的输入图**没有一个同名**，说明两者不是同一语料（典型情形：为 DIVE/SolidiFI 跑特征"
+             "却忘传 --out-dir），直接报错退出。注意与 --force 语义不同：--force 是重算向量、不改变语料归属。",
     )
     parser.add_argument(
         "--device",
@@ -971,6 +979,16 @@ def main() -> None:
     m1_dir = Path(args.m1_dir)
     device = resolve_device(args.device)
     print(f"[m3] device={device} (requested={args.device})", flush=True)
+
+    # ---- 覆盖守卫（2026-09-16）：默认 out-dir 指向主库，跨语料忘传 --out-dir 会污染它 ----
+    _conflict = run_guard.corpus_conflict(out_dir, in_dir, args.pattern)
+    if _conflict and not args.overwrite:
+        raise SystemExit(run_guard.guard_message(
+            str(out_dir), [_conflict],
+            "为别的语料跑特征时请显式传 `--in-dir/--out-dir/--m1-dir` 指向该语料自己的目录"
+            "（跨语料还须传 --categories 冻结字典）；确实要写入时加 `--overwrite`。"))
+    if _conflict:
+        print(run_guard.warn_message(str(out_dir), [_conflict]), flush=True)
 
     # A3：先保证类别字典存在（--scan-only 只做这一步）
     if args.scan_only:

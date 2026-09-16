@@ -21,6 +21,52 @@ LOG_DIR="${LOG_DIR:-$REPO_ROOT/products/alldata/raw/logs}"
 FILTER_REPORT="${FILTER_REPORT:-$REPO_ROOT/products/alldata/raw/filter_report.txt}"
 mkdir -p "$AST_DIR" "$CFG_DIR" "$DFG_DIR" "$LOG_DIR"
 
+# ---- 覆盖保护（2026-09-16）------------------------------------------------
+# 本脚本开工即清空目标产物路径。**六条默认路径全指向主库产物区**，且分两类破坏：
+#   ① 目录（AST/CFG/DFG）——`find -delete` 清空（约 443 MB）；
+#   ② 单文件/日志（LOG_DIR 下的三个 error log 被 `>` 截断；FILTER_REPORT 在收尾被 `{} >` 重写）。
+# ⚠ **2026-09-16 事故**：初版守卫只检查了 ①②中的三个目录，漏了 LOG_DIR/FILTER_REPORT；
+# 而"只覆盖部分环境变量"（改了 AST/CFG/DFG 却漏改 FILTER_REPORT）正是最可能的误用方式——
+# 实测如此跑一次，主库正典 `filter_report.txt` 被写成了全 0（已从 HEAD 恢复）。
+# 故守卫**必须覆盖全部六条路径**：任一非空即要求显式确认。
+_wipe_targets=()
+for _d in "$AST_DIR" "$CFG_DIR" "$DFG_DIR" "$LOG_DIR"; do
+  if [ -d "$_d" ] && [ -n "$(find "$_d" -type f -print -quit 2>/dev/null)" ]; then
+    _wipe_targets+=("$_d")
+  fi
+done
+for _f in "$FILTER_REPORT"; do
+  if [ -s "$_f" ]; then
+    _wipe_targets+=("$_f")
+  fi
+done
+if [ ${#_wipe_targets[@]} -gt 0 ] && [ "${SSMHG_ALLOW_WIPE:-0}" != "1" ]; then
+  {
+    echo "错误：下列目标产物路径非空，而本脚本会先清空/覆盖它们："
+    for _t in "${_wipe_targets[@]}"; do
+      if [ -d "$_t" ]; then
+        printf '  [目录] %s（%s 个文件）\n' "$_t" "$(find "$_t" -type f 2>/dev/null | wc -l)"
+      else
+        printf '  [文件] %s（%s 字节）\n' "$_t" "$(stat -c%s "$_t" 2>/dev/null || echo '?')"
+      fi
+    done
+    echo ""
+    echo "本次将使用的六条路径（**必须同属一个语料**）："
+    printf '  SRC_ROOT      = %s\n  AST_DIR       = %s\n  CFG_DIR       = %s\n  DFG_DIR       = %s\n  LOG_DIR       = %s\n  FILTER_REPORT = %s\n' \
+      "$SRC_ROOT" "$AST_DIR" "$CFG_DIR" "$DFG_DIR" "$LOG_DIR" "$FILTER_REPORT"
+    echo ""
+    echo "处置："
+    echo "  · 确实要重建这些路径 → 加 SSMHG_ALLOW_WIPE=1 重跑（先确认 SRC_ROOT 是你想要的那份源）；"
+    echo "  · 只是想为别的语料生成产物 → 上面六条环境变量**必须全部**指向该语料自己的目录，"
+    echo "    **只改其中几个是最危险的误用**（改了一部分、剩下落回主库默认，就会写坏主库产物）。"
+  } >&2
+  exit 2
+fi
+if [ ${#_wipe_targets[@]} -gt 0 ]; then
+  echo "[raw] SSMHG_ALLOW_WIPE=1 → 清空并重建：${_wipe_targets[*]}（SRC_ROOT=$SRC_ROOT）"
+fi
+
+
 # 日志
 AST_ERR="$LOG_DIR/ast_error.log"
 CFG_ERR="$LOG_DIR/cfg_error.log"
