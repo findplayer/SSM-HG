@@ -945,3 +945,53 @@ time_manipulation 5，池级），导致 4 个类在三种子上 F1 恒为 0、m
 此前 `AGENTS.md` 与手册中的 `alldata_augmentation` 条目写有「主实验口径不变；**未裁定前**不得替换或混入主库产物」。
 本次裁定后语义更新为：**两组并存、各自独立完整**；仍**禁止**把两组合并成一个数字或跨组比较绝对值，
 但**允许**在论文中并列呈现（各用各的表、各标各的 support）。
+
+---
+
+## 24. 复现口径：三个等级、最小入库集与实测证据（2026-09-16）
+
+### 24.1 本仓库的复现定位
+
+| 等级 | 含义 | 本仓库 | 依据 |
+| --- | --- | --- | --- |
+| **L1 逐位复现** | 重跑得到**一模一样**的数字 | **可达（特征与评估层）** | M3 实测 max\|Δ\|=0；evaluate 离线重算逐项相同（见 §24.3） |
+| L2 统计复现 | 重跑落在报告方差内 | 可达 | 划分/超参/协议/代码版本全部锁定 |
+| L3 可重建 | 从只读源+代码重建全部产物 | 可达 | 只读源在库、产物由脚本确定性生成 |
+
+**L1 的边界**：**训练**环节不可 L1——主实验 `deterministic=False`（`runs/seed*/config.json::args` 实测），
+CUDA 非确定性算子使重训无法逐位重合。故 L1 只在**特征构建**与**指标计算**两段成立；
+训练结果的复现是 L2（`--deterministic` 可提升但非主实验默认，改动会换掉正典数字）。
+
+### 24.2 入库策略（2026-09-16 起，"重算指标所需的最小集"）
+
+| 类别 | 入库 | 排除 | 理由 |
+| --- | --- | --- | --- |
+| 划分 | `split_seed*.json`、`split_metadata_*`、`split_report.json`、`coverage_swaps_*`、`dedup_dropped.txt`、`splits.csv`、`leakage_audit.json` | — | **第一重要**：决定"报告的数字对应哪份数据"；`coverage_swaps` 是人工干预痕迹 |
+| 训练记录 | `config.json`（含 `label_source` 指纹）、`log.txt`、`results.json`、`thresholds.json`、`summary.json`、`diagnosis.json` | — | 参数、过程、结果、诊断全链 |
+| 权重 | **`best.pt`**、`val_best_probs.pt`、`test_probs.pt` | `last.pt` | 前者即 `evaluate.py` 全部输入 → **离线重算、无需重训**；`last.pt` 仅续训用且体积翻倍 |
+| 语义锚点 | **`graphs/ir_cat.json`**、**`raw/filter_report.txt`** | 其余 `graphs/`、`raw/` | 冻结 IR 字典＝跨语料兼容锚点；过滤报告＝"为何只剩 N 个"的依据。两者仅几 KB |
+| 特征/图 | — | `_feat.pt`/`_cb.pt`/`_hetero.json`/`_pyg.pt`（主库 15 GB） | 体积大且**确定性可再生**（§24.3 已验证） |
+| 只读源 | `alldata(readonly)/`、`DIVE/`、`SolidiFI/`、`MVD-HG-dataset/`（历史已入库） | `alldata_augmentation/`（gitignore，可由 `MVD-HG-dataset/` 派生） | 真值输入必须在库 |
+
+实测入库体积：权重与缓存 **114.9 MB / 69 文件**、单文件最大 4.77 MB。
+
+### 24.3 实测证据（2026-09-16）
+
+**① M3 特征逐位可重建**：主库图 `asd_simple_suicide__simple_suicide`，删除 `_cb.pt`/`_feat.pt` 后用
+**默认 CPU** 重生成 →
+`combined_sha256` 相同、逐通道 sha256 相同、`struct`/`type_id`/`sv` **逐元素相同**、
+`_cb.pt` 的 CodeBERT 向量**最大数值差 0.000e+00**。
+
+> ⚠ 这只在**同设备**成立：GPU 与 CPU 的同文本数值差 max\|Δ\|=5.6e-05（相对 3.5e-06，见 §21.6）。
+> 故"重建设备"属于复现口径的一部分，跨设备重建**不是**逐位复现。
+
+**② 指标离线可重算**：只保留入库集（`best.pt` + `val_best_probs.pt` + `test_probs.pt` + `config.json`，
+删掉 `last.pt` 与 `results.json`）后跑 `evaluate.py --seed 0` →
+micro-F1（双阈值）、macro-F1、`mAP`、逐类 AP 数组、逐类 support、验证集阈值**全部逐项相同**。
+
+### 24.4 覆盖风险与防护（对应手册 §12 第 51 条）
+
+四处默认输出目录全指向正典区：`train.py`→`runs`、`make_splits.py`→`products/alldata/splits`、
+`m3_build_features.py`→`products/alldata/graphs`、`generate_all_ast_cfg_dfg.sh` **开工先 `find -delete` 清空目标目录**。
+2026-09-16 起 `train.py` **默认拒绝覆盖**（`run_dir_conflict()`：参数与产出该目录的那次不同即报错退出，
+需 `--overwrite`），补上了原先唯一无保护的覆盖点；其余三处仍**只靠显式传目录的约定**保护。
