@@ -14,7 +14,8 @@
     `L_var` 按图 population std（不 detach），单节点 std=0、空图报错；
   - 优化 AdamW + `clip_grad_norm_(1.0)` + `ReduceLROnPlateau(mode="max")` 监控 **val micro-F1**；
     早停 = 连续 `--early-stop-patience` epoch 不提升；
-  - 训练期先验/结构 dropout：`sample_dropout_masks` 逐图采样，随 batch 传入 `NodeFuser`；验证不传掩码；
+  - 训练期先验/结构 dropout：`sample_dropout_masks` 逐图采样（**`p` 为丢弃率**，0=关闭、1=全丢；
+    2026-09-16 修正，此前误为保留率），随 batch 传入 `NodeFuser`；**验证/推理不传掩码**（置零图数=0）；
   - 日志 JSONL（每 epoch 一行）：epoch/loss_total/loss_cls/loss_var/**score_mean/score_std**（训练期
     a_v 统计，见 10.4 骨架）/val_macro_f1/val_micro_f1/lr/epoch_seconds/samples_processed（累计节点）/
     graphs_processed（累计图）/gpu_mem_allocated（CPU 为 null）；
@@ -194,8 +195,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--asl-gamma-pos", type=float, default=1.0, help="ASL 正样本指数（--loss asl）。")
     p.add_argument("--asl-gamma-neg", type=float, default=4.0, help="ASL 负样本指数（--loss asl）。")
     p.add_argument("--asl-clip", type=float, default=0.05, help="ASL 负样本概率裕度 m（--loss asl）。")
-    p.add_argument("--prior-dropout", type=float, default=0.2, help="消融 --prior-dropout 0。")
-    p.add_argument("--struct-dropout", type=float, default=0.2)
+    p.add_argument("--prior-dropout", type=float, default=0.2,
+                   help="先验 dropout 的**丢弃率**（2026-09-16 修正语义）：每个图以该概率把该图 s_v "
+                        "整通道置零。0=关闭随机先验 dropout（不置零）；1=每图都置零（全丢，**不要**用它"
+                        "表示关闭）。注意与 --ablate-sv 不同：后者是确定性全零消融（train/eval 一致）。")
+    p.add_argument("--struct-dropout", type=float, default=0.2,
+                   help="结构特征 dropout 的**丢弃率**：每个图以该概率把该图 struct 通道整幅置零"
+                        "（与 --prior-dropout 共用 sample_dropout_masks）。")
     p.add_argument("--model-dropout", type=float, default=0.3)
     p.add_argument("--scheduler-patience", type=int, default=3)
     p.add_argument("--early-stop-patience", type=int, default=5)

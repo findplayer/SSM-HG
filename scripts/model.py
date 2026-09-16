@@ -180,9 +180,26 @@ def sample_dropout_masks(n_graphs: int, *, prior_p: float, struct_p: float,
                          generator: torch.Generator | None = None) -> tuple[torch.Tensor, torch.Tensor]:
     """训练期逐图采样正则掩码（(G,) 0/1）——**必须按图独立**，调用方可用
     `seed + epoch + stable_graph_index` 构造 generator 以保可追溯。验证/测试不得调用本函数。
+
+    **语义：`p` 是「丢弃率」（2026-09-16 修正，与大纲 4.1.4 / 手册 §8.6 的散文一致）。**
+    返回的掩码是**乘性系数**（1=保留、0=整通道置零），故以 `p` 概率取 0、以 `1-p` 概率取 1：
+
+    | `p` | 语义 |
+    | --- | --- |
+    | `0` | **关闭**该 dropout（掩码恒 1，不置零） |
+    | `0.2`（默认） | 每个图以 **20%** 概率把该通道整幅置零 |
+    | `1` | 每个图都置零（"全丢"）；**不要用它表示"关闭"** |
+
+    ⚠ 与 `AblationConfig(ablate_sv=True)` 的区别：后者是**确定性**全零消融（train/eval 一致），
+    与 `p=0`（随机正则**关闭**）**不是一回事**；两者在 `NodeFuser` 中共用同一乘法原语，
+    但触发路径分离（配置层 vs 正则层），且只有正则层随 `training` 开关。
+
+    ⚠ 历史（本次修正前）：实现为 `rand < p`，使 `p` 成了**保留率**——默认 0.2 实际置零 **80%** 的图，
+    且 `p=0` 会**每图都置零**（等价于 `--ablate-sv`，使「关闭先验 Dropout」这一消融无法表达）。
+    该口径下的全部结果已作废，归档于 `runs/prior_dropout80/`，见 `experiments/decisions.md` §26。
     """
-    prior = (torch.rand(n_graphs, generator=generator) < prior_p).to(torch.float32)
-    struct = (torch.rand(n_graphs, generator=generator) < struct_p).to(torch.float32)
+    prior = (torch.rand(n_graphs, generator=generator) >= prior_p).to(torch.float32)
+    struct = (torch.rand(n_graphs, generator=generator) >= struct_p).to(torch.float32)
     return prior, struct
 
 

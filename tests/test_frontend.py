@@ -124,11 +124,18 @@ def test_struct_dropout_is_whole_channel_per_graph():
 
 
 def test_sample_dropout_masks_shape_and_rate():
-    """掩码采样：形状 (G,)、取值 {0,1}、同 generator 可复现、大样本比例≈p。"""
+    """掩码采样：形状 (G,)、取值 {0,1}、同 generator 可复现、**置零比例≈p**。
+
+    **语义（2026-09-16 修正）：`p` 是「丢弃率」**——掩码是乘性系数（1=保留、0=置零），
+    故 `p=0.2` 时掩码**为 1** 的比例是 0.8、**置零**比例是 0.2。
+    （修正前实现为 `rand < p`，`p` 实为保留率；该口径的结果已作废，见 `decisions.md` §26。）
+    """
     g = torch.Generator().manual_seed(0)
     prior, struct = sample_dropout_masks(2000, prior_p=0.2, struct_p=0.2, generator=g)
     assert prior.shape == (2000,) and set(prior.unique().tolist()) <= {0.0, 1.0}
-    assert 0.17 <= float(prior.mean()) <= 0.23 and 0.17 <= float(struct.mean()) <= 0.23
+    assert 0.17 <= float((prior == 0).float().mean()) <= 0.23, "置零比例应≈p=0.2"
+    assert 0.17 <= float((struct == 0).float().mean()) <= 0.23
+    assert 0.77 <= float(prior.mean()) <= 0.83, "保留比例应≈1-p=0.8"
     g2 = torch.Generator().manual_seed(0)
     prior2, _ = sample_dropout_masks(2000, prior_p=0.2, struct_p=0.2, generator=g2)
     assert torch.equal(prior, prior2)

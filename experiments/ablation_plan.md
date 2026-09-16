@@ -10,10 +10,10 @@
 | --- | --- | --- |
 | ✅ **可直接跑** | **12** | 现有 CLI 开关即可，零重跑或秒级 |
 | ⚠️ **需先造 M2 变体** | **1** | CALLBACK_RISK 上限 4 vs 不限制（开关已存在，需另建一套图） |
-| ❌ **被 bug 阻断** | **1** | 「关闭先验 Dropout」——`--prior-dropout 0` 会把 s_v **每张图都置零**，等价于 `--ablate-sv`。见 §3 |
+| ✅ **已解除阻断** | **1** | 「关闭先验 Dropout」——`--prior-dropout` 已于 2026-09-16 修正为**丢弃率**语义，`--prior-dropout 0` 现为「关闭」。见 §3 |
 | ❌ **需开发** | **3** | CALLBACK_RISK_REV（M2 无反向边开关）、RGCN 层数 L（`SSMHG` 硬编码两层）、微调 CodeBERT（无微调路径） |
 
-**结论：17 项中 13 项已具备开跑条件。** 建议先跑这 13 项（其中 12 项零重跑），把 3 个开发项与 1 个 bug 单独处置。
+**结论：17 项中 13 项已具备开跑条件。** 建议先跑这 13 项（其中 12 项零重跑），把 3 个开发项单独处置。
 
 ## 1. 目录约定（避免覆盖正典，全部走 `run_guard`）
 
@@ -44,7 +44,7 @@ done
 python scripts/evaluate.py --summarize --runs-dir runs/ablation/<ITEM>
 ```
 
-单种子 wall 12–24 s（GPU），故 12 项 × 3 种子 ≈ 15 分钟。**对照组不需要重跑**：正典 `runs/seed{0,1,2}/` 即"全开关打开"的基线。
+单种子 wall 10–15 s（GPU），故 12 项 × 3 种子 ≈ 15 分钟。**对照组不需要重跑**：正典 `runs/seed{0,1,2}/` 即"全开关打开"的基线。
 
 ## 3. 5.4.1 必要消融（11 项）
 
@@ -59,7 +59,7 @@ python scripts/evaluate.py --summarize --runs-dir runs/ablation/<ITEM>
 | 7 | 去节点级局部 CodeBERT | `--cb-channels cb_func` | ✅ |
 | 8 | meanpool 替换 $a_v$ 加权 | `--meanpool` | ✅ |
 | 9 | 关闭 $L_{var}$ | `--lambda-var 0` | ✅ |
-| 10 | **关闭先验 Dropout** | `--prior-dropout 0` | ❌ **见 §4** |
+| 10 | **关闭先验 Dropout** | `--prior-dropout 0` | ✅（语义已修正） |
 | 11 | 节点结构特征分组 | `--feat-groups base` / `base+sem` / `all` | ✅ |
 
 **物理关系编号**（`dataset.RELATION_NAMES`）：`0=CFG_FLOW 1=AST_PARENT 2=AST_PARENT_SAME 3=DFG_DEP 4=CALLBACK_RISK`。
@@ -72,7 +72,16 @@ python scripts/evaluate.py --summarize --runs-dir runs/ablation/<ITEM>
 取 `val` 侧 macro-F1 逐种子比较，写进 `eval_results/ablation/feat-groups.json`。
 > 注意：`all` 设置即正典 `runs/`，可直接复用，无需重跑（省 1/3 机时）。
 
-## 4. ★ 阻断项：「关闭先验 Dropout」当前无法按意图表达
+## 4. ✅ 原阻断项已解除：「关闭先验 Dropout」现已可跑（2026-09-16 修正）
+
+> **状态**：`sample_dropout_masks` 已由「保留率」改为**丢弃率**语义（`rand >= p`），
+> `--prior-dropout 0` = **关闭**、`1` = 全丢、默认 `0.2` 置零约 20% 的图；结构 dropout 共用同一函数、一并修正。
+> 全部既有结果已作废重跑，见 `decisions.md` §26。**第 10 项现按 `--prior-dropout 0` 执行即可**。
+> 另附裁决：**维持默认 0.2、不返工 80%**（n=9 同配对剂量-反应研究，见 §26.6）。
+
+<details><summary>修正前的原始记录（备查）</summary>
+
+### 原阻断描述：「关闭先验 Dropout」当时无法按意图表达
 
 **实测**（`tests/test_ablation_switches.py::test_prior_dropout_*`）：
 
@@ -91,7 +100,9 @@ python scripts/evaluate.py --summarize --runs-dir runs/ablation/<ITEM>
 | B | 保留实现，把参数定义为保留率并**同步大纲** | 偏离大纲 4.1.4 原文；第 10 项改为 `--prior-dropout 1` 表示"关闭"（语义别扭） |
 | C | 只修第 10 项的表达（新增 `--no-prior-dropout`），默认口径不动 | 现有结果不失效，但"默认 80% 置零 vs 大纲 20%"的背离仍在，须在论文披露 |
 
-**在裁定前不要跑第 10 项**。
+**（已裁定：维持 0.2，见 `decisions.md` §26.6。）**
+
+</details>
 
 ## 5. M2 变体类（第 5 项 + 可选的 REV）
 
@@ -139,15 +150,19 @@ python scripts/make_splits.py --graph-dir "$V" --out-dir "$V/splits"   # 划分�
 - [ ] 3 种子都跑完；`runs/ablation/X/summary.json` 输出 mean±std。
 - [ ] 逐类 F1 与 support 同表报告；support ≤2 的类仅描述性呈现（`decisions.md` §13）。
 - [ ] 阈值只在验证集选；固定 0.5 与验证集阈值两套结果都记。
-- [ ] 与正典对照时，**明确方差**（种子间波动可能大于消融效应；参考正典 std：micro-F1@0.5 ±0.0211）。
+- [ ] 与正典对照时，**明确方差**（种子间波动可能大于消融效应；参考正典 std：micro-F1@0.5 **±0.0699**）。
+      ⚠ 该 std 偏大 ⇒ **单臂 3 种子不足以判定 ±0.05 量级的效应**，判定须用**同配对**设计且 ≥9 点（教训见 `decisions.md` §26.7）。
 - [ ] 记 `timing`（跨工具对比口径）。
 
 ## 8. 机时与空间预估
 
 | 项 | 机时（GPU） | 空间 |
 | --- | --- | --- |
-| 12 项零重跑消融 × 3 种子 | ≈ 15 分钟 | 每项 ≈ 15 MB 权重（`best.pt` 4.77 MB × 3）+ JSON |
+| 12 项零重跑消融 × 3 种子 | ≈ 15 分钟 | 每项 ≈ 15 MB 权重（`best.pt` 4.77 MB × 3）+ JSON；**12 项合计约 180 MB** |
 | 第 5 项（M2 变体） | M2 数分钟 + M1/PyG/M3 ≈ 1 分钟 + 训练 ≈ 1 分钟 | 变体图 ≈ 0.15 GB（`_cb.pt` 软链，不另占 14.6 GB）+ 划分 + 权重 |
 | 3 个开发项 | 取决于实现量 | 同上 |
 
-磁盘实测 **912 GB 可用**，非约束。
+⚠ **磁盘是约束，不是非约束**：WSL 卷内 `df` 显示 912 GB 可用，**但那只反映 ext4 卷、不代表宿主**——
+本仓库在 WSL 的 ext4 上，写入会撑大 `ext4.vhdx` 并直接吃掉 **C 盘**。
+**C 盘硬规则：可用必须 ≥ 20 GB**（见 `AGENTS.md` 磁盘空间规则；2026-09-16 实测仅 12 GB，**低于阈值**）。
+故**开跑前先 `df -h /mnt/c` 看 `Avail`**；上表 12 项合计约 180 MB 权重虽不大，但**须先回收再跑**。

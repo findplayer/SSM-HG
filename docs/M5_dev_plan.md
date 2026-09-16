@@ -46,7 +46,9 @@ M5 的核心交付物是三件脚本 + M5 CI smoke，完成「图级七类多标
 1. **标签顺序固定**：`access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`。`dataset.py` 的 `VULN_NAMES`/`model.py` 的 `num_classes=7` 与本方案硬编码顺序必须一致，不得重排。
 2. **`_pyg.pt` 只读**：纯结构（`edge_index/edge_type/node_id` + N×1 占位 `x`），永不回写；`_feat.pt` = **拼接前通道字典**（schema v2），融合与**全部掩码**只在 `model.NodeFuser`。`dataset.py` 只组合，不融合、不掩码、不重算。
 3. **Dropout 分层（train/eval 行为不同）**：
-   - 训练期正则：`prior_dropout=0.2`、`struct_dropout=0.2`，`model.sample_dropout_masks` 逐图采样 → 随 `batch` 传入 `NodeFuser`（`proj` 之前）；eval 传 `None`（不置零）。
+   - 训练期正则：`prior_dropout=0.2`、`struct_dropout=0.2`（**`p` 为丢弃率**，2026-09-16 统一语义：
+     `0`=关闭、`1`=每图全丢；见手册 §8.6），`model.sample_dropout_masks` 逐图采样 → 随 `batch` 传入
+     `NodeFuser`（`proj` 之前）；eval 传 `None`（不置零）。
    - 确定性消融：`AblationConfig(ablate_sv / feat_groups / cb_channels)`，train/eval 一致。
    - 两者共用同一乘法原语，但语义严格分层，不得混用。
 4. **主指标 micro-F1（标签对级）**；macro-F1 为参考，报告时注明支撑构成；逐类 F1 与 per-class PR-AUC **必须随 support** 同时给出，support≤2 的类仅描述性呈现、不进比较结论。
@@ -234,7 +236,7 @@ loss_total = loss_cls + 1e-3 * loss_var              # lambda_var=1e-3
 | `--lr / --weight-decay` | 1e-4 / 1e-4 | AdamW |
 | `--lambda-var` | 1e-3 | L_var 系数（消融 `--lambda-var 0`） |
 | `--tau-var` | 0.1 | L_var τ |
-| `--prior-dropout / --struct-dropout` | 0.2 / 0.2 | 训练期正则（消融 `--prior-dropout 0`） |
+| `--prior-dropout / --struct-dropout` | 0.2 / 0.2 | 训练期正则，**`p` = 丢弃率**（`0` = 关闭；消融「关闭先验 Dropout」即 `--prior-dropout 0`，2026-09-16 修正后该表达才成立） |
 | `--model-dropout` | 0.3 | SSMHG dropout |
 | `--scheduler-patience / --early-stop-patience` | 3 / 5 | ReduceLROnPlateau / 早停 |
 | `--drop-edge-prob` | 0.0 | DropEdge（默认关，先逐图 mask 再 batch） |

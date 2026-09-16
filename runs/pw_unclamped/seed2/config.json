@@ -9,6 +9,11 @@
     "lambda_var": 0.001,
     "tau_var": 0.1,
     "pos_weight_cap": 0.0,
+    "loss": "bce",
+    "focal_gamma": 2.0,
+    "asl_gamma_pos": 1.0,
+    "asl_gamma_neg": 4.0,
+    "asl_clip": 0.05,
     "prior_dropout": 0.2,
     "struct_dropout": 0.2,
     "model_dropout": 0.3,
@@ -29,9 +34,19 @@
     "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
     "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
     "out_dir": "runs/pw_unclamped",
-    "verify_channel_hash": false
+    "label_file": null,
+    "label_key_mode": null,
+    "verify_channel_hash": false,
+    "overwrite": false
   },
   "split_seed": 2,
+  "label_source": {
+    "file": "/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json",
+    "sha256": "556837fbc2496dfec358b9e5cec348148de6e248034113647b7ba7df272c0aa4",
+    "key_mode": "project",
+    "n_index": 590,
+    "n_unmatched": 0
+  },
   "derived": {
     "D_struct": 30,
     "struct_layout": {
@@ -46,13 +61,13 @@
     "num_relations": 5,
     "num_classes": 7,
     "pos_weight": [
-      34.799999,
-      34.799999,
-      88.5,
-      178.0,
-      16.047619,
-      118.333336,
-      9.228572
+      31.90909,
+      35.200001,
+      89.5,
+      180.0,
+      16.238094,
+      119.666664,
+      9.342857
     ],
     "class_mask": [
       1.0,
@@ -74,7 +89,7 @@
     ],
     "skipped_classes": [],
     "train_pos": [
-      10,
+      11,
       10,
       4,
       2,
@@ -83,15 +98,15 @@
       35
     ],
     "train_neg": [
-      348,
-      348,
-      354,
-      356,
-      337,
-      355,
-      323
+      351,
+      352,
+      358,
+      360,
+      341,
+      359,
+      327
     ],
-    "train_graphs": 358,
+    "train_graphs": 362,
     "val_graphs": 45,
     "parameter_report": {
       "fuser_params": 209472,
@@ -109,13 +124,13 @@
     "torch_num_threads": 12
   },
   "timing": {
-    "run_wall_seconds": 14.2547,
-    "data_load_seconds": 10.2625,
-    "train_seconds": 3.1495,
-    "validation_seconds": 0.2302,
-    "epoch_seconds_mean": 0.3755,
-    "graphs_per_second": 1023.0165,
-    "train_graphs": 3222,
-    "epochs_completed": 9
+    "run_wall_seconds": 12.7128,
+    "data_load_seconds": 6.2631,
+    "train_seconds": 5.3163,
+    "validation_seconds": 0.5173,
+    "epoch_seconds_mean": 0.3432,
+    "graphs_per_second": 1157.5725,
+    "train_graphs": 6154,
+    "epochs_completed": 17
   }
 }

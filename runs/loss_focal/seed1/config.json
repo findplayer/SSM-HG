@@ -34,9 +34,19 @@
     "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
     "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
     "out_dir": "runs/loss_focal",
-    "verify_channel_hash": false
+    "label_file": null,
+    "label_key_mode": null,
+    "verify_channel_hash": false,
+    "overwrite": false
   },
   "split_seed": 1,
+  "label_source": {
+    "file": "/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json",
+    "sha256": "556837fbc2496dfec358b9e5cec348148de6e248034113647b7ba7df272c0aa4",
+    "key_mode": "project",
+    "n_index": 590,
+    "n_unmatched": 0
+  },
   "derived": {
     "D_struct": 30,
     "struct_layout": {
@@ -55,9 +65,9 @@
       20.0,
       20.0,
       20.0,
-      16.047619,
+      18.052631,
       20.0,
-      9.228572
+      9.342857
     ],
     "class_mask": [
       1.0,
@@ -79,24 +89,24 @@
     ],
     "skipped_classes": [],
     "train_pos": [
-      10,
+      11,
       10,
       4,
       2,
-      21,
+      19,
       3,
       35
     ],
     "train_neg": [
-      348,
-      348,
-      354,
-      356,
-      337,
-      355,
-      323
+      351,
+      352,
+      358,
+      360,
+      343,
+      359,
+      327
     ],
-    "train_graphs": 358,
+    "train_graphs": 362,
     "val_graphs": 45,
     "parameter_report": {
       "fuser_params": 209472,
@@ -114,13 +124,13 @@
     "torch_num_threads": 12
   },
   "timing": {
-    "run_wall_seconds": 32.3805,
-    "data_load_seconds": 27.908,
-    "train_seconds": 3.4128,
-    "validation_seconds": 0.2311,
-    "epoch_seconds_mean": 0.4049,
-    "graphs_per_second": 944.0841,
-    "train_graphs": 3222,
-    "epochs_completed": 9
+    "run_wall_seconds": 13.6427,
+    "data_load_seconds": 7.6863,
+    "train_seconds": 4.8609,
+    "validation_seconds": 0.3325,
+    "epoch_seconds_mean": 0.3462,
+    "graphs_per_second": 1117.0783,
+    "train_graphs": 5430,
+    "epochs_completed": 15
   }
 }

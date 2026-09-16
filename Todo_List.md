@@ -449,6 +449,74 @@
 
 > **`改I` 独有、`改II` 5.4 已移出必做清单的变体**（可作补充分析，不计入主消融）：去 M1 先验 $s_v$（M3 `--variant no-prior`）、RGCN→GCN（model.py `conv_type="gcn"`，仅作 5.3 外部基线）、去外部调用回调相关特征（结构特征 2/3/12/13/16 置 0）、仅 $s_v$ 排序 / 仅 RGCN 学重要性（evaluate 排序分支 + model 开关）。
 
+### 12.8.1 消融实验详细执行方案（结合现有结果，2026-09-16）
+
+**A. 统一口径与产物隔离**
+
+- 5.4 主消融统一使用主库现行正典池 **453**、`products/alldata/splits/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/` 的绝对值与现行 453 池混比。
+- 每个变体只改变一个因素；训练/划分种子、batch=32、lr=1e-4、weight_decay=1e-4、200 epoch 上限、val micro-F1 早停、阈值候选 0.20–0.80、固定 0.5 与 val threshold 双报告均与主实验一致。每个变体至少先跑 seed0，进入论文主消融表必须跑 seed0/1/2，并报告 mean±std。
+- 主比较指标按优先级为 `micro-F1@0.5`、`micro-F1@val_thr`、mAP；macro-F1 仅参考。逐类 F1/AP 必须带 test support；support≤2 的类别只能描述，不能据此宣称变体优于另一变体。
+- 消融只写入 `eval_results/ablation/<variant>/`，不覆盖 `runs/seed*/`。每个目录保存 `manifest.json`（父实验摘要、唯一变量、命令、代码/数据指纹、seed 列表）、每 seed 的 config/results/diagnosis 和汇总表。运行前后都检查 split、标签文件、`ir_cat.json`、图目录和模型默认参数。
+- 主库诊断已显示稀有类的 test support 和池级正样本极低，`pos_weight`、focal/ASL、温度缩放也未稳定救活稀有类。因此 5.4 结论优先解释模块贡献、结构信息和有足够支撑的类别，不把稀有类 F1=0 直接归因于某一个模块。
+
+**B. 5.4.1 必要消融执行矩阵（11 项）**
+
+| 编号 | 变体与唯一变量 | 实现/命令模板 | 重跑范围 | 主要验证问题 |
+| --- | --- | --- | --- | --- |
+| A1 | 去 DFG_DEP | `--drop-edges 3` | M5；零重跑 M2/M3 | 数据流边是否提供额外图级判别信息 |
+| A2 | 去 CFG_FLOW | `--drop-edges 0` | M5；零重跑 M2/M3 | 控制流传播是否是主要有效结构 |
+| A3 | 去 AST_PARENT（论文“去 AST”） | `--drop-ast`，即删 relation 1+2 | M5；零重跑 M2/M3 | 语法父子结构是否贡献独立信息；不得只删 relation 1 |
+| A4 | 去 CALLBACK_RISK | `--drop-edges 4` | M5；零重跑 M2/M3 | 回调风险边是否减少误报或提升排序质量 |
+| A5 | CALLBACK_RISK 上限 4→不限 | 用 `--callback-limit 0` 重建独立图目录，再同步 M1→PyG→M3 | M2–M5；唯一必要重建 | 边截断是必要稀疏化还是损失信息 |
+| A6 | 去函数级 CodeBERT | `--cb-channels cb_node` | M5；模型侧零重跑 | 函数级全局语义是否贡献检测能力 |
+| A7 | 去节点级 CodeBERT | `--cb-channels cb_func` | M5；模型侧零重跑 | 局部语义窗口是否贡献检测能力 |
+| A8 | meanpooling | `--meanpool` | M5；零重跑数据 | $a_v$ 加权 readout 是否优于无权平均池化 |
+| A9 | 关闭 $L_{var}$ | `--lambda-var 0` | M5；零重跑数据 | 方差保持项是否防止 $a_v$ 退化；同时比较 `score_std` |
+| A10 | 关闭先验 Dropout | `--prior-dropout 0` | M5；零重跑数据 | 模型是否依赖 M1 先验捷径；不与 `--ablate-sv` 混淆 |
+| A11 | 结构特征分组 | 分别运行 `--feat-groups base`、`base+sem`、`all` | M5；模型侧零重跑 | 基础结构、漏洞语义、位置/指令组的增量贡献 |
+
+seed0 的窄验证命令模板如下，确认路径和参数后再扩展 seed1/2：
+
+```bash
+python scripts/train.py --seed 0 --split-seed 0 --drop-edges 3 --out-dir eval_results/ablation/a1_drop_dfg
+python scripts/evaluate.py --seed 0 --runs-dir eval_results/ablation/a1_drop_dfg --split-dir products/alldata/splits
+python scripts/evaluate.py --summarize --runs-dir eval_results/ablation/a1_drop_dfg
+```
+
+实际批量执行时，每个变体必须显式传 `--split-seed {0,1,2}`，并使用不同的 `--out-dir`；禁止让消融默认写入 `runs/`。A1–A4、A6–A10 只替换对应开关；A11 的三档设置作为同一组实验分别落盘。A5 只有在不限边版本的图产物、边统计、M1/M2 审计和 M3 特征契约全部通过后才允许训练。
+
+**C. 必要消融验收与论文记录**
+
+- 训练前记录父实验摘要、graph/split/label/IR 字典 sha256、变体参数、训练和划分 seed；确认 config diff 只有预期字段。
+- 训练中三 seed 均无 NaN/Inf；日志完整记录 `loss_total/loss_cls/loss_var/score_mean/score_std`、best epoch、训练时间、graphs/s、参数量和实际边类型计数。A8/A9 额外比较 `score_std`，验证 meanpool 或关闭 $L_{var}$ 是否伴随可疑度退化。
+- 评估后固定 0.5、val threshold、mAP 三列必填，附七类 support、逐类 AP/F1、阈值扫描和 `diagnosis_summary.json`。主种子用于论文案例，三种子汇总用于结论。
+- `micro-F1` 方向只有在三种子一致且绝对差至少 1 个百分点时才写作强方向证据；小于 1 个百分点或方向不一致写“与种子波动相当”。这是报告触发规则，不是统计显著性检验。
+- 消融表增加“支持度/限制”列。主库 test 中 dos、front_running、time_manipulation 等 support≤2 的结果只能描述，不能用 macro-F1 的变化掩盖 micro-F1 或 mAP 的恶化。
+
+**D. 5.4.2 可选消融执行顺序（资源允许时，6 项）**
+
+1. **L=1/2/3**：先扩展 `SSMHG` 的 `num_layers` 和 checkpoint/config 恢复，再以 L=2 为对照跑三 seed；不能用重复调用两层模型冒充三层传播。
+2. **num_bases**：关系数 5 固定时运行 `num_bases=1/2/4/5`，至少保留 4 vs 5；报告参数量、训练时间和 mAP。
+3. **hidden=128/256**：只改 `--hid`，检查 readout、分类头维度和 checkpoint 可恢复性，比较容量收益与训练成本。
+4. **DropEdge**：运行 `--drop-edge-prob 0.1`（默认 0 作对照），确认先逐图生成 mask 再 batch、验证/测试不丢边，并记录每 epoch 删除比例；不得与 A1–A4 的确定性关系删除混为一谈。
+5. **CALLBACK_RISK_REV**：先实现并单测反向边语义和边类型编码，再在独立目录重跑 M2–M5；关系数改变时同步冻结关系映射和配置，未完成前不列为已执行。
+6. **微调 CodeBERT**：当前 `_cb.pt` 是冻结输出，不能只改 CLI 参数宣称“微调”。必须实现可训练编码器、显存/时间记录和独立 checkpoint；资源不足则记录“设计保留、未执行”，不补造结果。
+
+**E. 已完成但不替代 5.4 的相关实验**
+
+- `runs/pw_unclamped/`：已完成 `pos_weight` 上限 20→不截断；固定 0.5 micro-F1 约 0.906→0.815，稀有类仍未恢复，主实验继续保留 cap=20。它属于损失敏感性补充，不是 5.4.1 的 11 项之一。
+- `runs/loss_focal/`、`runs/loss_asl/`：已完成损失形状补充；验证阈值 micro-F1 与 BCE 差异在种子波动内，ASL 固定 0.5 不稳，BCE 仍为主方案。
+- `eval_results/calibration/`：温度缩放改善校准但全局阈值下等价于阈值变化；per-class threshold 只作补充，不能进入主结果。
+- `runs/neardup/`、`runs/withbuggy/`、`runs/augmentation/`、`runs/augmentation_dedup/`：分别是零泄漏、含 buggy、增强集和增强集去重对照；它们改变数据范围或划分纪律，不能放进主库 5.4 表，也不能与主库绝对指标合并。
+
+**F. 5.4 交付与完成判定**
+
+- [ ] 建立 `eval_results/ablation/ablation_manifest.json`：11 项必要消融、三 seed 状态、输入指纹、命令和产物路径齐全；未执行项必须写明阻塞原因。
+- [ ] 建立 `eval_results/ablation/summary.json`：主实验 + A1–A11 的 `micro-F1@0.5`、`micro-F1@val_thr`、mAP、macro-F1、训练时间和参数量 mean±std；A11 三组单列。
+- [ ] 生成论文表：边信息、CodeBERT 双通道、readout/L_var/先验 dropout、结构特征四块分别呈现；每行标注零重跑或 M2–M5 重跑。
+- [ ] 生成解释表：A9 的 score_std、A10 的先验依赖、A5 的边数/吞吐、A1–A4 的实际保留边计数和逐类 support。
+- [ ] 三种子通过 paired seed 检查；任何变体缺 seed、改 split 或写入正典 `runs/`，均不得进入论文主消融表。
+
 ### 12.9 执行顺序（单步最小验证）
 > M5 正式决议（按大纲改II）：主划分用**固定种子 8:1:1 + 覆盖约束校正**（C1 验证+内部测试合计每类 ≥ 该类正样本总数的30%，C2 每划分每类 ≥1；2026-09-12 修订，原“每类 val/内部测试 ≥20”；不再用迭代分层作主方案）；零正类用 class mask 跳过逐元素 BCE；主阈值为验证集选择的全局单值并保存全扫描；L_var 按图使用 population std 并保留梯度；ReduceLROnPlateau 监控 **val micro-F1**（2026-09-12 主指标口径，macro-F1 同步记录作参考）；DropEdge 先单图 mask 再 batch；至少 3 个 seed；记录可比较的训练时间和吞吐；外部泛化只用 DIVE（一次性，不参与模型选择）。
 

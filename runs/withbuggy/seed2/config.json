@@ -34,9 +34,19 @@
     "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
     "split_dir": "products/alldata/splits/withbuggy_snapshot",
     "out_dir": "runs/withbuggy",
-    "verify_channel_hash": false
+    "label_file": null,
+    "label_key_mode": null,
+    "verify_channel_hash": false,
+    "overwrite": false
   },
   "split_seed": 2,
+  "label_source": {
+    "file": "/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json",
+    "sha256": "556837fbc2496dfec358b9e5cec348148de6e248034113647b7ba7df272c0aa4",
+    "key_mode": "project",
+    "n_index": 590,
+    "n_unmatched": 0
+  },
   "derived": {
     "D_struct": 30,
     "struct_layout": {
@@ -114,13 +124,13 @@
     "torch_num_threads": 12
   },
   "timing": {
-    "run_wall_seconds": 21.1667,
-    "data_load_seconds": 11.1593,
-    "train_seconds": 8.3681,
-    "validation_seconds": 0.7738,
-    "epoch_seconds_mean": 0.3809,
-    "graphs_per_second": 1141.484,
-    "train_graphs": 9552,
-    "epochs_completed": 24
+    "run_wall_seconds": 27.1692,
+    "data_load_seconds": 9.6121,
+    "train_seconds": 14.3591,
+    "validation_seconds": 1.3828,
+    "epoch_seconds_mean": 0.3661,
+    "graphs_per_second": 1191.8578,
+    "train_graphs": 17114,
+    "epochs_completed": 43
   }
 }

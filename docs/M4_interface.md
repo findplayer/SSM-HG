@@ -129,7 +129,7 @@ z, a, nl = model(x, ei, et)                             # 验证/推理不调用
 | 标签匹配、边级消融（`--drop-edges`/`--drop-ast`＝删 relation 1+2，白名单校验） | `dataset.py` |
 | 通道融合（Embedding+MLP → `h_v^(0)`，128 维） | `model.NodeFuser`（前端化后；`x = fuser(channels)`） |
 | 批图 DataLoader（`batch` 向量） | `dataset.py`/`train.py` |
-| 先验/结构 dropout（训练期逐图 Bernoulli(0.2)，`sample_dropout_masks` 采样后传入 `NodeFuser`；eval 不置零） | `train.py` + `model.NodeFuser` |
+| 先验/结构 dropout（训练期逐图 Bernoulli(p)，**p=丢弃率**（2026-09-16 统一语义，见手册 §8.6；`sample_dropout_masks` 采样后传入 `NodeFuser`；eval 不置零） | `train.py` + `model.NodeFuser` |
 | DropEdge（训练期，用 `apply_edge_mask`；eval 不丢边） | `train.py` |
 | BCEWithLogitsLoss + `L_var = max(0, 0.1 - std(a))`（基于 `a`，非 logits；按图分组 population std） | `train.py` |
 | `score_mean`/`score_std` 日志、早停（验证集 micro-F1） | `train.py` |
