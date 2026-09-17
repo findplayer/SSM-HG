@@ -4,25 +4,25 @@
   "n_val": 45,
   "n_test": 46,
   "temperature": {
-    "T": 0.569682,
-    "bce_before": 0.316261,
-    "bce_after": 0.280577
+    "T": 0.784061,
+    "bce_before": 0.31281,
+    "bce_after": 0.305125
   },
   "global_threshold": {
-    "raw": 0.7,
-    "calibrated": 0.8,
-    "raw_val_micro_f1": 0.946032,
-    "calibrated_val_micro_f1": 0.946032,
-    "calibrated_effective_raw": 0.687777
+    "raw": 0.6,
+    "calibrated": 0.6,
+    "raw_val_micro_f1": 0.576271,
+    "calibrated_val_micro_f1": 0.566667,
+    "calibrated_effective_raw": 0.578815
   },
   "grid_resolution_control": {
     "raw": {
-      "best_threshold": 0.72551,
-      "val_micro_f1": 0.946032
+      "best_threshold": 0.609677,
+      "val_micro_f1": 0.576271
     },
     "calibrated": {
-      "best_threshold": 0.846336,
-      "val_micro_f1": 0.946032
+      "best_threshold": 0.638481,
+      "val_micro_f1": 0.576271
     },
     "note": "连续分辨率原始阈值（对照组 D）若与温度方案持平 → 温度缩放的微 F1 收益来自主协议阈值网格分辨率而非标定本身。"
   },
@@ -30,145 +30,145 @@
     "raw": {
       "thresholds": {
         "access_control": 0.5,
-        "arithmetic": 0.25,
-        "dos": 0.25,
+        "arithmetic": 0.75,
+        "dos": 0.2,
         "front_running": 0.2,
-        "reentrancy": 0.65,
+        "reentrancy": 0.6,
         "time_manipulation": 0.2,
-        "uncheck": 0.55
+        "uncheck": 0.6
       },
       "val_per_class_f1": {
-        "access_control": 0.5,
-        "arithmetic": 0.5,
+        "access_control": 0.545455,
+        "arithmetic": 0.8,
         "dos": 0.2,
         "front_running": 0.0,
         "reentrancy": 0.8,
         "time_manipulation": 0.0,
-        "uncheck": 0.521739
+        "uncheck": 0.5
       },
-      "val_macro_f1": 0.360248
+      "val_macro_f1": 0.406494
     },
     "calibrated": {
       "thresholds": {
         "access_control": 0.5,
-        "arithmetic": 0.25,
+        "arithmetic": 0.8,
         "dos": 0.2,
         "front_running": 0.2,
-        "reentrancy": 0.75,
+        "reentrancy": 0.6,
         "time_manipulation": 0.2,
-        "uncheck": 0.65
+        "uncheck": 0.6
       },
       "val_per_class_f1": {
-        "access_control": 0.5,
-        "arithmetic": 0.5,
+        "access_control": 0.545455,
+        "arithmetic": 0.8,
         "dos": 0.0,
         "front_running": 0.0,
         "reentrancy": 0.8,
         "time_manipulation": 0.0,
-        "uncheck": 0.571429
+        "uncheck": 0.5
       },
-      "val_macro_f1": 0.338776
+      "val_macro_f1": 0.377922
     }
   },
   "calibration": {
     "val_raw": {
       "per_class_ece": {
-        "access_control": 0.132098,
-        "arithmetic": 0.139254,
-        "dos": 0.174751,
-        "front_running": 0.034865,
-        "reentrancy": 0.174249,
-        "time_manipulation": 0.078037,
-        "uncheck": 0.097098
+        "access_control": 0.150304,
+        "arithmetic": 0.083923,
+        "dos": 0.115927,
+        "front_running": 0.026244,
+        "reentrancy": 0.094191,
+        "time_manipulation": 0.1283,
+        "uncheck": 0.082952
       },
       "per_class_brier": {
-        "access_control": 0.080832,
-        "arithmetic": 0.058714,
-        "dos": 0.05206,
-        "front_running": 0.029351,
-        "reentrancy": 0.152627,
-        "time_manipulation": 0.039354,
-        "uncheck": 0.210007
+        "access_control": 0.123235,
+        "arithmetic": 0.053003,
+        "dos": 0.039966,
+        "front_running": 0.027378,
+        "reentrancy": 0.098139,
+        "time_manipulation": 0.076296,
+        "uncheck": 0.207114
       },
       "skipped": [],
-      "macro_ece": 0.118622,
-      "macro_brier": 0.088992
+      "macro_ece": 0.097406,
+      "macro_brier": 0.089304
     },
     "val_calibrated": {
       "per_class_ece": {
-        "access_control": 0.101748,
-        "arithmetic": 0.065547,
-        "dos": 0.065284,
-        "front_running": 0.01956,
-        "reentrancy": 0.115238,
-        "time_manipulation": 0.052755,
-        "uncheck": 0.077328
+        "access_control": 0.116489,
+        "arithmetic": 0.04574,
+        "dos": 0.074226,
+        "front_running": 0.014017,
+        "reentrancy": 0.105222,
+        "time_manipulation": 0.112626,
+        "uncheck": 0.096239
       },
       "per_class_brier": {
-        "access_control": 0.073213,
-        "arithmetic": 0.042377,
-        "dos": 0.025277,
-        "front_running": 0.023734,
-        "reentrancy": 0.132778,
-        "time_manipulation": 0.029794,
-        "uncheck": 0.208346
+        "access_control": 0.117493,
+        "arithmetic": 0.047798,
+        "dos": 0.032363,
+        "front_running": 0.024575,
+        "reentrancy": 0.092259,
+        "time_manipulation": 0.073498,
+        "uncheck": 0.211152
       },
       "skipped": [],
-      "macro_ece": 0.071066,
-      "macro_brier": 0.076503
+      "macro_ece": 0.080651,
+      "macro_brier": 0.085591
     },
     "test_raw": {
       "per_class_ece": {
-        "access_control": 0.108586,
-        "arithmetic": 0.157687,
-        "dos": 0.149159,
-        "front_running": 0.013248,
-        "reentrancy": 0.138435,
-        "time_manipulation": 0.05309,
-        "uncheck": 0.110363
+        "access_control": 0.087997,
+        "arithmetic": 0.115877,
+        "dos": 0.104499,
+        "front_running": 0.013584,
+        "reentrancy": 0.104608,
+        "time_manipulation": 0.059369,
+        "uncheck": 0.109161
       },
       "per_class_brier": {
-        "access_control": 0.091971,
-        "arithmetic": 0.038104,
-        "dos": 0.048661,
-        "front_running": 0.024352,
-        "reentrancy": 0.137847,
-        "time_manipulation": 0.028397,
-        "uncheck": 0.175273
+        "access_control": 0.144105,
+        "arithmetic": 0.036106,
+        "dos": 0.043161,
+        "front_running": 0.024914,
+        "reentrancy": 0.113376,
+        "time_manipulation": 0.053724,
+        "uncheck": 0.159205
       },
       "skipped": [],
-      "macro_ece": 0.104367,
-      "macro_brier": 0.077801
+      "macro_ece": 0.085014,
+      "macro_brier": 0.082084
     },
     "test_calibrated": {
       "per_class_ece": {
-        "access_control": 0.035255,
-        "arithmetic": 0.07451,
-        "dos": 0.043243,
-        "front_running": 0.022906,
-        "reentrancy": 0.049624,
-        "time_manipulation": 0.023001,
-        "uncheck": 0.143001
+        "access_control": 0.133925,
+        "arithmetic": 0.07463,
+        "dos": 0.06603,
+        "front_running": 0.018621,
+        "reentrancy": 0.086725,
+        "time_manipulation": 0.05231,
+        "uncheck": 0.08897
       },
       "per_class_brier": {
-        "access_control": 0.078658,
-        "arithmetic": 0.018052,
-        "dos": 0.026804,
-        "front_running": 0.022464,
-        "reentrancy": 0.122652,
-        "time_manipulation": 0.023623,
-        "uncheck": 0.165559
+        "access_control": 0.141817,
+        "arithmetic": 0.027431,
+        "dos": 0.036364,
+        "front_running": 0.023202,
+        "reentrancy": 0.113403,
+        "time_manipulation": 0.050133,
+        "uncheck": 0.162399
       },
       "skipped": [],
-      "macro_ece": 0.055934,
-      "macro_brier": 0.065402
+      "macro_ece": 0.074459,
+      "macro_brier": 0.07925
     }
   },
   "test_schemes": {
     "baseline_fixed_0.5": {
-      "micro_f1": 0.919255,
-      "macro_f1": 0.253806,
-      "subset_accuracy": 0.608696,
+      "micro_f1": 0.45614,
+      "macro_f1": 0.284807,
+      "subset_accuracy": 0.5,
       "per_class": {
         "names": [
           "access_control",
@@ -180,16 +180,16 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
+          0.14285714285714285,
           1.0,
           0.0,
           0.0,
-          0.45454545454545453,
+          0.4166666666666667,
           0.0,
-          0.375
+          0.42857142857142855
         ],
         "recall": [
-          0.0,
+          0.3333333333333333,
           0.5,
           0.0,
           0.0,
@@ -198,13 +198,13 @@
           0.8571428571428571
         ],
         "f1": [
-          0.0,
+          0.2,
           0.6666666666666666,
           0.0,
           0.0,
-          0.5882352941176471,
+          0.5555555555555556,
           0.0,
-          0.5217391304347825
+          0.5714285714285714
         ],
         "support": [
           3,
@@ -218,9 +218,9 @@
       }
     },
     "baseline_val_threshold": {
-      "micro_f1": 0.944099,
-      "macro_f1": 0.242424,
-      "subset_accuracy": 0.652174,
+      "micro_f1": 0.541667,
+      "macro_f1": 0.317007,
+      "subset_accuracy": 0.586957,
       "per_class": {
         "names": [
           "access_control",
@@ -232,31 +232,31 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
+          0.25,
           1.0,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.5555555555555556,
           0.0,
-          0.5
+          0.46153846153846156
         ],
         "recall": [
-          0.0,
+          0.3333333333333333,
           0.5,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.8333333333333334,
           0.0,
-          0.2857142857142857
+          0.8571428571428571
         ],
         "f1": [
-          0.0,
+          0.28571428571428575,
           0.6666666666666666,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.6666666666666667,
           0.0,
-          0.36363636363636365
+          0.6
         ],
         "support": [
           3,
@@ -270,9 +270,9 @@
       }
     },
     "temperature_global_threshold": {
-      "micro_f1": 0.944099,
-      "macro_f1": 0.242424,
-      "subset_accuracy": 0.652174,
+      "micro_f1": 0.530612,
+      "macro_f1": 0.311905,
+      "subset_accuracy": 0.565217,
       "per_class": {
         "names": [
           "access_control",
@@ -284,31 +284,31 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
+          0.2,
           1.0,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.5555555555555556,
           0.0,
-          0.5
+          0.46153846153846156
         ],
         "recall": [
-          0.0,
+          0.3333333333333333,
           0.5,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.8333333333333334,
           0.0,
-          0.2857142857142857
+          0.8571428571428571
         ],
         "f1": [
-          0.0,
+          0.25,
           0.6666666666666666,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.6666666666666667,
           0.0,
-          0.36363636363636365
+          0.6
         ],
         "support": [
           3,
@@ -322,9 +322,9 @@
       }
     },
     "per_class_threshold": {
-      "micro_f1": 0.900621,
-      "macro_f1": 0.248299,
-      "subset_accuracy": 0.586957,
+      "micro_f1": 0.366197,
+      "macro_f1": 0.304762,
+      "subset_accuracy": 0.434783,
       "per_class": {
         "names": [
           "access_control",
@@ -336,31 +336,31 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
-          0.3333333333333333,
-          0.0,
-          0.0,
-          0.6666666666666666,
-          0.0,
-          0.42857142857142855
-        ],
-        "recall": [
-          0.0,
+          0.14285714285714285,
           1.0,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.5555555555555556,
+          0.0,
+          0.46153846153846156
+        ],
+        "recall": [
+          0.3333333333333333,
+          0.5,
+          0.0,
+          0.0,
+          0.8333333333333334,
           0.0,
           0.8571428571428571
         ],
         "f1": [
-          0.0,
-          0.5,
-          0.0,
-          0.0,
+          0.2,
           0.6666666666666666,
           0.0,
-          0.5714285714285714
+          0.0,
+          0.6666666666666667,
+          0.0,
+          0.6
         ],
         "support": [
           3,
@@ -374,9 +374,9 @@
       }
     },
     "temperature_per_class_threshold": {
-      "micro_f1": 0.928571,
-      "macro_f1": 0.272109,
-      "subset_accuracy": 0.630435,
+      "micro_f1": 0.4,
+      "macro_f1": 0.304762,
+      "subset_accuracy": 0.5,
       "per_class": {
         "names": [
           "access_control",
@@ -388,31 +388,31 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
+          0.14285714285714285,
           1.0,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.5555555555555556,
           0.0,
-          0.42857142857142855
+          0.46153846153846156
         ],
         "recall": [
-          0.0,
+          0.3333333333333333,
           0.5,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.8333333333333334,
           0.0,
           0.8571428571428571
         ],
         "f1": [
-          0.0,
+          0.2,
           0.6666666666666666,
           0.0,
           0.0,
-          0.6666666666666666,
+          0.6666666666666667,
           0.0,
-          0.5714285714285714
+          0.6
         ],
         "support": [
           3,
@@ -426,9 +426,9 @@
       }
     },
     "fine_grid_raw_threshold": {
-      "micro_f1": 0.947205,
-      "macro_f1": 0.216667,
-      "subset_accuracy": 0.652174,
+      "micro_f1": 0.510638,
+      "macro_f1": 0.30648,
+      "subset_accuracy": 0.565217,
       "per_class": {
         "names": [
           "access_control",
@@ -440,31 +440,31 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
+          0.25,
           1.0,
           0.0,
           0.0,
-          0.75,
+          0.5555555555555556,
           0.0,
-          1.0
+          0.4166666666666667
         ],
         "recall": [
-          0.0,
+          0.3333333333333333,
           0.5,
           0.0,
           0.0,
-          0.5,
+          0.8333333333333334,
           0.0,
-          0.14285714285714285
+          0.7142857142857143
         ],
         "f1": [
-          0.0,
+          0.28571428571428575,
           0.6666666666666666,
           0.0,
           0.0,
-          0.6,
+          0.6666666666666667,
           0.0,
-          0.25
+          0.5263157894736842
         ],
         "support": [
           3,
@@ -478,9 +478,9 @@
       }
     },
     "fine_grid_calibrated_threshold": {
-      "micro_f1": 0.947205,
-      "macro_f1": 0.216667,
-      "subset_accuracy": 0.652174,
+      "micro_f1": 0.510638,
+      "macro_f1": 0.30648,
+      "subset_accuracy": 0.565217,
       "per_class": {
         "names": [
           "access_control",
@@ -492,31 +492,31 @@
           "uncheck"
         ],
         "precision": [
-          0.0,
+          0.25,
           1.0,
           0.0,
           0.0,
-          0.75,
+          0.5555555555555556,
           0.0,
-          1.0
+          0.4166666666666667
         ],
         "recall": [
-          0.0,
+          0.3333333333333333,
           0.5,
           0.0,
           0.0,
-          0.5,
+          0.8333333333333334,
           0.0,
-          0.14285714285714285
+          0.7142857142857143
         ],
         "f1": [
-          0.0,
+          0.28571428571428575,
           0.6666666666666666,
           0.0,
           0.0,
-          0.6,
+          0.6666666666666667,
           0.0,
-          0.25
+          0.5263157894736842
         ],
         "support": [
           3,
@@ -532,9 +532,9 @@
   },
   "val_schemes": {
     "per_class_threshold": {
-      "micro_f1": 0.850794,
-      "macro_f1": 0.360248,
-      "subset_accuracy": 0.533333,
+      "micro_f1": 0.439024,
+      "macro_f1": 0.406494,
+      "subset_accuracy": 0.444444,
       "per_class": {
         "names": [
           "access_control",
@@ -546,17 +546,17 @@
           "uncheck"
         ],
         "precision": [
-          0.4,
-          0.3333333333333333,
+          0.375,
+          1.0,
           0.1111111111111111,
           0.0,
           0.6666666666666666,
           0.0,
-          0.4
+          0.375
         ],
         "recall": [
-          0.6666666666666666,
           1.0,
+          0.6666666666666666,
           1.0,
           0.0,
           1.0,
@@ -564,13 +564,13 @@
           0.75
         ],
         "f1": [
-          0.5,
-          0.5,
+          0.5454545454545454,
+          0.8,
           0.19999999999999998,
           0.0,
           0.8,
           0.0,
-          0.5217391304347827
+          0.5
         ],
         "support": [
           3,
@@ -584,9 +584,9 @@
       }
     },
     "temperature_per_class_threshold": {
-      "micro_f1": 0.901587,
-      "macro_f1": 0.338776,
-      "subset_accuracy": 0.577778,
+      "micro_f1": 0.459459,
+      "macro_f1": 0.377922,
+      "subset_accuracy": 0.511111,
       "per_class": {
         "names": [
           "access_control",
@@ -598,16 +598,16 @@
           "uncheck"
         ],
         "precision": [
-          0.4,
-          0.4,
+          0.375,
+          1.0,
           0.0,
           0.0,
           0.6666666666666666,
           0.0,
-          0.46153846153846156
+          0.375
         ],
         "recall": [
-          0.6666666666666666,
+          1.0,
           0.6666666666666666,
           0.0,
           0.0,
@@ -616,13 +616,13 @@
           0.75
         ],
         "f1": [
-          0.5,
-          0.5,
+          0.5454545454545454,
+          0.8,
           0.0,
           0.0,
           0.8,
           0.0,
-          0.5714285714285714
+          0.5
         ],
         "support": [
           3,
@@ -638,17 +638,17 @@
   },
   "overfit_audit": {
     "per_class_threshold": {
-      "val_macro_f1": 0.360248,
-      "test_macro_f1": 0.248299,
-      "val_test_gap": 0.111949,
-      "test_oracle_macro_f1": 0.394678,
-      "regret_vs_test_oracle": 0.146379
+      "val_macro_f1": 0.406494,
+      "test_macro_f1": 0.304762,
+      "val_test_gap": 0.101732,
+      "test_oracle_macro_f1": 0.358341,
+      "regret_vs_test_oracle": 0.053579
     },
     "temperature_per_class_threshold": {
-      "val_macro_f1": 0.338776,
-      "test_macro_f1": 0.272109,
-      "val_test_gap": 0.066667,
-      "test_oracle_macro_f1": 0.394678
+      "val_macro_f1": 0.377922,
+      "test_macro_f1": 0.304762,
+      "val_test_gap": 0.07316,
+      "test_oracle_macro_f1": 0.358341
     }
   },
   "invariance_note": "温度缩放与 per-class 阈值均为逐类单调变换 → AP/ROC-AUC/mAP 不变。",

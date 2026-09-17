@@ -27,3 +27,12 @@ runs/**/*.pt
 !runs/**/best.pt
 !runs/**/val_best_probs.pt
 !runs/**/test_probs.pt
+
+# 例外之例外：**作废口径的归档不入库权重**（2026-09-17，decisions §28）。
+# `runs/prior_badmetric/` 是坏指标（`.ravel()` 使 micro-F1 退化为 accuracy）口径下选出的权重——
+# 它们**不是**"复现所需的最小集"，而是"坏指标如何改变模型选择"的物证，物证价值在 log.txt 的轨迹
+# 与 decisions §28 的表格里，不在二进制。与 prior_dropout80（零 .pt 归档）的惯例一致。
+# ⚠ 规则顺序敏感：必须写在上面的 `!runs/**/best.pt` **之后**，后者才被覆盖。
+# ⚠ 文件仍**留在磁盘上**（未删除，供人工复核）；此处只阻止它们进入版本库。
+runs/prior_badmetric/**/best.pt
+runs/prior_badmetric/**/last.pt
