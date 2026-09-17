@@ -3,10 +3,15 @@
 
 目的：为主实验「macro-F1 / mAP 偏低、逐类大量 F1=0」提供**可量化的根因证据与改进线索**。
 
-只读：`runs/seed{N}/best.pt`、`config.json`、`val_best_probs.pt`、`products/alldata/splits`、
-      `products/alldata/graphs`。
-写入：`runs/seed{N}/test_probs.pt`（test 推理缓存，供后续免重复推理）、
-      `runs/seed{N}/diagnosis.json`（逐 seed 诊断）、`runs/diagnosis_summary.json`（跨 seed 聚合）。
+只读：`<runs-dir>/seed{N}/best.pt`、`config.json`、`val_best_probs.pt`、`<split-dir>`、`<graph-dir>`。
+写入：`<runs-dir>/seed{N}/test_probs.pt`（test 推理缓存，供后续免重复推理）、
+      `<runs-dir>/seed{N}/diagnosis.json`（逐 seed 诊断）、`<runs-dir>/diagnosis_summary.json`（跨 seed 聚合）。
+
+**标签来源必须与训练同源**（2026-09-17 修复）：本脚本原以 `build_index(graph_dir)` 取标签、不接受
+`--label-file`/`--label-key-mode`，即**硬编码主库标签源** → 对第二语料（augmentation）跑时，会拿主库
+标签去匹配该语料的图 base，**全部对不上却可能不报错**，产出看似正常实则错位的诊断。现按与
+`evaluate.py` 完全相同的优先级解析：**CLI → 环境变量 `SSMHG_LABEL_FILE`/`SSMHG_LABEL_KEY_MODE`
+→ checkpoint 里记录的 `label_source`**，并在索引后硬校验划分内 base 可解析（缺则报错退出）。
 
 诊断维度（每类 × 每 seed，标签序与 `metrics.VULN_NAMES` 一致）：
   1. 数据稀缺：train/val/test 正样本数、池级正样本数、pos_weight（截断前后）；
@@ -23,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -31,7 +37,8 @@ from sklearn.metrics import (average_precision_score, f1_score,
                              roc_auc_score)
 
 import metrics
-from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, load_graph)
+from dataset import (DEFAULT_GRAPH_DIR, ENV_LABEL_FILE, ENV_LABEL_KEY_MODE,
+                     Ablation, build_index, load_graph)
 from evaluate import _load_ablation, infer, rebuild_models
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
@@ -42,6 +49,21 @@ NAMES = metrics.VULN_NAMES          # 7 类固定序
 
 def _round(x, nd=6):
     return None if x is None else round(float(x), nd)
+
+
+def resolve_label_source(args: argparse.Namespace, config: dict) -> tuple[str | None, str | None]:
+    """诊断用的标签来源：**CLI → 环境变量 → checkpoint 的 `label_source`**。
+
+    与 `evaluate.py::eval_seed` 同一优先级、同一理由：**诊断必须与训练同源**。
+    取错标签不会报错（只会得到"看似正常"的逐类数字），是这类脚本最难发现的失效模式，
+    故此处不设"回退到默认"的分支——真的都没有时交给 `build_index` 的默认值，
+    并由随后的「划分内 base 是否可解析」硬校验兜底。
+    """
+    saved = config.get("label_source") or {}
+    lab_file = args.label_file or os.environ.get(ENV_LABEL_FILE) or saved.get("file")
+    lab_mode = (args.label_key_mode or os.environ.get(ENV_LABEL_KEY_MODE)
+                or saved.get("key_mode"))
+    return lab_file, lab_mode
 
 
 def confusion_counts(y_c: np.ndarray, p_c: np.ndarray, thr: float) -> dict:
@@ -138,7 +160,19 @@ def diagnose_seed(seed: int, args: argparse.Namespace) -> dict:
 
     with open(f"{args.split_dir}/split_seed{split_seed}.json", encoding="utf-8") as fh:
         split = json.load(fh)
-    index, _ = build_index(Path(args.graph_dir))
+
+    # ---- 标签来源（与训练同源；跨语料必须显式传或由 checkpoint 记录回退）----
+    lab_file, lab_mode = resolve_label_source(args, config)
+    if lab_file or lab_mode:
+        print(f"[diagnose] 标签来源：file={lab_file or '(默认)'} key_mode={lab_mode or '(默认)'}")
+    index, _unmatched = build_index(Path(args.graph_dir), label_file=lab_file, key_mode=lab_mode)
+    missing = [b for b in split["val"] + split["test"] if b not in index]
+    if missing:
+        raise SystemExit(
+            f"[diagnose] 划分内有 {len(missing)}/{len(split['val']) + len(split['test'])} 个合约"
+            f"不在标签索引中（标签文件或 --label-key-mode 与训练不一致？）例：{missing[:5]}\n"
+            "  提示：跨语料请显式传 --label-file/--label-key-mode，或确认 checkpoint 中"
+            "记录的 label_source 可用。")
     ab = _load_ablation(config)
     verify = "all" if config["args"].get("verify_channel_hash") else "cheap"
 
@@ -232,6 +266,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--graph-dir", default=DEFAULT_GRAPH_DIR)
     p.add_argument("--split-dir", default=DEFAULT_SPLIT_DIR)
     p.add_argument("--runs-dir", default=DEFAULT_RUNS_DIR)
+    p.add_argument("--label-file", default=None,
+                   help="标签文件路径（省略则走 SSMHG_LABEL_FILE 环境变量，再回退 checkpoint "
+                        "记录的 label_source，最后才是主库默认）。跨语料必须与新语料一致。")
+    p.add_argument("--label-key-mode", choices=["project", "stem"], default=None,
+                   help="标签键模式（省略则走 SSMHG_LABEL_KEY_MODE，再回退 checkpoint 记录）。"
+                        "扁平/词干命名语料（augmentation）必须传 stem，否则键对不上。")
     return p.parse_args()
 
 
@@ -245,7 +285,7 @@ def main() -> None:
     for s in seeds:
         per_seed[s] = diagnose_seed(s, args)
         r = per_seed[s]
-        print(f"seed{s}: 逐类诊断完成 → runs/seed{s}/diagnosis.json "
+        print(f"seed{s}: 逐类诊断完成 → {runs_dir / f'seed{s}' / 'diagnosis.json'} "
               f"（test pos " +
               ",".join(str(r['per_class'][c]['support']['test_pos']) for c in range(7)) + "）")
     summary = aggregate(per_seed)
