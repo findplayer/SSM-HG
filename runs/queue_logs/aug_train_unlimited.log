@@ -1,0 +1,12 @@
+[ablation] 基线 runs/augmentation/seed0/config.json；1 项 × 3 种子 = 3 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+cb_unlimited     --graph-dir {variants}/callback_unlimited ✅ 恰一个变量
+
+[cb_unlimited/seed0] ✓ 120.4s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited/seed1] ✓ 110.7s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited/seed2] ✓ 175.3s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited] summarize ✓
+
+[ablation] 结束：用时 409.1s；产物 runs/ablation_aug

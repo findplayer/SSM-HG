@@ -1,0 +1,12 @@
+[ablation] 基线 runs/augmentation/seed0/config.json；1 项 × 3 种子 = 3 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+cb_ft            --graph-dir {variants}/cb_ft_ss{seed} ✅ 恰一个变量
+
+[cb_ft/seed0] ✓  63.4s  CodeBERT 微调后重编码（基线=冻结；大纲 5.4.2 第 17 项）
+[cb_ft/seed1] ✓  43.8s  CodeBERT 微调后重编码（基线=冻结；大纲 5.4.2 第 17 项）
+[cb_ft/seed2] ✓  50.6s  CodeBERT 微调后重编码（基线=冻结；大纲 5.4.2 第 17 项）
+[cb_ft] summarize ✓
+
+[ablation] 结束：用时 159.8s；产物 runs/ablation_aug

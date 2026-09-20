@@ -1,0 +1,17 @@
+{
+  "variant": "dive_augmentation_ft",
+  "split_seed": 2,
+  "derived_from": "/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs",
+  "encoder": "/home/saumarez/projects/deep-learning/SSM-HG/runs/codebert_ft/augmentation/ss2/encoder",
+  "only_variable": "CodeBERT 微调后重编码（结构/类型/s_v 三通道逐位不变，已断言）",
+  "reuse": {
+    "_hetero.json": "symlink",
+    "_m1.json": "symlink",
+    "_pyg.pt": "symlink"
+  },
+  "expect": {
+    "_feat.pt": "与 graphs/ 逐位相同",
+    "_cb.pt": "与 graphs/ 不同"
+  },
+  "created_utc": "2026-09-20T09:27:05+00:00"
+}

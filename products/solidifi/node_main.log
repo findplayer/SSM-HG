@@ -1,0 +1,24 @@
+=== [node] 16:55:09 ① seed2 开始 ===
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 245, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 227, in main
+    r = evaluate(s, args.corpus, args.limit)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 202, in evaluate
+    "all": agg(rows),
+           ^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 191, in agg
+    out[name] = {str(k): {m: mean_of([r[name][str(k)] for r in subset], m)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 191, in <dictcomp>
+    out[name] = {str(k): {m: mean_of([r[name][str(k)] for r in subset], m)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 191, in <dictcomp>
+    out[name] = {str(k): {m: mean_of([r[name][str(k)] for r in subset], m)
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate_node_localization.py", line 191, in <listcomp>
+    out[name] = {str(k): {m: mean_of([r[name][str(k)] for r in subset], m)
+                                      ~~~~~~~^^^^^^^^
+KeyError: 'p10'
+=== [node] 16:55:30 ① seed2 结束 rc=1 ===

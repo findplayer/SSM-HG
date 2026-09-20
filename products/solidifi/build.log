@@ -1,0 +1,51 @@
+=== [solidifi] 15:29:02 stage,raw,graphs,features 开始 ===
+
+[dive] ===== 步骤 stage =====
+[dive] stage：350 个源文件 → /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/src_stage（新拷 350 / 复用 0）
+
+[dive] ===== 步骤 raw =====
+  [raw(Slither→AST/CFG/DFG)] ✓ 1561.5s  Switched global version to 0.5.17
+Switched global version to 0.5.17
+Switched global version to 0.5.17
+
+[dive] ===== 步骤 graphs =====
+  [M2] ✓ 57.8s  Processed 350 AST files, 0 skipped (no CFG dot & no cfgdetail)
+  [M2+M1] ✓ 7.9s  Processed files: 350
+Output dir: /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs
+Batch summary: /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs/batch_summary.json
+  [M2+PyG] ✓ 2.0s  Total DFG_DEP edges: 137501
+Total CALLBACK_RISK edges: 2414
+Total CALLBACK_RISK_REV edges: 0
+
+[dive] ===== 步骤 features =====
+  [M3(冻结编码器)] ✓ 692.4s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+[dive] features：结构 350 图；开始 ①② 微调编码器重编码
+  [M3(alldata ss0)] ✓ 677.8s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/ss0
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [alldata/ss0] 三通道逐位相同 350/350 ✓
+  [M3(alldata ss1)] ✓ 678.8s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/ss1
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [alldata/ss1] 三通道逐位相同 350/350 ✓
+  [M3(alldata ss2)] ✓ 723.7s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/ss2
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [alldata/ss2] 三通道逐位相同 350/350 ✓
+  [M3(augmentation ss0)] ✓ 735.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/ss0
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [augmentation/ss0] 三通道逐位相同 350/350 ✓
+  [M3(augmentation ss1)] ✓ 676.0s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/ss1
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [augmentation/ss1] 三通道逐位相同 350/350 ✓
+  [M3(augmentation ss2)] ✓ 673.9s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/ss2
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [augmentation/ss2] 三通道逐位相同 350/350 ✓
+
+[dive] 完成：stage,raw,graphs,features
+=== [solidifi] 17:27:07 结束 rc=0 ===

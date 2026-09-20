@@ -238,6 +238,39 @@
   loss 自 epoch 0 起差 ~1e-9，混沌放大后早停落在不同 epoch。
   **本仓目前无任何开关可关掉它**：`--deterministic` 只设线程数与种子，未设
   `cudnn.deterministic`/`use_deterministic_algorithms`。论文局限陈述应收入此条。
+- **★ 2026-09-20 统计口径改为「最佳种子」（`decisions.md` §39，用户裁定）**：
+  **主口径 = 每语料取正典在 micro-F1@val_thr 上最高的那个种子**（**① seed2 / ② seed1**），
+  **正典与全部 21 臂、内测列与 DIVE 列共用同一个种子**；mean±std **降为附录**。
+  两条口径与理由写死在 `collect_ablation_results.best_seed_of()` 的 docstring 里。
+  ⚠ **代价必须披露**：实测「最佳种子比均值高 +0.0508」≈「3 次纯噪声取最大的期望 +0.85σ = **+0.057**」
+  ⇒ **那 +0.05 基本全是选择膨胀、不是模型能力**；据最佳种子下「某干预有效」的结论**依然禁止**。
+  产物：`eval_results/ablation/collected{,_aug}.md`（表 A′/B′）、`eval_results/dive/comparison.md`
+  （表 1′.{micro@0.5,micro@val_thr,macro@0.5,mAP}）、`experiments/per_class_three_caliber_tables.md`
+  （**表 1–6 最佳种子 / 表 7–12 mean±std**）。
+- **★ 2026-09-20 SolidiFI 层次二完成（`decisions.md` §40）**：
+  新增 `scripts/map_solidifi_injections.py` + `scripts/evaluate_node_localization.py`；
+  `build_dive_external_set.py` 泛化为 `--dataset {dive,solidifi}`（两者形态一样；SolidiFI 全量 350、不含 dos）。
+  🔴 **手册 §10.2 第 9 条的映射规则原文实现出来是错的（已更正）**：日志的 `loc` 是注入**块首行**、
+  `length` 是块长 ⇒ 必须按**行域 `[loc, loc+length-1]` 与节点 `[line_start,line_end]` 求重叠**，
+  **不能只按单点 `loc`**——单点会命中 **ENTRYPOINT**（实测三类分数 P@5 全为 0；未映射率 **32.92%**
+  且带强类别偏差 access_control 0% vs reentrancy 71.3%）。改行域后未映射率 **0.04%**、偏差消失。
+  **结果**（随机基线 P@k = **0.1090**，必须先减基线）：$s_v$ 两语料逐位相同（内部一致性 ✅）；
+  **$a_v$ 在 ① 上 −0.068（远低于随机）**、② 上 ≈0；$g_v$ 仅 ① 的 k=5 为 +0.023。
+  ⇒ 大纲要求的那句必须写：**「图传播未带来额外节点定位收益」**（此处为**负收益**）。
+  逐类只有 `arithmetic` 真正有效（$g_v$ 0.416）；`access_control`/`front_running` 三类分数全为 0。
+  ⚠ ① 模型在 SolidiFI 上**只有 1/350 个合约预测正确**（② 为 300/350）⇒ 大纲要求的
+  「预测正确/错误分开统计」**在此退化**，须如实说明。
+- **★ 2026-09-20 ① 主库改进方向诊断（`experiments/improvement_proposals.md`）**：
+  6 视角诊断 + 对抗核查（12 代理、36 条建议），承重条目经本人复核并逐条标 ✅/⚠️/❌。最要紧三条：
+  (i) 🔴 **① 的编码器微调在还在爬升时被 `--epochs 5` 截断** —— 主口径用的 `ss2` 是
+    `best_epoch=5 == epochs=5`，val macro-F1 逐轮单调上升（…→0.376→**0.4365**）、train loss 仍在降；
+    而 `cb_frozen` −0.276 / n=9 +0.2466 已证明**表征就是瓶颈** ⇒ 这个瓶颈部件**本身还欠训**；
+  (ii) **同划分多种子概率集成实测 +0.019~+0.053（均 +0.033）**，零重训、高于抖动 0.012，
+    且是**平均掉**方差（与"挑最好那次"性质相反）；
+  (iii) 🔴 **既有消融「关闭 L_var」是构造性空操作** —— λ·L_var 只占总损失 **0.0003%–0.006%**
+    （`no_lvar` 臂实测 Δ +0.0045 = 纯噪声），论文**不得**写成"L_var 无作用"，
+    须改为「本实验的 λ 取值使该项不产生可测影响」。
+  另：大纲 5.3 的 9 个对比方法**一个都没跑**（`eval_results/baseline/` 为空）⇒「0.78 算不算低」目前无法判定。
 - **★ 2026-09-19 消融全部重跑完成 + DIVE 外部测试（`decisions.md` §38）**：
   **①②各 21 臂 ×3 种子 = 126 run，0 失败**（② 从原设计 5 臂扩到 21 臂，与 ① 逐臂对齐——
   起因是 ② 那次调用没带 `--only`，结果正合"完成所有消融"，已在 `collect_ablation_results.GROUPS`
