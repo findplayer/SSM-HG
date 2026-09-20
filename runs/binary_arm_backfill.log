@@ -1,0 +1,64 @@
+[study] 根目录 /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm；2 个 study × 9 对 = 18 个 run；dry_run=False
+
+study      pair    唯一开关                   断言
+------------------------------------------------------------------------------
+main_bin   3:0     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   3:1     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   3:2     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   4:0     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   4:1     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   4:2     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   5:0     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   5:1     --head binary          ✅ 恰一个变量 + 同语料
+main_bin   5:2     --head binary          ✅ 恰一个变量 + 同语料
+
+study      pair    唯一开关                   断言
+------------------------------------------------------------------------------
+aug_bin    3:0     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    3:1     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    3:2     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    4:0     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    4:1     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    4:2     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    5:0     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    5:1     --head binary          ✅ 恰一个变量 + 同语料
+aug_bin    5:2     --head binary          ✅ 恰一个变量 + 同语料
+
+[main_bin/3:0] eval ok  seed3 (split_seed0) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.3600 FNR 0.5=0.0476；AP=0
+[main_bin/3:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts3_ss0/diagnosis_summary.js
+[main_bin/3:1] eval ok  seed3 (split_seed1) [head=binary]: test F1 0.5=0.8293 / val_thr(0.75)=0.7429；FPR 0.5=0.1538 FNR 0.5=0.1500；AP=
+[main_bin/3:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts3_ss1/diagnosis_summary.js
+[main_bin/3:2] eval ok  seed3 (split_seed2) [head=binary]: test F1 0.5=0.7755 / val_thr(0.5)=0.7755；FPR 0.5=0.3600 FNR 0.5=0.0952；AP=0
+[main_bin/3:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts3_ss2/diagnosis_summary.js
+[main_bin/4:0] eval ok  seed4 (split_seed0) [head=binary]: test F1 0.5=0.6977 / val_thr(0.5)=0.6977；FPR 0.5=0.2800 FNR 0.5=0.2857；AP=0
+[main_bin/4:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts4_ss0/diagnosis_summary.js
+[main_bin/4:1] eval ok  seed4 (split_seed1) [head=binary]: test F1 0.5=0.8500 / val_thr(0.45)=0.8500；FPR 0.5=0.1154 FNR 0.5=0.1500；AP=
+[main_bin/4:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts4_ss1/diagnosis_summary.js
+[main_bin/4:2] eval ok  seed4 (split_seed2) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.1200 FNR 0.5=0.2381；AP=0
+[main_bin/4:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts4_ss2/diagnosis_summary.js
+[main_bin/5:0] eval ok  seed5 (split_seed0) [head=binary]: test F1 0.5=0.8182 / val_thr(0.5)=0.8182；FPR 0.5=0.2000 FNR 0.5=0.1429；AP=0
+[main_bin/5:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts5_ss0/diagnosis_summary.js
+[main_bin/5:1] eval ok  seed5 (split_seed1) [head=binary]: test F1 0.5=0.6667 / val_thr(0.5)=0.6667；FPR 0.5=0.0769 FNR 0.5=0.4500；AP=0
+[main_bin/5:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts5_ss1/diagnosis_summary.js
+[main_bin/5:2] eval ok  seed5 (split_seed2) [head=binary]: test F1 0.5=0.8936 / val_thr(0.2)=0.8750；FPR 0.5=0.2000 FNR 0.5=0.0000；AP=0
+[main_bin/5:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/main_bin/bin_ts5_ss2/diagnosis_summary.js
+[aug_bin/3:0] eval ok  seed3 (split_seed0) [head=binary]: test F1 0.5=1.0000 / val_thr(0.5)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1
+[aug_bin/3:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts3_ss0/diagnosis_summary.jso
+[aug_bin/3:1] eval ok  seed3 (split_seed1) [head=binary]: test F1 0.5=1.0000 / val_thr(0.2)=0.9937；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1
+[aug_bin/3:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts3_ss1/diagnosis_summary.jso
+[aug_bin/3:2] eval ok  seed3 (split_seed2) [head=binary]: test F1 0.5=1.0000 / val_thr(0.2)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1
+[aug_bin/3:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts3_ss2/diagnosis_summary.jso
+[aug_bin/4:0] eval ok  seed4 (split_seed0) [head=binary]: test F1 0.5=1.0000 / val_thr(0.25)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=
+[aug_bin/4:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts4_ss0/diagnosis_summary.jso
+[aug_bin/4:1] eval ok  seed4 (split_seed1) [head=binary]: test F1 0.5=1.0000 / val_thr(0.2)=0.9968；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1
+[aug_bin/4:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts4_ss1/diagnosis_summary.jso
+[aug_bin/4:2] eval ok  seed4 (split_seed2) [head=binary]: test F1 0.5=0.9870 / val_thr(0.2)=0.9935；FPR 0.5=0.0000 FNR 0.5=0.0256；AP=0
+[aug_bin/4:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts4_ss2/diagnosis_summary.jso
+[aug_bin/5:0] eval ok  seed5 (split_seed0) [head=binary]: test F1 0.5=1.0000 / val_thr(0.2)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1
+[aug_bin/5:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts5_ss0/diagnosis_summary.jso
+[aug_bin/5:1] eval ok  seed5 (split_seed1) [head=binary]: test F1 0.5=0.9568 / val_thr(0.2)=0.9840；FPR 0.5=0.0000 FNR 0.5=0.0828；AP=0
+[aug_bin/5:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts5_ss1/diagnosis_summary.jso
+[aug_bin/5:2] eval ok  seed5 (split_seed2) [head=binary]: test F1 0.5=0.9837 / val_thr(0.2)=0.9968；FPR 0.5=0.0000 FNR 0.5=0.0321；AP=1
+[aug_bin/5:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/binary_arm/aug_bin/bin_ts5_ss2/diagnosis_summary.jso
+
+[study] 结束：18 个 run，wall 101.1s，失败 0

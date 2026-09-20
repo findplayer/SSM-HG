@@ -9,6 +9,7 @@
     "lambda_var": 0.001,
     "tau_var": 0.1,
     "pos_weight_cap": 20.0,
+    "head": "multi",
     "loss": "bce",
     "focal_gamma": 2.0,
     "asl_gamma_pos": 1.0,
@@ -26,12 +27,13 @@
     "conv": "rgcn",
     "meanpool": true,
     "num_bases": 5,
+    "layers": 2,
     "hid": 128,
     "ablate_sv": false,
     "cb_channels": "cb_func,cb_node",
     "feat_groups": "all",
     "deterministic": false,
-    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/ss0",
     "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
     "out_dir": "/home/saumarez/projects/deep-learning/SSM-HG/runs/ablation/meanpool",
     "label_file": null,
@@ -59,7 +61,19 @@
     "fuser_in_dim": 1631,
     "fuser_hidden": 128,
     "num_relations": 5,
+    "num_layers": 2,
+    "head": "multi",
     "num_classes": 7,
+    "head_class_names": [
+      "access_control",
+      "arithmetic",
+      "dos",
+      "front_running",
+      "reentrancy",
+      "time_manipulation",
+      "uncheck"
+    ],
+    "label_aggregation": "identity",
     "pos_weight": [
       20.0,
       20.0,
@@ -124,13 +138,13 @@
     "torch_num_threads": 12
   },
   "timing": {
-    "run_wall_seconds": 23.2597,
-    "data_load_seconds": 14.202,
-    "train_seconds": 7.5548,
-    "validation_seconds": 0.5727,
-    "epoch_seconds_mean": 0.3386,
-    "graphs_per_second": 1149.9946,
-    "train_graphs": 8688,
-    "epochs_completed": 24
+    "run_wall_seconds": 14.9645,
+    "data_load_seconds": 0.995,
+    "train_seconds": 11.7627,
+    "validation_seconds": 0.8984,
+    "epoch_seconds_mean": 0.3332,
+    "graphs_per_second": 1169.4611,
+    "train_graphs": 13756,
+    "epochs_completed": 38
   }
 }

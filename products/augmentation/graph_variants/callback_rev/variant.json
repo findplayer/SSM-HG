@@ -1,0 +1,26 @@
+{
+  "created": "2026-09-18",
+  "variant": "callback_rev",
+  "derived_from": "products/augmentation/graphs",
+  "only_variable": "edges += CALLBACK_RISK_REV（CALLBACK_RISK 的精确镜像）",
+  "commands": [
+    "build_cfg_centered_hetero_graph.py --callback-rev",
+    "convert_hetero_json_to_pyg.py",
+    "m3_build_features.py"
+  ],
+  "reuse": {
+    "_m1.json": "symlink",
+    "_cb.pt": "symlink",
+    "splits": "products/<数据集>/splits（复用，不重建）"
+  },
+  "expect": {
+    "num_relations": 6,
+    "_feat.pt": "与正典逐位相同（1774/1774 图）",
+    "edge_stats": {
+      "callback_edges_fwd": 6900,
+      "callback_edges_rev": 6900,
+      "graphs_with_exact_mirror": 1774,
+      "graphs_total": 1774
+    }
+  }
+}

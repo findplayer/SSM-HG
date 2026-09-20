@@ -1,0 +1,24 @@
+{
+ "created": "2026-09-19T09:34:37+00:00",
+ "variant": "cb_unlimited_ft",
+ "split_seed": 0,
+ "derived_from": "products/alldata/graphs_ft/ss0",
+ "edges_from": "products/alldata/graph_variants/callback_unlimited",
+ "only_variable": "相对新正典（微调 CodeBERT）只改边：callback_unlimited 的边（其中 20 图的先验 s_v 随之改变，见下）",
+ "how": {
+  "symlinked": "570 图：_feat.pt/_cb.pt 软链自微调基座（三通道逐图证同）",
+  "m3_rerun": "20 图：结构取自边变体，M3 用微调编码器真跑",
+  "assertions": [
+   "节点集一致",
+   "冻结编码器下 _cb.pt 与正典逐位相同",
+   "重跑 _cb.pt 与微调基座逐位相同"
+  ]
+ },
+ "expect": {
+  "_feat.pt": "三通道取自边变体；cb 指纹取自微调基座",
+  "_cb.pt": "微调编码器产物（对全部图均已验证）",
+  "_pyg.pt": "与 callback_unlimited 一致（边已改）"
+ },
+ "caveat": "⚠ 本臂不是纯边消融：20 张图的先验分数 s_v 随边改动而变（旧设计下亦然，此处首次显式测出）",
+ "n_rerun_graphs": 20
+}

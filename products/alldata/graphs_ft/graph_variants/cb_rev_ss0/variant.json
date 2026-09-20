@@ -1,0 +1,24 @@
+{
+ "created": "2026-09-19T09:33:34+00:00",
+ "variant": "cb_rev_ft",
+ "split_seed": 0,
+ "derived_from": "products/alldata/graphs_ft/ss0",
+ "edges_from": "products/alldata/graph_variants/callback_rev",
+ "only_variable": "相对新正典（微调 CodeBERT）只改边：callback_rev 的边",
+ "how": {
+  "symlinked": "590 图：_feat.pt/_cb.pt 软链自微调基座（三通道逐图证同）",
+  "m3_rerun": "0 图：结构取自边变体，M3 用微调编码器真跑",
+  "assertions": [
+   "节点集一致",
+   "冻结编码器下 _cb.pt 与正典逐位相同",
+   "重跑 _cb.pt 与微调基座逐位相同"
+  ]
+ },
+ "expect": {
+  "_feat.pt": "三通道取自边变体；cb 指纹取自微调基座",
+  "_cb.pt": "微调编码器产物（对全部图均已验证）",
+  "_pyg.pt": "与 callback_rev 一致（边已改）"
+ },
+ "caveat": null,
+ "n_rerun_graphs": 0
+}

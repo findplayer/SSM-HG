@@ -1,0 +1,46 @@
+[ablation] 基线 /home/saumarez/projects/deep-learning/SSM-HG/runs/seed0/config.json；3 项 × 3 种子 = 9 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+numbases1        --num-bases 1                      ✅ 恰一个变量
+numbases10       --num-bases 10                     ✅ 恰一个变量
+dropedge02       --drop-edge-prob 0.2               ✅ 恰一个变量
+
+[numbases1/seed0] ✓  35.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，退化到近 GCN）
+[numbases1/seed1] ✓  17.6s  RGCN 基分解 num_bases=1（所有关系共享一组基，退化到近 GCN）
+[numbases1/seed2] ✓  27.1s  RGCN 基分解 num_bases=1（所有关系共享一组基，退化到近 GCN）
+[numbases1] summarize ✓
+[numbases10/seed0] ✗ train 退出码 1
+[numbases10/seed1] ✗ train 退出码 1
+[numbases10/seed2] ✗ train 退出码 1
+[numbases10] summarize ✗
+[dropedge02/seed0] ✓  23.9s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02/seed1] ✓  23.9s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02/seed2] ✓  33.6s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02] summarize ✓
+
+[ablation] 结束：用时 213.5s；产物 /home/saumarez/projects/deep-learning/SSM-HG/runs/ablation
+  ✗ numbases10/seed0: train: ^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/train.py", line 165, in build_fuser_model
+    model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=NUM_RELATIONS,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/model.py", line 333, in __init__
+    raise ValueError(f"num_bases must be in [1, {num_relations}], got {num_bases}")
+ValueError: num_bases must be in [1, 5], got 10
+
+  ✗ numbases10/seed1: train: ^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/train.py", line 165, in build_fuser_model
+    model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=NUM_RELATIONS,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/model.py", line 333, in __init__
+    raise ValueError(f"num_bases must be in [1, {num_relations}], got {num_bases}")
+ValueError: num_bases must be in [1, 5], got 10
+
+  ✗ numbases10/seed2: train: ^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/train.py", line 165, in build_fuser_model
+    model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=NUM_RELATIONS,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/model.py", line 333, in __init__
+    raise ValueError(f"num_bases must be in [1, {num_relations}], got {num_bases}")
+ValueError: num_bases must be in [1, 5], got 10
+

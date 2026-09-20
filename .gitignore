@@ -10,6 +10,31 @@ products/**/graphs/*
 !products/**/graphs/ir_cat.json
 !products/**/graphs/.gitkeep
 
+# 特征树与图变体（2026-09-19 `decisions.md` §37 起新增的目录形态；2026-09-20 补齐规则）
+# ⚠ **此前的规则只覆盖 `graphs/`**，而 §37 之后新增了 `graphs_ft/`（微调编码器特征树）、
+#   `graphs_ft_aug/`（② 的对应树）、`graph_variants/`、`src_stage/` 四种形态 ⇒ 它们**不被任何规则匹配**，
+#   实测 `git status` 把它们全部列为未跟踪，`git add -A` 会一次性纳入 **约 16 GB**
+#   （② `graphs_ft` 单个就 5.0 GB）。同一坑对 SolidiFI（阶段 G）同样成立，故一次补齐。
+# ⚠ 写法比 `products/**/graphs/*` 那三条**更绕**，两种更直觉的写法都实测失败过：
+#   ① `dir/`（目录式排除）——目录被排除后 `!` 无法取反（AGENTS.md 已记过这条）；
+#   ② `dir/*`——会把**子目录本身**也排除，git 不再往里走，于是 `!variant.json` 永远不生效
+#      （实测 `graph_variants/<名>/variant.json` 仍被忽略）。
+# 可用写法 = **先排除全部内容、再把目录逐个重新纳入**（`!.../**/`，尾斜杠 = 仅目录）。
+products/**/graphs_ft/**
+!products/**/graphs_ft/**/
+products/**/graphs_ft_aug/**
+!products/**/graphs_ft_aug/**/
+products/**/graph_variants/**
+!products/**/graph_variants/**/
+# `variant.json` 是每个变体的**自述文件**（记唯一变量、断言口径、软链/重跑分流），几 KB，
+# 是"这个目录里装的到底是什么"的唯一书面证据 ⇒ **必须入库**。
+!products/**/variant.json
+# DIVE 抽样子集的源文件暂存（21 MB）：可从只读源 `DIVE/Source codes` 按 `sample_seed0.json` 重建
+products/**/src_stage/*
+# 构建/重跑日志（按步骤打点，审计用）：过程产物，结论已落 `decisions.md` §38
+products/dive/*.log
+products/*/matrix.log
+
 # 147 MB，超过 GitHub 单文件 100 MB 限制，仅保留在本地，不纳入版本管理
 DIVE/Code-based.csv
 
@@ -36,3 +61,18 @@ runs/**/*.pt
 # ⚠ 文件仍**留在磁盘上**（未删除，供人工复核）；此处只阻止它们进入版本库。
 runs/prior_badmetric/**/best.pt
 runs/prior_badmetric/**/last.pt
+
+# 🔴 §37 正典的**微调编码器**：`runs/codebert_ft/<语料>/ss{S}/encoder/`（2026-09-20 补规则）。
+# 实测 **2.9 GB**，其中 6 份 `pytorch_model.bin` 各 **498 MB** —— 单文件即超本仓「不提交 >100 MB」硬规则。
+# 上面那条 `runs/**/*.pt` **只认 `.pt`**，`.bin`/`tokenizer.json` 全部漏网 ⇒ 补规则前 `git add -A`
+# 会一次性把它们纳入（与 `graphs_ft/` 那次是同一类洞，见 AGENTS.md「复现所需的最小集必须入库」）。
+# 权重可由 `scripts/finetune_codebert.py` 重建（① 848 s/种子、② 3797 s/种子），故**不入库**。
+# 保留的是**自述/审计边车**（几 KB）：`corpus.json` 是「这个编码器属于哪个语料」的硬校验锚点
+# （`build_graph_variant.py` / `build_dive_external_set.py` 缺它即硬失败）。
+# ⚠ 写法与 `products/**/graphs_ft/**` 同理：`dir/*` 与 `dir/` 都**不能**配合 `!` 白名单。
+runs/codebert_ft/**
+!runs/codebert_ft/**/
+!runs/codebert_ft/**/corpus.json
+!runs/codebert_ft/**/config.json
+!runs/codebert_ft/**/special_tokens_map.json
+!runs/codebert_ft/**/tokenizer_config.json

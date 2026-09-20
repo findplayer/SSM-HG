@@ -1,0 +1,93 @@
+{
+  "baseline": {
+    "dir": "/home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study",
+    "cfg": "frozen",
+    "n": 9
+  },
+  "arms": {
+    "cbft": {
+      "n": 9,
+      "pairings": [
+        "ts0_ss0",
+        "ts0_ss1",
+        "ts0_ss2",
+        "ts1_ss0",
+        "ts1_ss1",
+        "ts1_ss2",
+        "ts2_ss0",
+        "ts2_ss1",
+        "ts2_ss2"
+      ],
+      "val_micro@0.5": {
+        "arm_mean": 0.730511,
+        "delta_mean": 0.190583,
+        "delta_std": 0.081761,
+        "t": 6.993,
+        "n": 9
+      },
+      "val_micro@val_thr": {
+        "arm_mean": 0.864846,
+        "delta_mean": 0.258189,
+        "delta_std": 0.059858,
+        "t": 12.94,
+        "n": 9
+      },
+      "val_macro@0.5": {
+        "arm_mean": 0.525078,
+        "delta_mean": 0.195281,
+        "delta_std": 0.070573,
+        "t": 8.301,
+        "n": 9
+      },
+      "val_mAP": {
+        "arm_mean": 0.735555,
+        "delta_mean": 0.333036,
+        "delta_std": 0.093958,
+        "t": 10.634,
+        "n": 9
+      }
+    },
+    "frozen": {
+      "n": 9,
+      "pairings": [
+        "ts0_ss0",
+        "ts0_ss1",
+        "ts0_ss2",
+        "ts1_ss0",
+        "ts1_ss1",
+        "ts1_ss2",
+        "ts2_ss0",
+        "ts2_ss1",
+        "ts2_ss2"
+      ],
+      "val_micro@0.5": {
+        "arm_mean": 0.539927,
+        "delta_mean": 0.0,
+        "delta_std": 0.0,
+        "t": 0.0,
+        "n": 9
+      },
+      "val_micro@val_thr": {
+        "arm_mean": 0.606657,
+        "delta_mean": 0.0,
+        "delta_std": 0.0,
+        "t": 0.0,
+        "n": 9
+      },
+      "val_macro@0.5": {
+        "arm_mean": 0.329797,
+        "delta_mean": 0.0,
+        "delta_std": 0.0,
+        "t": 0.0,
+        "n": 9
+      },
+      "val_mAP": {
+        "arm_mean": 0.402519,
+        "delta_mean": 0.0,
+        "delta_std": 0.0,
+        "t": 0.0,
+        "n": 9
+      }
+    }
+  }
+}

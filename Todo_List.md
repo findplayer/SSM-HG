@@ -18,7 +18,9 @@
   - AST: products/alldata/raw/AST-raw
   - CFG: products/alldata/raw/CFG-raw
   - DFG: products/alldata/raw/DFG-raw
-  - Hetero（全部图产物 _hetero.json/_m1.json/_pyg.pt/M3 缓存）: products/alldata/graphs
+  - Hetero（全部**结构**图产物 _hetero.json/_m1.json/_pyg.pt）: products/alldata/graphs
+  - M3 特征正典（§37 微调 CodeBERT，**含划分种子**）: products/alldata/graphs_ft/ss{S}（**逐划分种子取：seed{S} 配 ss{S}**）
+    - `products/alldata/graphs` 下的 M3 特征是**冻结编码器**那套（现已降为消融臂 `cb_frozen`），仅该臂使用
   - 源码根（只读数据源）: alldata(readonly)/alldata_sol_source
   - 主标签: alldata(readonly)/contract_labels.json
   - 外部测试集（只读，改II 新增）: DIVE/（Source codes 22330 .sol、contract_labels.json 21696 条七维、DIVE_Labels.csv 含第 8 类 Bad Randomness）——仅阶段 5 泛化评估
@@ -258,7 +260,7 @@
 > - **口径（2026-09-12 P0 最小改动，见 `experiments/decisions.md` §13）**：**主指标 micro-F1**；阈值搜索与早停目标改 **val micro-F1**（协议形状不变，macro-F1 降为参考）；逐类 F1 与 per-class PR-AUC **强制标注 support**，support ≤2 的类仅描述性呈现；**多标签叙事降级为架构性声明**（池内去重后仅 1 个），实证主张只在 DIVE（68.2% 多标签）；口径数字全部取自 `docs/data_funnel.md`（`scripts/audit_data_funnel.py`）。
 > - **口径收口（2026-09-12 补充；含 P1 落地）**：① **防错位原则**——macro-F1 的*低支撑构成*注释用**计算它的那个划分**（seed0 test：5 个类 support ≤2），*数据稀疏天空板*叙述用**池级**（3 个类正样本 ≤6），两口径不得互相借用；② **口径绑定指纹**——支撑数字绑定 `split_seed*.json` 的 sha256，**T-A 两级去重已重跑，刷新链条已履行**（`docs/data_funnel.md` 重跑 / decisions §13+§14 / 手册 10.2+10.5）；③ **DIVE 抽样已闭案**——seed=0、**n=900**、均匀，实测 front_running=30 ≥20（未触发后备；后备=n→1100 重抽一次，再不足则 report-only；**禁止换 seed 重抽**）；④ AST 稀疏性统计表与关系数映射表已并入 `docs/data_funnel.md` §4 与手册 §7.7；⑤ 手册 10.4 骨架接口修正为 3 值 `(z, a, node_logits)`；⑥ **P1**：池去重（495→448）、关系数口径（4 语义/5 物理）、`--drop-ast`=删 relation 1+2，详见 `experiments/decisions.md` §14。
 - [x] 2026-09-07 划分已落地并验收：`scripts/dataset.py`（build_proj_labels/build_index/load_graph/Ablation/--check）与 `scripts/make_splits.py`（8:1:1、3 种子、buggy 剔除、三件套报告）已实现；`products/alldata/splits/` 已生成——train 396/val 50/test 49（每种子），495 训练池 / 86 buggy_ 剔除（asd_+nasd_ 两份 43 项目）/ 0 unmatched；3 种子互斥+全覆盖断言通过；simple_dao `--check` 通过（9 节点/28 边/label=reentrancy）
-  - 更新（2026-09-12 P1 两级池去重后，现行）：池 **448** / 划分 **358/45/45**（×3 种子）；C1+C2 7/7 达标；跨划分内容/地址重复均为 0
+  - 更新（2026-09-12 P1 两级池去重后，**2026-09-12 当时**）：池 **448** / 划分 **358/45/45**（×3 种子）；C1+C2 7/7 达标；跨划分内容/地址重复均为 0；**现行池 453 / 划分 362/45/46**，见 `experiments/decisions.md` §18
 - [x] M5 v5 审阅结论（2026-09-08，可行性判定见 `experiments/decisions.md` 第 0、9 节）
   - [x] 已确认：dataset/model 契约与 M4 输出一致；class-masked BCE 分母、按图 population `L_var`、单图 DropEdge、zero-positive 类和 split API 校验升级为硬性验收项
   - [x] **先验 dropout 前置条件升级为必做**：~~训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）~~——**该方案已于 2026-09-12 前端化退役**：先验 dropout 改为 `model.NodeFuser` 内按图 Bernoulli(0.2) 置零（融合前），不再需要变体文件
@@ -314,7 +316,7 @@
 
 ## 九、收尾与验收门槛
 - [ ] 全链路在 1 个样本上跑通
-- [ ] 关键中间产物齐全（均在 products/alldata/graphs/ 下）：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
+- [ ] 关键中间产物齐全（**结构产物**均在 products/alldata/graphs/ 下；**M3 特征正典在 `products/alldata/graphs_ft/ss{S}`**（§37 微调，**逐划分种子取：seed{S} 配 ss{S}**））：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
 - [ ] 图结构字段完整，后续模块可直接消费
 - [ ] M1 结果与 M2 图结构一致
 - [ ] 训练可启动，且 validation loss / macro-F1 可观察
@@ -453,7 +455,7 @@
 
 **A. 统一口径与产物隔离**
 
-- 5.4 主消融统一使用主库现行正典池 **453**、`products/alldata/splits/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/` 的绝对值与现行 453 池混比。
+- 5.4 主消融统一使用主库现行正典池 **453**、`products/alldata/splits/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`（§37 起：**`products/alldata/graphs_ft/ss{S}`**，**逐划分种子取，seed{S} 配 ss{S}**；训练种子与划分种子分离）；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/` 的绝对值与现行 453 池混比。
 - 每个变体只改变一个因素；训练/划分种子、batch=32、lr=1e-4、weight_decay=1e-4、200 epoch 上限、val micro-F1 早停、阈值候选 0.20–0.80、固定 0.5 与 val threshold 双报告均与主实验一致。每个变体至少先跑 seed0，进入论文主消融表必须跑 seed0/1/2，并报告 mean±std。
 - 主比较指标按优先级为 `micro-F1@0.5`、`micro-F1@val_thr`、mAP；macro-F1 仅参考。逐类 F1/AP 必须带 test support；support≤2 的类别只能描述，不能据此宣称变体优于另一变体。
 - 消融只写入 `eval_results/ablation/<variant>/`，不覆盖 `runs/seed*/`。每个目录保存 `manifest.json`（父实验摘要、唯一变量、命令、代码/数据指纹、seed 列表）、每 seed 的 config/results/diagnosis 和汇总表。运行前后都检查 split、标签文件、`ir_cat.json`、图目录和模型默认参数。
@@ -504,8 +506,8 @@ python scripts/evaluate.py --summarize --runs-dir eval_results/ablation/a1_drop_
 
 **E. 已完成但不替代 5.4 的相关实验**
 
-- `runs/pw_unclamped/`：已完成 `pos_weight` 上限 20→不截断；固定 0.5 micro-F1 约 0.906→0.815，稀有类仍未恢复，主实验继续保留 cap=20。它属于损失敏感性补充，不是 5.4.1 的 11 项之一。
-- `runs/loss_focal/`、`runs/loss_asl/`：已完成损失形状补充；验证阈值 micro-F1 与 BCE 差异在种子波动内，ASL 固定 0.5 不稳，BCE 仍为主方案。
+- `runs/pw_unclamped/`：已完成 `pos_weight` 上限 20→不截断；固定 0.5 micro-F1 约 0.906→0.815，稀有类仍未恢复，主实验继续保留 cap=20。它属于损失敏感性补充，不是 5.4.1 的 11 项之一。（⚠ 旧口径；已按 §28 推翻；且这两条线的 run 仍是**冻结编码器**工作点，只能在冻结工作点上解读，见 `decisions.md` §39.6）
+- `runs/loss_focal/`、`runs/loss_asl/`：已完成损失形状补充；验证阈值 micro-F1 与 BCE 差异在种子波动内，ASL 固定 0.5 不稳，BCE 仍为主方案。（⚠ 旧口径；已按 §28 推翻；且这两条线的 run 仍是**冻结编码器**工作点，只能在冻结工作点上解读，见 `decisions.md` §39.6）
 - `eval_results/calibration/`：温度缩放改善校准但全局阈值下等价于阈值变化；per-class threshold 只作补充，不能进入主结果。
 - `runs/neardup/`、`runs/withbuggy/`、`runs/augmentation/`、`runs/augmentation_dedup/`：分别是零泄漏、含 buggy、增强集和增强集去重对照；它们改变数据范围或划分纪律，不能放进主库 5.4 表，也不能与主库绝对指标合并。
 

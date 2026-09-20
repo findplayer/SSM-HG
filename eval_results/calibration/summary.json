@@ -16,158 +16,158 @@
   "std_ddof": 1,
   "temperature": {
     "0": {
-      "T": 0.571463,
-      "bce_before": 0.344586,
-      "bce_after": 0.31174
+      "T": 1.039322,
+      "bce_before": 0.129242,
+      "bce_after": 0.129139
     },
     "1": {
-      "T": 0.784061,
-      "bce_before": 0.31281,
-      "bce_after": 0.305125
+      "T": 0.893134,
+      "bce_before": 0.134141,
+      "bce_after": 0.133333
     },
     "2": {
-      "T": 0.708972,
-      "bce_before": 0.272301,
-      "bce_after": 0.255454
+      "T": 1.218291,
+      "bce_before": 0.100673,
+      "bce_after": 0.097655
     }
   },
   "global_threshold": {
     "0": {
-      "raw": 0.6,
-      "calibrated": 0.6,
-      "raw_val_micro_f1": 0.565217,
-      "calibrated_val_micro_f1": 0.583333,
-      "calibrated_effective_raw": 0.557669
+      "raw": 0.75,
+      "calibrated": 0.75,
+      "raw_val_micro_f1": 0.77551,
+      "calibrated_val_micro_f1": 0.791667,
+      "calibrated_effective_raw": 0.758012
     },
     "1": {
       "raw": 0.6,
       "calibrated": 0.6,
-      "raw_val_micro_f1": 0.576271,
-      "calibrated_val_micro_f1": 0.566667,
-      "calibrated_effective_raw": 0.578815
+      "raw_val_micro_f1": 0.893617,
+      "calibrated_val_micro_f1": 0.875,
+      "calibrated_effective_raw": 0.589557
     },
     "2": {
-      "raw": 0.7,
+      "raw": 0.8,
       "calibrated": 0.75,
-      "raw_val_micro_f1": 0.585366,
-      "calibrated_val_micro_f1": 0.55814,
-      "calibrated_effective_raw": 0.68544
+      "raw_val_micro_f1": 0.864865,
+      "calibrated_val_micro_f1": 0.864865,
+      "calibrated_effective_raw": 0.792232
     }
   },
   "per_class_thresholds_raw": {
     "0": {
-      "access_control": 0.55,
-      "arithmetic": 0.55,
-      "dos": 0.2,
-      "front_running": 0.2,
-      "reentrancy": 0.75,
-      "time_manipulation": 0.2,
-      "uncheck": 0.6
+      "access_control": 0.5,
+      "arithmetic": 0.65,
+      "dos": 0.75,
+      "front_running": 0.6,
+      "reentrancy": 0.8,
+      "time_manipulation": 0.3,
+      "uncheck": 0.25
     },
     "1": {
-      "access_control": 0.5,
-      "arithmetic": 0.75,
-      "dos": 0.2,
+      "access_control": 0.55,
+      "arithmetic": 0.6,
+      "dos": 0.6,
       "front_running": 0.2,
-      "reentrancy": 0.6,
+      "reentrancy": 0.45,
       "time_manipulation": 0.2,
       "uncheck": 0.6
     },
     "2": {
-      "access_control": 0.7,
-      "arithmetic": 0.7,
-      "dos": 0.45,
+      "access_control": 0.8,
+      "arithmetic": 0.45,
+      "dos": 0.2,
       "front_running": 0.2,
-      "reentrancy": 0.8,
-      "time_manipulation": 0.25,
-      "uncheck": 0.5
+      "reentrancy": 0.25,
+      "time_manipulation": 0.2,
+      "uncheck": 0.35
     }
   },
   "test_schemes": {
     "baseline_fixed_0.5": {
       "micro_f1": {
-        "mean": 0.425579,
-        "std": 0.030892,
+        "mean": 0.711023,
+        "std": 0.038869,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.250316,
-        "std": 0.031333,
+        "mean": 0.60914,
+        "std": 0.075122,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.543478,
-        "std": 0.075307,
+        "mean": 0.833333,
+        "std": 0.012551,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.187879,
-          "std": 0.182121,
+          "mean": 0.454545,
+          "std": 0.127273,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.496032,
-          "std": 0.218326,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.488889,
+          "std": 0.15396,
           "n": 3
         },
         "front_running": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.166667,
+          "std": 0.288675,
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.52729,
-          "std": 0.027791,
+          "mean": 0.819373,
+          "std": 0.062137,
           "n": 3
         },
         "time_manipulation": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.488889,
+          "std": 0.428607,
           "n": 3
         },
         "uncheck": {
-          "mean": 0.541014,
-          "std": 0.07873,
+          "mean": 0.912281,
+          "std": 0.151934,
           "n": 3
         }
       }
     },
     "baseline_val_threshold": {
       "micro_f1": {
-        "mean": 0.452778,
-        "std": 0.07743,
+        "mean": 0.729702,
+        "std": 0.067533,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.262107,
-        "std": 0.050591,
+        "mean": 0.49858,
+        "std": 0.045169,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.608696,
-        "std": 0.037653,
+        "mean": 0.862319,
+        "std": 0.033207,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.228571,
-          "std": 0.206032,
+          "mean": 0.481481,
+          "std": 0.032075,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.488889,
-          "std": 0.15396,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.266667,
+          "std": 0.23094,
           "n": 3
         },
         "front_running": {
@@ -176,8 +176,8 @@
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.618301,
-          "std": 0.042297,
+          "mean": 0.896296,
+          "std": 0.100206,
           "n": 3
         },
         "time_manipulation": {
@@ -186,42 +186,42 @@
           "n": 3
         },
         "uncheck": {
-          "mean": 0.49899,
-          "std": 0.121867,
+          "mean": 0.912281,
+          "std": 0.151934,
           "n": 3
         }
       }
     },
     "temperature_global_threshold": {
       "micro_f1": {
-        "mean": 0.455474,
-        "std": 0.073852,
+        "mean": 0.729702,
+        "std": 0.067533,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.269565,
-        "std": 0.039807,
+        "mean": 0.49858,
+        "std": 0.045169,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.594203,
-        "std": 0.069882,
+        "mean": 0.862319,
+        "std": 0.033207,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.194444,
-          "std": 0.173472,
+          "mean": 0.481481,
+          "std": 0.032075,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.555556,
-          "std": 0.19245,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.266667,
+          "std": 0.23094,
           "n": 3
         },
         "front_running": {
@@ -230,8 +230,8 @@
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.607407,
-          "std": 0.055925,
+          "mean": 0.896296,
+          "std": 0.100206,
           "n": 3
         },
         "time_manipulation": {
@@ -240,150 +240,150 @@
           "n": 3
         },
         "uncheck": {
-          "mean": 0.529545,
-          "std": 0.144224,
+          "mean": 0.912281,
+          "std": 0.151934,
           "n": 3
         }
       }
     },
     "per_class_threshold": {
       "micro_f1": {
-        "mean": 0.353213,
-        "std": 0.048055,
+        "mean": 0.685121,
+        "std": 0.092129,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.26888,
-        "std": 0.033911,
+        "mean": 0.636349,
+        "std": 0.091906,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.507246,
-        "std": 0.066414,
+        "mean": 0.826087,
+        "std": 0.057516,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.2,
-          "std": 0.2,
+          "mean": 0.448148,
+          "std": 0.050103,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.577778,
-          "std": 0.15396,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
+          "mean": 0.4,
           "std": 0.0,
           "n": 3
         },
         "front_running": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.638889,
+          "std": 0.375771,
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.576068,
-          "std": 0.104637,
+          "mean": 0.842424,
+          "std": 0.141226,
           "n": 3
         },
         "time_manipulation": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.301587,
+          "std": 0.287034,
           "n": 3
         },
         "uncheck": {
-          "mean": 0.528315,
-          "std": 0.074321,
+          "mean": 0.890058,
+          "std": 0.136812,
           "n": 3
         }
       }
     },
     "temperature_per_class_threshold": {
       "micro_f1": {
-        "mean": 0.40883,
-        "std": 0.007667,
+        "mean": 0.674404,
+        "std": 0.076868,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.27705,
-        "std": 0.024009,
+        "mean": 0.61424,
+        "std": 0.077029,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.557971,
-        "std": 0.100409,
+        "mean": 0.818841,
+        "std": 0.050204,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.177778,
-          "std": 0.167774,
+          "mean": 0.448148,
+          "std": 0.050103,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.577778,
-          "std": 0.15396,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
+          "mean": 0.4,
           "std": 0.0,
           "n": 3
         },
         "front_running": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.484127,
+          "std": 0.190972,
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.62963,
-          "std": 0.06415,
+          "mean": 0.842424,
+          "std": 0.141226,
           "n": 3
         },
         "time_manipulation": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.301587,
+          "std": 0.287034,
           "n": 3
         },
         "uncheck": {
-          "mean": 0.554167,
-          "std": 0.101807,
+          "mean": 0.890058,
+          "std": 0.136812,
           "n": 3
         }
       }
     },
     "fine_grid_raw_threshold": {
       "micro_f1": {
-        "mean": 0.43245,
-        "std": 0.073948,
+        "mean": 0.725912,
+        "std": 0.06565,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.24236,
-        "std": 0.057651,
+        "mean": 0.494082,
+        "std": 0.037654,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.608696,
-        "std": 0.057516,
+        "mean": 0.855072,
+        "std": 0.025102,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.095238,
-          "std": 0.164957,
+          "mean": 0.416667,
+          "std": 0.144338,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.488889,
-          "std": 0.15396,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.3,
+          "std": 0.264575,
           "n": 3
         },
         "front_running": {
@@ -392,8 +392,8 @@
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.607407,
-          "std": 0.055925,
+          "mean": 0.896296,
+          "std": 0.100206,
           "n": 3
         },
         "time_manipulation": {
@@ -402,42 +402,42 @@
           "n": 3
         },
         "uncheck": {
-          "mean": 0.504984,
-          "std": 0.131981,
+          "mean": 0.912281,
+          "std": 0.151934,
           "n": 3
         }
       }
     },
     "fine_grid_calibrated_threshold": {
       "micro_f1": {
-        "mean": 0.43245,
-        "std": 0.073948,
+        "mean": 0.725912,
+        "std": 0.06565,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.24236,
-        "std": 0.057651,
+        "mean": 0.494082,
+        "std": 0.037654,
         "n": 3
       },
       "subset_accuracy": {
-        "mean": 0.608696,
-        "std": 0.057516,
+        "mean": 0.855072,
+        "std": 0.025102,
         "n": 3
       },
       "per_class_f1": {
         "access_control": {
-          "mean": 0.095238,
-          "std": 0.164957,
+          "mean": 0.416667,
+          "std": 0.144338,
           "n": 3
         },
         "arithmetic": {
-          "mean": 0.488889,
-          "std": 0.15396,
+          "mean": 0.933333,
+          "std": 0.11547,
           "n": 3
         },
         "dos": {
-          "mean": 0.0,
-          "std": 0.0,
+          "mean": 0.3,
+          "std": 0.264575,
           "n": 3
         },
         "front_running": {
@@ -446,8 +446,8 @@
           "n": 3
         },
         "reentrancy": {
-          "mean": 0.607407,
-          "std": 0.055925,
+          "mean": 0.896296,
+          "std": 0.100206,
           "n": 3
         },
         "time_manipulation": {
@@ -456,8 +456,8 @@
           "n": 3
         },
         "uncheck": {
-          "mean": 0.504984,
-          "std": 0.131981,
+          "mean": 0.912281,
+          "std": 0.151934,
           "n": 3
         }
       }
@@ -466,49 +466,49 @@
   "calibration": {
     "val_raw": {
       "macro_ece": {
-        "mean": 0.105868,
-        "std": 0.019214,
+        "mean": 0.05066,
+        "std": 0.018116,
         "n": 3
       },
       "macro_brier": {
-        "mean": 0.087688,
-        "std": 0.012504,
+        "mean": 0.032214,
+        "std": 0.011087,
         "n": 3
       }
     },
     "val_calibrated": {
       "macro_ece": {
-        "mean": 0.078008,
-        "std": 0.00865,
+        "mean": 0.050928,
+        "std": 0.014185,
         "n": 3
       },
       "macro_brier": {
-        "mean": 0.079957,
-        "std": 0.008161,
+        "mean": 0.031973,
+        "std": 0.010683,
         "n": 3
       }
     },
     "test_raw": {
       "macro_ece": {
-        "mean": 0.102728,
-        "std": 0.01704,
+        "mean": 0.052425,
+        "std": 0.002854,
         "n": 3
       },
       "macro_brier": {
-        "mean": 0.097239,
-        "std": 0.013641,
+        "mean": 0.037038,
+        "std": 0.005047,
         "n": 3
       }
     },
     "test_calibrated": {
       "macro_ece": {
-        "mean": 0.083291,
-        "std": 0.010446,
+        "mean": 0.053734,
+        "std": 0.001031,
         "n": 3
       },
       "macro_brier": {
-        "mean": 0.092669,
-        "std": 0.011723,
+        "mean": 0.037073,
+        "std": 0.005511,
         "n": 3
       }
     }
@@ -516,47 +516,47 @@
   "overfit_audit": {
     "0": {
       "per_class_threshold": {
-        "val_macro_f1": 0.38002,
-        "test_macro_f1": 0.237363,
-        "val_test_gap": 0.142657,
-        "test_oracle_macro_f1": 0.363898,
-        "regret_vs_test_oracle": 0.126535
+        "val_macro_f1": 0.754113,
+        "test_macro_f1": 0.719728,
+        "val_test_gap": 0.034385,
+        "test_oracle_macro_f1": 0.809524,
+        "regret_vs_test_oracle": 0.089796
       },
       "temperature_per_class_threshold": {
-        "val_macro_f1": 0.381319,
-        "test_macro_f1": 0.263889,
-        "val_test_gap": 0.11743,
-        "test_oracle_macro_f1": 0.363898
+        "val_macro_f1": 0.706494,
+        "test_macro_f1": 0.695918,
+        "val_test_gap": 0.010576,
+        "test_oracle_macro_f1": 0.809524
       }
     },
     "1": {
       "per_class_threshold": {
-        "val_macro_f1": 0.406494,
-        "test_macro_f1": 0.304762,
-        "val_test_gap": 0.101732,
-        "test_oracle_macro_f1": 0.358341,
-        "regret_vs_test_oracle": 0.053579
+        "val_macro_f1": 0.698413,
+        "test_macro_f1": 0.537803,
+        "val_test_gap": 0.16061,
+        "test_oracle_macro_f1": 0.795238,
+        "regret_vs_test_oracle": 0.257435
       },
       "temperature_per_class_threshold": {
-        "val_macro_f1": 0.377922,
-        "test_macro_f1": 0.304762,
-        "val_test_gap": 0.07316,
-        "test_oracle_macro_f1": 0.358341
+        "val_macro_f1": 0.698413,
+        "test_macro_f1": 0.542905,
+        "val_test_gap": 0.155508,
+        "test_oracle_macro_f1": 0.795238
       }
     },
     "2": {
       "per_class_threshold": {
-        "val_macro_f1": 0.52449,
-        "test_macro_f1": 0.264516,
-        "val_test_gap": 0.259974,
-        "test_oracle_macro_f1": 0.367144,
-        "regret_vs_test_oracle": 0.102628
+        "val_macro_f1": 0.67619,
+        "test_macro_f1": 0.651515,
+        "val_test_gap": 0.024675,
+        "test_oracle_macro_f1": 0.805896,
+        "regret_vs_test_oracle": 0.154381
       },
       "temperature_per_class_threshold": {
-        "val_macro_f1": 0.528386,
-        "test_macro_f1": 0.2625,
-        "val_test_gap": 0.265886,
-        "test_oracle_macro_f1": 0.367144
+        "val_macro_f1": 0.771429,
+        "test_macro_f1": 0.603896,
+        "val_test_gap": 0.167533,
+        "test_oracle_macro_f1": 0.805896
       }
     }
   },

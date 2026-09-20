@@ -1,0 +1,113 @@
+{
+  "seed": 4,
+  "split_seed": 1,
+  "head": "binary",
+  "select_metric": "val_binary_ap",
+  "val_threshold": 0.45,
+  "threshold_scan": {
+    "metric": "binary_f1",
+    "best_threshold": 0.45,
+    "best_binary_f1": 0.8800000000000001,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "f1": 0.6984126984126985
+      },
+      {
+        "threshold": 0.25,
+        "f1": 0.721311475409836
+      },
+      {
+        "threshold": 0.3,
+        "f1": 0.8148148148148149
+      },
+      {
+        "threshold": 0.35,
+        "f1": 0.8301886792452831
+      },
+      {
+        "threshold": 0.4,
+        "f1": 0.8627450980392156
+      },
+      {
+        "threshold": 0.45,
+        "f1": 0.8800000000000001
+      },
+      {
+        "threshold": 0.5,
+        "f1": 0.8749999999999999
+      },
+      {
+        "threshold": 0.55,
+        "f1": 0.8444444444444444
+      },
+      {
+        "threshold": 0.6,
+        "f1": 0.8372093023255814
+      },
+      {
+        "threshold": 0.65,
+        "f1": 0.8292682926829269
+      },
+      {
+        "threshold": 0.7,
+        "f1": 0.8292682926829269
+      },
+      {
+        "threshold": 0.75,
+        "f1": 0.7999999999999999
+      },
+      {
+        "threshold": 0.8,
+        "f1": 0.7222222222222222
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "AP": {
+    "AP": 0.928550256359854,
+    "support": 20,
+    "n": 46
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.85,
+      "binary_f1": 0.85,
+      "binary_precision": 0.85,
+      "binary_recall": 0.85,
+      "binary_accuracy": 0.8695652173913043,
+      "binary_FPR": 0.11538461538461539,
+      "binary_FNR": 0.15,
+      "TP": 17,
+      "FP": 3,
+      "FN": 3,
+      "TN": 23,
+      "support": 20
+    },
+    "val_threshold": {
+      "threshold": 0.45,
+      "micro_f1": 0.85,
+      "binary_f1": 0.85,
+      "binary_precision": 0.85,
+      "binary_recall": 0.85,
+      "binary_accuracy": 0.8695652173913043,
+      "binary_FPR": 0.11538461538461539,
+      "binary_FNR": 0.15,
+      "TP": 17,
+      "FP": 3,
+      "FN": 3,
+      "TN": 23,
+      "support": 20
+    }
+  },
+  "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
+  "timing": {
+    "infer_seconds": 0.4838
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3"
+  }
+}

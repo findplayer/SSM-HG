@@ -1,0 +1,17 @@
+[ablation] 基线 /home/saumarez/projects/deep-learning/SSM-HG/runs/seed0/config.json；2 项 × 3 种子 = 6 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+numbases3        --num-bases 3                      ✅ 恰一个变量
+numbases4        --num-bases 4                      ✅ 恰一个变量
+
+[numbases3/seed0] ✓  28.5s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3/seed1] ✓  23.6s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3/seed2] ✓  25.6s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3] summarize ✓
+[numbases4/seed0] ✓  18.4s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4/seed1] ✓  20.1s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4/seed2] ✓  23.6s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4] summarize ✓
+
+[ablation] 结束：用时 144.4s；产物 /home/saumarez/projects/deep-learning/SSM-HG/runs/ablation

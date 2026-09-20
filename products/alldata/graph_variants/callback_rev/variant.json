@@ -1,0 +1,27 @@
+{
+  "created": "2026-09-18",
+  "variant": "callback_rev",
+  "derived_from": "products/alldata/graphs",
+  "only_variable": "edges += CALLBACK_RISK_REV（CALLBACK_RISK 的精确镜像）",
+  "commands": [
+    "build_cfg_centered_hetero_graph.py --callback-rev",
+    "convert_hetero_json_to_pyg.py",
+    "m3_build_features.py"
+  ],
+  "reuse": {
+    "_m1.json": "symlink",
+    "_cb.pt": "symlink",
+    "splits": "products/<数据集>/splits（复用，不重建）"
+  },
+  "expect": {
+    "num_relations": 6,
+    "_feat.pt": "与正典逐位相同（复算 590 同 / 0 异）",
+    "edge_stats": {
+      "callback_edges_fwd": 514,
+      "callback_edges_rev": 514,
+      "graphs_with_exact_mirror": 590,
+      "graphs_total": 590
+    }
+  },
+  "backfilled": "2026-09-18：原记录只写「已断言」未留数字，此处由 rev_edge_stats() 与 _feat.pt 独立复算补写（非手工填写）"
+}

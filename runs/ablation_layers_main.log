@@ -1,0 +1,17 @@
+[ablation] 基线 /home/saumarez/projects/deep-learning/SSM-HG/runs/seed0/config.json；2 项 × 3 种子 = 6 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+layers1          --layers 1                         ✅ 恰一个变量
+layers3          --layers 3                         ✅ 恰一个变量
+
+[layers1/seed0] ✓  15.4s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed1] ✓  19.7s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed2] ✓  34.4s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1] summarize ✓
+[layers3/seed0] ✓  41.4s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed1] ✓  19.6s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed2] ✓  17.3s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3] summarize ✓
+
+[ablation] 结束：用时 154.0s；产物 /home/saumarez/projects/deep-learning/SSM-HG/runs/ablation

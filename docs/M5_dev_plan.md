@@ -22,7 +22,7 @@ M5 的核心交付物是三件脚本 + M5 CI smoke，完成「图级七类多标
 
 阶段 A–E 是 **M5 本体**（本文主体）；F、G 依赖 M5 跑通后执行，本文给出可执行路线与关键口径，但不阻塞 M5 本体。
 
-> **执行状态（2026-09-13）**：阶段 A–D（`metrics.py`/`train.py`/`evaluate.py` + M5 CI smoke）已实现并验收（`pytest tests/` **64 passed**）；阶段 E 主实验已跑通（CUDA/RTX 4070 Laptop）——micro-F1（主指标）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；结果与训练时间/吞吐见 `runs/summary.json`、`runs/seed*/config.json::timing` 与 `experiments/decisions.md` §17；阶段 F/G 待执行。
+> ⚠ **本节为 2026-09-13 旧 448 池口径，已作废**（`runs/prior_448pool/`）。**现行 §37 微调正典**：① micro@0.5 **0.7110±0.0389**、@val_thr **0.7297±0.0675**、mAP **0.7582±0.0056**（`experiments/canonical_ft_numbers.md`）。原记录如下：**执行状态（2026-09-13）**：阶段 A–D（`metrics.py`/`train.py`/`evaluate.py` + M5 CI smoke）已实现并验收（`pytest tests/` **64 passed**）；阶段 E 主实验已跑通（CUDA/RTX 4070 Laptop）——micro-F1（主指标）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；结果与训练时间/吞吐见 `runs/summary.json`、`runs/seed*/config.json::timing` 与 `experiments/decisions.md` §17；阶段 F/G 待执行。
 
 > 边界：DIVE 只做一次性外部测试，不参与训练/验证/早停/阈值/模型选择；SolidiFI 只做层次二合成注入节点覆盖评估。两者均不进入 `runs/`。
 
@@ -34,8 +34,8 @@ M5 的核心交付物是三件脚本 + M5 CI smoke，完成「图级七类多标
 
 - `scripts/dataset.py`：`build_index(graph_dir) -> (index, unmatched)`、`load_graph(base, graph_dir, ab, index, verify_channels) -> GraphSample`、`Ablation(drop_edges, drop_ast)`；`GraphSample` 含 `channels`（通道字典，固定序 `cb_func,cb_node,type_id,struct,sv`）、`edge_index/edge_type`、`label[7]`、`name`、`node_id`、`meta`。
 - `scripts/model.py`：`NodeFuser`（通道字典 → `h_v^(0)`∈R^{N×128}，`ablate` 确定性 / `prior_dropout`+`struct_dropout` 逐图随机分层，`proj` 之前置零）、`SSMHG`（两层 RGCN，`forward(x, edge_index, edge_type, batch) -> (z, a, node_logits)`）、`sample_dropout_masks(G, prior_p, struct_p, generator) -> (prior, struct)`、`apply_edge_mask(edge_index, edge_type, mask)`、`safe_readout`、`AblationConfig`、`parameter_report`。
-- `scripts/make_splits.py`：固定种子 8:1:1 + 覆盖约束校正（C1 合计≥30%、C2 每划分每类≥1）+ 两级池去重；产物齐备：`split_seed{0,1,2}.json`（载荷四键 `{seed,ratio,train,val,test}`）、`splits.csv`（1345 行 = 448×3 + 表头）、`split_report.json`、`coverage_swaps_seed*.txt`、`split_metadata_seed*.json`、`dedup_dropped.txt`、`unmatched_contracts.txt`。
-- **数据事实**（已核实，用于本方案的估算）：581 图 / 93551 节点 / 226511 边；训练池 448（358/45/45）；标签序 `access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标 4）；`D_struct=30`、`struct_layout={"visibility":4,"bool":14,"call_mode":5,"position":1,"ir":6}`、IR 类别 6 类、`NodeFuser` 融合 Linear 输入维 = `768*2 + 64 + 30 + 1 = 1631`。
+- `scripts/make_splits.py`：固定种子 8:1:1 + 覆盖约束校正（C1 合计≥30%、C2 每划分每类≥1）+ 两级池去重；产物齐备：`split_seed{0,1,2}.json`（载荷四键 `{seed,ratio,train,val,test}`）、`splits.csv`（**1360 行 = 453×3 + 表头**）、`split_report.json`（2026-09-20 更正；旧载 1345/448 为旧 448 池口径）、`coverage_swaps_seed*.txt`、`split_metadata_seed*.json`、`dedup_dropped.txt`、`unmatched_contracts.txt`。
+- **数据事实**（已核实，用于本方案的估算）：**590 图**（节点/边数见 `docs/data_funnel.md`）；**训练池 453（362/45/46）**（2026-09-20 更正；旧载 581 图/448 池为旧口径）；标签序 `access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标 4）；`D_struct=30`、`struct_layout={"visibility":4,"bool":14,"call_mode":5,"position":1,"ir":6}`、IR 类别 6 类、`NodeFuser` 融合 Linear 输入维 = `768*2 + 64 + 30 + 1 = 1631`。
 
 **待实现**（本文设计对象）：`metrics.py`、`train.py`、`evaluate.py`、M5 CI smoke。
 
@@ -158,7 +158,7 @@ model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=5,
 
 ### 5.2 数据加载与批图 collate（本方案自实现，不用 PyG Data）
 
-**加载策略**：CPU 单进程，把 split 内全部 train/val/test 的 `GraphSample` 一次性 `load_graph` 进内存（`data_load_seconds` 计时）。估算：train 358 图 ≈ 5.76 万节点，cb 双通道约 `57600×768×2×4B ≈ 354 MB`，struct 约 7 MB，合计 < 500 MB，CPU RAM 无压力。val/test 各 45 图 ≈ 0.7 万节点。
+**加载策略**：CPU 单进程，把 split 内全部 train/val/test 的 `GraphSample` 一次性 `load_graph` 进内存（`data_load_seconds` 计时）。估算：train 362 图 ≈ 5.76 万节点，cb 双通道约 `57600×768×2×4B ≈ 354 MB`，struct 约 7 MB，合计 < 500 MB，CPU RAM 无压力。val/test 各 45 图 ≈ 0.7 万节点。
 
 **collate（一次 batch）**：
 
@@ -243,7 +243,7 @@ loss_total = loss_cls + 1e-3 * loss_var              # lambda_var=1e-3
 | `--limit-graphs` | 0 | 小样：只取前 N 个 train 图（smoke） |
 | 消融透传 | — | `--drop-edges 3` / `--drop-ast`（dataset.Ablation）；`--conv gcn`、`--meanpool`、`--num-bases 4`、`--hid 256`（model）；`--ablate-sv`、`--cb-channels cb_node`、`--feat-groups base`（AblationConfig） |
 | `--deterministic` | False | 完整确定性开关（非主实验默认，记录性能代价） |
-| `--graph-dir / --out-dir` | products/alldata/{graphs,splits} / runs | 路径 |
+| `--graph-dir / --out-dir` | products/alldata/{graphs,splits} / runs | 路径 ⚠ 正典训练**必须显式** `--graph-dir products/alldata/graphs_ft/ss{S}`（§37；`graphs` 已降为 `cb_frozen` 臂），且 `ss{S}` 必须配 `--split-seed S` |
 
 ### 5.7 smoke（`--limit-graphs 1`，decisions §9.5/§9.7）
 
@@ -313,7 +313,7 @@ python scripts/evaluate.py --summarize        # 写 runs/summary.json
 
 ### 8.3 耗时估算（CPU，torch 2.0.1）
 
-train 358 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；两层 RGCN 每 batch ~5 千节点，CPU 前向+反向约 0.5–2 s/batch → 约 10–20 s/epoch（含 val）；早停通常在 50–100 epoch → **单 seed 约 10–30 分钟，三 seed 约 1–1.5 小时**。可行性确认。若后续装 CUDA 版 torch（RTX 4070 存在），直接复用同脚本。
+train 362 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；两层 RGCN 每 batch ~5 千节点，CPU 前向+反向约 0.5–2 s/batch → 约 10–20 s/epoch（含 val）；早停通常在 50–100 epoch → **单 seed 约 10–30 分钟，三 seed 约 1–1.5 小时**。可行性确认。若后续装 CUDA 版 torch（RTX 4070 存在），直接复用同脚本。
 
 ---
 

@@ -1,0 +1,70 @@
+[ablation] 基线 /home/saumarez/projects/deep-learning/SSM-HG/runs/seed0/config.json；12 项 × 3 种子 = 36 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+dfg_dep          --drop-edges 3                     ✅ 恰一个变量
+cfg_flow         --drop-edges 0                     ✅ 恰一个变量
+ast_parent       --drop-ast                         ✅ 恰一个变量
+callback_risk    --drop-edges 4                     ✅ 恰一个变量
+cb_node_only     --cb-channels cb_node              ✅ 恰一个变量
+cb_func_only     --cb-channels cb_func              ✅ 恰一个变量
+meanpool         --meanpool                         ✅ 恰一个变量
+no_lvar          --lambda-var 0.0                   ✅ 恰一个变量
+no_prior_drop    --prior-dropout 0.0                ✅ 恰一个变量
+feat_base        --feat-groups base                 ✅ 恰一个变量
+feat_base_sem    --feat-groups base+sem             ✅ 恰一个变量
+hid256           --hid 256                          ✅ 恰一个变量
+
+[ablation] ⏸ 待定值、未预置：num_bases    --num-bases  默认 5（= 关系数）。**取值待定**：3 / 10 / 其他？
+[ablation] ⏸ 待定值、未预置：dropedge     --drop-edge-prob  默认 0.0（关闭）。**取值待定**：0.1 / 0.2 / 0.5？
+
+[dfg_dep/seed0] ✓  26.6s  去 DFG_DEP（物理关系 3）
+[dfg_dep/seed1] ✓  27.4s  去 DFG_DEP（物理关系 3）
+[dfg_dep/seed2] ✓  21.8s  去 DFG_DEP（物理关系 3）
+[dfg_dep] summarize ✓
+[cfg_flow/seed0] ✓  30.1s  去 CFG_FLOW（物理关系 0）
+[cfg_flow/seed1] ✓  20.1s  去 CFG_FLOW（物理关系 0）
+[cfg_flow/seed2] ✓  22.7s  去 CFG_FLOW（物理关系 0）
+[cfg_flow] summarize ✓
+[ast_parent/seed0] ✓  22.7s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent/seed1] ✓  22.2s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent/seed2] ✓  20.2s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent] summarize ✓
+[callback_risk/seed0] ✓  24.3s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk/seed1] ✓  20.4s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk/seed2] ✓  19.2s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk] summarize ✓
+[cb_node_only/seed0] ✓  18.7s  去函数级 CodeBERT（只留节点级）
+[cb_node_only/seed1] ✓  17.8s  去函数级 CodeBERT（只留节点级）
+[cb_node_only/seed2] ✓  21.0s  去函数级 CodeBERT（只留节点级）
+[cb_node_only] summarize ✓
+[cb_func_only/seed0] ✓  21.5s  去节点级 CodeBERT（只留函数级）
+[cb_func_only/seed1] ✓  18.4s  去节点级 CodeBERT（只留函数级）
+[cb_func_only/seed2] ✓  18.7s  去节点级 CodeBERT（只留函数级）
+[cb_func_only] summarize ✓
+[meanpool/seed0] 跳过：best.pt 已存在
+[meanpool/seed1] ✓  22.3s  meanpool 替换 a_v 加权 readout
+[meanpool/seed2] ✓  19.2s  meanpool 替换 a_v 加权 readout
+[meanpool] summarize ✓
+[no_lvar/seed0] ✓  23.1s  关闭 L_var（方差正则项）
+[no_lvar/seed1] ✓  19.1s  关闭 L_var（方差正则项）
+[no_lvar/seed2] ✓  19.6s  关闭 L_var（方差正则项）
+[no_lvar] summarize ✓
+[no_prior_drop/seed0] ✓  28.0s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop/seed1] ✓  19.1s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop/seed2] ✓  21.0s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop] summarize ✓
+[feat_base/seed0] ✓  23.5s  结构特征分组 (a) base
+[feat_base/seed1] ✓  23.4s  结构特征分组 (a) base
+[feat_base/seed2] ✓  20.4s  结构特征分组 (a) base
+[feat_base] summarize ✓
+[feat_base_sem/seed0] ✓  24.1s  结构特征分组 (b) base+sem
+[feat_base_sem/seed1] ✓  22.5s  结构特征分组 (b) base+sem
+[feat_base_sem/seed2] ✓  23.2s  结构特征分组 (b) base+sem
+[feat_base_sem] summarize ✓
+[hid256/seed0] ✓  20.1s  隐藏维度 256（基线 128）
+[hid256/seed1] ✓  24.4s  隐藏维度 256（基线 128）
+[hid256/seed2] ✓  21.6s  隐藏维度 256（基线 128）
+[hid256] summarize ✓
+
+[ablation] 结束：用时 793.0s；产物 /home/saumarez/projects/deep-learning/SSM-HG/runs/ablation

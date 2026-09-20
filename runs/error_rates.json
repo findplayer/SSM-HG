@@ -1,0 +1,3410 @@
+{
+ "note": "M5 误报率/漏报率（补充分析，不进主结果口径）；来源 = <runs>/<arm>/seed*/test_probs.pt",
+ "arms": {
+  "seed": {
+   "n_seeds": 3,
+   "seeds": [
+    {
+     "seed": 0,
+     "n_test": 46,
+     "val_threshold": 0.75,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.046511627906976744,
+       "FNR": 0.047619047619047616,
+       "sum_FP": 14,
+       "sum_TN": 287,
+       "sum_FN": 1,
+       "sum_TP": 20,
+       "recall": 0.9523809523809523,
+       "precision": 0.5882352941176471
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.11627906976744186,
+        0.0,
+        0.06666666666666667,
+        0.044444444444444446,
+        0.07317073170731707,
+        0.022727272727272728,
+        0.0
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "FP": [
+        5,
+        0,
+        3,
+        2,
+        3,
+        1,
+        0
+       ],
+       "FN": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "TN": [
+        38,
+        44,
+        42,
+        43,
+        38,
+        43,
+        39
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 0,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.0,
+       "miss_rate": 0.047619047619047616,
+       "vuln_partially_covered": 1,
+       "full_cover_rate_on_vuln": 0.9523809523809523,
+       "binary_precision": 1.0,
+       "binary_recall": 0.9523809523809523,
+       "binary_f1": 0.975609756097561,
+       "binary_accuracy": 0.9782608695652174
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.023255813953488372,
+       "FNR": 0.19047619047619047,
+       "sum_FP": 7,
+       "sum_TN": 294,
+       "sum_FN": 4,
+       "sum_TP": 17,
+       "recall": 0.8095238095238095,
+       "precision": 0.7083333333333334
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.09302325581395349,
+        0.0,
+        0.06666666666666667,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        2,
+        1,
+        0,
+        5,
+        0,
+        7
+       ],
+       "FP": [
+        4,
+        0,
+        3,
+        0,
+        0,
+        0,
+        0
+       ],
+       "FN": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0
+       ],
+       "TN": [
+        39,
+        44,
+        42,
+        45,
+        41,
+        44,
+        39
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 0,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.0,
+       "miss_rate": 0.047619047619047616,
+       "vuln_partially_covered": 4,
+       "full_cover_rate_on_vuln": 0.8095238095238095,
+       "binary_precision": 1.0,
+       "binary_recall": 0.9523809523809523,
+       "binary_f1": 0.975609756097561,
+       "binary_accuracy": 0.9782608695652174
+      }
+     }
+    },
+    {
+     "seed": 1,
+     "n_test": 46,
+     "val_threshold": 0.6,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.04983388704318937,
+       "FNR": 0.14285714285714285,
+       "sum_FP": 15,
+       "sum_TN": 286,
+       "sum_FN": 3,
+       "sum_TP": 18,
+       "recall": 0.8571428571428571,
+       "precision": 0.5454545454545454
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.09302325581395349,
+        0.022727272727272728,
+        0.06666666666666667,
+        0.022222222222222223,
+        0.0,
+        0.022222222222222223,
+        0.1282051282051282
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.3333333333333333,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        3,
+        2,
+        1,
+        0,
+        4,
+        1,
+        7
+       ],
+       "FP": [
+        4,
+        1,
+        3,
+        1,
+        0,
+        1,
+        5
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        1,
+        2,
+        0,
+        0
+       ],
+       "TN": [
+        39,
+        43,
+        42,
+        44,
+        40,
+        44,
+        34
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.038461538461538464,
+       "miss_rate": 0.05,
+       "vuln_partially_covered": 3,
+       "full_cover_rate_on_vuln": 0.85,
+       "binary_precision": 0.95,
+       "binary_recall": 0.95,
+       "binary_f1": 0.9500000000000001,
+       "binary_accuracy": 0.9565217391304348
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.03986710963455149,
+       "FNR": 0.23809523809523808,
+       "sum_FP": 12,
+       "sum_TN": 289,
+       "sum_FN": 5,
+       "sum_TP": 16,
+       "recall": 0.7619047619047619,
+       "precision": 0.5714285714285714
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.06976744186046512,
+        0.022727272727272728,
+        0.06666666666666667,
+        0.0,
+        0.0,
+        0.0,
+        0.1282051282051282
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.0,
+        0.0,
+        1.0,
+        0.3333333333333333,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        2,
+        1,
+        0,
+        4,
+        0,
+        7
+       ],
+       "FP": [
+        3,
+        1,
+        3,
+        0,
+        0,
+        0,
+        5
+       ],
+       "FN": [
+        1,
+        0,
+        0,
+        1,
+        2,
+        1,
+        0
+       ],
+       "TN": [
+        40,
+        43,
+        42,
+        45,
+        40,
+        45,
+        34
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.038461538461538464,
+       "miss_rate": 0.05,
+       "vuln_partially_covered": 5,
+       "full_cover_rate_on_vuln": 0.75,
+       "binary_precision": 0.95,
+       "binary_recall": 0.95,
+       "binary_f1": 0.9500000000000001,
+       "binary_accuracy": 0.9565217391304348
+      }
+     }
+    },
+    {
+     "seed": 2,
+     "n_test": 46,
+     "val_threshold": 0.8,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.026578073089700997,
+       "FNR": 0.19047619047619047,
+       "sum_FP": 8,
+       "sum_TN": 293,
+       "sum_FN": 4,
+       "sum_TP": 17,
+       "recall": 0.8095238095238095,
+       "precision": 0.68
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.13953488372093023,
+        0.0,
+        0.022222222222222223,
+        0.0,
+        0.0,
+        0.022222222222222223,
+        0.0
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.0,
+        0.0,
+        1.0,
+        0.2,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        3,
+        1,
+        0,
+        4,
+        0,
+        7
+       ],
+       "FP": [
+        6,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+       ],
+       "FN": [
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0
+       ],
+       "TN": [
+        37,
+        43,
+        44,
+        45,
+        41,
+        44,
+        39
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 2,
+       "missed_contracts": 2,
+       "false_alarm_rate": 0.08,
+       "miss_rate": 0.09523809523809523,
+       "vuln_partially_covered": 4,
+       "full_cover_rate_on_vuln": 0.8095238095238095,
+       "binary_precision": 0.9047619047619048,
+       "binary_recall": 0.9047619047619048,
+       "binary_f1": 0.9047619047619048,
+       "binary_accuracy": 0.9130434782608695
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.013289036544850499,
+       "FNR": 0.23809523809523808,
+       "sum_FP": 4,
+       "sum_TN": 297,
+       "sum_FN": 5,
+       "sum_TP": 16,
+       "recall": 0.7619047619047619,
+       "precision": 0.8
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.06976744186046512,
+        0.0,
+        0.022222222222222223,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.0,
+        1.0,
+        1.0,
+        0.2,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        3,
+        0,
+        0,
+        4,
+        0,
+        7
+       ],
+       "FP": [
+        3,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+       ],
+       "FN": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0
+       ],
+       "TN": [
+        40,
+        43,
+        44,
+        45,
+        41,
+        45,
+        39
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 3,
+       "false_alarm_rate": 0.04,
+       "miss_rate": 0.14285714285714285,
+       "vuln_partially_covered": 5,
+       "full_cover_rate_on_vuln": 0.7619047619047619,
+       "binary_precision": 0.9473684210526315,
+       "binary_recall": 0.8571428571428571,
+       "binary_f1": 0.9,
+       "binary_accuracy": 0.9130434782608695
+      }
+     }
+    }
+   ]
+  },
+  "augmentation": {
+   "n_seeds": 3,
+   "seeds": [
+    {
+     "seed": 0,
+     "n_test": 177,
+     "val_threshold": 0.7,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.003669724770642202,
+       "FNR": 0.013422818791946308,
+       "sum_FP": 4,
+       "sum_TN": 1086,
+       "sum_FN": 2,
+       "sum_TP": 147,
+       "recall": 0.9865771812080537,
+       "precision": 0.9735099337748344
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.013071895424836602,
+        0.0,
+        0.006289308176100629,
+        0.0,
+        0.0,
+        0.0,
+        0.006993006993006993
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.058823529411764705
+       ],
+       "TP": [
+        24,
+        33,
+        18,
+        14,
+        14,
+        12,
+        32
+       ],
+       "FP": [
+        2,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2
+       ],
+       "TN": [
+        151,
+        144,
+        158,
+        163,
+        163,
+        165,
+        142
+       ],
+       "support": [
+        24,
+        33,
+        18,
+        14,
+        14,
+        12,
+        34
+       ],
+       "negatives": [
+        153,
+        144,
+        159,
+        163,
+        163,
+        165,
+        143
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 177,
+       "n_clean": 28,
+       "n_vuln": 149,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.03571428571428571,
+       "miss_rate": 0.006711409395973154,
+       "vuln_partially_covered": 2,
+       "full_cover_rate_on_vuln": 0.9865771812080537,
+       "binary_precision": 0.9932885906040269,
+       "binary_recall": 0.9932885906040269,
+       "binary_f1": 0.9932885906040269,
+       "binary_accuracy": 0.9887005649717514
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.001834862385321101,
+       "FNR": 0.013422818791946308,
+       "sum_FP": 2,
+       "sum_TN": 1088,
+       "sum_FN": 2,
+       "sum_TP": 147,
+       "recall": 0.9865771812080537,
+       "precision": 0.9865771812080537
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.006535947712418301,
+        0.0,
+        0.006289308176100629,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.058823529411764705
+       ],
+       "TP": [
+        24,
+        33,
+        18,
+        14,
+        14,
+        12,
+        32
+       ],
+       "FP": [
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2
+       ],
+       "TN": [
+        152,
+        144,
+        158,
+        163,
+        163,
+        165,
+        143
+       ],
+       "support": [
+        24,
+        33,
+        18,
+        14,
+        14,
+        12,
+        34
+       ],
+       "negatives": [
+        153,
+        144,
+        159,
+        163,
+        163,
+        165,
+        143
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 177,
+       "n_clean": 28,
+       "n_vuln": 149,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.03571428571428571,
+       "miss_rate": 0.006711409395973154,
+       "vuln_partially_covered": 2,
+       "full_cover_rate_on_vuln": 0.9865771812080537,
+       "binary_precision": 0.9932885906040269,
+       "binary_recall": 0.9932885906040269,
+       "binary_f1": 0.9932885906040269,
+       "binary_accuracy": 0.9887005649717514
+      }
+     }
+    },
+    {
+     "seed": 1,
+     "n_test": 177,
+     "val_threshold": 0.7,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.0,
+       "FNR": 0.0,
+       "sum_FP": 0,
+       "sum_TN": 1082,
+       "sum_FN": 0,
+       "sum_TP": 157,
+       "recall": 1.0,
+       "precision": 1.0
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        27,
+        31,
+        21,
+        19,
+        10,
+        13,
+        36
+       ],
+       "FP": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "TN": [
+        150,
+        146,
+        156,
+        158,
+        167,
+        164,
+        141
+       ],
+       "support": [
+        27,
+        31,
+        21,
+        19,
+        10,
+        13,
+        36
+       ],
+       "negatives": [
+        150,
+        146,
+        156,
+        158,
+        167,
+        164,
+        141
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 177,
+       "n_clean": 20,
+       "n_vuln": 157,
+       "false_alarm_contracts": 0,
+       "missed_contracts": 0,
+       "false_alarm_rate": 0.0,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 0,
+       "full_cover_rate_on_vuln": 1.0,
+       "binary_precision": 1.0,
+       "binary_recall": 1.0,
+       "binary_f1": 1.0,
+       "binary_accuracy": 1.0
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.0,
+       "FNR": 0.0,
+       "sum_FP": 0,
+       "sum_TN": 1082,
+       "sum_FN": 0,
+       "sum_TP": 157,
+       "recall": 1.0,
+       "precision": 1.0
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        27,
+        31,
+        21,
+        19,
+        10,
+        13,
+        36
+       ],
+       "FP": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+       ],
+       "TN": [
+        150,
+        146,
+        156,
+        158,
+        167,
+        164,
+        141
+       ],
+       "support": [
+        27,
+        31,
+        21,
+        19,
+        10,
+        13,
+        36
+       ],
+       "negatives": [
+        150,
+        146,
+        156,
+        158,
+        167,
+        164,
+        141
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 177,
+       "n_clean": 20,
+       "n_vuln": 157,
+       "false_alarm_contracts": 0,
+       "missed_contracts": 0,
+       "false_alarm_rate": 0.0,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 0,
+       "full_cover_rate_on_vuln": 1.0,
+       "binary_precision": 1.0,
+       "binary_recall": 1.0,
+       "binary_f1": 1.0,
+       "binary_accuracy": 1.0
+      }
+     }
+    },
+    {
+     "seed": 2,
+     "n_test": 177,
+     "val_threshold": 0.2,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.0018467220683287165,
+       "FNR": 0.00641025641025641,
+       "sum_FP": 2,
+       "sum_TN": 1081,
+       "sum_FN": 1,
+       "sum_TP": 155,
+       "recall": 0.9935897435897436,
+       "precision": 0.9872611464968153
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.006711409395973154,
+        0.0,
+        0.0,
+        0.006493506493506494,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.043478260869565216,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        18,
+        28,
+        14,
+        17,
+        22,
+        17,
+        39
+       ],
+       "FP": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+       ],
+       "TN": [
+        159,
+        148,
+        163,
+        160,
+        153,
+        160,
+        138
+       ],
+       "support": [
+        18,
+        28,
+        14,
+        17,
+        23,
+        17,
+        39
+       ],
+       "negatives": [
+        159,
+        149,
+        163,
+        160,
+        154,
+        160,
+        138
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 177,
+       "n_clean": 21,
+       "n_vuln": 156,
+       "false_alarm_contracts": 0,
+       "missed_contracts": 0,
+       "false_alarm_rate": 0.0,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 1,
+       "full_cover_rate_on_vuln": 0.9935897435897436,
+       "binary_precision": 1.0,
+       "binary_recall": 1.0,
+       "binary_f1": 1.0,
+       "binary_accuracy": 1.0
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.002770083102493075,
+       "FNR": 0.00641025641025641,
+       "sum_FP": 3,
+       "sum_TN": 1080,
+       "sum_FN": 1,
+       "sum_TP": 155,
+       "recall": 0.9935897435897436,
+       "precision": 0.9810126582278481
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.006711409395973154,
+        0.0,
+        0.0,
+        0.012987012987012988,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.043478260869565216,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        18,
+        28,
+        14,
+        17,
+        22,
+        17,
+        39
+       ],
+       "FP": [
+        0,
+        1,
+        0,
+        0,
+        2,
+        0,
+        0
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+       ],
+       "TN": [
+        159,
+        148,
+        163,
+        160,
+        152,
+        160,
+        138
+       ],
+       "support": [
+        18,
+        28,
+        14,
+        17,
+        23,
+        17,
+        39
+       ],
+       "negatives": [
+        159,
+        149,
+        163,
+        160,
+        154,
+        160,
+        138
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 177,
+       "n_clean": 21,
+       "n_vuln": 156,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 0,
+       "false_alarm_rate": 0.047619047619047616,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 1,
+       "full_cover_rate_on_vuln": 0.9935897435897436,
+       "binary_precision": 0.9936305732484076,
+       "binary_recall": 1.0,
+       "binary_f1": 0.9968051118210862,
+       "binary_accuracy": 0.9943502824858758
+      }
+     }
+    }
+   ]
+  },
+  "loss_focal": {
+   "n_seeds": 3,
+   "seeds": [
+    {
+     "seed": 0,
+     "n_test": 46,
+     "val_threshold": 0.55,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.12624584717607973,
+       "FNR": 0.38095238095238093,
+       "sum_FP": 38,
+       "sum_TN": 263,
+       "sum_FN": 8,
+       "sum_TP": 13,
+       "recall": 0.6190476190476191,
+       "precision": 0.2549019607843137
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.11627906976744186,
+        0.06818181818181818,
+        0.13333333333333333,
+        0.0,
+        0.24390243902439024,
+        0.0,
+        0.358974358974359
+       ],
+       "FNR": [
+        1.0,
+        0.5,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        0.14285714285714285
+       ],
+       "TP": [
+        0,
+        1,
+        1,
+        0,
+        5,
+        0,
+        6
+       ],
+       "FP": [
+        5,
+        3,
+        6,
+        0,
+        10,
+        0,
+        14
+       ],
+       "FN": [
+        3,
+        1,
+        0,
+        1,
+        0,
+        2,
+        1
+       ],
+       "TN": [
+        38,
+        41,
+        39,
+        45,
+        31,
+        44,
+        25
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 6,
+       "missed_contracts": 2,
+       "false_alarm_rate": 0.24,
+       "miss_rate": 0.09523809523809523,
+       "vuln_partially_covered": 8,
+       "full_cover_rate_on_vuln": 0.6190476190476191,
+       "binary_precision": 0.76,
+       "binary_recall": 0.9047619047619048,
+       "binary_f1": 0.8260869565217391,
+       "binary_accuracy": 0.8260869565217391
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.09302325581395349,
+       "FNR": 0.42857142857142855,
+       "sum_FP": 28,
+       "sum_TN": 273,
+       "sum_FN": 9,
+       "sum_TP": 12,
+       "recall": 0.5714285714285714,
+       "precision": 0.3
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.09302325581395349,
+        0.06818181818181818,
+        0.08888888888888889,
+        0.0,
+        0.1951219512195122,
+        0.0,
+        0.23076923076923078
+       ],
+       "FNR": [
+        1.0,
+        0.5,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.14285714285714285
+       ],
+       "TP": [
+        0,
+        1,
+        0,
+        0,
+        5,
+        0,
+        6
+       ],
+       "FP": [
+        4,
+        3,
+        4,
+        0,
+        8,
+        0,
+        9
+       ],
+       "FN": [
+        3,
+        1,
+        1,
+        1,
+        0,
+        2,
+        1
+       ],
+       "TN": [
+        39,
+        41,
+        41,
+        45,
+        33,
+        44,
+        30
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 5,
+       "missed_contracts": 3,
+       "false_alarm_rate": 0.2,
+       "miss_rate": 0.14285714285714285,
+       "vuln_partially_covered": 9,
+       "full_cover_rate_on_vuln": 0.5714285714285714,
+       "binary_precision": 0.782608695652174,
+       "binary_recall": 0.8571428571428571,
+       "binary_f1": 0.8181818181818182,
+       "binary_accuracy": 0.8260869565217391
+      }
+     }
+    },
+    {
+     "seed": 1,
+     "n_test": 46,
+     "val_threshold": 0.55,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.0664451827242525,
+       "FNR": 0.3333333333333333,
+       "sum_FP": 20,
+       "sum_TN": 281,
+       "sum_FN": 7,
+       "sum_TP": 14,
+       "recall": 0.6666666666666666,
+       "precision": 0.4117647058823529
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.06976744186046512,
+        0.0,
+        0.022222222222222223,
+        0.0,
+        0.15,
+        0.0,
+        0.2564102564102564
+       ],
+       "FNR": [
+        0.6666666666666666,
+        0.0,
+        1.0,
+        1.0,
+        0.16666666666666666,
+        1.0,
+        0.14285714285714285
+       ],
+       "TP": [
+        1,
+        2,
+        0,
+        0,
+        5,
+        0,
+        6
+       ],
+       "FP": [
+        3,
+        0,
+        1,
+        0,
+        6,
+        0,
+        10
+       ],
+       "FN": [
+        2,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1
+       ],
+       "TN": [
+        40,
+        44,
+        44,
+        45,
+        34,
+        45,
+        29
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 5,
+       "missed_contracts": 2,
+       "false_alarm_rate": 0.19230769230769232,
+       "miss_rate": 0.1,
+       "vuln_partially_covered": 7,
+       "full_cover_rate_on_vuln": 0.65,
+       "binary_precision": 0.782608695652174,
+       "binary_recall": 0.9,
+       "binary_f1": 0.8372093023255814,
+       "binary_accuracy": 0.8478260869565217
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.03322259136212625,
+       "FNR": 0.42857142857142855,
+       "sum_FP": 10,
+       "sum_TN": 291,
+       "sum_FN": 9,
+       "sum_TP": 12,
+       "recall": 0.5714285714285714,
+       "precision": 0.5454545454545454
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.046511627906976744,
+        0.0,
+        0.0,
+        0.0,
+        0.05,
+        0.0,
+        0.15384615384615385
+       ],
+       "FNR": [
+        0.6666666666666666,
+        0.5,
+        1.0,
+        1.0,
+        0.3333333333333333,
+        1.0,
+        0.14285714285714285
+       ],
+       "TP": [
+        1,
+        1,
+        0,
+        0,
+        4,
+        0,
+        6
+       ],
+       "FP": [
+        2,
+        0,
+        0,
+        0,
+        2,
+        0,
+        6
+       ],
+       "FN": [
+        2,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1
+       ],
+       "TN": [
+        41,
+        44,
+        45,
+        45,
+        38,
+        45,
+        33
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 3,
+       "missed_contracts": 6,
+       "false_alarm_rate": 0.11538461538461539,
+       "miss_rate": 0.3,
+       "vuln_partially_covered": 9,
+       "full_cover_rate_on_vuln": 0.55,
+       "binary_precision": 0.8235294117647058,
+       "binary_recall": 0.7,
+       "binary_f1": 0.7567567567567567,
+       "binary_accuracy": 0.8043478260869565
+      }
+     }
+    },
+    {
+     "seed": 2,
+     "n_test": 46,
+     "val_threshold": 0.6,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.12292358803986711,
+       "FNR": 0.38095238095238093,
+       "sum_FP": 37,
+       "sum_TN": 264,
+       "sum_FN": 8,
+       "sum_TP": 13,
+       "recall": 0.6190476190476191,
+       "precision": 0.26
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.13953488372093023,
+        0.06976744186046512,
+        0.06666666666666667,
+        0.0,
+        0.12195121951219512,
+        0.044444444444444446,
+        0.46153846153846156
+       ],
+       "FNR": [
+        0.3333333333333333,
+        1.0,
+        1.0,
+        1.0,
+        0.2,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        0,
+        0,
+        0,
+        4,
+        0,
+        7
+       ],
+       "FP": [
+        6,
+        3,
+        3,
+        0,
+        5,
+        2,
+        18
+       ],
+       "FN": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        1,
+        0
+       ],
+       "TN": [
+        37,
+        40,
+        42,
+        45,
+        36,
+        43,
+        21
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 8,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.32,
+       "miss_rate": 0.047619047619047616,
+       "vuln_partially_covered": 8,
+       "full_cover_rate_on_vuln": 0.6190476190476191,
+       "binary_precision": 0.7142857142857143,
+       "binary_recall": 0.9523809523809523,
+       "binary_f1": 0.8163265306122449,
+       "binary_accuracy": 0.8043478260869565
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.04983388704318937,
+       "FNR": 0.47619047619047616,
+       "sum_FP": 15,
+       "sum_TN": 286,
+       "sum_FN": 10,
+       "sum_TP": 11,
+       "recall": 0.5238095238095238,
+       "precision": 0.4230769230769231
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.046511627906976744,
+        0.023255813953488372,
+        0.0,
+        0.0,
+        0.04878048780487805,
+        0.0,
+        0.2564102564102564
+       ],
+       "FNR": [
+        0.3333333333333333,
+        1.0,
+        1.0,
+        1.0,
+        0.2,
+        1.0,
+        0.2857142857142857
+       ],
+       "TP": [
+        2,
+        0,
+        0,
+        0,
+        4,
+        0,
+        5
+       ],
+       "FP": [
+        2,
+        1,
+        0,
+        0,
+        2,
+        0,
+        10
+       ],
+       "FN": [
+        1,
+        3,
+        1,
+        1,
+        1,
+        1,
+        2
+       ],
+       "TN": [
+        41,
+        42,
+        45,
+        45,
+        39,
+        45,
+        29
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 5,
+       "missed_contracts": 6,
+       "false_alarm_rate": 0.2,
+       "miss_rate": 0.2857142857142857,
+       "vuln_partially_covered": 10,
+       "full_cover_rate_on_vuln": 0.5238095238095238,
+       "binary_precision": 0.75,
+       "binary_recall": 0.7142857142857143,
+       "binary_f1": 0.7317073170731706,
+       "binary_accuracy": 0.7608695652173914
+      }
+     }
+    }
+   ]
+  },
+  "loss_asl": {
+   "n_seeds": 3,
+   "seeds": [
+    {
+     "seed": 0,
+     "n_test": 46,
+     "val_threshold": 0.7,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.5448504983388704,
+       "FNR": 0.09523809523809523,
+       "sum_FP": 164,
+       "sum_TN": 137,
+       "sum_FN": 2,
+       "sum_TP": 19,
+       "recall": 0.9047619047619048,
+       "precision": 0.10382513661202186
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.9767441860465116,
+        0.6818181818181818,
+        0.4222222222222222,
+        0.0,
+        0.7073170731707317,
+        0.13636363636363635,
+        0.9743589743589743
+       ],
+       "FNR": [
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.5,
+        0.0
+       ],
+       "TP": [
+        3,
+        2,
+        1,
+        0,
+        5,
+        1,
+        7
+       ],
+       "FP": [
+        42,
+        30,
+        19,
+        0,
+        29,
+        6,
+        38
+       ],
+       "FN": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0
+       ],
+       "TN": [
+        1,
+        14,
+        26,
+        45,
+        12,
+        38,
+        1
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 25,
+       "missed_contracts": 0,
+       "false_alarm_rate": 1.0,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 2,
+       "full_cover_rate_on_vuln": 0.9047619047619048,
+       "binary_precision": 0.45652173913043476,
+       "binary_recall": 1.0,
+       "binary_f1": 0.626865671641791,
+       "binary_accuracy": 0.45652173913043476
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.06312292358803986,
+       "FNR": 0.5238095238095238,
+       "sum_FP": 19,
+       "sum_TN": 282,
+       "sum_FN": 11,
+       "sum_TP": 10,
+       "recall": 0.47619047619047616,
+       "precision": 0.3448275862068966
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.09302325581395349,
+        0.045454545454545456,
+        0.0,
+        0.0,
+        0.21951219512195122,
+        0.0,
+        0.10256410256410256
+       ],
+       "FNR": [
+        1.0,
+        0.5,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.42857142857142855
+       ],
+       "TP": [
+        0,
+        1,
+        0,
+        0,
+        5,
+        0,
+        4
+       ],
+       "FP": [
+        4,
+        2,
+        0,
+        0,
+        9,
+        0,
+        4
+       ],
+       "FN": [
+        3,
+        1,
+        1,
+        1,
+        0,
+        2,
+        3
+       ],
+       "TN": [
+        39,
+        42,
+        45,
+        45,
+        32,
+        44,
+        35
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 4,
+       "missed_contracts": 4,
+       "false_alarm_rate": 0.16,
+       "miss_rate": 0.19047619047619047,
+       "vuln_partially_covered": 11,
+       "full_cover_rate_on_vuln": 0.47619047619047616,
+       "binary_precision": 0.8095238095238095,
+       "binary_recall": 0.8095238095238095,
+       "binary_f1": 0.8095238095238095,
+       "binary_accuracy": 0.8260869565217391
+      }
+     }
+    },
+    {
+     "seed": 1,
+     "n_test": 46,
+     "val_threshold": 0.75,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.2823920265780731,
+       "FNR": 0.23809523809523808,
+       "sum_FP": 85,
+       "sum_TN": 216,
+       "sum_FN": 5,
+       "sum_TP": 16,
+       "recall": 0.7619047619047619,
+       "precision": 0.15841584158415842
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.23255813953488372,
+        0.3409090909090909,
+        0.3111111111111111,
+        0.08888888888888889,
+        0.35,
+        0.08888888888888889,
+        0.6153846153846154
+       ],
+       "FNR": [
+        0.6666666666666666,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        1,
+        2,
+        0,
+        0,
+        6,
+        0,
+        7
+       ],
+       "FP": [
+        10,
+        15,
+        14,
+        4,
+        14,
+        4,
+        24
+       ],
+       "FN": [
+        2,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0
+       ],
+       "TN": [
+        33,
+        29,
+        31,
+        41,
+        26,
+        41,
+        15
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 21,
+       "missed_contracts": 0,
+       "false_alarm_rate": 0.8076923076923077,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 5,
+       "full_cover_rate_on_vuln": 0.75,
+       "binary_precision": 0.4878048780487805,
+       "binary_recall": 1.0,
+       "binary_f1": 0.6557377049180327,
+       "binary_accuracy": 0.5434782608695652
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.009966777408637873,
+       "FNR": 0.47619047619047616,
+       "sum_FP": 3,
+       "sum_TN": 298,
+       "sum_FN": 10,
+       "sum_TP": 11,
+       "recall": 0.5238095238095238,
+       "precision": 0.7857142857142857
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.075,
+        0.0,
+        0.0
+       ],
+       "FNR": [
+        0.6666666666666666,
+        0.0,
+        1.0,
+        1.0,
+        0.5,
+        1.0,
+        0.2857142857142857
+       ],
+       "TP": [
+        1,
+        2,
+        0,
+        0,
+        3,
+        0,
+        5
+       ],
+       "FP": [
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        0
+       ],
+       "FN": [
+        2,
+        0,
+        1,
+        1,
+        3,
+        1,
+        2
+       ],
+       "TN": [
+        43,
+        44,
+        45,
+        45,
+        37,
+        45,
+        39
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 2,
+       "missed_contracts": 8,
+       "false_alarm_rate": 0.07692307692307693,
+       "miss_rate": 0.4,
+       "vuln_partially_covered": 10,
+       "full_cover_rate_on_vuln": 0.5,
+       "binary_precision": 0.8571428571428571,
+       "binary_recall": 0.6,
+       "binary_f1": 0.7058823529411764,
+       "binary_accuracy": 0.782608695652174
+      }
+     }
+    },
+    {
+     "seed": 2,
+     "n_test": 46,
+     "val_threshold": 0.7,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.4485049833887043,
+       "FNR": 0.14285714285714285,
+       "sum_FP": 135,
+       "sum_TN": 166,
+       "sum_FN": 3,
+       "sum_TP": 18,
+       "recall": 0.8571428571428571,
+       "precision": 0.11764705882352941
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.5581395348837209,
+        0.27906976744186046,
+        0.4,
+        0.08888888888888889,
+        0.7073170731707317,
+        0.24444444444444444,
+        0.9487179487179487
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.0,
+        0.0,
+        1.0,
+        0.2,
+        0.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        3,
+        1,
+        0,
+        4,
+        1,
+        7
+       ],
+       "FP": [
+        24,
+        12,
+        18,
+        4,
+        29,
+        11,
+        37
+       ],
+       "FN": [
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+       ],
+       "TN": [
+        19,
+        31,
+        27,
+        41,
+        12,
+        34,
+        2
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 25,
+       "missed_contracts": 0,
+       "false_alarm_rate": 1.0,
+       "miss_rate": 0.0,
+       "vuln_partially_covered": 3,
+       "full_cover_rate_on_vuln": 0.8571428571428571,
+       "binary_precision": 0.45652173913043476,
+       "binary_recall": 1.0,
+       "binary_f1": 0.626865671641791,
+       "binary_accuracy": 0.45652173913043476
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.046511627906976744,
+       "FNR": 0.47619047619047616,
+       "sum_FP": 14,
+       "sum_TN": 287,
+       "sum_FN": 10,
+       "sum_TP": 11,
+       "recall": 0.5238095238095238,
+       "precision": 0.44
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.023255813953488372,
+        0.0,
+        0.0,
+        0.07317073170731707,
+        0.0,
+        0.2564102564102564
+       ],
+       "FNR": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        0.2,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        0,
+        0,
+        0,
+        0,
+        4,
+        0,
+        7
+       ],
+       "FP": [
+        0,
+        1,
+        0,
+        0,
+        3,
+        0,
+        10
+       ],
+       "FN": [
+        3,
+        3,
+        1,
+        1,
+        1,
+        1,
+        0
+       ],
+       "TN": [
+        43,
+        42,
+        45,
+        45,
+        38,
+        45,
+        29
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 5,
+       "missed_contracts": 4,
+       "false_alarm_rate": 0.2,
+       "miss_rate": 0.19047619047619047,
+       "vuln_partially_covered": 10,
+       "full_cover_rate_on_vuln": 0.5238095238095238,
+       "binary_precision": 0.7727272727272727,
+       "binary_recall": 0.8095238095238095,
+       "binary_f1": 0.7906976744186046,
+       "binary_accuracy": 0.8043478260869565
+      }
+     }
+    }
+   ]
+  },
+  "pw_unclamped": {
+   "n_seeds": 3,
+   "seeds": [
+    {
+     "seed": 0,
+     "n_test": 46,
+     "val_threshold": 0.7,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.18272425249169436,
+       "FNR": 0.3333333333333333,
+       "sum_FP": 55,
+       "sum_TN": 246,
+       "sum_FN": 7,
+       "sum_TP": 14,
+       "recall": 0.6666666666666666,
+       "precision": 0.2028985507246377
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.37209302325581395,
+        0.2727272727272727,
+        0.2,
+        0.0,
+        0.17073170731707318,
+        0.0,
+        0.28205128205128205
+       ],
+       "FNR": [
+        0.6666666666666666,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.14285714285714285
+       ],
+       "TP": [
+        1,
+        2,
+        0,
+        0,
+        5,
+        0,
+        6
+       ],
+       "FP": [
+        16,
+        12,
+        9,
+        0,
+        7,
+        0,
+        11
+       ],
+       "FN": [
+        2,
+        0,
+        1,
+        1,
+        0,
+        2,
+        1
+       ],
+       "TN": [
+        27,
+        32,
+        36,
+        45,
+        34,
+        44,
+        28
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 5,
+       "missed_contracts": 3,
+       "false_alarm_rate": 0.2,
+       "miss_rate": 0.14285714285714285,
+       "vuln_partially_covered": 7,
+       "full_cover_rate_on_vuln": 0.6666666666666666,
+       "binary_precision": 0.782608695652174,
+       "binary_recall": 0.8571428571428571,
+       "binary_f1": 0.8181818181818182,
+       "binary_accuracy": 0.8260869565217391
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.07641196013289037,
+       "FNR": 0.47619047619047616,
+       "sum_FP": 23,
+       "sum_TN": 278,
+       "sum_FN": 10,
+       "sum_TP": 11,
+       "recall": 0.5238095238095238,
+       "precision": 0.3235294117647059
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.16279069767441862,
+        0.11363636363636363,
+        0.044444444444444446,
+        0.0,
+        0.12195121951219512,
+        0.0,
+        0.10256410256410256
+       ],
+       "FNR": [
+        1.0,
+        0.5,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.2857142857142857
+       ],
+       "TP": [
+        0,
+        1,
+        0,
+        0,
+        5,
+        0,
+        5
+       ],
+       "FP": [
+        7,
+        5,
+        2,
+        0,
+        5,
+        0,
+        4
+       ],
+       "FN": [
+        3,
+        1,
+        1,
+        1,
+        0,
+        2,
+        2
+       ],
+       "TN": [
+        36,
+        39,
+        43,
+        45,
+        36,
+        44,
+        35
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        5,
+        2,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        41,
+        44,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 3,
+       "missed_contracts": 6,
+       "false_alarm_rate": 0.12,
+       "miss_rate": 0.2857142857142857,
+       "vuln_partially_covered": 10,
+       "full_cover_rate_on_vuln": 0.5238095238095238,
+       "binary_precision": 0.8333333333333334,
+       "binary_recall": 0.7142857142857143,
+       "binary_f1": 0.7692307692307692,
+       "binary_accuracy": 0.8043478260869565
+      }
+     }
+    },
+    {
+     "seed": 1,
+     "n_test": 46,
+     "val_threshold": 0.55,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.08637873754152824,
+       "FNR": 0.38095238095238093,
+       "sum_FP": 26,
+       "sum_TN": 275,
+       "sum_FN": 8,
+       "sum_TP": 13,
+       "recall": 0.6190476190476191,
+       "precision": 0.3333333333333333
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.046511627906976744,
+        0.0,
+        0.044444444444444446,
+        0.0,
+        0.275,
+        0.044444444444444446,
+        0.23076923076923078
+       ],
+       "FNR": [
+        1.0,
+        0.5,
+        1.0,
+        1.0,
+        0.16666666666666666,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        0,
+        1,
+        0,
+        0,
+        5,
+        0,
+        7
+       ],
+       "FP": [
+        2,
+        0,
+        2,
+        0,
+        11,
+        2,
+        9
+       ],
+       "FN": [
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+       ],
+       "TN": [
+        41,
+        44,
+        43,
+        45,
+        29,
+        43,
+        30
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 3,
+       "missed_contracts": 5,
+       "false_alarm_rate": 0.11538461538461539,
+       "miss_rate": 0.25,
+       "vuln_partially_covered": 8,
+       "full_cover_rate_on_vuln": 0.6,
+       "binary_precision": 0.8333333333333334,
+       "binary_recall": 0.75,
+       "binary_f1": 0.7894736842105262,
+       "binary_accuracy": 0.8260869565217391
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.053156146179401995,
+       "FNR": 0.42857142857142855,
+       "sum_FP": 16,
+       "sum_TN": 285,
+       "sum_FN": 9,
+       "sum_TP": 12,
+       "recall": 0.5714285714285714,
+       "precision": 0.42857142857142855
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.225,
+        0.0,
+        0.1794871794871795
+       ],
+       "FNR": [
+        1.0,
+        0.5,
+        1.0,
+        1.0,
+        0.16666666666666666,
+        1.0,
+        0.14285714285714285
+       ],
+       "TP": [
+        0,
+        1,
+        0,
+        0,
+        5,
+        0,
+        6
+       ],
+       "FP": [
+        0,
+        0,
+        0,
+        0,
+        9,
+        0,
+        7
+       ],
+       "FN": [
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+       ],
+       "TN": [
+        43,
+        44,
+        45,
+        45,
+        31,
+        45,
+        32
+       ],
+       "support": [
+        3,
+        2,
+        1,
+        1,
+        6,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        44,
+        45,
+        45,
+        40,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 26,
+       "n_vuln": 20,
+       "false_alarm_contracts": 1,
+       "missed_contracts": 5,
+       "false_alarm_rate": 0.038461538461538464,
+       "miss_rate": 0.25,
+       "vuln_partially_covered": 9,
+       "full_cover_rate_on_vuln": 0.55,
+       "binary_precision": 0.9375,
+       "binary_recall": 0.75,
+       "binary_f1": 0.8333333333333334,
+       "binary_accuracy": 0.8695652173913043
+      }
+     }
+    },
+    {
+     "seed": 2,
+     "n_test": 46,
+     "val_threshold": 0.6,
+     "fixed_0.5": {
+      "L1_micro": {
+       "FPR": 0.14285714285714285,
+       "FNR": 0.3333333333333333,
+       "sum_FP": 43,
+       "sum_TN": 258,
+       "sum_FN": 7,
+       "sum_TP": 14,
+       "recall": 0.6666666666666666,
+       "precision": 0.24561403508771928
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.23255813953488372,
+        0.09302325581395349,
+        0.022222222222222223,
+        0.044444444444444446,
+        0.14634146341463414,
+        0.08888888888888889,
+        0.41025641025641024
+       ],
+       "FNR": [
+        0.3333333333333333,
+        0.6666666666666666,
+        1.0,
+        1.0,
+        0.2,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        1,
+        0,
+        0,
+        4,
+        0,
+        7
+       ],
+       "FP": [
+        10,
+        4,
+        1,
+        2,
+        6,
+        4,
+        16
+       ],
+       "FN": [
+        1,
+        2,
+        1,
+        1,
+        1,
+        1,
+        0
+       ],
+       "TN": [
+        33,
+        39,
+        44,
+        43,
+        35,
+        41,
+        23
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 10,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.4,
+       "miss_rate": 0.047619047619047616,
+       "vuln_partially_covered": 7,
+       "full_cover_rate_on_vuln": 0.6666666666666666,
+       "binary_precision": 0.6666666666666666,
+       "binary_recall": 0.9523809523809523,
+       "binary_f1": 0.7843137254901961,
+       "binary_accuracy": 0.7608695652173914
+      }
+     },
+     "val_thr": {
+      "L1_micro": {
+       "FPR": 0.09302325581395349,
+       "FNR": 0.42857142857142855,
+       "sum_FP": 28,
+       "sum_TN": 273,
+       "sum_FN": 9,
+       "sum_TP": 12,
+       "recall": 0.5714285714285714,
+       "precision": 0.3
+      },
+      "L2_per_class": {
+       "names": [
+        "access_control",
+        "arithmetic",
+        "dos",
+        "front_running",
+        "reentrancy",
+        "time_manipulation",
+        "uncheck"
+       ],
+       "FPR": [
+        0.16279069767441862,
+        0.06976744186046512,
+        0.0,
+        0.022222222222222223,
+        0.0975609756097561,
+        0.06666666666666667,
+        0.2564102564102564
+       ],
+       "FNR": [
+        0.3333333333333333,
+        1.0,
+        1.0,
+        1.0,
+        0.4,
+        1.0,
+        0.0
+       ],
+       "TP": [
+        2,
+        0,
+        0,
+        0,
+        3,
+        0,
+        7
+       ],
+       "FP": [
+        7,
+        3,
+        0,
+        1,
+        4,
+        3,
+        10
+       ],
+       "FN": [
+        1,
+        3,
+        1,
+        1,
+        2,
+        1,
+        0
+       ],
+       "TN": [
+        36,
+        40,
+        45,
+        44,
+        37,
+        42,
+        29
+       ],
+       "support": [
+        3,
+        3,
+        1,
+        1,
+        5,
+        1,
+        7
+       ],
+       "negatives": [
+        43,
+        43,
+        45,
+        45,
+        41,
+        45,
+        39
+       ]
+      },
+      "L3_contract": {
+       "n_contracts": 46,
+       "n_clean": 25,
+       "n_vuln": 21,
+       "false_alarm_contracts": 6,
+       "missed_contracts": 1,
+       "false_alarm_rate": 0.24,
+       "miss_rate": 0.047619047619047616,
+       "vuln_partially_covered": 9,
+       "full_cover_rate_on_vuln": 0.5714285714285714,
+       "binary_precision": 0.7692307692307693,
+       "binary_recall": 0.9523809523809523,
+       "binary_f1": 0.8510638297872339,
+       "binary_accuracy": 0.8478260869565217
+      }
+     }
+    }
+   ]
+  }
+ },
+ "skipped_no_cache": [
+  "augmentation_dedup",
+  "neardup",
+  "withbuggy"
+ ]
+}

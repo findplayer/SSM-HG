@@ -158,6 +158,47 @@ def test_build_index_stem_mode_matches_stem_with_dunder(tmp_path):
     assert index["0xabc"][1] == 1
 
 
+def test_stem_key_handles_both_corpus_naming_conventions():
+    """🔴 `stem` 模式必须从**两种**标签命名都还原出源文件 `.sol` 词干（= 图 base）。
+
+    回归锁（`decisions.md` §38.6）：原实现只做 `split("-", 1)[0]`，对 ② 恰好正确、
+    对 **DIVE 全错**——DIVE 的标签名是 `8263.sol`（无 `-`）⇒ 键算成 `"8263.sol"`，
+    与图 base `8263` **一个都匹配不上**（实测 890 张图 0 命中）。
+    该错误**不崩溃**，只是把外部测试集整个变成空的——正是本仓最警惕的那类"不报错的错"。
+    """
+    assert dataset.stem_key_of("0x000c1000-C10Token.sol") == "0x000c1000"   # ② 命名
+    assert dataset.stem_key_of("8263.sol") == "8263"                        # DIVE 命名
+    assert dataset.stem_key_of("1_buggy_1.sol") == "1_buggy_1"              # 无 `-` 时仍剥后缀
+    assert dataset.stem_key_of("0xabc") == "0xabc"                          # 已是词干则原样
+
+
+def test_stem_key_unchanged_for_augmentation_corpus():
+    """改动对 ② **逐条键不变**（9026/9026）——否则 ② 的全部既有结果会被重新解释。"""
+    import json
+    from pathlib import Path as P
+    lab = P("products/augmentation/contract_labels_repaired.json")
+    if not lab.exists():
+        import pytest; pytest.skip("② 标签文件不在（精简检出）")
+    names = [e["contract_name"] for e in json.loads(lab.read_text(encoding="utf-8"))]
+    old = lambda n: str(n).split("-", 1)[0]
+    assert [dataset.stem_key_of(n) for n in names] == [old(n) for n in names]
+
+
+def test_build_index_stem_mode_matches_dive_naming(tmp_path):
+    """端到端：DIVE 式命名（`<id>.sol`，标签与源文件同名）必须全部匹配上。"""
+    graphs = tmp_path / "graphs"
+    graphs.mkdir()
+    for base in ("8263", "17"):
+        (graphs / f"{base}_pyg.pt").write_bytes(b"")
+    labels = tmp_path / "labels.json"
+    labels.write_text('[{"contract_name": "8263.sol", "targets": [0,0,1,0,0,0,0]},'
+                      ' {"contract_name": "17.sol", "targets": [1,0,0,0,0,0,0]}]',
+                      encoding="utf-8")
+    index, unmatched = dataset.build_index(graphs, label_file=labels, key_mode="stem")
+    assert unmatched == []
+    assert index["8263"][2] == 1 and index["17"][0] == 1
+
+
 def test_build_index_project_mode_unchanged_by_default(tmp_path):
     """默认（project）模式行为不变：键取 `__` 前一段。"""
     graphs = tmp_path / "graphs"

@@ -1,0 +1,28 @@
+{
+  "created": "2026-09-18",
+  "variant": "callback_unlimited",
+  "derived_from": "products/alldata/graphs",
+  "only_variable": "CALLBACK_RISK 每源节点出边上限 4 → 0(=不限)",
+  "commands": [
+    "build_cfg_centered_hetero_graph.py --callback-limit 0",
+    "m1_runner.py",
+    "convert_hetero_json_to_pyg.py",
+    "m3_build_features.py"
+  ],
+  "reuse": {
+    "_cb.pt": "symlink",
+    "splits": "products/<数据集>/splits（复用，不重建）"
+  },
+  "expect": {
+    "callback_limit": 0,
+    "expected_default": 4,
+    "_feat.pt": "部分图与正典不同（已断言至少有图变化）",
+    "edge_stats": {
+      "callback_edges_canon": 514,
+      "callback_edges_variant": 1166,
+      "truncated_canon": 652,
+      "truncated_variant": 0,
+      "graphs_with_more_edges": 20
+    }
+  }
+}

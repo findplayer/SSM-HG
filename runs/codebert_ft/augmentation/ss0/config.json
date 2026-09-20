@@ -1,0 +1,90 @@
+{
+  "args": {
+    "split_seed": 0,
+    "graph_dir": "products/augmentation/graphs",
+    "split_dir": "products/augmentation/splits",
+    "label_file": "products/augmentation/contract_labels_repaired.json",
+    "label_key_mode": "stem",
+    "out_root": null,
+    "codebert": "microsoft/codebert-base",
+    "epochs": 5,
+    "lr": 2e-05,
+    "head_lr": 0.001,
+    "weight_decay": 0.01,
+    "seq_batch": 6,
+    "grad_checkpoint": true,
+    "contracts_per_batch": 2,
+    "max_funcs_per_contract": 48,
+    "pos_weight_cap": 20.0,
+    "patience": 2,
+    "limit_contracts": 0,
+    "seed": 0
+  },
+  "device": "cuda",
+  "torch_version": "2.0.1+cu118",
+  "split_seed": 0,
+  "corpus": "augmentation",
+  "split_counts": {
+    "train": 1419,
+    "val": 178,
+    "test": 177
+  },
+  "leak_check": "train ∩ (val ∪ test) = ∅（未用 --limit-contracts 时强制断言）",
+  "text_spec": "函数源码 src_lines[fs-1:fe]，512 token 截断；与 m3_build_features 同源",
+  "selection_metric": "val macro-F1（大纲第 452 行）",
+  "best_epoch": 2,
+  "best_val_macro_f1": 0.985351,
+  "n_train_sequences": 49243,
+  "pos_weight": [
+    8.397351,
+    6.390625,
+    12.138889,
+    9.433824,
+    8.854167,
+    15.694118,
+    3.843004
+  ],
+  "class_mask": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "epochs_log": [
+    {
+      "epoch": 1,
+      "train_loss": 0.576093,
+      "val_macro_f1": 0.981152,
+      "lr": 2e-05,
+      "seconds": 1070.1
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.086694,
+      "val_macro_f1": 0.985351,
+      "lr": 2e-05,
+      "seconds": 2138.8
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.034496,
+      "val_macro_f1": 0.972575,
+      "lr": 2e-05,
+      "seconds": 2988.6
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.017519,
+      "val_macro_f1": 0.978576,
+      "lr": 1e-05,
+      "seconds": 3801.2
+    }
+  ],
+  "timing": {
+    "wall_seconds": 3801.2
+  },
+  "encoder_dir": "/home/saumarez/projects/deep-learning/SSM-HG/runs/codebert_ft/augmentation/ss0/encoder"
+}

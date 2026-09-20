@@ -1,0 +1,440 @@
+{
+  "seed": 1,
+  "split_seed": 1,
+  "head": "multi",
+  "val_threshold": 0.5,
+  "n_train": 362,
+  "n_val": 45,
+  "n_test": 46,
+  "per_class": [
+    {
+      "class": "access_control",
+      "support": {
+        "train_pos": 11,
+        "train_neg": 351,
+        "val_pos": 3,
+        "test_pos": 3,
+        "pool_pos": 17
+      },
+      "pos_weight_used": 20.0,
+      "true_neg_pos_ratio": 31.909091,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 3,
+        "TN": 43
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 3,
+        "TN": 43
+      },
+      "AP": 0.10219,
+      "ROC_AUC": 0.449612,
+      "oracle": {
+        "best_f1": 0.222222,
+        "best_threshold": 0.41335
+      },
+      "prob_stats": {
+        "pos_n": 3,
+        "neg_n": 43,
+        "pos_mean": 0.249028,
+        "pos_median": 0.17069,
+        "pos_min": 0.163043,
+        "pos_max": 0.41335,
+        "neg_mean": 0.253006,
+        "neg_median": 0.238615,
+        "neg_max": 0.491464,
+        "frac_pos_ge_0.5": 0.0,
+        "frac_pos_ge_0.2": 0.333333,
+        "frac_neg_ge_0.5": 0.0,
+        "frac_neg_ge_0.2": 0.651163,
+        "pos_probs_sorted": [
+          0.4133,
+          0.1707,
+          0.163
+        ]
+      }
+    },
+    {
+      "class": "arithmetic",
+      "support": {
+        "train_pos": 10,
+        "train_neg": 352,
+        "val_pos": 3,
+        "test_pos": 2,
+        "pool_pos": 15
+      },
+      "pos_weight_used": 20.0,
+      "true_neg_pos_ratio": 35.2,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 2,
+        "FP": 2,
+        "FN": 0,
+        "TN": 42
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 2,
+        "FP": 2,
+        "FN": 0,
+        "TN": 42
+      },
+      "AP": 1.0,
+      "ROC_AUC": 1.0,
+      "oracle": {
+        "best_f1": 1.0,
+        "best_threshold": 0.677631
+      },
+      "prob_stats": {
+        "pos_n": 2,
+        "neg_n": 44,
+        "pos_mean": 0.823437,
+        "pos_median": 0.823437,
+        "pos_min": 0.677631,
+        "pos_max": 0.969243,
+        "neg_mean": 0.17064,
+        "neg_median": 0.133154,
+        "neg_max": 0.595119,
+        "frac_pos_ge_0.5": 1.0,
+        "frac_pos_ge_0.2": 1.0,
+        "frac_neg_ge_0.5": 0.045455,
+        "frac_neg_ge_0.2": 0.295455,
+        "pos_probs_sorted": [
+          0.9692,
+          0.6776
+        ]
+      }
+    },
+    {
+      "class": "dos",
+      "support": {
+        "train_pos": 4,
+        "train_neg": 358,
+        "val_pos": 1,
+        "test_pos": 1,
+        "pool_pos": 6
+      },
+      "pos_weight_used": 20.0,
+      "true_neg_pos_ratio": 89.5,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 45
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 45
+      },
+      "AP": 0.071429,
+      "ROC_AUC": 0.711111,
+      "oracle": {
+        "best_f1": 0.133333,
+        "best_threshold": 0.182356
+      },
+      "prob_stats": {
+        "pos_n": 1,
+        "neg_n": 45,
+        "pos_mean": 0.182356,
+        "pos_median": 0.182356,
+        "pos_min": 0.182356,
+        "pos_max": 0.182356,
+        "neg_mean": 0.136821,
+        "neg_median": 0.099621,
+        "neg_max": 0.345296,
+        "frac_pos_ge_0.5": 0.0,
+        "frac_pos_ge_0.2": 0.0,
+        "frac_neg_ge_0.5": 0.0,
+        "frac_neg_ge_0.2": 0.266667,
+        "pos_probs_sorted": [
+          0.1824
+        ]
+      }
+    },
+    {
+      "class": "front_running",
+      "support": {
+        "train_pos": 2,
+        "train_neg": 360,
+        "val_pos": 1,
+        "test_pos": 1,
+        "pool_pos": 4
+      },
+      "pos_weight_used": 20.0,
+      "true_neg_pos_ratio": 180.0,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 45
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 45
+      },
+      "AP": 0.023256,
+      "ROC_AUC": 0.066667,
+      "oracle": {
+        "best_f1": 0.045455,
+        "best_threshold": 0.009692
+      },
+      "prob_stats": {
+        "pos_n": 1,
+        "neg_n": 45,
+        "pos_mean": 0.009692,
+        "pos_median": 0.009692,
+        "pos_min": 0.009692,
+        "pos_max": 0.009692,
+        "neg_mean": 0.035414,
+        "neg_median": 0.017538,
+        "neg_max": 0.327508,
+        "frac_pos_ge_0.5": 0.0,
+        "frac_pos_ge_0.2": 0.0,
+        "frac_neg_ge_0.5": 0.0,
+        "frac_neg_ge_0.2": 0.022222,
+        "pos_probs_sorted": [
+          0.0097
+        ]
+      }
+    },
+    {
+      "class": "reentrancy",
+      "support": {
+        "train_pos": 19,
+        "train_neg": 343,
+        "val_pos": 6,
+        "test_pos": 6,
+        "pool_pos": 31
+      },
+      "pos_weight_used": 18.052631,
+      "true_neg_pos_ratio": 18.052632,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 5,
+        "FP": 6,
+        "FN": 1,
+        "TN": 34
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 5,
+        "FP": 6,
+        "FN": 1,
+        "TN": 34
+      },
+      "AP": 0.624669,
+      "ROC_AUC": 0.904167,
+      "oracle": {
+        "best_f1": 0.625,
+        "best_threshold": 0.609996
+      },
+      "prob_stats": {
+        "pos_n": 6,
+        "neg_n": 40,
+        "pos_mean": 0.705553,
+        "pos_median": 0.66289,
+        "pos_min": 0.371418,
+        "pos_max": 0.97006,
+        "neg_mean": 0.259497,
+        "neg_median": 0.14972,
+        "neg_max": 0.943223,
+        "frac_pos_ge_0.5": 0.833333,
+        "frac_pos_ge_0.2": 1.0,
+        "frac_neg_ge_0.5": 0.15,
+        "frac_neg_ge_0.2": 0.4,
+        "pos_probs_sorted": [
+          0.9701,
+          0.9561,
+          0.6637,
+          0.662,
+          0.61,
+          0.3714
+        ]
+      }
+    },
+    {
+      "class": "time_manipulation",
+      "support": {
+        "train_pos": 3,
+        "train_neg": 359,
+        "val_pos": 1,
+        "test_pos": 1,
+        "pool_pos": 5
+      },
+      "pos_weight_used": 20.0,
+      "true_neg_pos_ratio": 119.666667,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 45
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 0,
+        "FP": 0,
+        "FN": 1,
+        "TN": 45
+      },
+      "AP": 0.25,
+      "ROC_AUC": 0.933333,
+      "oracle": {
+        "best_f1": 0.4,
+        "best_threshold": 0.276285
+      },
+      "prob_stats": {
+        "pos_n": 1,
+        "neg_n": 45,
+        "pos_mean": 0.276285,
+        "pos_median": 0.276285,
+        "pos_min": 0.276285,
+        "pos_max": 0.276285,
+        "neg_mean": 0.078341,
+        "neg_median": 0.032088,
+        "neg_max": 0.387195,
+        "frac_pos_ge_0.5": 0.0,
+        "frac_pos_ge_0.2": 1.0,
+        "frac_neg_ge_0.5": 0.0,
+        "frac_neg_ge_0.2": 0.155556,
+        "pos_probs_sorted": [
+          0.2763
+        ]
+      }
+    },
+    {
+      "class": "uncheck",
+      "support": {
+        "train_pos": 35,
+        "train_neg": 327,
+        "val_pos": 8,
+        "test_pos": 7,
+        "pool_pos": 50
+      },
+      "pos_weight_used": 9.342857,
+      "true_neg_pos_ratio": 9.342857,
+      "confusion_0.5": {
+        "threshold": 0.5,
+        "TP": 6,
+        "FP": 4,
+        "FN": 1,
+        "TN": 35
+      },
+      "confusion_val_thr": {
+        "threshold": 0.5,
+        "TP": 6,
+        "FP": 4,
+        "FN": 1,
+        "TN": 35
+      },
+      "AP": 0.844538,
+      "ROC_AUC": 0.948718,
+      "oracle": {
+        "best_f1": 0.769231,
+        "best_threshold": 0.631731
+      },
+      "prob_stats": {
+        "pos_n": 7,
+        "neg_n": 39,
+        "pos_mean": 0.688991,
+        "pos_median": 0.791283,
+        "pos_min": 0.356148,
+        "pos_max": 0.918853,
+        "neg_mean": 0.277413,
+        "neg_median": 0.249538,
+        "neg_max": 0.711866,
+        "frac_pos_ge_0.5": 0.857143,
+        "frac_pos_ge_0.2": 1.0,
+        "frac_neg_ge_0.5": 0.102564,
+        "frac_neg_ge_0.2": 0.666667,
+        "pos_probs_sorted": [
+          0.9189,
+          0.8068,
+          0.8015,
+          0.7913,
+          0.6317,
+          0.5166,
+          0.3561
+        ]
+      }
+    }
+  ],
+  "label_cooccurrence_train": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "args": {
+    "split_seed": 0,
+    "graph_dir": "products/alldata/graphs",
+    "split_dir": "products/alldata/splits",
+    "label_file": null,
+    "label_key_mode": null,
+    "out_root": null,
+    "codebert": "microsoft/codebert-base",
+    "epochs": 5,
+    "lr": 2e-05,
+    "head_lr": 0.001,
+    "weight_decay": 0.01,
+    "seq_batch": 6,
+    "grad_checkpoint": true,
+    "contracts_per_batch": 2,
+    "max_funcs_per_contract": 48,
+    "pos_weight_cap": 20.0,
+    "patience": 2,
+    "limit_contracts": 0,
+    "seed": 0
+  },
+  "device": "cuda",
+  "torch_version": "2.0.1+cu118",
+  "split_seed": 0,
+  "corpus": "alldata",
+  "split_counts": {
+    "train": 362,
+    "val": 45,
+    "test": 46
+  },
+  "leak_check": "train ∩ (val ∪ test) = ∅（未用 --limit-contracts 时强制断言）",
+  "text_spec": "函数源码 src_lines[fs-1:fe]，512 token 截断；与 m3_build_features 同源",
+  "selection_metric": "val macro-F1（大纲第 452 行）",
+  "best_epoch": 3,
+  "best_val_macro_f1": 0.525768,
+  "n_train_sequences": 8540,
+  "pos_weight": [
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    16.238094,
+    20.0,
+    9.342857
+  ],
+  "class_mask": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "epochs_log": [
+    {
+      "epoch": 1,
+      "train_loss": 1.632707,
+      "val_macro_f1": 0.216236,
+      "lr": 2e-05,
+      "seconds": 190.5
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.993709,
+      "val_macro_f1": 0.276611,
+      "lr": 2e-05,
+      "seconds": 378.5
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.598103,
+      "val_macro_f1": 0.525768,
+      "lr": 2e-05,
+      "seconds": 571.5
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.427712,
+      "val_macro_f1": 0.336735,
+      "lr": 2e-05,
+      "seconds": 760.8
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.404272,
+      "val_macro_f1": 0.512245,
+      "lr": 1e-05,
+      "seconds": 933.5
+    }
+  ],
+  "timing": {
+    "wall_seconds": 933.5
+  },
+  "encoder_dir": "/home/saumarez/projects/deep-learning/SSM-HG/runs/codebert_ft/alldata/ss0/encoder"
+}

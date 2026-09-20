@@ -1,0 +1,13 @@
+[ablation] 基线 runs/augmentation/seed0/config.json；2 项 × 3 种子 = 6 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+layers1          --layers 1                         ✅ 恰一个变量
+layers3          --layers 3                         ✅ 恰一个变量
+
+[layers1/seed0] ✓ 255.0s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed1] ✓ 197.1s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed2] ✓ 257.5s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1] summarize ✓
+[layers3/seed0] ✓ 150.4s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed1] ✓ 164.2s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）

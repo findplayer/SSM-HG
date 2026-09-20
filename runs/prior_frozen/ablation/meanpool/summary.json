@@ -1,0 +1,72 @@
+{
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_seeds": 3,
+  "main_seed": 0,
+  "std_ddof": 1,
+  "per_seed": {
+    "0": {
+      "split_seed": 0,
+      "val_threshold": 0.5,
+      "micro_f1_fixed_0.5": 0.42622950819672134,
+      "macro_f1_fixed_0.5": 0.23165266106442578,
+      "micro_f1_val_threshold": 0.42622950819672134,
+      "macro_f1_val_threshold": 0.23165266106442578,
+      "mAP": 0.2732591060139471
+    },
+    "1": {
+      "split_seed": 1,
+      "val_threshold": 0.65,
+      "micro_f1_fixed_0.5": 0.509090909090909,
+      "macro_f1_fixed_0.5": 0.34487734487734484,
+      "micro_f1_val_threshold": 0.4878048780487805,
+      "macro_f1_val_threshold": 0.25833815307499514,
+      "mAP": 0.3658441190328946
+    },
+    "2": {
+      "split_seed": 2,
+      "val_threshold": 0.55,
+      "micro_f1_fixed_0.5": 0.4150943396226415,
+      "macro_f1_fixed_0.5": 0.1505981703026038,
+      "micro_f1_val_threshold": 0.4489795918367347,
+      "macro_f1_val_threshold": 0.16483516483516483,
+      "mAP": 0.3154362559714174
+    }
+  },
+  "head": "multi",
+  "test": {
+    "fixed_0.5": {
+      "micro_f1": {
+        "mean": 0.450138,
+        "std": 0.051357,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.242376,
+        "std": 0.097582,
+        "n": 3
+      }
+    },
+    "val_threshold": {
+      "micro_f1": {
+        "mean": 0.454338,
+        "std": 0.031135,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.218275,
+        "std": 0.048166,
+        "n": 3
+      }
+    }
+  },
+  "mAP": {
+    "mean": 0.31818,
+    "std": 0.046353,
+    "n": 3
+  },
+  "note": "主指标 micro-F1（标签对级）；macro-F1 为参考，注释须与其计算划分的支撑同口径；support≤2 的类仅描述性呈现（decisions §13）。"
+}
