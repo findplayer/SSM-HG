@@ -2,7 +2,7 @@
 
 > 依据：论文开发手册第 9 章 + 开发计划 v4（2026-09-07）。
 > 本文件只描述 `scripts/model.py` 对外接口与 M5 使用约定，不含论文协议扩展。
-> 运行环境：conda base，`torch 2.0.1`（CPU）、`torch_geometric 2.7.0`。
+> 运行环境：conda base，`torch 2.0.1+cu118`（GPU；无 CUDA 时自动回退 CPU，行为一致）、`torch_geometric 2.7.0`。
 
 ## 1. 文件位置与依赖
 
@@ -41,11 +41,14 @@
 z, a, node_logits = model(x, edge_index, edge_type)
 ```
 
-- `z`：`[7]`，图级 logits（**未 sigmoid**）。
+- `z`：`[C]`，图级 logits（**未 sigmoid**）。`C = num_classes`：主实验 **7**；
+  `--head binary` 臂（`decisions.md` §31）为 **1**（单头「有没有漏洞」）——
+  此时 `a` / `node_logits` / 全部主干张量与非输出头宽无关，**逐位不变**（机检于 `tests/test_binary_arm.py`）。
 - `a`：`[N]`，节点可疑度 `sigmoid(node_logits)`，位于 `(0,1)`。
 - `node_logits`：`[N]`，`a_head(h_v^(L))`（未 sigmoid），供 M5 的梯度显著性、解释分析。
 
-批图（`batch` 给定）：`z` 为 `[B, 7]`；`a`/`node_logits` 仍为全部节点 `[ΣN]`；
+批图（`batch` 给定）：`z` 为 `[B, C]`（主实验 `[B,7]`，`--head binary` 为 `[B,1]`）；
+`a`/`node_logits` 仍为全部节点 `[ΣN]`；
 Readout 按图归一化（每图独立 `denom`，见 `safe_readout`）。
 
 调试（`return_intermediates=True`）返回字典：
@@ -67,6 +70,10 @@ SSMHG(in_dim=128, hid=128, num_relations=5, num_bases=5,
 ```
 
 - 主模型（默认）：RGCN 两层、`num_bases=5`（= 关系数）、h-based attention Readout。
+- `num_classes`：由 `train.py --head` 决定（`multi`→7、`binary`→1，唯一事实来源是
+  `metrics.head_num_classes`）。**`evaluate.py` / `diagnose.py` 必须从 checkpoint 的
+  `config["derived"]` 回读**，不得使用模块常量——否则二分类臂的 `Linear(64,1)` 与
+  `Linear(64,7)` 状态字典不匹配。
 - `conv_type`：仅 `"rgcn"` / `"gcn"`。`"gat"` 抛 `ValueError`（普通 GAT 无法表达关系感知，
   不提供伪对齐消融；如需可另行实现 RGAT）。
 - `num_bases`：必须满足 `1 <= num_bases <= num_relations`；`4` 仅作消融。

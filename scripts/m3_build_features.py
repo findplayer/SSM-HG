@@ -337,7 +337,14 @@ def encode(text: str, tok: Any, model: Any, max_len: int) -> "torch.Tensor":
     ids = {k: v.to(dev) for k, v in ids.items()}
     with torch.no_grad():
         out = model(**ids).last_hidden_state[:, 0, :].cpu()
-    return out[0]
+    # 🔴 `clone()` 不是可选的（2026-09-18）：**在 CPU 上 `.cpu()` 是 no-op**，故 `out[0]`
+    # 是 `[1, seq_len, 768]` 的一个**视图**——视图把它背后的整块 storage 一起交给 `torch.save`，
+    # 于是每条目按 `seq_len × 3 KB` 落盘而不是 3 KB（实测 max_len=128 膨胀 ×128、512 膨胀 ×512）。
+    # 后果：CPU 构建的主库 `_cb.pt` 合计 **14.61 GB**（真值约 0.35 GB）。
+    # ⚠ GPU 路径（`--device cuda`）因 `.cpu()` 是**真拷贝**而侥幸不中招——所以增强集缓存是紧凑的，
+    #   这只说明"跑在哪个设备上"不该改变产物字节，不说明本行可以省。
+    # 值逐位不变：`_feat.pt` 记录的 `cb_sha256` 与全部已报告指标均不受影响。
+    return out[0].clone()
 
 
 def load_codebert(name: str = CODEBERT, device: str = "cpu") -> tuple[Any, Any]:

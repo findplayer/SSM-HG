@@ -204,7 +204,14 @@ def main() -> None:
             lines = (run_dir / "log.txt").read_text(encoding="utf-8").strip().splitlines()
             if lines:
                 row = json.loads(lines[-1])
-                tail = (f"val_micro={row.get('val_micro_f1', float('nan')):.4f} "
+                # 二分类臂（--head binary）的日志里 `val_micro_f1` 是 **None**（该量无定义），
+                # 直接格式化会 TypeError；改用该臂真正的判据（val_binary_ap）。decisions §31
+                if row.get("val_micro_f1") is None:
+                    key = "val_binary_ap" if "val_binary_ap" in row else "val_micro_f1"
+                else:
+                    key = "val_micro_f1"
+                val = row.get(key, float("nan"))
+                tail = (f"{key}={'nan' if val is None else f'{val:.4f}'} "
                         f"epoch={row.get('epoch')}")
 
         if args.evaluate:

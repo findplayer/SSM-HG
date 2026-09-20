@@ -36,6 +36,23 @@ PATH_ARG_KEYS = frozenset({
     "label_file", "near_dup_clusters", "categories", "src_root",
 })
 
+# 「影响实验身份、但可能缺失于**旧**自述文件」的新键 → 其默认值。
+#
+# 🔴 为什么必须有这个表（2026-09-17，decisions §31）：`diff_args` 只比对**双方都有**的键
+# （见其 docstring），这对"用新代码复跑旧实验"是必需的（否则会被全部误拒）。但反过来，
+# **在旧目录里用一个新参数跑，差异为 0 → 守卫放行 → 无声覆盖**。原语料库路径就是：
+#   `train.py --head binary --out-dir runs/prior_dropout_study/drop20_ts3_ss0`
+# 会直接改写七类配对标杆，且**不加 `--overwrite` 也不会被拦**。这与 §28 那次
+# 「`run_guard` 拦不住它，因为修复不改任何 CLI 参数」是同一类失效。
+# 补默认值后再比，使新键对老目录**可见**，同时不误伤复跑（`head` 默认值就是老目录的语义）。
+#
+# ⚠ 新增任何"进入实验身份"的 CLI 键时**必须登记到此表**，否则同一漏洞会为新键重现。
+# `tests/test_run_guard.py` 有一条漂移守卫，断言此处每个键都是真实存在的 argparse 键。
+IDENTITY_DEFAULTS = {
+    "head": "multi",        # train.py --head；老目录（引入该开关前）语义即 multi
+    "layers": 2,            # train.py --layers；老目录（引入该开关前）语义即两层（decisions §34）
+}
+
 
 def canonical_args(args_map: dict) -> dict:
     """参数字典 → 去掉 volatile 键、并把已知路径型键归一化为绝对路径。"""
@@ -61,9 +78,16 @@ def canonical_path(value) -> str | None:
 
 
 def diff_args(old_args: dict, new_args: dict) -> list[str]:
-    """两侧参数字典的差异描述（只比双方都有的键，且已归一化）。"""
+    """两侧参数字典的差异描述（只比双方都有的键，且已归一化）。
+
+    `IDENTITY_DEFAULTS` 里的键**先按默认值补齐再比**——使「新参数写进旧目录」不再因
+    "该键在旧侧不存在"而被静默放行（详见该表的注释）。
+    """
     old = canonical_args(old_args or {})
     new = canonical_args(new_args or {})
+    for key, default in IDENTITY_DEFAULTS.items():
+        old.setdefault(key, default)
+        new.setdefault(key, default)
     return [f"{k}: {old[k]!r} → {new[k]!r}"
             for k in sorted(set(old) & set(new)) if old[k] != new[k]]
 
@@ -120,3 +144,24 @@ def corpus_conflict(out_dir, in_dir, pattern: str = "*_hetero.json") -> str | No
     return (f"out-dir 内已有的 {len(existing)} 个 _feat.pt 与 in-dir 的 {len(inputs)} 个输入图"
             f"**没有一个同名**（out-dir 例：{sorted(existing)[:2]}；in-dir 例：{sorted(inputs)[:2]}）"
             f"——两者显然不是同一语料，写进去会污染该目录")
+
+
+def nonempty_out_dir(out_dir, pattern: str = "*_hetero.json") -> str | None:
+    """`out_dir` 是否已装有 `pattern` 命中的产物；有则返回描述（供调用方决定是否放行）。
+
+    **为什么 M2 需要它**（`ablation_plan.md` §6.5，2026-09-18 补的缺口）：`build_cfg_centered_hetero_graph.py`
+    原先**没有任何覆盖检查**，而它的默认 `--out-dir` 就是正典语料目录
+    `products/alldata/graphs`。故 `python scripts/build_cfg_centered_hetero_graph.py --callback-limit 0`
+    （不传 `--out-dir`）会**逐个改写 590 个正典 `_hetero.json`**，而下游 `_m1.json` / `_pyg.pt` /
+    `_feat.pt` 全部不同步 → 正典语料从此处于「JSON 与特征互不对应」的状态，**且不报错**。
+    与 §28（`.ravel()`）、§29.4（标签源）、§31.3（漏新键）是同一类失效。
+
+    与 `train/make_splits/m3` 三处的差别：M2 的产物**没有自述文件**（没有 config.json 可逐项对比），
+    故判据退化为"目标目录是否已有同类产物"——**比那三处更严**（哪怕参数完全相同也要求 `--overwrite`），
+    这是有意的：M2 全量重跑代价高，且"参数相同"根本不能说明写进去的是同一套实验。
+    """
+    existing = sorted(Path(out_dir).glob(pattern))
+    if not existing:
+        return None
+    return (f"out-dir 内已有 {len(existing)} 个 {pattern[1:]}"
+            f"（例：{existing[0].name}）")

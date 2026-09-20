@@ -122,17 +122,22 @@ def label_cooccurrence(labels: np.ndarray) -> list[list[float]]:
 
 
 def per_class_diagnosis(probs: np.ndarray, labels: np.ndarray, val_thr: float,
-                        train_pos, train_neg, pos_weight_used, val_pos) -> list[dict]:
-    """逐类诊断（test probs/labels + 训练/验证支撑 + 全局阈值）。"""
+                        train_pos, train_neg, pos_weight_used, val_pos,
+                        names=NAMES) -> list[dict]:
+    """逐类诊断（test probs/labels + 训练/验证支撑 + 全局阈值）。
+
+    `names` 由调用方按 `--head` 给出（`multi`→7 类；`binary`→单元素 `vulnerable`）。
+    **按 `labels.shape[1]` 迭代而非 `len(NAMES)`**：二分类臂上后者会 IndexError（decisions §31）。
+    """
     rows = []
-    for c in range(len(NAMES)):
+    for c in range(labels.shape[1]):
         y_c, p_c = labels[:, c], probs[:, c]
         ap = float(average_precision_score(y_c, p_c)) if y_c.sum() > 0 else None
         roc = (float(roc_auc_score(y_c, p_c)) if (y_c.sum() > 0 and (1 - y_c).sum() > 0)
                else None)
         true_ratio = (train_neg[c] / train_pos[c]) if train_pos[c] > 0 else None
         rows.append({
-            "class": NAMES[c],
+            "class": names[c],
             "support": {"train_pos": int(train_pos[c]), "train_neg": int(train_neg[c]),
                         "val_pos": int(val_pos[c]), "test_pos": int(y_c.sum()),
                         "pool_pos": int(train_pos[c] + val_pos[c] + y_c.sum())},
@@ -152,6 +157,9 @@ def diagnose_seed(seed: int, args: argparse.Namespace) -> dict:
     seed_dir = Path(args.runs_dir) / f"seed{seed}"
     checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
     config = checkpoint["config"]
+    # 头型：`args.head` → `derived.head` → 默认 `multi`（旧产物无该键，照常诊断）
+    head = (config.get("args", {}).get("head")
+            or config.get("derived", {}).get("head") or "multi")
     split_seed = config.get("split_seed", seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     fuser, model = rebuild_models(config, checkpoint)
@@ -197,24 +205,31 @@ def diagnose_seed(seed: int, args: argparse.Namespace) -> dict:
     else:
         test_samples = [load_graph(b, graph_dir=args.graph_dir, ab=ab, index=index,
                                    verify_channels=verify) for b in test_bases]
-        tp, tl = infer(test_samples, fuser, model, args.batch_size, device=device)
+        tp, tl = infer(test_samples, fuser, model, args.batch_size, device=device, head=head)
         test_probs, test_labels = tp.numpy(), tl.numpy()
         torch.save({"probs": torch.from_numpy(test_probs),
                     "labels": torch.from_numpy(test_labels),
                     "sample_ids": test_bases}, tp_path)
 
-    val_thr = float(json.loads((seed_dir / "results.json").read_text(encoding="utf-8"))
-                    ["val_threshold"])
+    # val 阈值优先取 results.json（evaluate 的产物）；**缺失时回退 thresholds.json**
+    # （train.py 必写）——否则 diagnose 会被迫依赖 evaluate 的执行顺序。
+    res_path = seed_dir / "results.json"
+    if res_path.exists():
+        val_thr = float(json.loads(res_path.read_text(encoding="utf-8"))["val_threshold"])
+    else:
+        val_thr = float(json.loads((seed_dir / "thresholds.json").read_text(encoding="utf-8"))
+                        ["best_threshold"])
     d = config["derived"]
+    names = metrics.head_names(head)
     rows = per_class_diagnosis(
         test_probs, test_labels, val_thr,
         np.asarray(d["train_pos"], dtype=int), np.asarray(d["train_neg"], dtype=int),
-        np.asarray(d["pos_weight"], dtype=float), val_pos)
+        np.asarray(d["pos_weight"], dtype=float), val_pos, names=names)
 
     # ---- 训练集标签共现（从 index + split["train"] 直接算，不加载图）----
     train_labels = np.asarray([index[b] for b in split["train"]], dtype=int)
     out = {
-        "seed": seed, "split_seed": split_seed, "val_threshold": val_thr,
+        "seed": seed, "split_seed": split_seed, "head": head, "val_threshold": val_thr,
         "n_train": len(split["train"]), "n_val": len(split["val"]),
         "n_test": len(split["test"]),
         "per_class": rows,
@@ -226,11 +241,14 @@ def diagnose_seed(seed: int, args: argparse.Namespace) -> dict:
 
 
 def aggregate(per_seed: dict[int, dict]) -> dict:
+    """跨 seed 聚合。类名/列数**从产物读**（`head`），二分类臂自然退化为 1 列。"""
     seeds = sorted(per_seed)
-    agg = {"seeds": seeds, "classes": NAMES,
+    head = per_seed[seeds[0]].get("head", "multi") if seeds else "multi"
+    names = metrics.head_names(head)
+    agg = {"seeds": seeds, "head": head, "classes": list(names),
            "support_train_pos": {}, "support_val_pos": {}, "support_test_pos": {},
            "AP": {}, "ROC_AUC": {}, "oracle_f1": {}}
-    for c, name in enumerate(NAMES):
+    for c, name in enumerate(names):
         for key in ("support_train_pos", "support_val_pos", "support_test_pos",
                     "AP", "ROC_AUC", "oracle_f1"):
             vals = []
@@ -287,7 +305,7 @@ def main() -> None:
         r = per_seed[s]
         print(f"seed{s}: 逐类诊断完成 → {runs_dir / f'seed{s}' / 'diagnosis.json'} "
               f"（test pos " +
-              ",".join(str(r['per_class'][c]['support']['test_pos']) for c in range(7)) + "）")
+              ",".join(str(row['support']['test_pos']) for row in r['per_class']) + "）")
     summary = aggregate(per_seed)
     (runs_dir / "diagnosis_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")

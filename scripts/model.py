@@ -13,8 +13,10 @@
   - 关系编号固定（手册 7.7）：0=CFG_FLOW, 1=AST_PARENT, 2=AST_PARENT_SAME, 3=DFG_DEP, 4=CALLBACK_RISK。
   - 单图 forward(x, edge_index, edge_type) -> (z[num_classes], a[N], node_logits[N])；
     batch 图 forward(..., batch=[N]) -> z[B, num_classes]，a/node_logits 仍按节点返回；Readout 按图归一化。
-  - return_intermediates=True 时返回 dict：{z,a,node_logits,h1,h2,alpha,hg}，供调试与单测。
-  - Readout 使用第二层传播结果 h2（= h_v^(L)），绝不用输入 x（曾为易错点，验收见 tests）。
+  - return_intermediates=True 时返回 dict：{z,a,node_logits,h1,h2,h_layers,alpha,hg}，供调试与单测。
+  - Readout 使用**末层**传播结果 h2（= h_v^(L)），绝不用输入 x（曾为易错点，验收见 tests）。
+  - 层数 L 可配（`num_layers` ∈ {1,2,3}，默认 2 = 正典；大纲 5.4.1 第 13 项）。
+    **L=2 的 state_dict 键名与旧版逐字相同**（故不用 `nn.ModuleList`），既有 `best.pt` 全部可加载。
   - conv_type 仅 "rgcn"/"gcn"：GCN 忽略 edge_type（非关系感知消融基线）；普通 GAT 不提供。
   - num_bases 默认 = num_relations(=5)；num_bases=4 仅作消融。
   - DropEdge / L_var / 训练日志均属 M5（train.py）；本文件提供纯工具 apply_edge_mask（M5 同步过滤边用）
@@ -309,10 +311,10 @@ def safe_readout(h: torch.Tensor, node_logits: torch.Tensor, batch: torch.Tensor
 
 
 class SSMHG(nn.Module):
-    """M4 主模型：两层图消息传递 → 节点可疑度 a_v → 基于 h_v^(L) 的注意力 Readout → 图级 logits。
+    """M4 主模型：L 层图消息传递 → 节点可疑度 a_v → 基于 h_v^(L) 的注意力 Readout → 图级 logits。
 
     公式（大纲 4.4.1 / 手册 9.2~9.3）：
-      h_v^(l+1) = σ(W0 h_v^(l) + Σ_r Σ_{u∈N_r(v)} (1/c) W_r h_u^(l))   （RGCN 两层）
+      h_v^(l+1) = σ(W0 h_v^(l) + Σ_r Σ_{u∈N_r(v)} (1/c) W_r h_u^(l))   （RGCN，L 层，默认 2）
       node_logits_v = w^T h_v^(L)；a_v = σ(node_logits_v)
       α_v = a_v / (Σ_u a_u + ε)；h_G = Σ_v α_v h_v^(L)；z_G = MLP(h_G)
     先验 s_v 只经 M3 的 h_v^(0) 进入，本模型不显式使用（grep 不应命中 s_v/prior/m1）。
@@ -321,7 +323,7 @@ class SSMHG(nn.Module):
 
     def __init__(self, in_dim: int = HID_DIM, hid: int = HID_DIM, num_relations: int = 5,
                  num_bases: int = 5, num_classes: int = 7, dropout: float = 0.3,
-                 conv_type: str = "rgcn", use_meanpool: bool = False):
+                 conv_type: str = "rgcn", use_meanpool: bool = False, num_layers: int = 2):
         super().__init__()
         if conv_type not in ("rgcn", "gcn"):
             raise ValueError(
@@ -333,6 +335,10 @@ class SSMHG(nn.Module):
             raise ValueError(f"num_bases must be in [1, {num_relations}], got {num_bases}")
         if in_dim <= 0 or hid <= 0 or num_classes <= 0:
             raise ValueError("in_dim/hid/num_classes must all be positive")
+        # 层数消融（大纲 5.4.1 第 13 项）：1 / 2 / 3，**默认 2 即正典**。
+        # 上界 3 与手册 9.1 的两层设计一致，不引入更深堆叠（过平滑）。
+        if not (1 <= num_layers <= 3):
+            raise ValueError(f"num_layers must be in [1, 3], got {num_layers}")
 
         self.in_dim = int(in_dim)
         self.hid = int(hid)
@@ -342,18 +348,32 @@ class SSMHG(nn.Module):
         self.dropout = float(dropout)
         self.conv_type = conv_type
         self.use_meanpool = bool(use_meanpool)
+        self.num_layers = int(num_layers)
 
-        if conv_type == "rgcn":
-            # root_weight=True：空边/孤立节点时仍保留节点自身变换项（PyG 2.7.0 官方行为）
-            self.conv1 = RGCNConv(in_dim, hid, num_relations, num_bases=num_bases,
-                                  root_weight=True)
-            self.conv2 = RGCNConv(hid, hid, num_relations, num_bases=num_bases,
-                                  root_weight=True)
-        else:  # gcn：忽略 edge_type，同构基线（add_self_loops=True 保证孤立节点可更新）
-            self.conv1 = GCNConv(in_dim, hid)
-            self.conv2 = GCNConv(hid, hid)
+        # 🔴 逐层用 `setattr(self, f"conv{l}", …)` 而**不用 `nn.ModuleList`**：
+        # ModuleList 会把键名改成 `convs.0.*`，使全部已训练 `best.pt`（以及正典臂的
+        # 逐位复现）加载失败。现有命名 `conv1.*` / `conv2.*` 必须原样保留。
+        for layer in range(1, self.num_layers + 1):
+            layer_in = self.in_dim if layer == 1 else self.hid
+            setattr(self, f"conv{layer}", self._make_conv(layer_in, self.hid))
+        # L=1 时**显式**保留 `conv2 = None`：`state_dict()` 跳过 None（不注册），
+        # 同时让 `hasattr(model, "conv2")` 仍为真，避免下游按属性名取层时炸出 AttributeError。
+        if self.num_layers < 2:
+            self.conv2 = None
+        if self.num_layers < 3:
+            self.conv3 = None
+
         self.a_head = nn.Linear(hid, 1)                      # 节点可疑度 logits
         self.cls = nn.Sequential(nn.Linear(hid, 64), nn.ReLU(), nn.Linear(64, num_classes))
+
+    def _make_conv(self, in_dim: int, out_dim: int) -> nn.Module:
+        """建一层消息传递（RGCN 关系感知 / GCN 同构基线）。参数与旧版逐字相同。"""
+        if self.conv_type == "rgcn":
+            # root_weight=True：空边/孤立节点时仍保留节点自身变换项（PyG 2.7.0 官方行为）
+            return RGCNConv(in_dim, out_dim, self.num_relations,
+                            num_bases=self.num_bases, root_weight=True)
+        # gcn：忽略 edge_type，同构基线（add_self_loops=True 保证孤立节点可更新）
+        return GCNConv(in_dim, out_dim)
 
     def forward(self, x: torch.Tensor, edge_index: torch.Tensor, edge_type: torch.Tensor,
                 batch: torch.Tensor | None = None,
@@ -395,15 +415,22 @@ class SSMHG(nn.Module):
                 f"shape={tuple(batch.shape) if isinstance(batch, torch.Tensor) else None}"
             )
 
-        # ---- 两层消息传递（第二层输出记为 h2 = h_v^(L)）----
-        if self.conv_type == "rgcn":
-            h1 = F.relu(self.conv1(x, edge_index, edge_type))
-            h1 = F.dropout(h1, p=self.dropout, training=self.training)
-            h2 = F.relu(self.conv2(h1, edge_index, edge_type))
-        else:  # gcn：edge_type 已被校验但本分支不使用
-            h1 = F.relu(self.conv1(x, edge_index))
-            h1 = F.dropout(h1, p=self.dropout, training=self.training)
-            h2 = F.relu(self.conv2(h1, edge_index))
+        # ---- L 层消息传递（末层输出记为 h2 = h_v^(L)）----
+        # 算子顺序与旧版两层实现**逐字一致**：每层 `relu(conv_l(·))`，**非末层**接一次 dropout
+        # （旧版即 `relu → dropout → relu`，即 dropout 只加在非末层）。故 L=2 时前向逐位不变。
+        h = x
+        h_layers: list[torch.Tensor] = []
+        for layer in range(1, self.num_layers + 1):
+            conv = getattr(self, f"conv{layer}")
+            h = (conv(h, edge_index, edge_type) if self.conv_type == "rgcn"   # gcn 分支不用 edge_type
+                 else conv(h, edge_index))
+            h = F.relu(h)
+            if layer < self.num_layers:
+                h = F.dropout(h, p=self.dropout, training=self.training)
+            h_layers.append(h)
+        # h1 = 首层输出（旧版语义：**已过 dropout**）、h2 = 末层输出 = h_v^(L)（Readout 用它）。
+        # L=1 时两者是**同一个张量**（单层没有"非末层"，故无 dropout）。
+        h1, h2 = h_layers[0], h_layers[-1]
 
         # ---- 节点可疑度（不 detach；M5 的 L_var 基于 a，node_logits 供解释/调试）----
         node_logits = self.a_head(h2).squeeze(-1)            # [N]
@@ -421,6 +448,7 @@ class SSMHG(nn.Module):
                 "node_logits": node_logits,
                 "h1": h1,
                 "h2": h2,
+                "h_layers": h_layers,     # 逐层输出（长度 = num_layers；L=2 时 = [h1, h2]）
                 "alpha": alpha,
                 "hg": hg,
             }

@@ -24,21 +24,7 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 
 ## 磁盘空间（硬规则）
 
-- **C 盘可用空间任何时候必须 ≥ 30 GB** —— 深度学习程序、WSL、Claude Code 三者共同受此约束。低于阈值时**先回收、再干活**，不得「先跑起来再说」。
-- 因果链：本仓库在 WSL 的 ext4 上 → 写产物使 `ext4.vhdx` 增长 → 直接吃掉 C 盘。**只有 C 盘这一个出口，没有第二个盘可退。**
-- 背景（2026-09-16 实测）：C 盘 201 GB / 已用 196.8 GB / **可用仅 3.3 GB**。两处「虚占」是大头，且都不是真实数据：
-  - `C:\Users\saumarez\AppData\Local\wsl\{adf4b00b-a11a-4866-83d7-0c6a2ce3d515}\ext4.vhdx` **实占 87.56 GB**，而 WSL 内部 `df` 只用 **45 GB**（`projects` 21G + `anaconda3` 13G）。**该 vhdx 非稀疏**（`fsutil sparse queryflag` 确认「未设为稀疏」），删掉的文件块不会自动还给 Windows → **约 42 GB 可回收**。
-  - `C:\$WINDOWS.~BT` **30.85 GB** —— 2026-09-04 Windows 功能更新的暂存残留（查过 `WindowsUpdate` 与 `CBS` 均无 pending reboot）。
-- **检查**（WSL 内即可，不需要管理员）：
-  - C 盘：`df -h /mnt/c`，看 `Avail`。⚠ `/dev/sdd` 那行是 WSL 自己的 ext4（1007G 卷），**不代表** C 盘占用，别拿它当依据。
-  - 虚胖量 = vhdx 实占 − WSL 内部 `df -h /` 的 `Used`。
-- **回收顺序**（动手前确认没有长跑任务在写盘）：
-  1. WSL 内 `sudo fstrim -av`（只把空闲块告知宿主，不删任何数据）。
-  2. 管理员 PowerShell：`wsl --shutdown` → `wsl --manage Ubuntu --set-sparse true`（本机 WSL 2.7.14 支持，此后自动回收）；备选 diskpart `attach vdisk readonly` + `compact vdisk`。
-  3. `C:\$WINDOWS.~BT` **只走官方路径**：设置 → 系统 → 存储 → 临时文件（或 `cleanmgr`）。**不要手工 `rm -rf`**。
-  4. 零风险缓存：`AppData\Local\Temp` 3.75 GB、`npm cache clean --force` 3.77 GB、NVIDIA 着色器缓存 ~6 GB（会自动重建）。
-- ⚠ **第 2 步会关掉整个 WSL**，连带终止 VSCode Server 与当前 Claude Code 会话 —— 只能由用户手动在 Windows 侧执行，且**绝不在训练/构建中途做**。
-- ⚠ **大批量落盘前先估空间**：`products/` 现占 20 GB（`products/alldata/graphs` 15 GB），全量重跑 M2/M3 会一次性生成数百个图文件。**不看 `df` 不开跑。**
+- **C 盘可用空间任何时候必须 ≥ 8 GB** —— 深度学习程序、WSL、Claude Code 三者共同受此约束。低于阈值时**先回收、再干活**，不得「先跑起来再说」。
 
 ## 终端与输出
 
@@ -51,18 +37,49 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 
 - 只读、绝不写入或改名（共 5 个）：`alldata(readonly)/`、`alldata_augmentation/`、`DIVE/`、`SolidiFI/`、`MVD-HG-dataset/`。
   - 其中 **`alldata_augmentation/` 已在 `.gitignore` 中**（2026-09-14）：它只读、可由 `MVD-HG-dataset` 派生重建，不纳入版本管理——「提交全部」不会把它扫进去。其余 4 个只读源历史上已入库，不在忽略之列。
-- 中间产物只能写到 `products/<数据集>/`（`products/alldata/{raw,graphs,splits}`、`products/augmentation/{raw,graphs,splits}`、`products/dive/…`、`products/solidifi/…`）以及 `runs/`、`eval_results/`。
+- 中间产物只能写到 `products/<数据集>/` 以及 `runs/`、`eval_results/`。
+  🔴 **各区的形态（2026-09-20 补全，§37/§38 起不再只是三件套）**：
+  `products/alldata/{raw, graphs, graphs_ft/ss{S}, graph_variants, splits}`、
+  `products/augmentation/{raw, graphs, graphs_ft/ss{S}, graph_variants, splits}`、`products/dive/…`（同上 + `graphs_ft_aug/ss{S}`、`src_stage/`）、
+  `products/solidifi/…`。**把新特征写进 `graphs_ft/ss{S}` 不算越界**——那正是 §37 的正典产物区。
 - `alldata_augmentation/` 是 **MVD-HG 论文增强集**，与 `alldata(readonly)` **并行的第二个数据集**（2026-09-14 置入）：1780 个**扁平** `.sol` + 9026 条 7 维标签（同类别序）。**2026-09-16 裁定：两组结果集并存**（`decisions.md` §23、总表 `results.md` §0）——① 主库（池 453，真实部署合约、含天然极稀缺类）与 ② 增强集（池 1774，单标签、正样本充足）**各自独立完整、并列呈现**；**禁止**跨组比较绝对值、**禁止**合并成一个数字、**禁止**用 ② 的数字宣称 ① 的问题已解决。
 - ⚠ **该集的标签必须用修正版**：只读源里的 `contract_labels.json` 有 298 个 `{类}__buggy_N`（同名不同内容）被并集规则推成 `1111111`，正样本 59% 虚高。**正典标签 = `products/augmentation/contract_labels_repaired.json`**（`scripts/repair_augmentation_labels.py` 生成，逐类 7383→2997）；只读源原文件仅留痕。该集是**单标签**数据集（每条非零恰一类），勿套用主库多标签叙事。详见 `experiments/decisions.md` §19.3.1。
 - 路径含空格/括号（`alldata(readonly)/`、`DIVE/Source codes/`），命令中必须加引号；产物区 `products/…` 无空格。
 - `products/alldata/raw/` 与 `products/alldata/graphs/` 存放约 581 个合约的批量产物（原 `raw/`、`Heterogeneous graphs/`，2026-09-12 迁入），不要整目录列举或全量读取，按需读单个文件。
 - 不要提交超过 100 MB 的文件。`DIVE/Code-based.csv`（147 MB）已在 `.gitignore` 中，仅保留在本地。
 - **复现所需的最小集必须入库**（2026-09-16 起，此前被整目录忽略是错的）：
-  - `products/**/raw/filter_report.txt`（样本过滤透明性声明）与 `products/**/graphs/ir_cat.json`（**冻结 IR 类别字典 = 跨语料语义锚点**，几 KB）——两者的父目录仍是内容式忽略 + `!` 白名单纳入，改动 `.gitignore` 时**不要**把父目录改回目录式忽略（目录式排除无法用 `!` 取反）。
-  - `runs/**/best.pt`（`evaluate.py` 的唯一权重输入）+ `val_best_probs.pt`/`test_probs.pt`（推理缓存）→ 使已报告指标可**离线重算、无需重训**；全库 115 MB、单文件 4.77 MB。`last.pt` 仍排除（仅断点续训用，入库会使体积翻倍）。
+  - `products/**/raw/filter_report.txt`（样本过滤透明性声明）与 `products/alldata/graphs/ir_cat.json`（**冻结 IR 类别字典 = 跨语料语义锚点**，几 KB）——两者的父目录仍是内容式忽略 + `!` 白名单纳入，改动 `.gitignore` 时**不要**把父目录改回目录式忽略（目录式排除无法用 `!` 取反）。
+  - ⚠ **`.gitignore` 的忽略规则按目录形态枚举，新增形态必须同步补规则**（2026-09-20）：
+    原规则只覆盖 `raw/` 与 `graphs/`。§37 起新增了 `graphs_ft/`、`graphs_ft_aug/`、
+    `graph_variants/`、`src_stage/` 四种形态，**不被任何规则匹配** ⇒ `git status` 全部列为未跟踪、
+    `git add -A` 会一次性纳入**约 16 GB**（② `graphs_ft` 单个 5.0 GB）。
+    **写法有坑**：`dir/*` 与 `dir/` 都**不能**配合 `!` 白名单（前者把子目录本身也排除，
+    git 不再往里走；后者的目录式排除无法取反）。可用写法 = `dir/**` + `!dir/**/`（尾斜杠 = 仅目录）
+    再 `!` 具体文件名。现只纳入各变体的 `variant.json`（自述文件，**40 个 / 内容合计 31 KB**，
+    2026-09-20 实测；旧载「41 个 / 164 KB」计数与体积都不准）。
+    SolidiFI（阶段 G）新增产物时照此办理。
+  - 🔴 **第二个洞（2026-09-20 发现并已补）**：`runs/codebert_ft/`（§37 正典的**微调编码器**）
+    同样**不被任何规则匹配** —— 实测 **2.9 GB**，含 6 份 `pytorch_model.bin` 各 **498 MB**
+    （单文件即超本文「不提交超过 100 MB 的文件」硬规则）。根因：上面那条 `runs/**/*.pt` **只认 `.pt`**，
+    `.bin`/`tokenizer.json`/`vocab.json` 全部漏网。**已按 `graphs_ft` 的同款写法补规则**，
+    只纳入 4 类自述/审计边车（`corpus.json` 是「编码器属于哪个语料」的硬校验锚点，
+    `build_graph_variant.py` / `build_dive_external_set.py` 缺它即硬失败）⇒ `git add -A` 由
+    2.9 GB 降为 **30 个小文件**。权重可由 `scripts/finetune_codebert.py` 重建（① 848 s/种子、② 3797 s/种子）。
+  - 🔴 **自检口径（本轮教训，两次同类洞）**：**「补 `.gitignore` 规则」与「改本段/`项目组织架构.md` 的说明文字」是两件事**，
+    两次都只做了前者。**新增任何产物目录形态时，必须同时做三件事**：
+    (a) `git check-ignore -v <新目录下的样本文件>` 实测被忽略（**不能只看规则存在**）；
+    (b) `git add -A --dry-run` 数一遍实际纳入的文件，并对每个文件查大小，确认没有 >100 MB；
+    (c) 更新本段与 `项目组织架构.md` 的 `.gitignore` 说明。
+    只做 (a) 仍会漏 —— `runs/` 侧从未做过同类排查，`codebert_ft` 就是这么漏的。
+    ⚠ **该字典只有一份（在 ① 下）**，原文写的 `products/**/graphs/ir_cat.json` 不精确（2026-09-18 更正）：② 的 `graphs/` 里**没有**它，② 的正典当初传的就是 ① 这份（证据见 `decisions.md` §35.4）。**不要给 ② 补建**——那会造出两个可能漂移的来源。所有变体构建一律经 `build_graph_variant.frozen_categories()` 取它（缺文件即硬失败，避免 m3 静默回退全库扫描）。
+  - `runs/**/best.pt`（`evaluate.py` 的唯一权重输入）+ `val_best_probs.pt`/`test_probs.pt`（推理缓存）→ 使已报告指标可**离线重算、无需重训**；全库 **约 1.5 GB / 1125 个文件**（§38 后 run 数增至 150+；2026-09-16 时为 115 MB / 24 run）、单文件 ≤4.77 MB。`last.pt` 仍排除（仅断点续训用，入库会使体积翻倍）。
 
 ## 语义锁死项（最容易写错）
 
+- 🔴 **正典训练输入（2026-09-19 §37 起）= `products/<语料>/graphs_ft/ss{S}`**（微调 CodeBERT）。
+  ⚠ **路径含划分种子**：`ss{S}` **必须**与 `--split-seed S` 配对（否则 `seed2` 会拿 `ss0` 的编码器配 `split_seed2`）。
+  `products/<语料>/graphs` 是**冻结**编码器树，**现仅作 `cb_frozen` 消融臂输入，不得再写作正典**。
+  这是本仓第三次全量作废的根因，凡涉及"正典 graph_dir"一律以本行为准。
 - 标签顺序固定：`access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标为 4）。
 - `_pyg.pt` 是只读的纯结构（`x` 为 N×1 占位，永不改写）；`_feat.pt` = M3 的**拼接前通道字典**（schema v2：`struct`/`type_id`/`sv` + 逐通道 sha256），是唯一模型输入载体；融合（Embedding+MLP）与全部掩码在 `model.NodeFuser`，`dataset.py` 只负责组合（含 `_cb.pt` 行对齐）、不再过 MLP、不重算、不做掩码。
 - M1 的 $s_v$ 是输入特征，不是标签；$a_v$ 是节点可疑度/解释信号，不是节点真值。
@@ -72,6 +89,18 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 阈值只在验证集搜索；测试集同时报告固定 0.5 与验证集阈值两套结果。
 - 消融分层：边消融在 `dataset.py` 按 edge_type 过滤（`--drop-edges`/`--drop-ast`，零重跑）；特征消融（去 $s_v$/CodeBERT 单通道/结构分组）在 `model.NodeFuser` 的 `AblationConfig`（通道级、零重跑，无文件变体）；模型消融走 `model.py`/`train.py` 开关。仅 CALLBACK_RISK 上限 4/不限制变体需重跑 M2（`--callback-limit 0`）。
 - 跨数据集（DIVE/SolidiFI）M3 必须传 `--categories products/alldata/graphs/ir_cat.json` 冻结 IR 字典，否则列宽/类别语义漂移、与已训练模型不兼容。
+- **输出头 `--head {multi,binary}`**（默认 `multi`，正典臂逐字节不变；见 `decisions.md` §31）：
+  - `binary` = 单头「有没有漏洞」：头 7→1、标签 `any(targets)`、损失单类 BCE、早停/调度判据改 **val 二分类 AP**。
+    **标签塌缩只发生在 `dataset.stack_labels` 一处**——`build_index`/划分/标签文件/通道哈希全部保持 7 维不动。
+    输入特征、`s_v` 先验（本就是 `(N,1)` 标量）、边、结构**逐字不变** ⇒ 唯一变量是输出空间
+    （同 seed 下 12/12 共享张量逐位相同，机检于 `tests/test_binary_arm.py`）。
+  - 🔴 **`[N,1]` 的 `type_of_target` 是 `binary`**，`average="micro"` 随即**恒等于 accuracy**——即 §28 换个入口重现。
+    故：多标签入口经 `_as_2d_multilabel()` **对单列报错**、二分类入口对多列报错；二分类指标一律
+    **由混淆计数直接算**（`metrics.binary_*`），完全不经 sklearn 的 `average=` 分派；
+    `evaluate.compute_binary_report` 键名一律 `binary_*`（读 `micro_f1` 会 KeyError 而非拿到 accuracy）。
+  - **新增身份类 CLI 键必须登记进 `run_guard.IDENTITY_DEFAULTS`**（有漂移守卫测试），否则"用新键写进旧目录"
+    会被守卫放行并**无声覆盖**（§31.3 修掉的那个洞）。
+  - 配对分析用 `val_binary_*` 族（**两条臂都算**），合法性来自 `max_c p_c >= t ⇔ any_c(p_c >= t)`（已机检）。
 
 ## 改动原则
 
@@ -94,81 +123,6 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 - 需要裁定的要给出几种方案的区别、优劣、产物差异、对论文的影响，便于裁定。
 - 提交前确认没有把只读数据源或超过 100 MB 的文件加入提交。
 
-## 当前进度（2026-09-15）
+## 当前进度
 
-- **★ 2026-09-16 裁定：两组结果集并存**（`decisions.md` §23、总表 `results.md` §0）。两组**各自独立完整、并列呈现，禁止跨组比较绝对值或合并成一个数字**：
-
-  | | ① 主库 `alldata(readonly)` | ② 增强集 `alldata_augmentation` |
-  | --- | --- | --- |
-  | 池 | **453**（590 − 90 buggy − 47 去重） | **1774**（0 剔除） |
-  | 逐类正样本 | 17/15/**6**/**4**/31/**5**/50 | 200/251/143/171/182/106/361 |
-  | 标签结构 | 多标签 | **单标签** |
-  | 跨划分近重复对 | 69/68/76（已披露） | **0/0/0** |
-  | micro-F1 @0.5 | **0.8489±0.0699** | **0.9739±0.0134** |
-  | micro-F1 @val_thr | **0.9389±0.0047** | **0.9828±0.0053** |
-  | mAP | **0.2804±0.0963** | **0.9795±0.0024** |
-
-  ① 回答「真实部署合约（含天然极稀缺类）上能检出什么」，宏观指标低是**数据事实**、非方法失效；② 回答「训练信号充足时的能力上限」，**不得**解读为 ① 的问题已解决。三条例外臂（`runs/neardup/`、`runs/withbuggy/`、`runs/augmentation_dedup/`）均不进两表。
-- **2026-09-16 消融准备完成（阶段 F **尚未开跑**；计划见 `experiments/ablation_plan.md`，决议见 `decisions.md` §25/§27）**：
-  - 四处覆盖点全部加守卫（`scripts/run_guard.py` + 各自 `--overwrite`；shell 脚本用 `SSMHG_ALLOW_WIPE=1`）。
-  - 消融开关接线验证 `tests/test_ablation_switches.py`：4 项边消融 + `--drop-ast` + 白名单、三项特征消融的列级掩码、
-    `meanpool`、`num_bases`/`hid`、`L_var` 复合式（读既有日志验证，零新计算）。
-  - **就绪盘点：17 项（5.4.1×11 + 5.4.2×6）中 12 项可直接跑**（零重跑，12 项×3 种子 ≈ 15 分钟 GPU）；
-    **1 项**（CALLBACK_RISK 上限 4 vs 不限）需先造 M2 变体（空间可压到 0.15 GB：`_cb.pt` 占 14.6/15 GB
-    且与边无关 → 软链复用）；**3 项需开发**（CALLBACK_RISK_REV 无反向边开关、RGCN 层数硬编码两层、微调 CodeBERT 无路径），
-    已用 `@pytest.mark.skip` 显式登记不假绿。
-  - ✅ **「关闭先验 Dropout」的 bug 已修正（2026-09-16，§26）**——原描述保留如下备查：。`sample_dropout_masks` 返回 `rand < prior_p`，掩码乘法作用于 s_v，
-    故 **`prior_p` 是保留率**：默认 `--prior-dropout 0.2` 实际**置零 80% 的图**（大纲 4.1.4 的散文写的是丢弃率 0.2
-    → **默认强度差 4 倍，且现有全部结果都带此口径**）；而 `--prior-dropout 0` 会**每张图都置零 = 等价于 `--ablate-sv`**，
-    使该项跑不出它该测的东西。
-    → **已按方案 A 修正**：`sample_dropout_masks` 改为丢弃率语义（`rand >= p`；与结构 dropout **共用同一函数**，一并修好），
-    四处（代码/参数名/文档/测试）同步；`--prior-dropout 0` 现为「关闭」、`1` 为「全丢」、默认 `0.2` 置零约 20% 的图；
-    **全部结果已重跑**，旧口径作废归档。测试已改为 6 个正常断言（原 `xfail(strict=True)` 会因修好而 XPASS 导致 pytest 失败）。
-    裁决：**维持 0.2、不返工 80%**（同配对 n=9 研究显示丢 20% 反而略优、丢 100% 不更好、mAP 随丢弃率单调下降）。见 §26.6。
-- **2026-09-17 §1.8/§1.10 多种子复核完成（见 `decisions.md` §27、`results.md` 表 1.8-d/1.10-b2）**：
-  修正 dropout 语义后这两节结论方向曾翻转，用**同配对 n=9** 复核后定稿：
-  - **§1.8 旧结论成立**：放开 `pos_weight` 截断**不救稀有类**（逐类 ΔF1@val_thr 全为 0 或负），
-    且 `micro@0.5` **显著变差 −0.0825（t=−3.50）**。3 种子下「access_control 0.000→0.121」是噪声，标记已撤回。
-  - **§1.10 旧结论对 ASL 成立、对 focal 不成立**：focal(γ=2) `micro@val_thr` **+0.0072（t=+2.80 显著）**、
-    `mAP` +0.0514（t=1.96 边缘），而 `micro@0.5` 不受影响（+0.0003）→ **唯一「显著更好且不付代价」的干预**。
-    ASL 则是「概率膨胀」的两面：mAP **+0.0915（t=+3.31）** 显著更好、`@0.5` **−0.3734（t=−8.76）** 崩溃。
-  - **待裁定**：主实验是否改用 focal（效应 +0.0072，但会再次作废全部结果）——**建议维持 bce**，
-    把 focal 作为损失形状的改进方向写入论文讨论。见 §27.4。
-  - ⚠ **规范（两天内同类第 2 次教训）**：噪声 ±0.05–0.07 量级的指标，**n=3 的表面模式不可信**；
-    凡下「干预有效/无效」的结论必须**同配对 ≥9 点**，3 种子只用于报 mean±std。见 §26.7/§27.5。
-- 已完成：M1–M4；`scripts/` 中 `dataset.py`、`make_splits.py` 已实现（2026-09-12：覆盖约束校正 `--strategy constrained`（默认）+ `coverage_swaps_seed*.txt`、`splits.csv`、split metadata；三种子 C1/C2 构造达标，主种子 seed0）。
-- **2026-09-16 第二数据集 `alldata_augmentation` M1–M5 全链跑通（见 `experiments/results.md` §6）**。产物隔离在 `products/augmentation/`、`runs/augmentation{,_dedup}/`；**主库数字与产物零改动**。
-  - 语料：池 **1774**（0 精确重复、0 buggy 剔除、0 标签未匹配；全零 362、多标签 2、**单标签**语料），逐类正样本 106–361。**M3 在 GPU 上全量重建**（`--device cuda --force`，1774 图 49 分 10 秒，`cb_reused=0/1774`）。
-  - 跨语料契约逐项相等（`D_struct=30`、`struct_layout`、schema v2、role_names），不一致 0 个；节点合计 463,264。
-  - **两臂均零泄漏**（连通分量簇原子 0/0/0；近重复去重按构造 0），覆盖校正替换 **0** 次：
-    | 臂 | 池 | micro-F1@0.5 | micro-F1@val_thr | macro-F1@val_thr | mAP |
-    | --- | --- | --- | --- | --- | --- |
-    | **簇原子（正表）** | 1774 | **0.9739±0.0134** | **0.9828±0.0053** | 0.9363±0.0203 | 0.9795±0.0024 |
-    | 近重复去重 | 1400 | 0.9507±0.0624 | 0.9752±0.0263 | 0.9028±0.1014 | 0.9413±0.0783 |
-  - **C1 在 aug 上算术不可行**（正样本率 79.7% > 66.7% = s/r，与种子无关），已 `--min-pos-ratio 0` 关闭 C1、保留 C2；
-    该语料每类 val/test support ≥8（最低 time_manipulation val 9 / test 12），C1 的目的由数据本身满足。证明与替代方案见 `decisions.md` §22。
-  - 计时（`config.json::timing`，跨工具对比用，GPU）：簇原子臂 3 种子 wall 278.0 s / train 220.5 s、graphs/s 633–667。
-  - **披露 5 项**（`results.md` §6.7）：去注释源使 `_cb.pt` 文本口径与主库不同；aug 的 M3 在 GPU 构建；单标签语料勿套多标签叙事；C1 关闭；该语料显著更"易"（0.97 vs 主库 0.86），不能解读为主库问题已解决。
-- **2026-09-15 泄漏处置（见 `experiments/decisions.md` §21）**：主库现行划分的同源泄漏已量化并给出可证零泄漏对照臂。
-  - 现行划分跨划分近重复对 seed0/1/2 = **69/68/76**（最高 Jaccard **1.00**）→ §1.2 的微观指标**含泄漏**。
-  - 新增 `near_dup_clusters.py --cluster-mode {complete,components}`：`complete`（默认，全链接）报"紧密孪生"；
-    **`components`（连通分量）用于划分防泄漏，跨划分近重复对可证恒为 0**（主库实测 0/0/0，C1/C2 仍 7/7 达标，
-    分量最大 15）。⚠ §20.2"必须全链接、不能用并查集"仅对**未加 Jaccard 归一化的初版**成立，勿误读为矛盾。
-  - **零泄漏对照臂 `runs/neardup/`（划分 `products/alldata/splits/neardup_snapshot/`）**：
-    micro-F1@0.5 **0.8550±0.0731**（现行 0.8489±0.0699，**+0.0062**）、@val_thr 0.9333（−0.0056）、mAP 0.2784（−0.0020）。
-    结论：**新口径下两臂几乎无差**，泄漏不再表现为可判定效应。
-    ⚠ 旧口径（丢弃 80%）下曾测得 −3.9 点，属**已作废**数字（`runs/prior_dropout80/`），不得引用。
-  - 审计入口：`python scripts/near_dup_clusters.py --print --audit-split <seed0,seed1,seed2> --audit-out <out.json>`。
-- **2026-09-15 M3 设备与缓存加固**：`m3_build_features.py` 新增 `--device {cpu,cuda,auto}`（**默认 cpu，主库路径逐字节不变**），
-  GPU 实测 **6.2×**（44.6→7.2 ms/节点）、数值差 max|Δ|=5.6e-05；新增 `cache_usable()`（0 字节残缺文件视为未缓存）
-  与 `atomic_torch_save()`（临时文件 + `os.replace`）——**因本机 WSL 整机会重启**（2026-09-15 20:31 腰斩 M3，留下 2 个 0 字节缓存）。
-  `train.py`/`evaluate.py` 新增显式 `--label-file`/`--label-key-mode` + 划分内 base 标签硬校验；`train.py` 把
-  `label_source`（路径+sha256+key_mode）记入 config；`evaluate.py` 按 CLI→环境变量→**checkpoint 记录**回退，保证同源。
-- 已完成（2026-09-12）：M5 主体 `scripts/{metrics,train,evaluate}.py` 落地，train/evaluate/summary 全链路 smoke 通过（`pytest tests/` 现行 **97 passed**）。
-- **3 种子主实验（2026-09-16 现行口径 = 丢弃率语义，CUDA/RTX 4070 Laptop）**：micro-F1（主指标，标签对级）固定 0.5 = **0.8489±0.0699**、验证集阈值 = **0.9389±0.0047**；macro-F1（参考）0.1469±0.0936（@val_thr 0.0967）；mAP = 0.2804±0.0963。
-  > ⚠ **2026-09-16 之前的全部数字（micro 0.8954 / mAP 0.2980 等）已作废**——那是 `--prior-dropout` 实为保留率（实际丢弃 80%）的口径，与大纲 4.1.4 差 4 倍。归档 `runs/prior_dropout80/`，详见 `decisions.md` §26。
-- **语料口径**：590 图 → 剔 90 buggy → 池 **453**（正 127、全零 326）。**2026-09-13 的旧数字（581 图 / 池 448 / micro-F1 0.9058±0.0397）已存档于 `runs/prior_448pool/`，两者不可跨口径混用。** 改动与对照臂见 `experiments/decisions.md` §18。
-- **2026-09-14 过滤规则修订 + 对照臂**：`generate_all_ast_cfg_dfg.sh` 的 `delegatecall 动态绑定` 规则改为**仅记账、不再剔除**（原规则系统性删掉 SWC-112 访问控制样本本身；恢复 9 个文件、图 581→590、access_control 池级 15→17）；新增 `make_splits.py --include-buggy`（含 buggy 对照臂，隔离到 `withbuggy_snapshot/` + `runs/withbuggy/`）与 `--buggy-policy`；新增 `scripts/near_dup_clusters.py` 近重复簇检测（主库现行划分实测带同源泄漏：seed0 test↔train 17 对、最高 Jaccard 0.98）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行；`alldata_augmentation` 第二数据集的 M1–M5 全链待跑（产物区 `products/augmentation/`）。
-- 2026-09-12 目录重构（方案 B）：数据集产物统一迁入 `products/<数据集>/`；脚本默认路径、.gitignore 与文档已同步；`products/{dive,solidifi}/`、`runs/`、`eval_results/{ablation,baseline,dive,solidifi}/` 已建。
-- 2026-09-14 并行第二数据集：新增只读源 `alldata_augmentation/`（MVD-HG 论文增强集；1780 扁平 `.sol` + 9026 条 7 维标签），只读源 4→5；新增 `products/augmentation/{raw,graphs,splits}/` 空骨架，产物区 三→四区。**2026-09-16 该集已全链跑通并裁定与主库结果集并存**（见下方 09-16 条目与 `decisions.md` §23）。`MVD-HG-dataset/` 删除后已恢复，审计链与 `docs/data_funnel.md` 保持有效。决议见 `experiments/decisions.md` §19。
-- 目录与状态详情见 `项目组织架构.md` 末节。
+- 见 `log.md`（开发手册及项目组织架构修改日志、当前进度）。

@@ -99,8 +99,30 @@ def table_overview(arms: dict[str, list[dict]]) -> str:
     return "\n".join(out)
 
 
+def head_of_run(data: dict) -> str:
+    """该 results.json 的输出头型（缺键 → `multi`，兼容引入 `--head` 之前的产物）。
+
+    只认 `head` 键；`select_metric` 仅作旧产物的兜底判据（**不能用 `or` 链**——
+    `select_metric` 的取值本身就是真值字符串，会把兜底短路掉）。
+    """
+    head = data.get("head")
+    if head in ("multi", "binary"):
+        return head
+    return "binary" if data.get("select_metric") == "val_binary_ap" else "multi"
+
+
 def table_perclass(arms: dict[str, list[dict]], mode: str) -> str:
-    """逐类 F1（mean±std）@ 指定工作点；support 一并给出（口径要求，见 decisions §13）。"""
+    """逐类 F1（mean±std）@ 指定工作点；support 一并给出（口径要求，见 decisions §13）。
+
+    ⚠ **仅对 `multi` 臂有意义**：二分类臂的 `test.*` 里没有 `per_class` 键（键名一律 `binary_*`），
+    硬迭代 7 列会 IndexError。故此处**先剔除二分类臂并明确告知**，不静默产出空表。
+    """
+    skipped = [arm for arm, runs in arms.items() if head_of_run(runs[0]) == "binary"]
+    if skipped:
+        print(f"> ⚠ 逐类表跳过二分类臂（无 per-class 指标，键名为 binary_*）：{skipped}\n")
+    arms = {arm: runs for arm, runs in arms.items() if head_of_run(runs[0]) != "binary"}
+    if not arms:
+        return "（本次没有可出逐类表的臂）"
     out = [f"| 臂 | " + " | ".join(VULN_NAMES) + " |",
            "| --- | " + " | ".join(["---"] * len(VULN_NAMES)) + " |"]
     for arm, runs in arms.items():
@@ -165,7 +187,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--arms", default="",
                    help="只输出这些臂（逗号分隔子串匹配；默认全部）。")
     p.add_argument("--section", default="all",
-                   choices=["all", "overview", "perclass", "timing"])
+                   choices=["all", "overview", "perclass", "timing", "binary"])
     p.add_argument("--mode", default="val_threshold",
                    choices=["val_threshold", "fixed_0.5"], help="逐类表的工作点。")
     p.add_argument("--include-archive", action="store_true",
@@ -190,10 +212,31 @@ def main() -> None:
     if not arms:
         raise SystemExit("[aggregate] 没有找到 results.json")
 
+    # 二分类臂**本来就没有** micro_f1（decisions §31），不得报成"未跑 evaluate.py"
     missing = [a for a, r in arms.items()
-               if get(r[0], "test", "fixed_0.5", "micro_f1") is None]
+               if head_of_run(r[0]) != "binary"
+               and get(r[0], "test", "fixed_0.5", "micro_f1") is None]
     if missing:
         print(f"> ⚠ 以下臂的 results.json 缺 micro_f1（未跑 evaluate.py？）：{missing}\n")
+    binary_arms = [a for a, r in arms.items() if head_of_run(r[0]) == "binary"]
+    if binary_arms and args.section in ("all", "binary"):
+        print("### 二分类臂总览（head=binary；键名 binary_*）\n")
+        print("| 臂 | n | F1 @0.5 | F1 @val_thr | P @val_thr | R @val_thr | FPR @val_thr | FNR @val_thr | AP | val_thr |")
+        print("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+        for arm in binary_arms:
+            runs = arms[arm]
+            print("| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+                arm, len(runs),
+                ms([get(r, "test", "fixed_0.5", "binary_f1") for r in runs], 3),
+                ms([get(r, "test", "val_threshold", "binary_f1") for r in runs], 3),
+                ms([get(r, "test", "val_threshold", "binary_precision") for r in runs], 3),
+                ms([get(r, "test", "val_threshold", "binary_recall") for r in runs], 3),
+                ms([get(r, "test", "val_threshold", "binary_FPR") for r in runs], 3),
+                ms([get(r, "test", "val_threshold", "binary_FNR") for r in runs], 3),
+                ms([get(r, "AP", "AP") for r in runs], 3),
+                "/".join(f"{get(r, 'val_threshold', default=float('nan')):.2f}" for r in runs),
+            ))
+        print()
 
     root = roots[0]
     if args.section in ("all", "overview"):

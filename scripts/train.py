@@ -47,7 +47,8 @@ import torch.nn.functional as F
 import metrics
 import run_guard
 from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, collate,
-                     load_graph, resolve_label_file, resolve_label_key_mode)
+                     load_graph, resolve_label_file, resolve_label_key_mode,
+                     stack_labels)
 from model import (AblationConfig, NodeFuser, SSMHG, parameter_report,
                    sample_dropout_masks)
 
@@ -161,10 +162,39 @@ def build_fuser_model(meta: dict, ablation: AblationConfig, cfg: argparse.Namesp
                       prior_dropout=cfg.prior_dropout, struct_dropout=cfg.struct_dropout)
     torch.manual_seed(cfg.seed)
     # SSMHG 接收 fuser 的**输出** h_v^(0) ∈ R^128 → in_dim = fuser.hidden（而非融合输入 fuser.in_dim=1631）。
-    model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=NUM_RELATIONS,
-                  num_bases=cfg.num_bases, num_classes=NUM_CLASSES, dropout=cfg.model_dropout,
-                  conv_type=cfg.conv, use_meanpool=cfg.meanpool)
+    model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=num_relations_of(meta),
+                  num_bases=cfg.num_bases, num_classes=num_classes_of(cfg),
+                  dropout=cfg.model_dropout, conv_type=cfg.conv, use_meanpool=cfg.meanpool,
+                  num_layers=int(getattr(cfg, "layers", 2)))
     return fuser, model
+
+
+def num_relations_of(meta: dict) -> int:
+    """图 meta → RGCN 关系数。默认 5（正典 5 类边）。
+
+    ⚠ **必须从图产物回读，不能读模块常量**：`CALLBACK_RISK_REV` 变体（`ablation_plan.md` §6.3）
+    有 6 类边，而正典 `_pyg.pt` 早于该开关、**根本不带 `num_relations` 字段**——故用 `.get` 兜底 5，
+    两条路径都正确。写死常量会让变体静默少一组永远收不到消息的基（不报错，只是学不到）。
+    ⚠ 用 `getattr` 而非 `cfg.layers`：既有单测构造的裸 `Namespace` 没有该键，默认 2 保证
+    本开关引入前**行为逐字节一致**（与 `num_classes_of` 同一模式）。
+    """
+    return int(meta.get("num_relations", NUM_RELATIONS))
+
+
+def num_classes_of(cfg) -> int:
+    """`--head` → 输出头宽度（`multi`=7、`binary`=1）。
+
+    ⚠ **必须由 `config["args"]["head"]` 决定，不能读模块常量**：`evaluate.py` 要靠它重建模型，
+    否则 `Linear(64,1)` 与 `Linear(64,7)` 的 state_dict 不匹配。
+    ⚠ 用 `getattr` 而非 `cfg.head`：`tests/test_evaluate.py` 等构造的裸 `Namespace` 没有该键，
+    默认 `multi` 保证既有单测与本开关引入前**行为逐字节一致**。
+    """
+    return metrics.head_num_classes(getattr(cfg, "head", "multi"))
+
+
+def _monitor_name(head: str) -> str:
+    """早停/调度判据的名字（写进 checkpoint 与日志措辞，便于事后审计选的到底是什么）。"""
+    return "val binary AP" if head == "binary" else "val micro-F1"
 
 
 def _to_list(t: torch.Tensor) -> list:
@@ -189,6 +219,12 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--tau-var", type=float, default=0.1)
     p.add_argument("--pos-weight-cap", type=float, default=20.0,
                    help="pos_weight 截断上限（decisions §2）；0 或负数 = 不截断（放开，稀有类真实负正比全量生效）。")
+    p.add_argument("--head", choices=["multi", "binary"], default="multi",
+                   help="输出头（decisions §31）。`multi`=正典七类多标签（默认，逐字节不变）；"
+                        "`binary`=单头「有没有漏洞」：输出 7→1、标签塌成 any(targets)、损失单类 BCE，"
+                        "早停/调度判据改用 val 二分类 AP。**输入特征/s_v 先验/边/结构逐字不变**——"
+                        "唯一变量就是输出空间。⚠ 二分类臂不能用多标签指标函数（单列 [N,1] 会被 "
+                        "sklearn 判为 binary，average='micro' 退化成 accuracy，见 §28）。")
     p.add_argument("--loss", choices=["bce", "focal", "asl"], default="bce",
                    help="分类损失形状（默认 bce=主实验口径）；focal/asl 仅改调制因子，加权结构不变。")
     p.add_argument("--focal-gamma", type=float, default=2.0, help="focal 调制指数（--loss focal）。")
@@ -213,6 +249,9 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--conv", choices=["rgcn", "gcn"], default="rgcn")
     p.add_argument("--meanpool", action="store_true")
     p.add_argument("--num-bases", type=int, default=5)
+    p.add_argument("--layers", type=int, choices=[1, 2, 3], default=2,
+                   help="RGCN 消息传递层数（大纲 5.4.1 第 13 项；默认 2 = 正典）。"
+                        "⚠ 新增身份键，已登记进 run_guard.IDENTITY_DEFAULTS（decisions §31.3）。")
     p.add_argument("--hid", type=int, default=128)
     p.add_argument("--ablate-sv", action="store_true", help="特征消融：s_v 通道恒零（AblationConfig）。")
     p.add_argument("--cb-channels", default="cb_func,cb_node",
@@ -272,6 +311,11 @@ def _load_split_samples(split_path: str, graph_dir: str, ab: Ablation, index: di
         assert int(s.meta["D_struct"]) == int(meta["D_struct"]) and \
             s.meta["struct_layout"] == meta["struct_layout"], \
             "train/val 图之间的 D_struct/struct_layout 不一致（数据契约破坏）"
+        # 关系数是**模型宽度**的一部分（RGCN 的 comp 是 [num_relations, num_bases]），
+        # 混语料时若只按第一张图建模型，边类型越界只会在前向时才炸（或在别的图上静默丢消息）。
+        assert int(s.meta.get("num_relations", NUM_RELATIONS)) == int(
+            meta.get("num_relations", NUM_RELATIONS)), \
+            "train/val 图之间的 num_relations 不一致（正典图与 CALLBACK_RISK_REV 变体图混用？）"
     return train, val, meta
 
 
@@ -338,11 +382,12 @@ def main() -> None:
     model.to(device)
 
     # ---- 类别统计（只用训练集）----
-    train_labels = torch.stack([s.label for s in train_samples])
+    train_labels = stack_labels(train_samples, head=args.head)     # [N,7] 或 [N,1]
     pos_weight, class_mask, active_count, train_pos, train_neg = class_stats(
         train_labels, pos_weight_cap=args.pos_weight_cap)
-    active_classes = [i for i in range(NUM_CLASSES) if int(class_mask[i]) == 1]
-    skipped_classes = [i for i in range(NUM_CLASSES) if int(class_mask[i]) == 0]
+    n_cls = int(train_labels.shape[1])
+    active_classes = [i for i in range(n_cls) if int(class_mask[i]) == 1]
+    skipped_classes = [i for i in range(n_cls) if int(class_mask[i]) == 0]
 
     params = list(fuser.parameters()) + list(model.parameters())
     opt = torch.optim.AdamW(params, lr=args.lr, weight_decay=args.weight_decay)
@@ -368,8 +413,13 @@ def main() -> None:
             "struct_layout": meta["struct_layout"],
             "fuser_in_dim": fuser.in_dim,          # 融合 Linear 输入维（主配置 1631；--cb-channels 消融会变）
             "fuser_hidden": fuser.hidden,          # fuser 输出维 = SSMHG 输入维（恒 128）
-            "num_relations": NUM_RELATIONS,
-            "num_classes": NUM_CLASSES,
+            "num_relations": num_relations_of(meta),
+            "num_layers": int(getattr(args, "layers", 2)),
+            "head": args.head,                     # 供 evaluate/diagnose 重建模型（decisions §31）
+            "num_classes": num_classes_of(args),
+            # 类名与标签聚合方式写进产物，使报告/诊断层**自描述**、不必各自硬编码 7
+            "head_class_names": list(metrics.head_names(args.head)),
+            "label_aggregation": "identity" if args.head == "multi" else "any(targets)",
             "pos_weight": _to_list(pos_weight),
             "class_mask": _to_list(class_mask),
             "active_classes": active_classes,
@@ -393,7 +443,7 @@ def main() -> None:
     class_mask = class_mask.to(device)
 
     # ---- 训练循环 ----
-    best_micro_f1 = float("-inf")
+    best_monitor = float("-inf")     # 早停/调度/选点判据的最优值（multi=micro-F1，binary=AP）
     best_val_probs = None
     bad_epochs = 0
     train_seconds = 0.0
@@ -420,7 +470,7 @@ def main() -> None:
             B = len(samples)
             channels, ei, et, batch, labels = collate(
                 samples, drop_edge_prob=args.drop_edge_prob, generator=gen,
-                training=True, device=device)
+                training=True, device=device, head=args.head)
             prior_mask, struct_mask = sample_dropout_masks(
                 B, prior_p=args.prior_dropout, struct_p=args.struct_dropout, generator=gen)
             prior_mask = prior_mask.to(device)
@@ -457,7 +507,8 @@ def main() -> None:
             for i in range(0, len(val_samples), args.batch_size):
                 chunk = val_samples[i:i + args.batch_size]
                 B = len(chunk)
-                channels, ei, et, batch, labels = collate(chunk, training=False, device=device)
+                channels, ei, et, batch, labels = collate(chunk, training=False,
+                                                          device=device, head=args.head)
                 x = fuser(channels, batch=batch)
                 z, a, _ = model(x, ei, et, batch=batch)
                 val_probs_list.append(torch.sigmoid(z))
@@ -466,17 +517,32 @@ def main() -> None:
         val_labels = torch.cat(val_labels_list, dim=0)
         validation_seconds += time.perf_counter() - t_val
 
-        thr = metrics.search_global_threshold(val_probs, val_labels)
-        val_micro_f1 = float(thr["best_micro_f1"])
-        val_macro_f1 = float(thr["best_macro_f1"])
+        # 验证指标：`multi` = 标签对 micro-F1（含 val 阈值扫描）；`binary` = 二分类 AP。
+        # ⚠ **二分类绝不能走 search_global_threshold**：`[N,1]` 会让 micro-F1 退化成 accuracy
+        #   （§28）。判据用 AP（阈值无关，动态范围远大于被常量解刷分的合约级 F1，见 §9.6.1）；
+        #   同时用 search_global_threshold_binary 给出**报告用**的 @val_thr 工作点——两者是两件事。
+        val_micro_f1 = val_macro_f1 = None
+        val_binary_f1 = None
+        if args.head == "binary":
+            thr = metrics.search_global_threshold_binary(val_probs, val_labels)
+            val_binary_f1 = float(thr["best_binary_f1"])
+            val_monitor = metrics.binary_average_precision(val_probs, val_labels)["AP"]
+            if val_monitor is None:      # val 全正/全负 → AP 无定义，退到 F1（并留痕）
+                val_monitor = val_binary_f1
+                print(f"  ⚠ epoch {epoch}: val AP 无定义（val 标签全同），本 epoch 以二分类 F1 作判据")
+        else:
+            thr = metrics.search_global_threshold(val_probs, val_labels)
+            val_micro_f1 = float(thr["best_micro_f1"])
+            val_macro_f1 = float(thr["best_macro_f1"])
+            val_monitor = val_micro_f1
 
-        scheduler.step(val_micro_f1)
+        scheduler.step(val_monitor)
         epoch_seconds = time.perf_counter() - t_epoch
 
         # -------- checkpoint / 早停 --------
-        improved = val_micro_f1 > best_micro_f1
+        improved = val_monitor > best_monitor
         if improved:
-            best_micro_f1 = val_micro_f1
+            best_monitor = val_monitor
             bad_epochs = 0
             best_val_probs = {"probs": val_probs, "labels": val_labels,
                               "sample_ids": [s.name for s in val_samples],
@@ -485,7 +551,8 @@ def main() -> None:
                 "model_state_dict": model.state_dict(),
                 "fuser_state_dict": fuser.state_dict(),
                 "optimizer_state_dict": opt.state_dict(),
-                "epoch": epoch, "best_micro_f1": best_micro_f1,
+                "epoch": epoch, "best_micro_f1": best_monitor,
+                "best_monitor": best_monitor, "monitor_metric": _monitor_name(args.head),
                 "config": config, "seed": args.seed,
             }, run_dir / "best.pt")
             torch.save(best_val_probs, run_dir / "val_best_probs.pt")
@@ -497,7 +564,8 @@ def main() -> None:
             "model_state_dict": model.state_dict(),
             "fuser_state_dict": fuser.state_dict(),
             "optimizer_state_dict": opt.state_dict(),
-            "epoch": epoch, "best_micro_f1": best_micro_f1,
+            "epoch": epoch, "best_micro_f1": best_monitor,
+            "best_monitor": best_monitor, "monitor_metric": _monitor_name(args.head),
             "config": config, "seed": args.seed,
         }, run_dir / "last.pt")
 
@@ -512,6 +580,12 @@ def main() -> None:
             "score_std": tot["score_std"] / n,
             "val_macro_f1": val_macro_f1,
             "val_micro_f1": val_micro_f1,
+            # binary 臂追加两列（multi 臂此处展开为空 → 日志行**逐字节不变**）：
+            #   val_binary_ap = 早停/调度判据；val_binary_f1 = 同 epoch 的 F1（报告口径）。
+            #   两者都记，是为了事后能从 log.txt 审计「AP-argmax 与 F1-argmax 是否同一个 epoch」
+            #   ——AP 在 ① 上只由 ~22 个正样本决定，方差可能大于标签对 micro-F1，须留痕（§31）。
+            **({"val_binary_ap": val_monitor, "val_binary_f1": val_binary_f1}
+               if args.head == "binary" else {}),
             "lr": float(opt.param_groups[0]["lr"]),
             "epoch_seconds": round(epoch_seconds, 4),
             "samples_processed": cum_nodes,
@@ -519,12 +593,19 @@ def main() -> None:
             "gpu_mem_allocated": int(torch.cuda.memory_allocated()) if device == "cuda" else None,
         }
         log_lines.append(json.dumps(row, ensure_ascii=False))
-        print(f"epoch {epoch:3d} loss {row['loss_total']:.4f} clss {row['loss_cls']:.4f} "
-              f"var {row['loss_var']:.4f} sc_mean {row['score_mean']:.4f} sc_std {row['score_std']:.4f} "
-              f"val_micro {val_micro_f1:.4f} val_macro {val_macro_f1:.4f} "
-              f"lr {row['lr']:.2e} {epoch_seconds:.1f}s", flush=True)
+        if args.head == "binary":
+            print(f"epoch {epoch:3d} loss {row['loss_total']:.4f} clss {row['loss_cls']:.4f} "
+                  f"var {row['loss_var']:.4f} sc_mean {row['score_mean']:.4f} sc_std {row['score_std']:.4f} "
+                  f"val_AP {val_monitor:.4f} val_binF1 {val_binary_f1:.4f} "
+                  f"lr {row['lr']:.2e} {epoch_seconds:.1f}s", flush=True)
+        else:
+            print(f"epoch {epoch:3d} loss {row['loss_total']:.4f} clss {row['loss_cls']:.4f} "
+                  f"var {row['loss_var']:.4f} sc_mean {row['score_mean']:.4f} sc_std {row['score_std']:.4f} "
+                  f"val_micro {val_micro_f1:.4f} val_macro {val_macro_f1:.4f} "
+                  f"lr {row['lr']:.2e} {epoch_seconds:.1f}s", flush=True)
         if bad_epochs >= args.early_stop_patience:
-            print(f"early stop at epoch {epoch}（连续 {bad_epochs} epoch val micro-F1 不提升）")
+            print(f"early stop at epoch {epoch}（连续 {bad_epochs} epoch "
+                  f"{_monitor_name(args.head)} 不提升）")
             break
 
     # ---- 收尾：计时 + config.json + log.txt ----
@@ -543,8 +624,8 @@ def main() -> None:
     (run_dir / "config.json").write_text(
         json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
     (run_dir / "log.txt").write_text("\n".join(log_lines) + "\n", encoding="utf-8")
-    print(f"done seed{args.seed} (split_seed{split_seed}): best val micro-F1={best_micro_f1:.4f} "
-          f"@ epoch; wall={run_wall_seconds:.1f}s train={train_seconds:.1f}s "
+    print(f"done seed{args.seed} (split_seed{split_seed}): best {_monitor_name(args.head)}="
+          f"{best_monitor:.4f} @ epoch; wall={run_wall_seconds:.1f}s train={train_seconds:.1f}s "
           f"graphs/s={config['timing']['graphs_per_second']:.2f} → {run_dir}")
 
 

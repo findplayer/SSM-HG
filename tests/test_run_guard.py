@@ -215,3 +215,51 @@ def test_raw_script_refuses_and_touches_nothing():
         now = hashlib.sha1(p.read_bytes()).hexdigest() if p.exists() else None
         assert now == before[p], f"{p.name} 被守卫触碰了（事故回归）"
 
+
+
+# ------------------------------------------- 身份键默认值（IDENTITY_DEFAULTS，decisions §31）
+# 起因：`diff_args` 只比对**双方都有**的键。这对"用新代码复跑旧实验"是必需的，
+# 但反过来会造成「用一个新参数写进旧目录」差异为 0 → 守卫放行 → **无声覆盖**。
+#   `train.py --head binary --out-dir runs/prior_dropout_study/drop20_ts3_ss0` 就是这条路径。
+
+def test_identity_default_catches_new_flag_written_into_old_dir():
+    """🔴 老记录无 `head` + 新调用 `--head binary` → **必须报冲突**（否则无声覆盖配对基线）。"""
+    old = {"out_dir": "runs/prior_dropout_study/drop20_ts3_ss0", "lr": 1e-4}   # 引入 head 之前
+    new = {"out_dir": "runs/prior_dropout_study/drop20_ts3_ss0", "lr": 1e-4,
+           "head": "binary"}
+    diffs = run_guard.diff_args(old, new)
+    assert any(d.startswith("head:") for d in diffs), diffs
+    assert "multi" in diffs[0] and "binary" in diffs[0]
+
+
+def test_identity_default_still_allows_replaying_old_experiment():
+    """复跑旧实验（老记录无 `head`、新调用用默认 `multi`）**不得**被判冲突。"""
+    old = {"out_dir": "runs/seed0", "lr": 1e-4}
+    assert run_guard.diff_args(old, {"out_dir": "runs/seed0", "lr": 1e-4}) == []
+    assert run_guard.diff_args(old, {"out_dir": "runs/seed0", "lr": 1e-4,
+                                     "head": "multi"}) == []
+
+
+def test_identity_default_lets_single_variable_assertion_see_the_new_key():
+    """新臂相对**老基线**只覆盖一个键时，`changed` 必须恰为该键（否则消融断言会误判"未生效"）。"""
+    old = {"lr": 1e-4, "out_dir": "runs/prior_dropout_study/drop20_ts3_ss0"}
+    new = dict(old, head="binary")
+    changed = {d.split(":", 1)[0] for d in run_guard.diff_args(old, new)}
+    assert changed == {"head"}, changed
+
+
+def test_identity_default_keys_are_real_cli_flags():
+    """漂移守卫：登记进 `IDENTITY_DEFAULTS` 的键必须是 `train.parse_args()` 真有的开关。
+
+    挡的是"将来新增身份键却忘了登记"——同一漏洞会为新键重现（见 `IDENTITY_DEFAULTS` 注释）。
+    """
+    import io
+    import contextlib
+    with contextlib.redirect_stdout(io.StringIO()):     # --help 之类不会触发，但保持安静
+        saved, sys.argv = sys.argv, ["train.py"]
+        try:
+            flags = set(vars(train.parse_args()))
+        finally:
+            sys.argv = saved
+    unknown = set(run_guard.IDENTITY_DEFAULTS) - flags
+    assert not unknown, f"IDENTITY_DEFAULTS 里有非 train.py CLI 键：{unknown}"

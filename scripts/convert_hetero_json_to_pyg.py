@@ -23,14 +23,34 @@ def parse_args():
     return parser.parse_args()
 
 
-# 关系编号固定（手册 7.7）：0=CFG_FLOW, 1=AST_PARENT, 2=AST_PARENT_SAME, 3=DFG_DEP, 4=CALLBACK_RISK
+# 关系编号固定（手册 7.7）：0=CFG_FLOW, 1=AST_PARENT, 2=AST_PARENT_SAME, 3=DFG_DEP, 4=CALLBACK_RISK；
+# 5=CALLBACK_RISK_REV **仅 `--callback-rev` 变体存在**（大纲改II 第 160/220 行；
+# 「若添加反向边则按实际关系数统计」⇒ 它是**独立关系**，不是"同一关系加反向边"）。
 RELATION_IDS = {
     "CFG_FLOW": 0,
     "AST_PARENT": 1,
     "AST_PARENT_SAME": 2,
     "DFG_DEP": 3,
     "CALLBACK_RISK": 4,
+    "CALLBACK_RISK_REV": 5,
 }
+# 正典语料的关系数（无 REV 键时的兜底）
+DEFAULT_NUM_RELATIONS = 5
+
+
+def num_relations_of(edges: dict) -> int:
+    """关系数 = 1 + **实际出现在该图 edges 里的**已知关系最大编号。
+
+    🔴 **不能按 `RELATION_IDS` 的最大编号（恒 6）算**：正典语料没有 `CALLBACK_RISK_REV` 键，
+    按常量算会把它也写成 6 ⇒ RGCN 多出一组**永远收不到消息的基**。这不会报错，
+    只会静默改变参数量与初始化（`decisions.md` §28/§31.3 同一类"不报错的错"）。
+
+    ⚠ 判据是「**键存在**」而非「边非空」：变体图里有的图可能一条 REV 边都没有（该图本就
+    没有 CALLBACK_RISK 边），但整个语料的关系空间必须一致——否则同一语料里
+    `num_relations` 会在 5/6 之间摇摆，训练侧的一致性断言会直接拒绝。
+    """
+    known = [RELATION_IDS[k] for k in edges if k in RELATION_IDS]
+    return (1 + max(known)) if known else DEFAULT_NUM_RELATIONS
 
 
 def convert_one(json_path: Path, out_dir: Path):
@@ -66,6 +86,10 @@ def convert_one(json_path: Path, out_dir: Path):
     payload = {
         # M3 之后替换成 128 维 h_v^(0)
         "x": torch.zeros(num_nodes, 1, dtype=torch.float32),
+        # 关系数由图产物自述（训练/评估侧 `meta.get("num_relations", 5)` 回读）。
+        # ⚠ 正典 `_pyg.pt` 早于本字段，**不因这次改动而变**（那两个分支都不含 REV 键，
+        #   值仍为 5，且旧文件靠 `.get` 兜底）——本字段只在**新建**的产物里出现。
+        "num_relations": num_relations_of(edges),
         "edge_index": (
             torch.tensor(edge_pairs, dtype=torch.long).t().contiguous()
             if edge_pairs

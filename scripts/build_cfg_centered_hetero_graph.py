@@ -9,6 +9,10 @@ import sys
 from collections import defaultdict, deque
 from pathlib import Path
 
+# 同目录 import（各脚本统一从仓库根目录运行：`python scripts/xxx.py`）
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import run_guard                                                        # noqa: E402
+
 
 EXCLUDED_TOKENS = {
     "true",
@@ -111,9 +115,21 @@ def parse_args():
         help="Max CALLBACK_RISK edges per external-call node (0 = unlimited).",
     )
     parser.add_argument(
+        "--callback-rev",
+        action="store_true",
+        help="额外产出反向关系 CALLBACK_RISK_REV（大纲改II 第 160 行，5.4.2 第 12 项；"
+             "**默认关 ⇒ 正典逐字节不变**）。语义 = 已建 CALLBACK_RISK 边集的精确镜像，"
+             "不另跑一套过滤规则（那会引入第二个变量）。",
+    )
+    parser.add_argument(
         "--only",
         default=None,
         help="只处理该 base 前缀（小样回归用，例如某张图的 `<项目>__<合约>`）。",
+    )
+    parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="允许写入一个**已装有 *_hetero.json** 的 out-dir（默认拒绝，见 run_guard）。",
     )
     return parser.parse_args()
 
@@ -976,12 +992,36 @@ def build_callback_risk_edges(nodes, cfg_edges, fn_table, state_vars, callback_l
     return callback_edges, truncated, ext_call_node_count
 
 
+def reverse_callback_edges(callback_edges) -> set:
+    """已建 CALLBACK_RISK 边集的**精确镜像** `{(entry, ext)}`（大纲改II 第 160 行）。
+
+    ⚠ 只做取反，**不另跑一套过滤规则**：反向边若自带过滤条件，本项就同时动了两个变量
+    （关系方向 + 端点筛选），指标变化将无法归因。故 `|REV| == |CALLBACK_RISK|` 恒成立，
+    由 `tests/test_m2_callback_rev.py` 钉死。
+    """
+    return {(entry, ext) for ext, entry in callback_edges}
+
+
 def main():
     """主流程：逐 AST 文件构建 CFG 中心异构图，写入 products/alldata/graphs/。
 
     CFG 来源优先 cfgdetail（含 seq/true/false 分支类型），缺失回退 dot 解析。
     """
     args = parse_args()
+    # 🔴 输出目录守卫（`run_guard.py`，2026-09-18 补；缺口见 ablation_plan §6.5）。
+    # 本脚本原先**没有任何覆盖检查**，而默认 `--out-dir` 就是正典语料目录
+    # `products/alldata/graphs`——不传 `--out-dir` 地跑一次变体参数，就会逐个改写 590 个
+    # 正典 `_hetero.json`，而下游 `_m1.json`/`_pyg.pt`/`_feat.pt` **全部不同步且不报错**。
+    # 判据比 train/make_splits/m3 三处更严：本脚本的产物没有自述文件可逐项对比，
+    # 故只要目标目录已有同类产物就要求 `--overwrite`。
+    conflict = run_guard.nonempty_out_dir(args.out_dir, "*_hetero.json")
+    if conflict and not args.overwrite:
+        raise SystemExit(run_guard.guard_message(
+            args.out_dir, [conflict],
+            "做消融/换数据集请改用 `--out-dir products/alldata/graph_variants/<name>`"
+            "（products/alldata/graphs 是正典语料）；确实要重建时加 `--overwrite`。"))
+    if conflict:
+        print(run_guard.warn_message(args.out_dir, [conflict]), flush=True)
     os.makedirs(args.out_dir, exist_ok=True)
 
     ast_paths = sorted(Path(args.ast_dir).glob("*.json"))
@@ -1262,6 +1302,9 @@ def main():
         callback_avg_edges = (
             round(len(callback_edges) / ext_call_node_count, 4) if ext_call_node_count else 0.0
         )
+        # 反向关系（5.4.2 第 12 项）：**只在显式开启时**出现在 meta 与 edges 里。
+        # 这是"默认关 ⇒ 正典逐字节不变"的实现方式：不加空键、不加 false 标志。
+        rev_edges = reverse_callback_edges(callback_edges) if args.callback_rev else None
 
         out = {
             "meta": {
@@ -1308,8 +1351,14 @@ def main():
                 "CALLBACK_RISK": [
                     {"source": s, "target": t} for s, t in sorted(callback_edges)
                 ],
+                **({"CALLBACK_RISK_REV": [
+                    {"source": s, "target": t} for s, t in sorted(rev_edges)
+                ]} if rev_edges is not None else {}),
             },
         }
+        if rev_edges is not None:
+            out["meta"]["callback_rev"] = True
+            out["meta"]["callback_rev_edge_count"] = len(rev_edges)
 
         out_path = Path(args.out_dir) / f"{base}_hetero.json"
         with open(out_path, "w", encoding="utf-8") as handle:

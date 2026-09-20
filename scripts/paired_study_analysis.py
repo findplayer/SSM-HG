@@ -74,30 +74,75 @@ def _labels_for(run: Path) -> np.ndarray:
     return np.array([index[b] for b in split["val"]])
 
 
+def head_of(run: Path) -> str:
+    """该 run 的输出头型（缺键 → `multi`，兼容引入 `--head` 之前的产物）。"""
+    cfg = json.loads((run / "config.json").read_text(encoding="utf-8"))
+    return (cfg.get("args", {}).get("head") or cfg.get("derived", {}).get("head") or "multi")
+
+
 def val_metrics(run: Path) -> dict[str, float]:
-    """该 run 的验证集指标（概率缓存 + 同源标签，无需权重）。"""
+    """该 run 的验证集指标（概率缓存 + 同源标签，无需权重）。
+
+    **两族指标**（decisions §31）：
+      - `val_binary_*`：**两条臂都算**——把七类塌成 `any(targets)` 后与二分类臂同口径。
+        等价性靠 `max_c p_c >= t ⇔ any_c(p_c >= t)`（`metrics.contract_any_scores`），
+        故两条臂在**同一阈值、同一规则**下可比，Δ 只归因于输出头。
+      - `val_micro/macro/mAP`：**只对 `multi` 臂有意义**；二分类臂上置 `None`，
+        打印为 `—`（**不是 0**——0 会被读成"指标很差"）。
+    """
     probs = torch.load(run / "val_best_probs.pt", map_location="cpu")
     if isinstance(probs, dict):
         probs = probs["probs"]
     p = probs.numpy()
-    y = _labels_for(run)
+    y = _labels_for(run)                       # 恒 [N,7]（标签索引是事实来源）
     thr = json.loads((run / "thresholds.json").read_text(encoding="utf-8"))["best_threshold"]
-    out = {}
-    for tag, t in (("val_micro@0.5", 0.5), ("val_micro@val_thr", thr)):
-        q = (p >= t).astype(int)
-        out[tag] = float(f1_score(y, q, average="micro", zero_division=0))
-    out["val_macro@0.5"] = float(f1_score(y, (p >= 0.5).astype(int),
-                                          average="macro", zero_division=0))
-    out["val_mAP"] = _val_map(p, y)
+    out: dict[str, float | None] = {}
+
+    # ---- 二分类族（两臂共用；显式塌缩，绝不走 average="micro"——单列会退化成 accuracy，§28）----
+    yb = metrics_().contract_any_labels(y)
+    pb = metrics_().contract_any_scores(p)
+    out["val_binary_ap"] = metrics_().binary_average_precision(pb, yb)["AP"]
+    out["val_pos_rate"] = float(np.mean(yb))
+    for tag, t in (("val_binary_f1@0.5", 0.5), ("val_binary_f1@val_thr", thr)):
+        r = metrics_().binary_prf(yb, (pb >= t).astype(int))
+        out[tag] = r["f1"] if r["f1"] is not None else 0.0
+    r = metrics_().binary_prf(yb, (pb >= thr).astype(int))
+    out["val_binary_fpr@val_thr"] = r["FPR"]
+    out["val_binary_fnr@val_thr"] = r["FNR"]
+
+    # ---- 多标签族（仅 multi 臂）----
+    if head_of(run) == "multi":
+        for tag, t in (("val_micro@0.5", 0.5), ("val_micro@val_thr", thr)):
+            out[tag] = float(f1_score(y, (p >= t).astype(int), average="micro", zero_division=0))
+        out["val_macro@0.5"] = float(f1_score(y, (p >= 0.5).astype(int),
+                                              average="macro", zero_division=0))
+        out["val_mAP"] = _val_map(p, y)
+    else:
+        # 二分类臂上这些量无定义。**不调用** f1_score —— [N,1] 会静默退化成 accuracy（§28）。
+        out["val_micro@0.5"] = None
+        out["val_micro@val_thr"] = None
+        out["val_macro@0.5"] = None
+        out["val_mAP"] = None
     out["thr"] = float(thr)
     return out
 
 
+_METRICS_MOD = None
+
+
+def metrics_():
+    """延迟导入 `metrics`（避免与顶部的 sklearn 导入顺序纠缠）。"""
+    global _METRICS_MOD
+    if _METRICS_MOD is None:
+        sys.path.insert(0, str(REPO / "scripts"))
+        import metrics as _m  # noqa: E402
+        _METRICS_MOD = _m
+    return _METRICS_MOD
+
+
 def _val_map(probs: np.ndarray, y: np.ndarray) -> float:
     """macro AP（仅 support>0 的类）—— 与 `metrics.mean_average_precision` 同口径。"""
-    sys.path.insert(0, str(REPO / "scripts"))
-    import metrics  # noqa: E402  （延迟导入：避免与上面的 sklearn 导入争用）
-    return float(metrics.mean_average_precision(probs, y)["mAP"])
+    return float(metrics_().mean_average_precision(probs, y)["mAP"])
 
 
 def paired_t(deltas: list[float]) -> float:
@@ -117,8 +162,11 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--baseline-dir", required=True, help="基线所在目录。")
     p.add_argument("--baseline-cfg", required=True, help="基线配置名（如 drop20）。")
     p.add_argument("--metrics", default="val_micro@0.5,val_mAP",
-                   help="要报 Δ 的指标（逗号分隔；可用 val_micro@0.5 / val_micro@val_thr / "
-                        "val_macro@0.5 / val_mAP）。")
+                   help="要报 Δ 的指标（逗号分隔）。多标签族（仅 multi 臂有值）：val_micro@0.5 / "
+                        "val_micro@val_thr / val_macro@0.5 / val_mAP；"
+                        "二分类族（**两臂都有值**，decisions §31）：val_binary_ap / "
+                        "val_binary_f1@0.5 / val_binary_f1@val_thr / val_binary_fpr@val_thr / "
+                        "val_binary_fnr@val_thr / val_pos_rate。")
     p.add_argument("--json-out", default="", help="把结果落盘为 JSON（便于贴进文档）。")
     return p.parse_args()
 
@@ -164,8 +212,16 @@ def main() -> None:
         entry: dict = {"n": len(keys), "pairings": [f"ts{t}_ss{s}" for _c, t, s in keys]}
         arm_vals = {k: val_metrics(arms[k]) for k in keys}      # 每配对只算一次
         for m in metrics_wanted:
-            deltas = [arm_vals[k][m] - base_vals[(k[1], k[2])][m] for k in keys]
-            vals = [arm_vals[k][m] for k in keys]
+            pairs_m = [(arm_vals[k].get(m), base_vals[(k[1], k[2])].get(m)) for k in keys]
+            usable = [(a, b) for a, b in pairs_m if a is not None and b is not None]
+            if not usable:
+                # 该指标在此臂上无定义（如 multi 指标之于 binary 臂）→ 打 `—`，不崩、不假装 0
+                cells.append("— | — | —")
+                entry[m] = {"arm_mean": None, "delta_mean": None, "delta_std": None,
+                            "t": None, "n": 0, "note": "该指标在此臂上无定义"}
+                continue
+            deltas = [a - b for a, b in usable]
+            vals = [a for a, _ in usable]
             mean_d = statistics.mean(deltas)
             std_d = statistics.stdev(deltas) if len(deltas) > 1 else 0.0
             t = paired_t(deltas)
@@ -173,7 +229,7 @@ def main() -> None:
                          f"{mean_d:+.4f} ± {std_d:.4f} | {t:+.2f}")
             entry[m] = {"arm_mean": round(statistics.mean(vals), 6),
                         "delta_mean": round(mean_d, 6), "delta_std": round(std_d, 6),
-                        "t": round(t, 3), "n": len(keys)}
+                        "t": round(t, 3), "n": len(usable)}
         print(f"| **{cfg}** | {len(keys)} | " + " | ".join(cells) + " |")
         result["arms"][cfg] = entry
 

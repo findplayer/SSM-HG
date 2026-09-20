@@ -1,51 +1,72 @@
 {
   "seeds": [
-    0
+    0,
+    1,
+    2
   ],
-  "n_seeds": 1,
+  "n_seeds": 3,
   "main_seed": 0,
   "std_ddof": 1,
+  "per_seed": {
+    "0": {
+      "split_seed": 0,
+      "val_threshold": 0.8,
+      "micro_f1_fixed_0.5": 0.6792452830188678,
+      "macro_f1_fixed_0.5": 0.6416361416361417,
+      "micro_f1_val_threshold": 0.7441860465116279,
+      "macro_f1_val_threshold": 0.5278293135435993,
+      "mAP": 0.7162698412698413
+    },
+    "1": {
+      "split_seed": 1,
+      "val_threshold": 0.8,
+      "micro_f1_fixed_0.5": 0.6274509803921569,
+      "macro_f1_fixed_0.5": 0.4492063492063493,
+      "micro_f1_val_threshold": 0.7317073170731706,
+      "macro_f1_val_threshold": 0.5095238095238095,
+      "mAP": 0.829448039378353
+    },
+    "2": {
+      "split_seed": 2,
+      "val_threshold": 0.75,
+      "micro_f1_fixed_0.5": 0.7391304347826089,
+      "macro_f1_fixed_0.5": 0.5253968253968254,
+      "micro_f1_val_threshold": 0.7894736842105262,
+      "macro_f1_val_threshold": 0.46031746031746035,
+      "mAP": 0.714172335600907
+    }
+  },
+  "head": "multi",
   "test": {
     "fixed_0.5": {
       "micro_f1": {
-        "mean": 0.42623,
-        "std": 0.0,
-        "n": 1
+        "mean": 0.681942,
+        "std": 0.055889,
+        "n": 3
       },
       "macro_f1": {
-        "mean": 0.231653,
-        "std": 0.0,
-        "n": 1
+        "mean": 0.538746,
+        "std": 0.096907,
+        "n": 3
       }
     },
     "val_threshold": {
       "micro_f1": {
-        "mean": 0.42623,
-        "std": 0.0,
-        "n": 1
+        "mean": 0.755122,
+        "std": 0.030396,
+        "n": 3
       },
       "macro_f1": {
-        "mean": 0.231653,
-        "std": 0.0,
-        "n": 1
+        "mean": 0.499224,
+        "std": 0.034915,
+        "n": 3
       }
     }
   },
   "mAP": {
-    "mean": 0.273259,
-    "std": 0.0,
-    "n": 1
-  },
-  "per_seed": {
-    "0": {
-      "split_seed": 0,
-      "val_threshold": 0.5,
-      "micro_f1_fixed_0.5": 0.42622950819672134,
-      "macro_f1_fixed_0.5": 0.23165266106442578,
-      "micro_f1_val_threshold": 0.42622950819672134,
-      "macro_f1_val_threshold": 0.23165266106442578,
-      "mAP": 0.2732591060139471
-    }
+    "mean": 0.753297,
+    "std": 0.065957,
+    "n": 3
   },
   "note": "主指标 micro-F1（标签对级）；macro-F1 为参考，注释须与其计算划分的支撑同口径；support≤2 的类仅描述性呈现（decisions §13）。"
 }

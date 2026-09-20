@@ -76,7 +76,14 @@ def combined_sha256(channel_hashes: dict[str, str]) -> str:
 # 3=DFG_DEP, 4=CALLBACK_RISK
 RELATION_NAMES = {0: "CFG_FLOW", 1: "AST_PARENT", 2: "AST_PARENT_SAME",
                   3: "DFG_DEP", 4: "CALLBACK_RISK"}
+# 🔴 `RELATION_NAMES` 必须**恒为 5 项**：`audit_data_funnel.py:382` 有一条
+# `assert len(dataset.RELATION_NAMES) == 5`，它审计的是**正典语料**——不能为一个消融放宽。
+# 故 `CALLBACK_RISK_REV`（编号 5，仅 `--callback-rev` 变体存在）另立**显示用**扩展表，
+# 只服务于 `type_dist` 的可读输出，**不参与白名单/校验/建模型**（那三处都按图产物回读）。
+RELATION_NAMES_EXT = {**RELATION_NAMES, 5: "CALLBACK_RISK_REV"}
 # 边级消融白名单：允许被删的物理关系编号（白名单外编号在加载时报错，不静默忽略）
+# ⚠ **不扩到 5**：扩了等于给正典开一个无用的删边口子；REV 是"加一类边"的消融，
+# 不是"删一类边"的消融，`--drop-edges 5` 报错是**预期行为**（见 ablation_plan §6.3 验收）。
 DROPPABLE_EDGES = frozenset(RELATION_NAMES)
 # `--drop-ast`：删 AST_PARENT(1) + AST_PARENT_SAME(2)（论文叙述为“去 AST 语义边”）
 DROP_AST = frozenset({1, 2})
@@ -135,16 +142,29 @@ def resolve_label_key_mode(explicit: str | None = None) -> str:
 
 
 def stem_key_of(contract_name: str) -> str:
-    """`<词干>-<合约>.sol` → 词干（`stem` 键模式）。
+    """标签 `contract_name` → **源文件的 `.sol` 词干**（= 图 base = 标签键）。
 
-    新语料命名固定为 `<词干>-<合约>.sol` 且词干内不含 `-`（1780/1780 实测），
-    故取首个 `-` 之前即 `.sol` 词干 = 图 base（M2 由 `.sol` 词干生成）＝标签键。
+    `stem` 键模式的**唯一职责**就是"从标签名还原出源文件名"。两个语料的标签命名不同，
+    但都归结到同一件事：**取首个 `-` 之前，再剥掉 `.sol` 后缀**。
+
+    | 语料 | 源文件 | 标签 `contract_name` | 取 `-` 前 | 再剥 `.sol` |
+    | --- | --- | --- | --- | --- |
+    | ② 增强集 | `0x000c…f53.sol` | `0x000c…f53-C10Token.sol` | `0x000c…f53` | `0x000c…f53` ✓ |
+    | DIVE | `8263.sol` | `8263.sol` | `8263.sol` | `8263` ✓ |
+
+    🔴 **2026-09-19 修**：原实现只做 `split("-", 1)[0]`，对 ② 恰好正确（9026/9026 的标签名
+    都带 `-`），但对 DIVE **全错**——`8263.sol` 无 `-` ⇒ 键算成 `"8263.sol"`，与图 base
+    `8263` 一个都匹配不上（实测 890 张图 **0 命中**）。手册 §10.2 第 9 条早就写明
+    「DIVE `contract_name` 形如 `8263.sol`」且 stem 模式取的就是 `.sol` 词干——
+    即**原实现没有兑现它自己的文档**。补上剥后缀这一步即可，两语料自此同一条规则。
+    已实测该改动对 ② 的 9026 条**逐条键不变**（0 条不同），故 ② 全部既有结果零影响。
 
     与 `project` 模式的两点差别（都是刻意的）：**不做 lower**、**不剥 asd_/nasd_ 前缀**——
     两侧来自同一批文件名，精确匹配即可；若出现大小写漂移，应当在 `unmatched` 里显式暴露，
     而不是被规范化悄悄掩盖。
     """
-    return str(contract_name).split("-", 1)[0]
+    head = str(contract_name).split("-", 1)[0]
+    return Path(head).stem if head.endswith(".sol") else head
 
 
 def build_proj_labels(label_file: Path | str | None = None,
@@ -337,14 +357,31 @@ def load_graph(base: str, graph_dir: str = DEFAULT_GRAPH_DIR,
     label = torch.tensor(index[base] if index is not None else [0] * 7,
                          dtype=torch.float32)
     sample_meta = dict(meta)
+    # 关系数由图产物自带（`convert_hetero_json_to_pyg.py` 按**实际出现的边键**写入）。
+    # 正典 `_pyg.pt` 早于该字段 → `.get` 兜底 5，两条路径都对。
     sample_meta.update({"n_nodes": n, "cb_missing_rows": missing,
-                        "n_edges": int(edge_index.shape[1])})
+                        "n_edges": int(edge_index.shape[1]),
+                        "num_relations": int(payload.get("num_relations", 5))})
     return GraphSample(channels=channels, edge_index=edge_index, edge_type=edge_type,
                        label=label, name=base, node_id=payload["node_id"], meta=sample_meta)
 
 
+def stack_labels(samples, head: str = "multi"):
+    """`list[GraphSample]` → 标签张量：`multi` 为 `[B,7]`，`binary` 为 `[B,1]` 的 `any(targets)`。
+
+    **7→1 的塌缩只在这里发生**（`collate` 与 `train.class_stats` 共用本函数）。
+    `build_index` / 标签文件 / 划分 / 通道哈希全部保持 7 维不动——这是「二分类臂只换输出头」
+    能成立的前提：不碰任何已入库的中间产物（decisions §31）。
+    """
+    labels = torch.stack([s.label for s in samples])
+    if head == "binary":
+        labels = labels.any(dim=1, keepdim=True).to(labels.dtype)
+    return labels
+
+
 def collate(samples, drop_edge_prob: float = 0.0, generator: "torch.Generator | None" = None,
-            training: bool = True, device: "str | torch.device | None" = None):
+            training: bool = True, device: "str | torch.device | None" = None,
+            head: str = "multi"):
     """list[GraphSample] → (channels, edge_index, edge_type, batch, labels)。
 
     自实现批图（**不引入 PyG DataLoader**；decisions §16.2）：
@@ -354,9 +391,12 @@ def collate(samples, drop_edge_prob: float = 0.0, generator: "torch.Generator | 
       `labels`=stack [B,7]。train/evaluate 共用。
     - `device`（可选）：非 None 时把全部张量 `.to(device)` 后返回（GPU 训练/推理用；默认 None=留在
       CPU，保持纯函数语义与既有单测不变）。
+    - `head`（`--head binary` 臂，decisions §31）：`"binary"` 时把 `[B,7]` 标签塌成 `[B,1]` 的
+      `any(targets)`。**塌缩只发生在这里**——`build_index` / 标签文件 / 划分 / 通道哈希全部保持
+      7 维不动，这是「二分类臂只换输出头」能成立的前提。
     """
     b = len(samples)
-    labels = torch.stack([s.label for s in samples])                     # [B,7]
+    labels = stack_labels(samples, head=head)                            # [B,7] 或 [B,1]
     channel_parts = {k: [] for k in CHANNEL_ORDER}
     edge_parts, type_parts, node_counts = [], [], []
     offset = 0
@@ -427,7 +467,7 @@ def main() -> None:
     print("channels  : " + ", ".join(f"{k}={tuple(v.shape)}" for k, v in sample.channels.items()))
     print(f"cb missing: {sample.meta['cb_missing_rows']}  "
           f"combined sha: {str(sample.meta.get('combined_sha256'))[:16]}…")
-    print(f"edge_types: { {RELATION_NAMES.get(k, k): v for k, v in sorted(type_dist.items())} }")
+    print(f"edge_types: { {RELATION_NAMES_EXT.get(k, k): v for k, v in sorted(type_dist.items())} }")
     print(f"label     : {sample.label.tolist()}")
 
 
