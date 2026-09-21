@@ -95,6 +95,24 @@ ABLATIONS: list[tuple[str, dict, str]] = [
      "冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）"),
 ]
 
+# ---------------------------------------------------------------- 剂量-反应臂（**不进正典表**）
+# 🔴 **为什么不放 ABLATIONS**：`ABLATIONS` 是**正典消融表**的臂集合，其规模（21 臂）被
+#   `tests/test_collect_ablation.py`、`eval_results/ablation/collected*.md`、
+#   `experiments/ablation_three_metric_table.md` 与 AGENTS.md **多处硬引用**；
+#   往里加臂 = 同时改这些表的行数与全部「n/21 为负」类计数断言。
+#   而 L_var 剂量-反应本身是**大纲之外的后处理**（AGENTS.md 改动原则：须先同步大纲与开发手册），
+#   未经裁定就进正典臂表属流程越界。故单独列在这里，用 `--arms-file` 显式启用。
+#
+# **为什么该项值得补**：`no_lvar` 把 λ 置 0，但实测 λ·L_var 在训练中只占总损失的
+#   **0.0003%–0.0054%**（`improvement_proposals.md` §4.1 逐 epoch 实测）⇒ 这一项在数值上
+#   等于没加，故"关掉它"是构造性空操作（Δ +0.0045 = 纯噪声）。论文里**不得**由此写成
+#   "L_var 无作用"，正确说法是「**本实验的 λ 取值使该项不产生可测影响**」。
+DOSE_ARMS: list[tuple[str, dict, str]] = [
+    ("lvar_dose_0.01", {"lambda_var": 0.01}, "L_var 剂量 λ=0.01（基线 0.001，×10）"),
+    ("lvar_dose_0.1",  {"lambda_var": 0.1},  "L_var 剂量 λ=0.1（基线 0.001，×100）"),
+    ("lvar_dose_1.0",  {"lambda_var": 1.0},  "L_var 剂量 λ=1.0（基线 0.001，×1000）"),
+]
+
 # 仍需人工定值、故**不预置**的项（避免我替用户拍板）。取到值后加进 ABLATIONS 并在描述里写「已裁定」。
 PENDING_DECISION: list[tuple[str, str, str]] = [
     # `num_bases` 与 `drop_edge_prob` **已于 2026-09-18 裁定采用计划 §3.1 建议值**（见上方 ABLATIONS），
@@ -242,6 +260,9 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--only", default="", help="只跑这些项（逗号分隔；默认全部）。")
+    p.add_argument("--with-dose-arms", action="store_true",
+                   help="把 `DOSE_ARMS`（L_var 剂量-反应）并入可选项。**默认关闭**——"
+                        "它们不进正典消融表（行数被多处硬引用），且属大纲之外的后处理。")
     p.add_argument("--seeds", default="0,1,2", help="训练/划分种子（默认 0,1,2）。")
     p.add_argument("--base-config", default=str(CANON_RUN / "config.json"),
                    help="基线 config.json（① 默认 runs/seed0/；② 传 runs/augmentation/seed0/）。")
@@ -258,14 +279,17 @@ def main() -> None:
     base = canonical_args(args.base_config)
     root, variants = Path(args.root), variants_root_of(base)
     seeds = [int(s) for s in args.seeds.split(",") if s.strip()]
-    items = ABLATIONS
+    # 正典臂 + （可选）剂量-反应臂。剂量臂**默认不跑**，以免无意改动正典表的行数。
+    all_items = list(ABLATIONS) + (list(DOSE_ARMS) if args.with_dose_arms else [])
+    items = all_items
     if args.only:
         needles = [s.strip() for s in args.only.split(",") if s.strip()]
-        items = [it for it in ABLATIONS if it[0] in needles]
-        unknown = set(needles) - {it[0] for it in ABLATIONS}
+        items = [it for it in all_items if it[0] in needles]
+        unknown = set(needles) - {it[0] for it in all_items}
         if unknown:
-            raise SystemExit(f"[ablation] 未知项 {sorted(unknown)}；可选："
-                             f"{[it[0] for it in ABLATIONS]}")
+            hint = "" if args.with_dose_arms else "（剂量臂需加 --with-dose-arms）"
+            raise SystemExit(f"[ablation] 未知项 {sorted(unknown)}{hint}；可选："
+                             f"{[it[0] for it in all_items]}")
     if not items:
         raise SystemExit("[ablation] 没有匹配的消融项")
 

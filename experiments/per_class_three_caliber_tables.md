@@ -10,7 +10,7 @@
 
 > 🔴 **`macro` 表与 `micro` 表的逐类格逐位相同**——macro-F1 就是那 7 个数的未加权平均，**差异只在汇总列**（这是恒等，不是重复计算）。
 
-> ⚠ ① 主库 test 的 `dos`/`front_running` 逐类 support 低到 **1**，该 support 下单类 F1 一次翻转就差 0.67，跨行 Δ 不可解读。
+> ⚠ **跨全部种子**的最小逐类 support：`arithmetic`/`dos`/`front_running`/`time_manipulation` ≤ **2** —— 该 support 下单类 F1 一次翻转就差 0.67，跨行 Δ 不可解读（大纲 5.1：support ≤ 2 的类仅作描述性呈现、不进入方法间比较结论）。
 
 ## 0. 逐类 support（先读）
 

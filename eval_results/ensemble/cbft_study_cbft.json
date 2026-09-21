@@ -1,0 +1,134 @@
+{
+ "group": "/home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study",
+ "prefix": "cbft",
+ "split_seeds": {
+  "ss0": {
+   "runs": [
+    "runs/cbft_study/cbft_ts0_ss0/seed0",
+    "runs/cbft_study/cbft_ts1_ss0/seed1",
+    "runs/cbft_study/cbft_ts2_ss0/seed2"
+   ],
+   "n_models": 3,
+   "singles": [
+    {
+     "run": "runs/cbft_study/cbft_ts0_ss0/seed0",
+     "val_threshold": 0.75,
+     "test_micro@0.5": 0.727273,
+     "test_micro@val_thr": 0.755556,
+     "test_macro@val_thr": 0.549206
+    },
+    {
+     "run": "runs/cbft_study/cbft_ts1_ss0/seed1",
+     "val_threshold": 0.55,
+     "test_micro@0.5": 0.666667,
+     "test_micro@val_thr": 0.744186,
+     "test_macro@val_thr": 0.50068
+    },
+    {
+     "run": "runs/cbft_study/cbft_ts2_ss0/seed2",
+     "val_threshold": 0.8,
+     "test_micro@0.5": 0.68,
+     "test_micro@val_thr": 0.842105,
+     "test_macro@val_thr": 0.628571
+    }
+   ],
+   "mean_of_singles_micro@val_thr": 0.780616,
+   "best_of_singles_micro@val_thr": 0.842105,
+   "ensemble": {
+    "val_threshold": 0.8,
+    "val_micro@val_thr": 0.871795,
+    "test_micro@0.5": 0.693878,
+    "test_micro@val_thr": 0.833333,
+    "test_macro@val_thr": 0.5
+   },
+   "delta_vs_mean": 0.052717,
+   "delta_vs_best": -0.008772
+  },
+  "ss1": {
+   "runs": [
+    "runs/cbft_study/cbft_ts0_ss1/seed0",
+    "runs/cbft_study/cbft_ts1_ss1/seed1",
+    "runs/cbft_study/cbft_ts2_ss1/seed2"
+   ],
+   "n_models": 3,
+   "singles": [
+    {
+     "run": "runs/cbft_study/cbft_ts0_ss1/seed0",
+     "val_threshold": 0.8,
+     "test_micro@0.5": 0.708333,
+     "test_micro@val_thr": 0.736842,
+     "test_macro@val_thr": 0.531868
+    },
+    {
+     "run": "runs/cbft_study/cbft_ts1_ss1/seed1",
+     "val_threshold": 0.6,
+     "test_micro@0.5": 0.666667,
+     "test_micro@val_thr": 0.653061,
+     "test_macro@val_thr": 0.462406
+    },
+    {
+     "run": "runs/cbft_study/cbft_ts2_ss1/seed2",
+     "val_threshold": 0.8,
+     "test_micro@0.5": 0.64,
+     "test_micro@val_thr": 0.777778,
+     "test_macro@val_thr": 0.484249
+    }
+   ],
+   "mean_of_singles_micro@val_thr": 0.72256,
+   "best_of_singles_micro@val_thr": 0.777778,
+   "ensemble": {
+    "val_threshold": 0.7,
+    "val_micro@val_thr": 0.909091,
+    "test_micro@0.5": 0.68,
+    "test_micro@val_thr": 0.75,
+    "test_macro@val_thr": 0.519048
+   },
+   "delta_vs_mean": 0.02744,
+   "delta_vs_best": -0.027778
+  },
+  "ss2": {
+   "runs": [
+    "runs/cbft_study/cbft_ts0_ss2/seed0",
+    "runs/cbft_study/cbft_ts1_ss2/seed1",
+    "runs/cbft_study/cbft_ts2_ss2/seed2"
+   ],
+   "n_models": 3,
+   "singles": [
+    {
+     "run": "runs/cbft_study/cbft_ts0_ss2/seed0",
+     "val_threshold": 0.7,
+     "test_micro@0.5": 0.72,
+     "test_micro@val_thr": 0.731707,
+     "test_macro@val_thr": 0.448413
+    },
+    {
+     "run": "runs/cbft_study/cbft_ts1_ss2/seed1",
+     "val_threshold": 0.6,
+     "test_micro@0.5": 0.680851,
+     "test_micro@val_thr": 0.8,
+     "test_macro@val_thr": 0.555556
+    },
+    {
+     "run": "runs/cbft_study/cbft_ts2_ss2/seed2",
+     "val_threshold": 0.8,
+     "test_micro@0.5": 0.73913,
+     "test_micro@val_thr": 0.780488,
+     "test_macro@val_thr": 0.484127
+    }
+   ],
+   "mean_of_singles_micro@val_thr": 0.770732,
+   "best_of_singles_micro@val_thr": 0.8,
+   "ensemble": {
+    "val_threshold": 0.75,
+    "val_micro@val_thr": 0.864865,
+    "test_micro@0.5": 0.755556,
+    "test_micro@val_thr": 0.789474,
+    "test_macro@val_thr": 0.460317
+   },
+   "delta_vs_mean": 0.018742,
+   "delta_vs_best": -0.010526
+  }
+ },
+ "mean_delta_vs_mean": 0.032966,
+ "mean_delta_vs_best": -0.015692
+}

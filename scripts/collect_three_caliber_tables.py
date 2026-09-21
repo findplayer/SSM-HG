@@ -182,6 +182,24 @@ def best_seed_of(corpus: str) -> int:
     return int(max(ps, key=lambda s: ps[s]["micro_thr"]))
 
 
+def best_seed_from_runs(run_rel: str, seeds=SEEDS) -> int:
+    """从一个 run 目录自己的 `seed*/results.json` 选最佳种子（**主指标 micro-F1@val_thr**）。
+
+    与 `best_seed_of` 同一口径（`decisions.md` §39），但**不读 `eval_results/ablation/`**——
+    那份 JSON 服务的是正典那批 run，换正典（如任务 2 的含 buggy 臂）后它就是**旧工作点**，
+    拿它选种子会把"按旧正典挑的种子"套到新正典上（同一类口径错配，本仓已栽过两次）。
+    """
+    best, best_v = None, -1.0
+    for s in seeds:
+        d = _read_json(REPO / run_rel / f"seed{s}" / "results.json")
+        if not d:
+            continue
+        v = (d.get("test", {}).get("val_threshold", {}) or {}).get("micro_f1")
+        if v is not None and v > best_v:
+            best, best_v = s, float(v)
+    return best if best is not None else seeds[0]
+
+
 def build_rows(best_seed: bool = False):
     """按「① 正典 → ① 21 臂 → ② 正典 → ② 21 臂 → DIVE ①②模型」构造行。
 
@@ -210,6 +228,27 @@ def build_rows(best_seed: bool = False):
     return rows, supports
 
 
+def _thin_support_note(supports: dict) -> str:
+    """按**实际 support** 生成薄支撑警告——**不写死数字**。
+
+    ⚠ 这一行原来是硬编码的「① 主库 test 的 `dos`/`front_running` 逐类 support 低到 1」，
+    换正典（任务2 的池 497 划分）后那句就**变成假的**（实测 support 是 6–14）。
+    样板句失真是本仓点过名的一类问题（`decisions.md` §40.7 第 5 条）——
+    这类句子**不会报错、只会误导**，故改为从数据推导。
+    """
+    per_seed = next(iter(supports.values()), {}).get("val_thr") or []
+    if not per_seed:
+        return "> ⚠ 逐类 support 见上表；support ≤ 2 的类，单类 F1 一次翻转即跳 ±0.67，跨行 Δ 不可解读。"
+    mins = [min(per_seed[i][c] for i in range(len(per_seed))) for c in range(len(NAMES))]
+    thin = [NAMES[c] for c in range(len(NAMES)) if mins[c] <= 2]
+    if thin:
+        return (f"> ⚠ **跨全部种子**的最小逐类 support：`{'`/`'.join(thin)}` ≤ **2** —— "
+                f"该 support 下单类 F1 一次翻转就差 0.67，跨行 Δ 不可解读"
+                f"（大纲 5.1：support ≤ 2 的类仅作描述性呈现、不进入方法间比较结论）。")
+    return (f"> ✅ **全部 7 类在全部种子上 support ≥ {min(mins)}** —— 无 support ≤ 2 的薄支撑类，"
+            f"逐类 F1 可进入方法间比较（仍受重跑抖动 0.012 约束）。")
+
+
 def support_block(supports: dict) -> list[str]:
     """逐类正样本数**按种子呈现**（`a/b/c`）——① 主库逐种子不同，取首种子会丢信息。"""
     lines = ["| 语料 | " + " | ".join(NAMES) + " |",
@@ -234,20 +273,46 @@ def support_block(supports: dict) -> list[str]:
 def main() -> None:
     ap = argparse.ArgumentParser(description="七类逐类 F1 三口径 × 两工作点对比表")
     ap.add_argument("--out", default="", help="写入的 markdown 路径；留空只打印到 stdout")
+    ap.add_argument("--canon-only-runs", default=None,
+                    help="**只出主库一行**：行 = 该 run 目录的正典（如 `runs/buggy_canon`）。"
+                         "供新正典（任务 2 的含 buggy 臂）单独出一份表；"
+                         "最佳种子从**该目录自己的** results.json 选，不读旧正典的 collected.json。")
     args = ap.parse_args()
 
-    rows_best, sup_best = build_rows(best_seed=True)
-    rows, supports = build_rows(best_seed=False)
+    if args.canon_only_runs:
+        rel = args.canon_only_runs
+        k = best_seed_from_runs(rel)
+        rows_best = [(f"**① 主库 · 正典（{rel}）**", row_from_run(rel, [k]))]
+        rows = [(f"**① 主库 · 正典（{rel}）**", row_from_run(rel, list(SEEDS)))]
+        supports = {"① 主库": rows[0][1]["support"]}
+        k_main, k_aug = k, k
+        header_extra = [
+            f"> 🔴 **本表的正典 = `{rel}`**（含 `buggy_*` 的新池 497 / 新划分），"
+            f"**与 `per_class_three_caliber_tables.md` 不是同一个 test 集** ⇒ "
+            f"两边的数字**不可直接相减**。", "",
+            "> 🔴🔴 **本表的逐类格与汇总列都含「标签假象」，引用前必须读 "
+            "`experiments/buggy_canon_summary.md`**：`buggy_*` 合约的标签绝大多数是**七类全 1**"
+            "（上游按「每类各放一份」复制，`decisions.md` §18.4），模型「全报有漏洞」即可在它们身上拿满分。"
+            "实测（3 种子）：把 test 里那 **7 个** `buggy_*` 剔掉后，"
+            "**micro 掉 0.10–0.16、macro 掉 0.33–0.61**（`buggy_canon_summary.md` §3）。",
+            "> ⇒ **本表可用于「申报口径下的完整读数」，但不得据此声称「补回 buggy 提升了检测能力」。**", ""]
+    else:
+        rows_best, sup_best = build_rows(best_seed=True)
+        rows, supports = build_rows(best_seed=False)
+        k_main, k_aug = best_seed_of("main"), best_seed_of("aug")
+        header_extra = []
     if not rows:
         raise SystemExit("[tables] 没有取到任何行——产物缺失？")
-    k_main, k_aug = best_seed_of("main"), best_seed_of("aug")
 
     doc = ["# 七类逐类 F1：三口径 × 两工作点对比", "",
            "> 程序生成（`scripts/collect_three_caliber_tables.py`）：**只搬运产物、只调 `metrics`**，"
            "不手抄、不重实现指标。", "",
-           f"> 🔴 **两组表并列**：**表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；"
-           f"① 取 **seed{k_main}**、② 取 **seed{k_aug}**，判据 = 该语料正典在 micro-F1@val_thr 上最高），"
-           f"**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。", "",
+           (f"> 🔴 **表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；取 **seed{k_main}**，"
+            f"判据 = 该正典在 micro-F1@val_thr 上最高），**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"
+            if args.canon_only_runs else
+            f"> 🔴 **两组表并列**：**表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；"
+            f"① 取 **seed{k_main}**、② 取 **seed{k_aug}**，判据 = 该语料正典在 micro-F1@val_thr 上最高），"
+            f"**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"), "",
            "> ⚠ 最佳种子口径下**没有 ±**（单种子无方差），且本仓实测重跑抖动 ≈0.012"
            "（约为种子间 std 的 40%，`decisions.md` §36.4）⇒ **不得**据它下「某干预有效」的结论；"
            "那种结论仍须同配对 ≥9 点。", "",
@@ -255,9 +320,9 @@ def main() -> None:
            "`buggy` 的逐类格是**仅 `y.any(axis=1)` 的合约**上的逐类 F1。", "",
            "> 🔴 **`macro` 表与 `micro` 表的逐类格逐位相同**——macro-F1 就是那 7 个数的"
            "未加权平均，**差异只在汇总列**（这是恒等，不是重复计算）。", "",
-           "> ⚠ ① 主库 test 的 `dos`/`front_running` 逐类 support 低到 **1**，"
-           "该 support 下单类 F1 一次翻转就差 0.67，跨行 Δ 不可解读。", "",
-           "## 0. 逐类 support（先读）", ""]
+           _thin_support_note(supports), ""]
+    doc += header_extra
+    doc += ["## 0. 逐类 support（先读）", ""]
     doc += support_block(supports)
     doc += ["---", ""]
 

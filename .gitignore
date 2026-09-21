@@ -20,10 +20,11 @@ products/**/graphs/*
 #   ② `dir/*`——会把**子目录本身**也排除，git 不再往里走，于是 `!variant.json` 永远不生效
 #      （实测 `graph_variants/<名>/variant.json` 仍被忽略）。
 # 可用写法 = **先排除全部内容、再把目录逐个重新纳入**（`!.../**/`，尾斜杠 = 仅目录）。
-products/**/graphs_ft/**
-!products/**/graphs_ft/**/
-products/**/graphs_ft_aug/**
-!products/**/graphs_ft_aug/**/
+# 2026-09-21 泛化为 `graphs_ft*`：任务2 新增了 `graphs_ft_buggy/`（含 buggy 的编码器树），
+# 字面量规则 `graphs_ft` **匹配不到**它 ⇒ 又是一个同类洞。用通配一次覆盖
+# `graphs_ft` / `graphs_ft_aug` / `graphs_ft_buggy` 及今后同前缀的形态。
+products/**/graphs_ft*/**
+!products/**/graphs_ft*/**/
 products/**/graph_variants/**
 !products/**/graph_variants/**/
 # `variant.json` 是每个变体的**自述文件**（记唯一变量、断言口径、软链/重跑分流），几 KB，
@@ -70,9 +71,14 @@ runs/prior_badmetric/**/last.pt
 # 保留的是**自述/审计边车**（几 KB）：`corpus.json` 是「这个编码器属于哪个语料」的硬校验锚点
 # （`build_graph_variant.py` / `build_dive_external_set.py` 缺它即硬失败）。
 # ⚠ 写法与 `products/**/graphs_ft/**` 同理：`dir/*` 与 `dir/` 都**不能**配合 `!` 白名单。
-runs/codebert_ft/**
-!runs/codebert_ft/**/
-!runs/codebert_ft/**/corpus.json
-!runs/codebert_ft/**/config.json
-!runs/codebert_ft/**/special_tokens_map.json
-!runs/codebert_ft/**/tokenizer_config.json
+# 2026-09-21 泛化为 `codebert_ft*`：同一天又新增了两个同前缀目录
+#   `runs/codebert_ft_buggy/`（任务2 含 buggy 的编码器）、`runs/codebert_ft_probe/`（epoch 探针），
+#   字面量规则**一个都匹配不到** ⇒ 实测这两处各有 **475 MB** 的 `pytorch_model.bin` 会被
+#   `git add -A` 纳入（`git add -A --dry-run` 实测 42 个文件 / 958.5 MB）。
+#   **同一形态第三次踩坑**（`graphs_ft` → `codebert_ft` → 本轮），故改用通配一次覆盖。
+runs/codebert_ft*/**
+!runs/codebert_ft*/**/
+!runs/codebert_ft*/**/corpus.json
+!runs/codebert_ft*/**/config.json
+!runs/codebert_ft*/**/special_tokens_map.json
+!runs/codebert_ft*/**/tokenizer_config.json

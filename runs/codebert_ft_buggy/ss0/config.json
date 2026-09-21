@@ -1,0 +1,174 @@
+{
+  "args": {
+    "split_seed": 0,
+    "graph_dir": "products/alldata/graphs",
+    "split_dir": "products/alldata/splits/withbuggy_snapshot",
+    "label_file": null,
+    "label_key_mode": null,
+    "out_root": "runs/codebert_ft_buggy",
+    "codebert": "microsoft/codebert-base",
+    "epochs": 16,
+    "lr": 2e-05,
+    "head_lr": 0.001,
+    "weight_decay": 0.01,
+    "seq_batch": 6,
+    "grad_checkpoint": true,
+    "contracts_per_batch": 2,
+    "max_funcs_per_contract": 48,
+    "pos_weight_cap": 20.0,
+    "patience": 4,
+    "limit_contracts": 0,
+    "seed": 0
+  },
+  "device": "cuda",
+  "torch_version": "2.0.1+cu118",
+  "split_seed": 0,
+  "corpus": "alldata",
+  "split_counts": {
+    "train": 398,
+    "val": 50,
+    "test": 49
+  },
+  "leak_check": "train ∩ (val ∪ test) = ∅（未用 --limit-contracts 时强制断言）",
+  "text_spec": "函数源码 src_lines[fs-1:fe]，512 token 截断；与 m3_build_features 同源",
+  "selection_metric": "val macro-F1（大纲第 452 行）",
+  "best_epoch": 15,
+  "best_val_macro_f1": 0.963732,
+  "n_train_sequences": 9881,
+  "pos_weight": [
+    10.371428,
+    8.707317,
+    13.214286,
+    13.740741,
+    7.122449,
+    11.4375,
+    5.123077
+  ],
+  "class_mask": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "epochs_log": [
+    {
+      "epoch": 1,
+      "train_loss": 2.153738,
+      "val_macro_f1": 0.861194,
+      "lr": 2e-05,
+      "seconds": 152.1
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.656901,
+      "val_macro_f1": 0.907035,
+      "lr": 2e-05,
+      "seconds": 306.8
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.380043,
+      "val_macro_f1": 0.897316,
+      "lr": 2e-05,
+      "seconds": 463.2
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.258073,
+      "val_macro_f1": 0.878845,
+      "lr": 1e-05,
+      "seconds": 619.6
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.184963,
+      "val_macro_f1": 0.887275,
+      "lr": 1e-05,
+      "seconds": 774.3
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.115743,
+      "val_macro_f1": 0.914583,
+      "lr": 1e-05,
+      "seconds": 930.4
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.092141,
+      "val_macro_f1": 0.93352,
+      "lr": 1e-05,
+      "seconds": 1086.8
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.058769,
+      "val_macro_f1": 0.925882,
+      "lr": 1e-05,
+      "seconds": 1241.6
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.040488,
+      "val_macro_f1": 0.938078,
+      "lr": 1e-05,
+      "seconds": 1396.2
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.035787,
+      "val_macro_f1": 0.929078,
+      "lr": 1e-05,
+      "seconds": 1549.9
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.030635,
+      "val_macro_f1": 0.932649,
+      "lr": 5e-06,
+      "seconds": 1704.0
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.026658,
+      "val_macro_f1": 0.95693,
+      "lr": 5e-06,
+      "seconds": 1857.5
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.009602,
+      "val_macro_f1": 0.95693,
+      "lr": 5e-06,
+      "seconds": 2013.3
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.010686,
+      "val_macro_f1": 0.956249,
+      "lr": 2.5e-06,
+      "seconds": 2169.3
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.008687,
+      "val_macro_f1": 0.963732,
+      "lr": 2.5e-06,
+      "seconds": 2332.7
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.009162,
+      "val_macro_f1": 0.956249,
+      "lr": 2.5e-06,
+      "seconds": 2496.7
+    }
+  ],
+  "timing": {
+    "wall_seconds": 2496.7
+  },
+  "encoder_dir": "runs/codebert_ft_buggy/ss0/encoder"
+}

@@ -1,0 +1,88 @@
+=== [10:16:16] 等 3 个编码器 ===
+  ✓ encoder ss0
+  ✓ encoder ss1
+  ✓ encoder ss2
+=== [10:57:21] build variant ss1 ===
+  ✓ variant ss1
+=== [11:08:08] build variant ss2 ===
+  ✓ variant ss2
+=== [11:18:34] 训练 + 评测 + 聚合 ===
+[preflight] ✓ 划分 3 份、编码器 3 套、语料归属 alldata —— 全部就位
+
+=== [0.0 min] ss0/train ===
+epoch   0 loss 1.1884 clss 1.1884 var 0.0231 sc_mean 0.5347 sc_std 0.0796 val_micro 0.6597 val_macro 0.7435 lr 1.00e-04 0.8s
+epoch   1 loss 0.9250 clss 0.9250 var 0.0025 sc_mean 0.6265 sc_std 0.1364 val_micro 0.8551 val_macro 0.7921 lr 1.00e-04 0.4s
+epoch   2 loss 0.6297 clss 0.6297 var 0.0007 sc_mean 0.6967 sc_std 0.1841 val_micro 0.9459 val_macro 0.9468 lr 1.00e-04 0.4s
+epoch   3 loss 0.3922 clss 0.3922 var 0.0002 sc_mean 0.6104 sc_std 0.2492 val_micro 0.9530 val_macro 0.9521 lr 1.00e-04 0.4s
+epoch   4 loss 0.2326 clss 0.2326 var 0.0001 sc_mean 0.4559 sc_std 0.3040 val_micro 0.9605 val_macro 0.9588 lr 1.00e-04 0.4s
+epoch   5 loss 0.1573 clss 0.1573 var 0.0005 sc_mean 0.3733 sc_std 0.3307 val_micro 0.9673 val_macro 0.9663 lr 1.00e-04 0.4s
+epoch   6 loss 0.1012 clss 0.1012 var 0.0009 sc_mean 0.3610 sc_std 0.3530 val_micro 0.9737 val_macro 0.9720 lr 1.00e-04 0.4s
+epoch   7 loss 0.0780 clss 0.0780 var 0.0004 sc_mean 0.3355 sc_std 0.3623 val_micro 0.9677 val_macro 0.9670 lr 1.00e-04 0.4s
+epoch   8 loss 0.0599 clss 0.0599 var 0.0016 sc_mean 0.2998 sc_std 0.3550 val_micro 0.9740 val_macro 0.9738 lr 1.00e-04 0.4s
+epoch   9 loss 0.0471 clss 0.0471 var 0.0014 sc_mean 0.2783 sc_std 0.3579 val_micro 0.9740 val_macro 0.9738 lr 1.00e-04 0.4s
+epoch  10 loss 0.0456 clss 0.0455 var 0.0008 sc_mean 0.2789 sc_std 0.3617 val_micro 0.9740 val_macro 0.9738 lr 1.00e-04 0.4s
+epoch  11 loss 0.0354 clss 0.0354 var 0.0009 sc_mean 0.2915 sc_std 0.3700 val_micro 0.9740 val_macro 0.9738 lr 1.00e-04 0.4s
+epoch  12 loss 0.0288 clss 0.0288 var 0.0011 sc_mean 0.2861 sc_std 0.3677 val_micro 0.9740 val_macro 0.9738 lr 5.00e-05 0.4s
+epoch  13 loss 0.0252 clss 0.0252 var 0.0009 sc_mean 0.2713 sc_std 0.3661 val_micro 0.9740 val_macro 0.9738 lr 5.00e-05 0.4s
+early stop at epoch 13（连续 5 epoch val micro-F1 不提升）
+done seed0 (split_seed0): best val micro-F1=0.9740 @ epoch; wall=7.5s train=5.3s graphs/s=1056.58 → runs/buggy_canon/seed0
+
+=== [0.2 min] ss0/eval ===
+[evaluate] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed0 (split_seed0): test micro-F1 0.5=0.8615 / val_thr(0.8)=0.9091；macro 0.5=0.8467；mAP=0.9421 (classes used 7)
+
+=== [0.2 min] ss1/train ===
+epoch   0 loss 1.1629 clss 1.1629 var 0.0286 sc_mean 0.4420 sc_std 0.0725 val_micro 0.6429 val_macro 0.5538 lr 1.00e-04 0.7s
+epoch   1 loss 0.9690 clss 0.9690 var 0.0075 sc_mean 0.4415 sc_std 0.1115 val_micro 0.7434 val_macro 0.6785 lr 1.00e-04 0.4s
+epoch   2 loss 0.7437 clss 0.7437 var 0.0014 sc_mean 0.4195 sc_std 0.1725 val_micro 0.8531 val_macro 0.8454 lr 1.00e-04 0.4s
+epoch   3 loss 0.5610 clss 0.5610 var 0.0014 sc_mean 0.4164 sc_std 0.2521 val_micro 0.8553 val_macro 0.8543 lr 1.00e-04 0.4s
+epoch   4 loss 0.3941 clss 0.3941 var 0.0027 sc_mean 0.3007 sc_std 0.2476 val_micro 0.8701 val_macro 0.8679 lr 1.00e-04 0.4s
+epoch   5 loss 0.2653 clss 0.2652 var 0.0020 sc_mean 0.2694 sc_std 0.2673 val_micro 0.9211 val_macro 0.9186 lr 1.00e-04 0.4s
+epoch   6 loss 0.1785 clss 0.1785 var 0.0024 sc_mean 0.2529 sc_std 0.2696 val_micro 0.9231 val_macro 0.9185 lr 1.00e-04 0.4s
+epoch   7 loss 0.1047 clss 0.1047 var 0.0014 sc_mean 0.2223 sc_std 0.2751 val_micro 0.9437 val_macro 0.9371 lr 1.00e-04 0.4s
+epoch   8 loss 0.0702 clss 0.0702 var 0.0031 sc_mean 0.1706 sc_std 0.2317 val_micro 0.9524 val_macro 0.9499 lr 1.00e-04 0.4s
+epoch   9 loss 0.0552 clss 0.0552 var 0.0031 sc_mean 0.1480 sc_std 0.2330 val_micro 0.9524 val_macro 0.9499 lr 1.00e-04 0.4s
+epoch  10 loss 0.0489 clss 0.0489 var 0.0030 sc_mean 0.1516 sc_std 0.2509 val_micro 0.9530 val_macro 0.9531 lr 1.00e-04 0.4s
+epoch  11 loss 0.0347 clss 0.0347 var 0.0025 sc_mean 0.1401 sc_std 0.2518 val_micro 0.9530 val_macro 0.9531 lr 1.00e-04 0.4s
+epoch  12 loss 0.0266 clss 0.0266 var 0.0027 sc_mean 0.1220 sc_std 0.2365 val_micro 0.9524 val_macro 0.9499 lr 1.00e-04 0.4s
+epoch  13 loss 0.0262 clss 0.0262 var 0.0050 sc_mean 0.1091 sc_std 0.2152 val_micro 0.9530 val_macro 0.9531 lr 1.00e-04 0.4s
+epoch  14 loss 0.0175 clss 0.0175 var 0.0056 sc_mean 0.1068 sc_std 0.2183 val_micro 0.9595 val_macro 0.9574 lr 1.00e-04 0.4s
+epoch  15 loss 0.0162 clss 0.0162 var 0.0040 sc_mean 0.1168 sc_std 0.2369 val_micro 0.9595 val_macro 0.9574 lr 1.00e-04 0.4s
+epoch  16 loss 0.0124 clss 0.0124 var 0.0028 sc_mean 0.1324 sc_std 0.2640 val_micro 0.9595 val_macro 0.9574 lr 1.00e-04 0.4s
+epoch  17 loss 0.0104 clss 0.0104 var 0.0016 sc_mean 0.1454 sc_std 0.2826 val_micro 0.9595 val_macro 0.9574 lr 1.00e-04 0.4s
+epoch  18 loss 0.0110 clss 0.0110 var 0.0032 sc_mean 0.1123 sc_std 0.2451 val_micro 0.9595 val_macro 0.9574 lr 5.00e-05 0.4s
+epoch  19 loss 0.0081 clss 0.0081 var 0.0029 sc_mean 0.1005 sc_std 0.2375 val_micro 0.9595 val_macro 0.9574 lr 5.00e-05 0.4s
+early stop at epoch 19（连续 5 epoch val micro-F1 不提升）
+done seed1 (split_seed1): best val micro-F1=0.9595 @ epoch; wall=9.3s train=6.7s graphs/s=1184.32 → runs/buggy_canon/seed1
+
+=== [0.4 min] ss1/eval ===
+[evaluate] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed1 (split_seed1): test micro-F1 0.5=0.9612 / val_thr(0.4)=0.9612；macro 0.5=0.9619；mAP=0.9850 (classes used 7)
+
+=== [0.4 min] ss2/train ===
+epoch   0 loss 1.1656 clss 1.1656 var 0.0167 sc_mean 0.4620 sc_std 0.0992 val_micro 0.5876 val_macro 0.6794 lr 1.00e-04 0.7s
+epoch   1 loss 0.9935 clss 0.9935 var 0.0023 sc_mean 0.4725 sc_std 0.2102 val_micro 0.8054 val_macro 0.8188 lr 1.00e-04 0.4s
+epoch   2 loss 0.7403 clss 0.7403 var 0.0012 sc_mean 0.3704 sc_std 0.3006 val_micro 0.8613 val_macro 0.8604 lr 1.00e-04 0.4s
+epoch   3 loss 0.5102 clss 0.5102 var 0.0011 sc_mean 0.2654 sc_std 0.3110 val_micro 0.9178 val_macro 0.9165 lr 1.00e-04 0.4s
+epoch   4 loss 0.3408 clss 0.3408 var 0.0025 sc_mean 0.2257 sc_std 0.3033 val_micro 0.9459 val_macro 0.9496 lr 1.00e-04 0.4s
+epoch   5 loss 0.1815 clss 0.1815 var 0.0024 sc_mean 0.1999 sc_std 0.2893 val_micro 0.9524 val_macro 0.9564 lr 1.00e-04 0.4s
+epoch   6 loss 0.1101 clss 0.1101 var 0.0020 sc_mean 0.1746 sc_std 0.2754 val_micro 0.9262 val_macro 0.9305 lr 1.00e-04 0.4s
+epoch   7 loss 0.0743 clss 0.0743 var 0.0024 sc_mean 0.1614 sc_std 0.2706 val_micro 0.9272 val_macro 0.9277 lr 1.00e-04 0.4s
+epoch   8 loss 0.0604 clss 0.0604 var 0.0017 sc_mean 0.1864 sc_std 0.3180 val_micro 0.9589 val_macro 0.9648 lr 1.00e-04 0.4s
+epoch   9 loss 0.0498 clss 0.0498 var 0.0014 sc_mean 0.2011 sc_std 0.3334 val_micro 0.9524 val_macro 0.9595 lr 1.00e-04 0.4s
+epoch  10 loss 0.0375 clss 0.0375 var 0.0011 sc_mean 0.1736 sc_std 0.3158 val_micro 0.9589 val_macro 0.9634 lr 1.00e-04 0.4s
+epoch  11 loss 0.0370 clss 0.0370 var 0.0005 sc_mean 0.1874 sc_std 0.3360 val_micro 0.9589 val_macro 0.9634 lr 1.00e-04 0.4s
+epoch  12 loss 0.0252 clss 0.0252 var 0.0003 sc_mean 0.1559 sc_std 0.3021 val_micro 0.9281 val_macro 0.9302 lr 5.00e-05 0.4s
+epoch  13 loss 0.0243 clss 0.0243 var 0.0013 sc_mean 0.1425 sc_std 0.2815 val_micro 0.9396 val_macro 0.9413 lr 5.00e-05 0.4s
+early stop at epoch 13（连续 5 epoch val micro-F1 不提升）
+done seed2 (split_seed2): best val micro-F1=0.9589 @ epoch; wall=7.1s train=4.9s graphs/s=1127.70 → runs/buggy_canon/seed2
+
+=== [0.6 min] ss2/eval ===
+[evaluate] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed2 (split_seed2): test micro-F1 0.5=0.9524 / val_thr(0.8)=0.9508；macro 0.5=0.9525；mAP=0.9715 (classes used 7)
+
+=== summarize ===
+summary: 3 seeds [0, 1, 2] → micro-F1(0.5) 0.925053±0.055183；micro-F1(val_thr) 0.940384±0.027597 → runs/buggy_canon/summary.json
+
+完成，用时 0.7 min → runs/buggy_canon
+=== [11:19:18] PIPELINE DONE ===

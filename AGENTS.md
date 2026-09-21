@@ -42,6 +42,11 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   `products/alldata/{raw, graphs, graphs_ft/ss{S}, graph_variants, splits}`、
   `products/augmentation/{raw, graphs, graphs_ft/ss{S}, graph_variants, splits}`、`products/dive/…`（同上 + `graphs_ft_aug/ss{S}`、`src_stage/`）、
   `products/solidifi/…`。**把新特征写进 `graphs_ft/ss{S}` 不算越界**——那正是 §37 的正典产物区。
+  🔴 **2026-09-21（任务2）新增形态**：`products/alldata/graphs_ft_buggy/cb_ft_ss{S}/`（**含 `buggy_*` 的新池 497
+  划分**对应的编码器特征树）、`runs/codebert_ft_buggy/ss{S}/encoder/`（其编码器）、
+  `runs/codebert_ft_probe/ss2/`（epoch 探针，隔离）、`runs/buggy_canon/seed{S}/`（新正典的 GNN 产物）、
+  `eval_results/baseline/`（传统工具基线）、`eval_results/ensemble/`（多种子集成）。
+  这些**一律另开目录、绝不覆盖** §37 正典的 `graphs_ft/`、`runs/codebert_ft/`、`runs/seed{0,1,2}/`。
 - `alldata_augmentation/` 是 **MVD-HG 论文增强集**，与 `alldata(readonly)` **并行的第二个数据集**（2026-09-14 置入）：1780 个**扁平** `.sol` + 9026 条 7 维标签（同类别序）。**2026-09-16 裁定：两组结果集并存**（`decisions.md` §23、总表 `results.md` §0）——① 主库（池 453，真实部署合约、含天然极稀缺类）与 ② 增强集（池 1774，单标签、正样本充足）**各自独立完整、并列呈现**；**禁止**跨组比较绝对值、**禁止**合并成一个数字、**禁止**用 ② 的数字宣称 ① 的问题已解决。
 - ⚠ **该集的标签必须用修正版**：只读源里的 `contract_labels.json` 有 298 个 `{类}__buggy_N`（同名不同内容）被并集规则推成 `1111111`，正样本 59% 虚高。**正典标签 = `products/augmentation/contract_labels_repaired.json`**（`scripts/repair_augmentation_labels.py` 生成，逐类 7383→2997）；只读源原文件仅留痕。该集是**单标签**数据集（每条非零恰一类），勿套用主库多标签叙事。详见 `experiments/decisions.md` §19.3.1。
 - 路径含空格/括号（`alldata(readonly)/`、`DIVE/Source codes/`），命令中必须加引号；产物区 `products/…` 无空格。
@@ -65,12 +70,21 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
     只纳入 4 类自述/审计边车（`corpus.json` 是「编码器属于哪个语料」的硬校验锚点，
     `build_graph_variant.py` / `build_dive_external_set.py` 缺它即硬失败）⇒ `git add -A` 由
     2.9 GB 降为 **30 个小文件**。权重可由 `scripts/finetune_codebert.py` 重建（① 848 s/种子、② 3797 s/种子）。
-  - 🔴 **自检口径（本轮教训，两次同类洞）**：**「补 `.gitignore` 规则」与「改本段/`项目组织架构.md` 的说明文字」是两件事**，
-    两次都只做了前者。**新增任何产物目录形态时，必须同时做三件事**：
+  - 🔴 **第三个洞（2026-09-21 发现并已补）**：字面量规则**在新形态上必然失效**。
+    任务2 新增了 `products/alldata/graphs_ft_buggy/`、`runs/codebert_ft_buggy/`、
+    `runs/codebert_ft_probe/` 三个目录，**字面量规则 `graphs_ft` / `runs/codebert_ft/` 一个都匹配不到**
+    ⇒ `git add -A --dry-run` 实测 **42 个文件 / 958.5 MB**，其中两份 `pytorch_model.bin` 各 **475 MB**。
+    **修法 = 把字面量改成前缀通配**：`products/**/graphs_ft*/**`、`runs/codebert_ft*/**`
+    （连带旧的 `graphs_ft_aug` 也被覆盖，规则反而更少）。修后实测 **34 个文件 / 1.02 MB**。
+    ⇒ **结论（写进习惯）**：**凡给某类目录写忽略规则，一律用前缀通配而不是字面量**——
+    本仓同一形态已连踩三次（`graphs_ft` → `codebert_ft` → 本轮），三次根因都是"新增了一个同前缀目录"。
+  - 🔴 **自检口径（三次同类洞的教训）**：**「补 `.gitignore` 规则」与「改本段/`项目组织架构.md` 的说明文字」是两件事**，
+    前两次都只做了前者。**新增任何产物目录形态时，必须同时做三件事**：
     (a) `git check-ignore -v <新目录下的样本文件>` 实测被忽略（**不能只看规则存在**）；
     (b) `git add -A --dry-run` 数一遍实际纳入的文件，并对每个文件查大小，确认没有 >100 MB；
     (c) 更新本段与 `项目组织架构.md` 的 `.gitignore` 说明。
-    只做 (a) 仍会漏 —— `runs/` 侧从未做过同类排查，`codebert_ft` 就是这么漏的。
+    只做 (a) 仍会漏 —— `runs/` 侧从未做过同类排查，`codebert_ft` 就是这么漏的；
+    而**做 (b) 才抓到了第三次**（前两次都是事后才发现）⇒ **(b) 是三步里唯一能兜住字面量失效的一步**。
     ⚠ **该字典只有一份（在 ① 下）**，原文写的 `products/**/graphs/ir_cat.json` 不精确（2026-09-18 更正）：② 的 `graphs/` 里**没有**它，② 的正典当初传的就是 ① 这份（证据见 `decisions.md` §35.4）。**不要给 ② 补建**——那会造出两个可能漂移的来源。所有变体构建一律经 `build_graph_variant.frozen_categories()` 取它（缺文件即硬失败，避免 m3 静默回退全库扫描）。
   - `runs/**/best.pt`（`evaluate.py` 的唯一权重输入）+ `val_best_probs.pt`/`test_probs.pt`（推理缓存）→ 使已报告指标可**离线重算、无需重训**；全库 **约 1.5 GB / 1125 个文件**（§38 后 run 数增至 150+；2026-09-16 时为 115 MB / 24 run）、单文件 ≤4.77 MB。`last.pt` 仍排除（仅断点续训用，入库会使体积翻倍）。
 

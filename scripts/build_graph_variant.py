@@ -350,6 +350,10 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--split-seed", type=int, default=0, help="仅 cb_ft 用（每种子一套编码器）。")
     p.add_argument("--encoder", default=None,
                    help="仅 cb_ft 用；默认 runs/codebert_ft/<语料>/ss{S}/encoder（按语料隔离）。")
+    p.add_argument("--variants-root", default=None,
+                   help="覆盖变体根目录（默认 products/<数据集>/graph_variants）。"
+                        "换正典或另开对照臂时用它**另开目录**——默认根里装的是既有正典/消融变体，"
+                        "改默认根就等于就地销毁它们（本脚本会先清空目标目录）。")
     p.add_argument("--overwrite", action="store_true",
                    help="允许写入一个**已装有 _hetero.json 的**变体目录（默认拒绝）。")
     return p.parse_args()
@@ -359,7 +363,11 @@ def main() -> None:
     args = parse_args()
     ds = DATASETS[args.dataset]
     name = f"cb_ft_ss{args.split_seed}" if args.variant == "cb_ft" else args.variant
-    vdir = REPO / ds["variants"] / name
+    variants_root = (Path(args.variants_root).resolve() if args.variants_root
+                     else REPO / ds["variants"])
+    if args.variants_root and not str(variants_root).startswith(str(REPO)):
+        raise SystemExit(f"🔴 --variants-root 必须在仓库内（AGENTS.md「数据边界」）：{variants_root}")
+    vdir = variants_root / name
     # 与 M2 同构的守卫：变体目录里**只允许**装本次变体的产物，重跑须显式 --overwrite。
     conflict = run_guard.nonempty_out_dir(vdir, "*_hetero.json")
     if conflict and not args.overwrite:

@@ -321,6 +321,10 @@ def _provenance(runs_dir: Path, seeds: list) -> dict:
     trees = sorted({Path(g).name for g in graph_dirs})          # ss0/ss1/ss2 或 graphs
     if not graph_dirs:
         encoding = None
+    elif all("graphs_ft_buggy" in g for g in graph_dirs):
+        # ⚠ **必须比下面那条泛匹配先判**：`graphs_ft_buggy` 是 `graphs_ft` 的超串，
+        #   否则新臂会被口径戳写成"§37 正典"——那正是口径戳要防的事（自己认错自己）。
+        encoding = "fine-tuned CodeBERT（**含 buggy_* 的池 497 划分**；任务2 臂，非 §37 正典）"
     elif all("graphs_ft" in g for g in graph_dirs):
         encoding = "fine-tuned CodeBERT（§37 起正典）"
     elif all(Path(g).name == "graphs" for g in graph_dirs):

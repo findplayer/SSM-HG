@@ -6,7 +6,8 @@
   或直接 `python tests/test_model_smoke.py`（不依赖 pytest 也可独立跑）。
 
 覆盖：
-  - 基础组合：rgcn/gcn × attention/meanpool；num_bases=5/4；GAT 拒绝。
+  - 基础组合：rgcn/gcn × attention/meanpool；num_bases=5/4。
+  - 四种算子（rgcn/gcn/gat/sage）可建可跑，且**除 rgcn 外一律忽略 edge_type**（关系盲判据）。
   - 输入校验：x/edge_index/edge_type 的 dtype/shape/值域错误。
   - 极端图：单节点、空边、孤立（纯自环）、重复边、极端 logits。
   - Readout 硬约束：hg == h2-based；≠ x-based；改边后输出变化。
@@ -26,7 +27,8 @@ import torch
 _REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO / "scripts"))
 
-from model import (SSMHG, EPS, apply_edge_mask, safe_readout, validate_edge_types)  # noqa: E402
+from model import (CONV_TYPES, SSMHG, EPS, apply_edge_mask, safe_readout,  # noqa: E402
+                   validate_edge_types)
 
 N, D, R, C = 9, 128, 5, 7
 
@@ -74,13 +76,53 @@ def test_num_bases_4_and_5():
         assert z.shape == (C,) and a.shape == (N,)
 
 
-def test_gat_rejected():
-    try:
-        SSMHG(conv_type="gat")
-    except ValueError as exc:
-        assert "conv_type" in str(exc)
-    else:
-        raise AssertionError("gat should be rejected")
+def test_conv_types_all_constructible():
+    """四种算子都必须能建、能前向、输出有限值（含**空边**）。
+
+    2026-09-21 改：此前本测试名叫 `test_gat_rejected`，断言 `gat` **必须被拒绝**
+    （当时的理由写在 `model.py` 注释里：「plain GAT cannot express relation-aware message
+    passing」）。该理由**站不住**——`gcn`/`gat`/`sage` 三者同样是关系盲，拒绝 GAT 却不拒绝 GCN
+    是同一条理由下的一刀切。现在把三者一并作为**关系盲基线族**提供（大纲 5.3 EGFL 行
+    问的正是"边类型是否必要"），故改为**正向**验证。
+    ⚠ 真正要守的边界不是"GAT 不能用"，而是「除 rgcn 外一律**不读 edge_type**」——
+    由 `test_non_rgcn_convs_ignore_edge_type` 把守。
+    """
+    for conv in CONV_TYPES:
+        model = SSMHG(conv_type=conv)
+        x = torch.randn(5, 128)
+        edge_index = torch.tensor([[0, 1, 2, 3], [1, 2, 3, 4]])
+        edge_type = torch.tensor([0, 1, 2, 3])
+        z, a, node_logits = model(x, edge_index, edge_type)
+        assert torch.isfinite(z).all(), f"{conv}: 图级输出含非有限值"
+        assert torch.isfinite(a).all(), f"{conv}: a_v 含非有限值"
+        # 空边 + 孤立节点：四条路径都必须给有限值（RGCN/GCN 的受控路径已在文件头记录）
+        z2, a2, _ = model(torch.randn(4, 128), torch.zeros((2, 0), dtype=torch.long),
+                          torch.zeros(0, dtype=torch.long))
+        assert torch.isfinite(z2).all(), f"{conv}: 空边时输出含非有限值"
+
+
+def test_non_rgcn_convs_ignore_edge_type():
+    """**关系盲的判据**：打乱 `edge_type` 后，非 rgcn 算子输出必须**逐位不变**，rgcn 必须变。
+
+    这条是"这些臂回答的是「边类型是否必要」"这一说法的**唯一机检证据**——
+    没有它，"关系盲基线"就只是注释里的一句话。
+    """
+    torch.manual_seed(0)
+    x = torch.randn(6, 128)
+    edge_index = torch.tensor([[0, 1, 2, 3, 4, 5], [1, 2, 3, 4, 5, 0]])
+    et_a = torch.tensor([0, 0, 0, 0, 0, 0])
+    et_b = torch.tensor([4, 3, 2, 1, 0, 4])
+    for conv in CONV_TYPES:
+        torch.manual_seed(1)
+        model = SSMHG(conv_type=conv).eval()
+        with torch.no_grad():
+            za, _, _ = model(x, edge_index, et_a)
+            zb, _, _ = model(x, edge_index, et_b)
+        same = torch.equal(za, zb)
+        if conv == "rgcn":
+            assert not same, "rgcn 是关系感知的，换 edge_type 必须改变输出"
+        else:
+            assert same, f"{conv} 应当忽略 edge_type，但其输出随 edge_type 变了"
 
 
 def test_invalid_num_bases_rejected():

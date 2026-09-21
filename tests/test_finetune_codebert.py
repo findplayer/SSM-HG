@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -200,3 +201,42 @@ def test_queue_script_uses_corpus_scoped_encoder_path():
     assert '"$FT_ROOT/ss${S}/encoder/corpus.json"' in src
     # 旧的共用路径不得再出现在跳过判据里
     assert 'runs/codebert_ft/ss${S}/encoder/config.json' not in src
+
+
+# ---------------------------------------------------------------- HF 离线回退（2026-09-21）
+
+
+def test_hf_offline_fallback_retries_with_env(monkeypatch):
+    """联网失败必须**自动回退到本地缓存**再试一次，且回退时把离线开关设进环境。
+
+    为什么值得单测：这是 2026-09-21 实测事故的根因——本机 HF 缓存**完整**，
+    但 `transformers` 默认联网重校验，一次 SSL 抖动就让**整次 40 分钟微调前功尽弃**
+    （ss1 就是这么失败的，日志末尾是 `huggingface_hub` 的 SSLError）。
+    回退逻辑写错的形态很隐蔽：比如"重试但没设环境变量"，那第二次仍走联网、仍然失败，
+    而外层看到的是同一个异常——**与没写回退长得一模一样**。
+    """
+    import requests
+    for k in ("HF_HUB_OFFLINE", "TRANSFORMERS_OFFLINE"):
+        monkeypatch.delenv(k, raising=False)
+    calls = []
+
+    def loader():
+        calls.append(dict(os.environ))
+        if len(calls) == 1:
+            raise requests.exceptions.SSLError("EOF occurred in violation of protocol")
+        return "ok"
+
+    assert ft.load_hf_offline_fallback(loader, "microsoft/codebert-base", "model") == "ok"
+    assert len(calls) == 2, "联网失败后必须再试一次"
+    assert "HF_HUB_OFFLINE" not in calls[0], "首试应当允许联网（缓存不全时需要下载）"
+    assert calls[1].get("HF_HUB_OFFLINE") == "1", "回退那次必须带离线开关"
+    assert calls[1].get("TRANSFORMERS_OFFLINE") == "1"
+
+
+def test_hf_offline_fallback_passes_through_on_success(monkeypatch):
+    """成功时不得多试一次、也不得改环境（默认行为逐字不变）。"""
+    monkeypatch.delenv("HF_HUB_OFFLINE", raising=False)
+    calls = []
+    assert ft.load_hf_offline_fallback(lambda: calls.append(1) or "ok", "x", "model") == "ok"
+    assert len(calls) == 1
+    assert "HF_HUB_OFFLINE" not in os.environ

@@ -3080,3 +3080,241 @@ DIVE 与 SolidiFI——两者形态完全一样）。SolidiFI **不抽样**（�
 SolidiFI 是**语法级注入**，$s_v$ 在多数情况下会直接命中注入位置，故本评估主要反映**静态先验的准确性**，
 而非图神经网络的深层逻辑发现能力。**不得**据此声称真实漏洞根因定位能力。
 实测进一步显示：连静态先验都只在 `time_manipulation`/`uncheck`/`arithmetic` 上有效。
+
+---
+
+## §42 改进方案第一轮执行（2026-09-21）：对比基线、编码器探针、集成、确定性
+
+**触发**：用户指令——「P0 = 补 9 个对比方法 + 编码器 epoch 探针；P1 = 集成 + 逐类阈值列 +
+`--deterministic`；P2 = 编码器全量重微调 + 消融 n=9；P3 = OOF/bootstrap/L_var 剂量」，
+并随后指令「把所有被错误删去的 `buggy_*` 补回训练集，重新训练，出新的三口径逐类表」。
+
+**执行顺序经用户三次裁定**（`AskUserQuestion`，2026-09-21）：
+
+| 问题 | 裁定 |
+| --- | --- |
+| `buggy_*` 怎么补 | **进池并重划 8:1:1**（不是"只进 train 划分"） |
+| 9 个对比方法（5 个传统工具在本机不可运行） | **能跑就跑 + 诚实标注 + 同图 DL 基线族** |
+| P2（编码器全量重微调，≈1.5 h）放哪 | **挪到任务 2 之后**——编码器训练集 = train+val，任务 2 改训练集会作废它 |
+
+**实测数据全部落在 `experiments/improvement_round1_results.md`**（本文只记裁定与教训）。
+
+### 42.1 已完成（零/低成本，不被任务 2 作废）
+
+| 项 | 结果 | 产物 |
+| --- | --- | --- |
+| **P0-a 编码器 epoch 探针** | 🔴 **欠训证实且幅度很大**：ss2 的 val macro-F1 在正典 `--epochs 5` 上限处为 **0.4365**，跑到 12 轮（探针上限）**0.6149（+0.178，相对 +41%）仍未收敛** | `runs/codebert_ft_probe/ss2/`（隔离，正典零改动） |
+| **P0-b Slither 基线** | ① 主库 test micro-F1 **0.4547**（3 种子 0.4776/0.4348/0.4516）、macro 0.2937、覆盖 **45/46**。⇒ 「0.78 算不算低」**有了参照系**：本文方法高 **0.26–0.28**，是重跑抖动（0.012）的 20 倍以上 | `eval_results/baseline/slither_alldata.json` + `scripts/baseline_static_tools.py` |
+| **P1 多种子集成** | 独立复算与提案**逐位一致**：ss0/ss1/ss2 = **+0.0527 / +0.0274 / +0.0187**，均 **+0.0329**。⚠ 相对**均值** +0.033（> 抖动，成立），相对**最好单模型** **−0.016**（集成打不过事后挑最好的那次） | `eval_results/ensemble/cbft_study_cbft.{json,md}` + `scripts/ensemble_eval.py` |
+| **P1 `--deterministic`** | 原实现**名不副实**（只设线程数与种子，CUDA 侧一个开关都没设）。补齐四条后实测 `best.pt`（17 张量）与 val 概率**逐位相同**；不带时 1.311e−6 | `train.py::set_deterministic` |
+| **P1 逐类阈值列** | 零重训，数据取自 `calibration/summary.json`：macro **+0.1377**、micro **−0.0446**，救活 `front_running`（0→0.6389）与 `time_manipulation`（0→0.3016） | 见 `improvement_round1_results.md` §5 |
+
+### 42.2 🔴 教训：**空集合上的全称命题永远为真**（本轮踩到，第 5 次同类）
+
+第一版"不带 `--deterministic` 时权重是否相同"的判定写成：
+`sd = d.get('state_dict') or {}` 然后 `all(torch.equal(sd1[k], sd2[k]) for k in sd1)`。
+`best.pt` 的实际键是 **`model_state_dict` / `fuser_state_dict`**，`get` 返回空字典 ⇒
+**空序列上的 `all()` 恒为 True** ⇒ 结论被写成"权重逐位相同"（错的）。
+改键名重跑后**结论相反**（不带开关时权重不同）。
+
+⇒ 与 §28（`.ravel()`）、§29.4（标签源）、§35（静默消失）同一族：**"不报错的错"**。
+本轮的形态更隐蔽——它不是"算错了"，而是"**根本没算**，却给出了通过**"。
+**登记为自查项**：任何 `all(... for x in <可能为空的容器>)` 都要先断言容器非空。
+
+### 42.3 `front_running` 在 Slither 基线里的 0 **不是它的发现**
+
+Slither 0.11.5 的 100 个检测器**没有任何一个覆盖 SWC-114**（Transaction Order Dependence）。
+故该格必须写成「**该工具不提供此检测项**」，**不得**写成「该工具在此类上 F1=0」。
+同理 `arithmetic`（无溢出检测器，0.8 后由编译器接管）。
+
+⚠ **检测器 → 七类映射是本仓定义的**（`baseline_static_tools.DETECTOR_TO_CLASS`，
+逐条标注 SWC 编号作为依据），Slither 与 MVD-HG 七类**无官方对照表**。
+另报"严格子集"（去掉 4 条归属有争议的检测器）的 micro-F1（0.4664），与宽口径差 0.012 = 抖动量级。
+
+🔴 **属"大纲之外的后处理"**：结果进论文前，**映射表须同步大纲与开发手册**
+（AGENTS.md 改动原则），并与论文数据描述一节一致。
+
+### 42.4 代码改动清单（本轮）
+
+| 文件 | 改动 | 备注 |
+| --- | --- | --- |
+| `scripts/baseline_static_tools.py` | **新增**：Slither 驱动 + 检测器映射 + 逐划分评测 | 只调 `metrics`，不重实现指标 |
+| `scripts/ensemble_eval.py` | **新增**：多种子概率集成，**按 `sample_ids` 逐个断言对齐** | 按行序平均会静默混错合约 |
+| `scripts/run_buggy_canon.py` | **新增**：任务 2 管道（变体→训练→评测→聚合），含 4 条硬前置检查 | 见 §43 |
+| `scripts/train.py` | `set_deterministic()` 补齐 CUDA 四条开关 | 无既有 run 用过该开关 ⇒ 零作废 |
+| `scripts/model.py` | `CONV_TYPES` 扩到 `(rgcn, gcn, gat, sage)`；**只有 rgcn 关系感知** | 见 §42.5 |
+| `scripts/run_ablation.py` | 新增 `DOSE_ARMS`（L_var 剂量），**默认不并入正典臂表** | 见 §42.6 |
+| `scripts/build_graph_variant.py` | 新增 `--variants-root`（另开变体根，不碰既有） | 含"必须在仓库内"断言 |
+| `scripts/collect_three_caliber_tables.py` | 新增 `--canon-only-runs`（只出主库一行）；最佳种子改从**该目录自己**的 results.json 选 | 换正典后旧 `collected.json` 即旧工作点 |
+| `.gitignore` | `graphs_ft` → **`graphs_ft*`**（覆盖 `graphs_ft_buggy` 等新形态） | 按 AGENTS.md 三步自检 |
+| `tests/test_baseline_static_tools.py` | **新增 13 例**（`^` 语义、映射、候选版本序列） | 全套 282 passed |
+
+### 42.5 `model.py`：把 `gat`/`sage` 从"拒绝"改为"提供"
+
+原实现**拒绝** `conv_type="gat"`，理由写在注释里：「plain GAT cannot express relation-aware
+message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 GAT 却不拒绝 GCN 是同一条理由下的
+一刀切。现改为提供 `gcn`/`gat`/`sage` 三者作为**关系盲基线族**——它们回答的正是大纲 5.3 EGFL 行
+的问题「**异构图边类型是否必要**」，**不是**"另一个更强的模型"。
+
+**新增机检**（`tests/test_model_smoke.py::test_non_rgcn_convs_ignore_edge_type`）：
+打乱 `edge_type` 后，非 rgcn 算子输出必须**逐位不变**、rgcn 必须变。
+没有这条，"关系盲"就只是注释里的一句话。
+
+⚠ 原 `test_gat_rejected` 已改写为 `test_conv_types_all_constructible`（正向验证），
+并在 docstring 里记明改动理由。
+
+### 42.6 L_var 剂量-反应：**不进正典消融表**
+
+`no_lvar` 臂把 λ 置 0，但实测 λ·L_var 只占总损失的 **0.0003%–0.0054%** ⇒ 该项在数值上等于没加，
+"关掉它"是构造性空操作。补剂量-反应是唯一能把结论说成实证的做法。
+
+但它**没有加进 `ABLATIONS`**，理由是程序性的：`ABLATIONS` 的规模（21 臂）被
+`tests/test_collect_ablation.py`、`eval_results/ablation/collected*.md`、
+`ablation_three_metric_table.md` 与 AGENTS.md **多处硬引用**，加臂 = 同时改这些表的行数与
+全部计数断言；且 L_var 剂量本身是**大纲之外的后处理**，未经裁定进正典表属流程越界。
+⇒ 单列为 `DOSE_ARMS`，用 `--with-dose-arms` 显式启用（实测 `--dry-run` 断言"恰一个变量"通过）。
+
+### 42.7 🔴 同一族错误第二次：**"产物在不在"必须看最后一步的产物**
+
+`run_ablation.resume_state` 早就写死了这条教训（「**不得用 `best.pt` 判"已完成"**：
+`best.pt` 是**训练中途**落盘的」）。本轮我在**新写的编排脚本**里又犯了一次同款：
+
+- `finetune_codebert.py` **每次 val 提升就 `save_pretrained`**（`finetune_codebert.py:335`），
+  而 `corpus.json` 边车**只在最后**写（同文件 :346）；
+- 我的编排脚本却用 `encoder/config.json` 当"编码器已就绪"的判据 ⇒ **在第 1 个 epoch 就放行**，
+  随后 `build_graph_variant.py` 正确地硬失败（缺 `corpus.json`）——
+  **下游的守卫替我的错误判据兜了底**，这是这次没有产出错误结果的原因，不是我好运。
+
+⇒ **判据只能是"最后一步的产物"**：编码器 = `corpus.json`（不是 `config.json`/`best.pt`）、
+训练 = `results.json`（不是 `best.pt`）。已同步改 `runs/_pipeline_buggy.sh` 与
+`runs/_ft_buggy_fix.sh`，并登记为自查项。
+
+### 42.8 顺带修：HF 加载的网络依赖（一次 SSL 抖动废掉 40 分钟微调）
+
+`finetune_codebert.py` 经 `transformers` 从 huggingface.co 取 `microsoft/codebert-base`。
+本机 HF 缓存**完整**（snapshots 下 config/tokenizer/vocab/merges/权重齐全，实测
+`HF_HUB_OFFLINE=1` 可正常加载），但 `transformers` 默认仍**联网重校验**：
+2026-09-21 实测 ss1 的微调在加载 tokenizer 时抛
+`requests.exceptions.SSLError ... EOF occurred in violation of protocol` 而**整次作废**。
+
+**修法**：新增 `load_hf_offline_fallback()`——联网失败时自动设 `HF_HUB_OFFLINE=1` /
+`TRANSFORMERS_OFFLINE=1` 并**重试一次**；成功路径**逐字不变**（不多试、不改环境）。
+两个单测钉死："回退那次必须带离线开关"与"成功时不改环境"——
+⚠ 前者是必需的，因为**"回退了但没设环境变量"会让第二次仍走联网、仍然失败**，
+而外层看到的异常与"根本没写回退"一模一样。
+
+---
+
+## §43 任务 2：把 `buggy_*` 补回池并重划（2026-09-21 用户裁定）
+
+**用户裁定**（`AskUserQuestion`，2026-09-21）：补法 = **进池并重划 8:1:1**（不是"只进 train 划分"）。
+原话：「把所有被错误删去的 `buggy_*` 补回训练集！！！不要找借口」。
+
+### 43.1 做了什么
+
+| 步 | 产物 | 说明 |
+|---|---|---|
+| 1 | `products/alldata/splits/withbuggy_snapshot/` | 池 **497**（453 + 去重后 44 个 `buggy_*`），train/val/test = **398/50/49**。**实测与既有快照逐字节可复现**（`diff` 三份 split_seed*.json 全同） |
+| 2 | `runs/codebert_ft_buggy/ss{S}/encoder/` | 按新划分重微调编码器 ×3，**epoch 预算 5 → 16**（依据 = §42 的 epoch 探针） |
+| 3 | `products/alldata/graphs_ft_buggy/cb_ft_ss{S}/` | M3 重编码，**`_feat.pt` 与正典逐位相同（590/590）、`_cb.pt` 与正典全不同（590/590）**——结构没动、编码器确实生效 |
+| 4 | `runs/buggy_canon/seed{S}/` | GNN 训练 + evaluate + diagnose + summarize（三件套齐） |
+
+🔴 **正典产物零改动**：`products/alldata/graphs_ft/`、`runs/codebert_ft/`、`runs/seed{0,1,2}/` 一个字节都没动；
+管道 `scripts/run_buggy_canon.py` 的 `preflight()` 会硬查这一点。
+
+### 43.2 结果（全 test，3 种子）
+
+| 指标 | seed0 | seed1 | seed2 | **均值±std** | §37 旧正典对照 |
+|---|---|---|---|---|---|
+| micro@0.5 | 0.8615 | 0.9612 | 0.9524 | **0.9251±0.0552** | 0.7110±0.0389 |
+| micro@val_thr | 0.9091 | 0.9612 | 0.9508 | **0.9404±0.0276** | 0.7297±0.0675 |
+| macro@0.5 | 0.8467 | 0.9619 | 0.9525 | — | 0.6091±0.0751 |
+| mAP | 0.9421 | 0.9850 | 0.9715 | **0.9662±0.0220** | 0.7582±0.0056 |
+
+训练时间（GPU，`config.json::timing`）：seed0/1/2 wall **7.48/9.29/7.09 s**、epoch 均 0.37–0.41 s、graphs/s 1057–1184。
+编码器微调：ss0 **2496.7 s**（best epoch 15）、ss1 **2612.3 s**（best 10）、ss2 **2473.5 s**（best 12）。
+
+### 43.3 🔴🔴 最重要的发现：**这些涨分绝大部分不是检测能力，是标签假象**
+
+`buggy_*` 的标签绝大多数是**七类全 1**（`§18.4`：上游按「每类各放一份」复制，文件夹归属被推成标签）。
+新划分的 test 49 个合约里有 **7 个** `buggy_*`（占 **14%**），模型只要「全报有漏洞」就能在它们身上拿满分。
+
+**量化**（新增 `clean_only` 诊断口径：把 test 里的 `buggy_*` 剔掉再算）：
+
+| 口径（@val_thr，3 种子均值） | micro | macro | mAP |
+|---|---|---|---|
+| 新正典 · 全 test（49） | **0.9404** | 0.9351 | 0.9662 |
+| 新正典 · **剔 buggy**（42，20 正） | **0.7968** | 0.4065 | 0.7307 |
+| §37 旧正典（池 453，test 46，21 正） | 0.7297 | 0.4986 | 0.7582 |
+| **Δ（剔 buggy − 旧正典）** | **+0.067** | **−0.092** | **−0.028** |
+
+⇒ **剔掉那 7 个合约后，新正典与旧正典基本持平**（差异落在种子间 std 0.0675 之内，
+而且 test 集还换过）⇒ **「补回 buggy 带来的 +0.21 micro / +0.44 macro」几乎全部来自那 7 个合约本身。**
+
+⚠ **两条必读的口径限制**（写进论文时必须带）：
+1. **`clean_only` 同时含两种效应**：**(a) 标签假象消失（真实）** 与 **(b) 稀有类正样本被抽走（度量副作用）**——
+   剔掉 `buggy_*` 后 `time_manipulation` 的 support 变成 **0**、`front_running` 只剩 1，
+   零支撑类按 `zero_division=0` 计 F1=0 ⇒ **`clean_only` 的 macro 被人为压低**。
+   故 **`Δmacro` 只能读作「假象的量级」，不得读作「补 buggy 让 macro 掉了这么多」**。
+   **micro 不受此影响**（按标签对加权，零支撑类不进分子分母）⇒ **micro 的 Δ 才是干净的那个数**。
+2. **新旧 test 不是同一批合约**（46 → 49、划分重划过）⇒ 严格说**不可相减**；
+   可比的唯一理由是**正样本量级相当**（旧 21 / 新干净子集 20），故**看方向合理、看小数位不合理**。
+
+**第二条证据链（同一件事的独立佐证）**：编码器 `val macro-F1` 的逐 epoch 轨迹——
+旧划分 ss2 在第 5 轮（旧预算）是 **0.4365**，新划分 ss2 在第 5 轮是 **0.8985**。
+编码器**正是用 val macro-F1 选 epoch / 调 lr / 早停**，而 val 里同样混进了全 1 合约
+⇒ **这个假象不只污染最终指标，还污染了模型选择本身**（选出的编码器偏向"全报有漏洞"）。
+
+### 43.4 诚实结论（供作者裁定如何写进论文）
+
+**可以写的**：「补回 `buggy_*` 后，在**含注入合约的完整 test 集**上，七类指标全面上升
+（micro 0.7297→0.9404）。」
+
+**不可以写的**：「补回 `buggy_*` 提升了模型的漏洞检测能力。」——本节的数据不支持它。
+
+**建议的写法**（三条并列，缺一即误导）：
+1. 报全 test 的数字（申报口径），**同时**报 `clean_only` 诊断列；
+2. 明确说明 `buggy_*` 的标签是**文件夹归属的产物**、不是注入特征的真实标注（§18.4）；
+3. 把「补数据」的正确定位写成 **「扩充训练样本、缓解稀有类样本匮乏」**，
+   而**不是**「提升检测性能」——真正的收益需要**在干净 test 上**才能读出来，而那个读数**尚不可判定**。
+
+⚠ **本条的最终口径须作者裁定**（与 §40.4 的 GCN 负面结果同性质），本文件不代作者下结论。
+
+### 43.5 代码改动
+
+| 文件 | 改动 |
+| --- | --- |
+| `scripts/run_buggy_canon.py` | **新增**：任务2 管道（变体→训练→评测→**diagnose**→聚合）+ 4 条硬前置检查 |
+| `scripts/collect_buggy_canon_summary.py` | **新增**：汇总卷，核心是 `clean_only` 诊断口径 |
+| `scripts/collect_three_caliber_tables.py` | 新增 `--canon-only-runs`；**薄支撑样板句改为从数据推导**（原句硬编码"support 低到 1"，换正典后失真——见 §40.7 第 5 条同类问题） |
+| `scripts/build_graph_variant.py` | 新增 `--variants-root` |
+| `scripts/finetune_codebert.py` | 新增 `load_hf_offline_fallback()`（见 §42.8） |
+| `scripts/evaluate.py` | 口径戳新增 `graphs_ft_buggy` 分支（**必须比 `graphs_ft` 泛匹配先判**，否则新臂被认成 §37 正典） |
+| `tests/test_collect_buggy_canon.py` | **新增 3 例**：`clean_only` 的**中立性**（无 buggy 时必须与全 test 逐位相同）、判据复用 `dataset.is_buggy_project`、Δ 的**符号约定** |
+| `tests/test_finetune_codebert.py` | 新增 2 例：HF 离线回退 |
+| `.gitignore` / `AGENTS.md` / `项目组织架构.md` / `论文开发手册.md` §3.2 | 新增产物形态（`graphs_ft_buggy*`、`codebert_ft_buggy*`）同步 |
+
+### 43.6 产物清单
+
+`experiments/per_class_three_caliber_tables_buggy.md`（三口径 × 两工作点，12 张表，行 = 主库）、
+`experiments/buggy_canon_summary.md`（汇总 + 假象量化 + 训练时间 + 编码器轨迹）、
+`runs/buggy_canon/{seed0,seed1,seed2}/`（三件套）、`runs/buggy_canon/summary.json`。
+
+### 43.7 顺带（任务1 P0b 收尾）：同图**架构基线族**在新正典上的结果
+
+`scripts/run_arch_baselines.py`（新增）把 `--conv` 唯一变量化，在新正典上跑 `gcn`/`gat`/`sage`
+（三者**一律关系盲**，`model.py::CONV_TYPES`；已由 `test_non_rgcn_convs_ignore_edge_type` 机检）：
+
+| 算子 | micro@0.5 | micro@val_thr | macro@val_thr | mAP |
+|---|---|---|---|---|
+| **rgcn（正典，关系感知）** | 0.9251±0.0552 | 0.9404±0.0276 | 0.9351±0.0341 | 0.9662±0.0220 |
+| gcn（关系盲） | 0.9240±0.0705 | 0.9350±0.0644 | 0.9300±0.0676 | 0.9575±0.0353 |
+| gat（关系盲） | **0.9523**±0.0288 | **0.9623**±0.0200 | 0.9596±0.0222 | 0.9727±0.0094 |
+| sage（关系盲） | 0.9245±0.0522 | 0.9489±0.0306 | 0.9458±0.0339 | 0.9687±0.0154 |
+
+**四种算子全在种子间 std 内持平，GAT 名义上还更高** ⇒ (i) 与 §40.4 的 GCN 负面结果一致；
+(ii) 更重要的是它**从另一个角度印证 §43.3**：含全 1 标签的 test 上，**任何算子的指标都饱和到 0.92–0.97**，
+指标已不携带「关系感知是否必要」的信息。⇒ 大纲 5.3 EGFL 那一行**不能**在本 canon 上得出结论，
+须回到干净 test（或等 C1 的池级 OOF）才能问。
+
+⚠ 仍是 **n=3**（本仓规范：n=3 不得判方向），且**参数量不匹配**（§40.4 已记）。

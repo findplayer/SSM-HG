@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import platform
 import random
 import time
@@ -49,7 +50,8 @@ import run_guard
 from dataset import (DEFAULT_GRAPH_DIR, Ablation, build_index, collate,
                      load_graph, resolve_label_file, resolve_label_key_mode,
                      stack_labels)
-from model import (AblationConfig, NodeFuser, SSMHG, parameter_report,
+from model import (CONV_TYPES, AblationConfig, NodeFuser, SSMHG,
+                   parameter_report,
                    sample_dropout_masks)
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
@@ -246,7 +248,7 @@ def parse_args() -> argparse.Namespace:
                    help="小样：只取前 N 个 train/val 图（smoke）。0=全量。")
     p.add_argument("--drop-edges", default="", help="边级消融：逗号分隔物理关系编号（白名单外报错）。")
     p.add_argument("--drop-ast", action="store_true", help="边级消融：删 relation 1+2（AST_PARENT+AST_PARENT_SAME）。")
-    p.add_argument("--conv", choices=["rgcn", "gcn"], default="rgcn")
+    p.add_argument("--conv", choices=list(CONV_TYPES), default="rgcn")
     p.add_argument("--meanpool", action="store_true")
     p.add_argument("--num-bases", type=int, default=5)
     p.add_argument("--layers", type=int, choices=[1, 2, 3], default=2,
@@ -342,12 +344,34 @@ def run_dir_conflict(run_dir: Path, args: argparse.Namespace, split_seed: int) -
     return "；".join(diffs) if diffs else None
 
 
+def set_deterministic(seed: int) -> None:
+    """`--deterministic` 的**完整**语义（2026-09-21 修）。
+
+    原实现只设了 `torch.set_num_threads(1)` + `torch.manual_seed(seed)`，
+    **对 CUDA 一个开关都没设** —— 而实测抖动根因正是 CUDA 侧（`decisions.md` §36.4：
+    `run_cbft_study.py --check-repro` 同配置重跑，`micro@0.5` 漂移 ≈0.012 ≈ 一个 test 合约）。
+    即：**原来那个开关名不副实**，报出的"确定性"结论无依据。
+
+    四条缺一不可：
+      1. `CUBLAS_WORKSPACE_CONFIG` —— **必须在 CUDA 上下文建立前**设（故放在
+         `torch.cuda.is_available()` 之前调用），否则 cuBLAS 用非确定性 workspace；
+      2. `cudnn.deterministic=True` + `benchmark=False` —— 关掉算法自动调优（调优会选非确定性核）；
+      3. `torch.use_deterministic_algorithms(True)` —— 让 PyG 的 scatter/atomicAdd 走确定性路径；
+      4. 线程数与全局种子（原有两条）。
+    """
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    torch.set_num_threads(1)
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(True)
+
+
 def main() -> None:
     args = parse_args()
     split_seed = args.split_seed if args.split_seed is not None else args.seed
     if args.deterministic:
-        torch.set_num_threads(1)
-        torch.manual_seed(args.seed)
+        set_deterministic(args.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     run_dir = Path(args.out_dir) / f"seed{args.seed}"
     conflict = run_dir_conflict(run_dir, args, split_seed)

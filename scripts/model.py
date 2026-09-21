@@ -17,7 +17,9 @@
   - Readout 使用**末层**传播结果 h2（= h_v^(L)），绝不用输入 x（曾为易错点，验收见 tests）。
   - 层数 L 可配（`num_layers` ∈ {1,2,3}，默认 2 = 正典；大纲 5.4.1 第 13 项）。
     **L=2 的 state_dict 键名与旧版逐字相同**（故不用 `nn.ModuleList`），既有 `best.pt` 全部可加载。
-  - conv_type 仅 "rgcn"/"gcn"：GCN 忽略 edge_type（非关系感知消融基线）；普通 GAT 不提供。
+  - conv_type ∈ ("rgcn","gcn","gat","sage")（见模块级 CONV_TYPES）：**只有 rgcn 关系感知**，
+    其余三者一律忽略 edge_type —— 它们回答的都是「边类型是否必要」（大纲 5.3 EGFL 行），
+    不是"另一个更强的模型"。2026-09-21 新增 gat/sage（此前只有 gcn，且注释称"GAT 不提供"）。
   - num_bases 默认 = num_relations(=5)；num_bases=4 仅作消融。
   - DropEdge / L_var / 训练日志均属 M5（train.py）；本文件提供纯工具 apply_edge_mask（M5 同步过滤边用）
     与 `sample_dropout_masks`（逐图正则掩码采样），不含训练循环。
@@ -35,7 +37,11 @@ from dataclasses import dataclass
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, RGCNConv
+from torch_geometric.nn import GATConv, GCNConv, RGCNConv, SAGEConv
+
+# 可用的消息传递算子。**只有 `rgcn` 是关系感知的**，其余全部忽略 `edge_type`
+# （它们各自回答「边类型是否必要」，不是"更强的模型"，见 `_make_conv` 的说明）。
+CONV_TYPES = ("rgcn", "gcn", "gat", "sage")
 
 # 关系编号固定（手册 7.7 / convert_hetero_json_to_pyg.py 的 RELATION_IDS）
 RELATION_NAMES = {
@@ -325,11 +331,11 @@ class SSMHG(nn.Module):
                  num_bases: int = 5, num_classes: int = 7, dropout: float = 0.3,
                  conv_type: str = "rgcn", use_meanpool: bool = False, num_layers: int = 2):
         super().__init__()
-        if conv_type not in ("rgcn", "gcn"):
+        if conv_type not in CONV_TYPES:
             raise ValueError(
-                f"conv_type must be 'rgcn' or 'gcn', got {conv_type!r}; "
-                "plain GAT is excluded (it cannot express relation-aware message passing); "
-                "implement RGAT separately if needed."
+                f"conv_type must be one of {CONV_TYPES}, got {conv_type!r}; "
+                "所有非 rgcn 的取值都是**关系盲**基线（它们忽略 edge_type）——"
+                "要关系感知的注意力请另实现 RGAT，本文件不提供。"
             )
         if not (1 <= num_bases <= num_relations):
             raise ValueError(f"num_bases must be in [1, {num_relations}], got {num_bases}")
@@ -367,11 +373,22 @@ class SSMHG(nn.Module):
         self.cls = nn.Sequential(nn.Linear(hid, 64), nn.ReLU(), nn.Linear(64, num_classes))
 
     def _make_conv(self, in_dim: int, out_dim: int) -> nn.Module:
-        """建一层消息传递（RGCN 关系感知 / GCN 同构基线）。参数与旧版逐字相同。"""
+        """建一层消息传递（RGCN 关系感知 / 其余关系盲基线）。参数与旧版逐字相同。
+
+        🔴 **除 `rgcn` 外的取值一律忽略 `edge_type`**（`forward` 的那个分支就不把它们传进去）——
+        即它们回答的都是「**边类型是否必要**」（大纲 5.3 EGFL 行），
+        **不是**「另一个更强的模型」。论文表格里必须写明这一点，
+        否则会把"关系盲"读成"该方法更弱"。
+        """
         if self.conv_type == "rgcn":
             # root_weight=True：空边/孤立节点时仍保留节点自身变换项（PyG 2.7.0 官方行为）
             return RGCNConv(in_dim, out_dim, self.num_relations,
                             num_bases=self.num_bases, root_weight=True)
+        if self.conv_type == "gat":
+            # heads=1：与其它臂保持**单头**，避免"多头"变成第二个变量
+            return GATConv(in_dim, out_dim, heads=1, add_self_loops=True)
+        if self.conv_type == "sage":
+            return SAGEConv(in_dim, out_dim, aggr="mean")
         # gcn：忽略 edge_type，同构基线（add_self_loops=True 保证孤立节点可更新）
         return GCNConv(in_dim, out_dim)
 

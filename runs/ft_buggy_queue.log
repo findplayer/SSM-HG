@@ -1,0 +1,22 @@
+=== [08:38:08] finetune ss0 ===
+  ✓ ss0
+=== [09:23:45] finetune ss1 ===
+  ✗ ss1 失败，末尾 15 行：
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/huggingface_hub/file_download.py", line 442, in _request_wrapper
+    return http_backoff(
+           ^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/huggingface_hub/utils/_http.py", line 212, in http_backoff
+    response = session.request(method=method, url=url, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/requests/sessions.py", line 651, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/requests/sessions.py", line 784, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/requests/adapters.py", line 727, in send
+    raise SSLError(e, request=request)
+requests.exceptions.SSLError: HTTPSConnectionPool(host='huggingface.co', port=443): Max retries exceeded with url: /microsoft/codebert-base/resolve/main/tokenizer_config.json (Caused by SSLError(SSLEOFError(8, 'EOF occurred in violation of protocol (_ssl.c:1002)')))
+=== [09:23:56] finetune ss2 ===
+  ✓ ss2
+=== [10:09:06] 全部完成 ===

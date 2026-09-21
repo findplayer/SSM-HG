@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -48,6 +49,29 @@ BASE = str(REPO)
 DEFAULT_GRAPH_DIR = f"{BASE}/products/alldata/graphs"
 DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
 NUM_CLASSES = 7
+
+
+def load_hf_offline_fallback(loader, name: str, what: str):
+    """HF 加载：联网失败时**自动回退到本地缓存**（`HF_HUB_OFFLINE=1`）再试一次。
+
+    🔴 **为什么必须有**：本机 HF 缓存是**完整的**，但 `transformers` 默认仍会联网
+    **重校验**。2026-09-21 实测：ss1 的微调跑到一半前（加载 tokenizer 时）抛
+    `requests.exceptions.SSLError ... EOF occurred in violation of protocol`，
+    **整次 40 分钟的微调前功尽弃**——失败原因与代码、数据、超参都无关，纯网络抖动。
+    缓存齐备时联网毫无必要：离线加载既快又不受网络影响。
+
+    回退前会先把离线开关设进 `os.environ`，因为 HF 的离线判定发生在**库内部**
+    （模块级读环境变量），改完之后重新构造调用即可生效（`transformers` 每次
+    `from_pretrained` 都会重新读）。
+    """
+    try:
+        return loader()
+    except Exception as exc:                                   # noqa: BLE001 —— 网络异常族太多
+        print(f"[ft] ⚠ 联网加载 {what}（{name}）失败：{type(exc).__name__}: {str(exc)[:200]}\n"
+              f"[ft]   → 回退到本地缓存（HF_HUB_OFFLINE=1）重试", flush=True)
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        os.environ["TRANSFORMERS_OFFLINE"] = "1"
+        return loader()
 
 
 def corpus_tag(graph_dir) -> str:
@@ -110,7 +134,8 @@ class CodeBertContract(nn.Module):
     def __init__(self, name: str, num_classes: int = NUM_CLASSES):
         super().__init__()
         from transformers import AutoModel
-        self.encoder = AutoModel.from_pretrained(name)
+        self.encoder = load_hf_offline_fallback(lambda: AutoModel.from_pretrained(name),
+                                                name, "model")
         hidden = int(self.encoder.config.hidden_size)
         self.head = nn.Linear(hidden, num_classes)
 
@@ -245,7 +270,8 @@ def main() -> None:
 
     # ---- 文本（复用 M3 口径）与分词 ----
     from transformers import AutoTokenizer
-    tok = AutoTokenizer.from_pretrained(args.codebert)
+    tok = load_hf_offline_fallback(lambda: AutoTokenizer.from_pretrained(args.codebert),
+                                   args.codebert, "tokenizer")
     texts = contract_texts(Path(args.graph_dir), train_names + val_names)
     trunc = args.max_funcs_per_contract
     seqs_of = {b: v[:trunc] for b, v in tokenize_all(texts, tok, 512).items()}

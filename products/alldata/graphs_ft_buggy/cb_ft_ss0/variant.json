@@ -1,0 +1,23 @@
+{
+  "created": "2026-09-21",
+  "variant": "cb_ft",
+  "split_seed": 0,
+  "derived_from": "products/alldata/graphs",
+  "encoder": "runs/codebert_ft_buggy/ss0/encoder",
+  "only_variable": "CodeBERT 微调后重编码（结构/类型/s_v 三通道逐位不变，已断言）",
+  "commands": [
+    "finetune_codebert.py",
+    "m3_build_features.py --codebert <encoder>"
+  ],
+  "reuse": {
+    "_hetero.json": "symlink",
+    "_m1.json": "symlink",
+    "_pyg.pt": "symlink",
+    "splits": "products/<数据集>/splits（复用，不重建）"
+  },
+  "expect": {
+    "_feat.pt": "与正典逐位相同（590/590 图）",
+    "_cb.pt": "与正典**不同**（590/590 图，全量比对）",
+    "encoder_corpus": "alldata"
+  }
+}
