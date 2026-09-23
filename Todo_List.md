@@ -264,7 +264,7 @@
 - [x] M5 v5 审阅结论（2026-09-08，可行性判定见 `experiments/decisions.md` 第 0、9 节）
   - [x] 已确认：dataset/model 契约与 M4 输出一致；class-masked BCE 分母、按图 population `L_var`、单图 DropEdge、zero-positive 类和 split API 校验升级为硬性验收项
   - [x] **先验 dropout 前置条件升级为必做**：~~训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）~~——**该方案已于 2026-09-12 前端化退役**：先验 dropout 改为 `model.NodeFuser` 内按图 Bernoulli(0.2) 置零（融合前），不再需要变体文件
-  - [x] 补充项：外部基线（CodeBERT 序列、GCN/GAT 同构图，**改II 去掉 HGT**）需单独实现位置（建议 train.py/evaluate.py 开关或独立 baselines.py）；Slither 规则基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）
+  - [ ] 补充项：**5.3 对比方法（2026-09-21 按大纲原文重列，旧的「CodeBERT 序列 + GCN/GAT 同构图」写法已作废）**——见下方「5.3 对比实验（现行）」小节。传统工具基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）的做法只适用于 **Slither**；其余五个工具须各自实跑（`scripts/baseline_static_tools.py` 已备好 `DETECTOR_TO_CLASS` 与 solc 版本选择）
   - [x] 风险记录：**DIVE/SolidiFI 数据已就位（2026-09-11）**；层次二与 5.5.1 需先建类别映射表（SolidiFI 前缀→七类；DIVE 已剔除 Bad Randomness，7 维可直接用）；验证集可能仅约 50 图、低正样本类（4~6 个）对 macro-F1 敏感，按手册记录训练/验证差距
 - [ ] 文件组织（2026-09-08 v5：metrics/train/evaluate 与 CI smoke 仍待实现）
   - [x] dataset.py：已完成（2026-09-07；数据层：_pyg.pt 结构 + _feat.pt(x) + 标签对齐加载断言 + 边级消融开关；不过 MLP，只组合与裁剪）
@@ -369,7 +369,7 @@
 - `SSMHG(in_dim=128, hid=128, num_relations=5, num_bases=5, num_classes=7, dropout=0.3, conv_type="rgcn", use_meanpool=False)`
 - `forward(x, edge_index, edge_type, batch=None, return_intermediates=False) -> (z, a, node_logits)`；批图 z=[B,7]；return_intermediates 返回 dict{z,a,node_logits,h1,h2,alpha,hg}
 - Readout 使用**第二层传播结果 h2**（=h_v^(L)），禁用输入 x；alpha=a/(sum(a)+1e-6)，批图按图 scatter 归一化
-- 消融开关：`use_meanpool`（仅替换 Readout）、`conv_type="rgcn"|"gcn"`（**无 GAT**——普通 GAT 非关系感知，传 "gat" 抛 ValueError；如需另行实现 RGAT）、`num_bases=4`（仅消融，默认 5）
+- 消融开关：`use_meanpool`（仅替换 Readout）、`conv_type ∈ {rgcn,gcn,gat,sage}`（2026-09-21 扩到四个；**只有 rgcn 关系感知**，其余三个忽略 `edge_type`；`tests/test_model_smoke.py::test_non_rgcn_convs_ignore_edge_type` 机检）、`num_bases=4`（仅消融，默认 5）。⚠ 关系盲算子族**不是 5.3 的对比方法**（大纲 5.3 = 六个传统工具 + EGFL + MVD-HG/MANDO-LLM），只作 §40.4 内部证据
 - helper：`validate_edge_types` / `apply_edge_mask`（同步过滤边，M5 DropEdge 用）/ `safe_readout` / `_scatter_add`（index_add 实现，免 torch_scatter）
 - 底部 `if __name__ == "__main__"`：随机数据 smoke test（组合/极端图/非法输入/批图等价）——M4 独立验证入口；完整用例见 `tests/test_model_smoke.py`（22 个）
 - 空边/孤立：PyG 2.7.0 官方行为（root_weight/add_self_loops）已实测可用，无自定义 fallback
@@ -418,10 +418,41 @@
 - 只 import：`model`、`dataset`、`metrics`（不实现数据/指标逻辑）
 - 主实验（默认）：加载 `runs/seed*/best.pt` → 验证集阈值搜索 0.2~0.8/步长 0.05 选 best → **MVD-HG 内部测试**固定 0.5 与 best 双报告 → `runs/seedN/results.json` → 3 种子 `runs/summary.json`（均值±标准差）
 - **DIVE 外部测试（改II）**：一次性评估，不参与训练/验证/早停/阈值/模型选择；报告各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查；结果写 `eval_results/`
-- `--task ablation|baseline` → `eval_results/`（10.6；基线含 Slither 规则七维命中、CodeBERT 序列、GCN/GAT 同构图——**实现提供 GCN（`conv_type="gcn"`）**，大纲 5.3 允许“GCN 或 GAT”二选一，GAT 需另行实现 RGAT；**两种设定：MVD-HG 内部测试 + DIVE**）
+- `--task ablation|baseline` → `eval_results/`（10.6；**基线以上方「5.3 对比实验（现行）」小节为准**；**两种设定：MVD-HG 内部测试 + DIVE**）
 - SolidiFI 层次二：$a_v/s_v/g_v$ 的 P@k/R@k/IoU（$g_v$ 按注入类别归属）+ “$a_v$ 增量覆盖节点”统计
 - 每类 P/R/F1、macro/micro-F1、mAP 用 `metrics.py`
 - 主阈值为验证集选择的单一全局阈值；per-class 阈值仅作补充报告；记录 support=0 和 AP 跳过类别；保存所有候选阈值及 tie 选择依据到 `runs/seedN/thresholds.json`。
+
+### 12.7.1 5.3 对比实验（现行 · 2026-09-21 按大纲 `改II` 原文重列）
+
+> 🔴 **本节的权威来源是大纲 `改II` 5.3 的表（段落 [400]–[411]）与层次一说明（段落 [395]）。**
+> **此前 Todo 与手册写的「Slither 规则 + CodeBERT 序列 + GCN/GAT 同构图」是旧设计，已作废**——
+> 大纲 5.3 表里**既没有 CodeBERT、也没有 GCN/GAT**。
+
+大纲原文（逐字）：
+
+| 基线 | 作用 |
+| --- | --- |
+| Securify、Mythril、Slither、Manticore、Smartcheck、Oyente | 静态传统工具对比 |
+| EGFL | 验证异构图边类型是否必要 |
+| MVD-HG、MANDO-LLM | 基线 |
+| 本文方法 | 完整方法 |
+
+> 大纲 [411]：**所有基线均按多标签任务统一训练和评估。传统模型也输出七维规则命中结果，而不是单标签类别。EGFL、MVD-HG、MANDO-LLM 等模型均输出七维 logits，并使用 `BCEWithLogitsLoss` 训练。**
+> 大纲 [395]：**5.3 全部对比方法均在两种设定下评估** = 同分布（MVD-HG 内部测试）+ 跨数据集（DIVE 外部测试）。
+
+| 基线 | 实现位置 / 现状 | 待办 |
+| --- | --- | --- |
+| 传统工具 ×6 | `scripts/baseline_static_tools.py`（`DETECTOR_TO_CLASS` 29 条检测器含 SWC 引用、`installed_solc_versions`/`version_ok`/`pick_solc_candidates`；**只跑通了 Slither**，产物 `eval_results/baseline/slither_alldata`） | ✅ **六环境已落地（2026-09-23，`decisions.md` §47）**：`scripts/install_traditional_tools.sh` 一键复现，五个工具各开独立 conda env、base 零污染，六个均**真实跑通**（非仅安装）。**剩余工作 = 接入**：`baseline_static_tools.py` 现只有 `run_slither`，须为其余 5 个补 `run_*` + 检测项→七类映射（如 manticore 的 `reentrancy`/`overflow`/`suicidal`/`delegatecall`/`unused-return`/`env-instr`；oyente 的 6 项；securify 的 pattern 名；smartcheck 的 SOLIDITY_* ruleId），并按 §47.4 先统计各工具**可分析合约数** |
+| **EGFL** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_egfl_build.py` + `baseline_egfl.py`（原生字节码模态），产物 `eval_results/baseline/egfl/seed{0,1,2}/` | 🔴 两处口径损失必须随结果披露：① 图分支的 256 维是**重建件**（原 `cfg_graph` 作者未开源）；② **83.2% 的合约被截断到 seq_len=512**（8 GB 卡跑不动它的稠密 O(L²) 注意力；原论文 SEQ_LEN=8000） | 大纲列的是**具体方法**。⚠ 本仓此前的 `--conv {gcn,gat,sage}`（`runs/arch_n9*`）只**近似**了「验证边类型是否必要」这个**目的**，不是 EGFL 本身 |
+| **MVD-HG** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_mvdhg_build.py`（**驱动原仓库代码**建图） + `baseline_mvdhg.py`，产物 `eval_results/baseline/mvdhg/seed{0,1,2}/` | 覆盖率 448/453；5 个失败样本**全在 train**、test 一个没少 ⇒ 逐类 support 与本文方法可比 |
+| **MANDO-LLM** | 🟡 **代码已就绪、训练中（2026-09-22）**：`scripts/baseline_mando.py`（PyG `HGTConv` 替 dgl，无需新建 conda 环境），产物 `eval_results/baseline/mando/seed{0,1,2}/` |  ✅ 名称已裁定（2026-09-21）：以 **`MANDO-LLM`** 为准，大纲正文的 `MANDO-HGT` 须同步改（`.docx` 改动需作者授权）。基线代码已由作者安装在 `/home/saumarez/projects/deep-learning`（⚠ 在本仓读取硬边界之外，见 AGENTS.md） |
+| 本文方法 | ✅ `runs/seed{0,1,2}` | 两设定评估（DIVE 见 `eval_results/dive/`） |
+
+✅ **四条已裁定（2026-09-21 用户）**：
+(a) 基线名 = **`MANDO-LLM`**（非 `MANDO-HGT`）；(b) **`SCVHunter(2024)` 不纳入**；(c) 三个论文基线（EGFL / MVD-HG / MANDO-LLM）**已安装在 `/home/saumarez/projects/deep-learning`**——⚠ **该路径超出「只能读取 SSM-HG」的硬边界，接入方式待确认**；(d) 关系盲算子族（GCN/GAT/SAGE + `*_pm`）**保留**（按「有 F1 结果则保留」，实测全部有完整 micro/macro/mAP），作 §40.4 附录证据，不入 5.3。
+
+> ⚠ **关系盲算子族不属 5.3**：它是 `decisions.md` §40.4「关系感知 vs 关系盲」的内部证据，n=9 结果见 `experiments/ablation_n9_results.md`。报告口径三条（关系盲 / 参数量不匹配 / 必须随附 `parameter_report`）见 `scripts/run_arch_baselines.py` 的 docstring。
 
 ### 12.8 消融映射（手册 10.6 / 大纲改II 5.4 → 实现位置）
 
@@ -449,7 +480,7 @@
 | DropEdge | M5 train（先单图 mask 再 batch；默认关） |
 | 微调 vs 冻结 CodeBERT | M3 微调分支 / M5 微调模式；评估 val macro-F1（大纲 5.4.2 原文口径，未随主指标口径改动） |
 
-> **`改I` 独有、`改II` 5.4 已移出必做清单的变体**（可作补充分析，不计入主消融）：去 M1 先验 $s_v$（M3 `--variant no-prior`）、RGCN→GCN（model.py `conv_type="gcn"`，仅作 5.3 外部基线）、去外部调用回调相关特征（结构特征 2/3/12/13/16 置 0）、仅 $s_v$ 排序 / 仅 RGCN 学重要性（evaluate 排序分支 + model 开关）。
+> **`改I` 独有、`改II` 5.4 已移出必做清单的变体**（可作补充分析，不计入主消融）：去 M1 先验 $s_v$（M3 `--variant no-prior`）、RGCN→GCN（model.py `conv_type="gcn"`，**既不在 5.4 消融表、也不在 5.3 对比表**——2026-09-21 按大纲原文更正，只作 §40.4 内部证据）、去外部调用回调相关特征（结构特征 2/3/12/13/16 置 0）、仅 $s_v$ 排序 / 仅 RGCN 学重要性（evaluate 排序分支 + model 开关）。
 
 ### 12.8.1 消融实验详细执行方案（结合现有结果，2026-09-16）
 
@@ -518,6 +549,55 @@ python scripts/evaluate.py --summarize --runs-dir eval_results/ablation/a1_drop_
 - [ ] 生成论文表：边信息、CodeBERT 双通道、readout/L_var/先验 dropout、结构特征四块分别呈现；每行标注零重跑或 M2–M5 重跑。
 - [ ] 生成解释表：A9 的 score_std、A10 的先验依赖、A5 的边数/吞吐、A1–A4 的实际保留边计数和逐类 support。
 - [ ] 三种子通过 paired seed 检查；任何变体缺 seed、改 split 或写入正典 `runs/`，均不得进入论文主消融表。
+
+### 12.8.2 消融的「两代记录」与三个正典（2026-09-21 现状）
+
+> 🔴 **本仓现在同时存在三代消融记录，用途不同，谁都不删、谁也不覆盖谁。**
+> 引用任何数字前先确认它出自哪一代、哪个正典。
+
+| 代 | 产物 | 报告 | n | 能回答什么 |
+| --- | --- | --- | --- | --- |
+| **第一代** | `runs/ablation/`、`runs/ablation_aug/` | `experiments/ablation_results.md`、`eval_results/ablation/collected{,_aug}.{json,md}` | **3** | 描述性；**不得**据此判方向（§12.4 第 6 条已列此开口） |
+| **第二代** | `runs/ablation_n9/`、`runs/ablation_n9_aug/`、`runs/arch_n9{,_aug}/` | `experiments/ablation_n9_results.md`、`eval_results/ablation/n9_summary.json` | **9** | 同配对判方向（`ts × ss` 3×3；判据 `\|t\| > 2.306`，另给 Bonferroni 参考） |
+| **第三代（buggy 正典）** | `runs/ablation_buggy/` | `experiments/per_class_three_caliber_tables_buggy.md` | **3** | 新正典（池 497）上的逐类三口径读数 |
+
+**第一代为什么保留**（2026-09-21 用户裁定「原来的结果不要删」）：第二代的价值有一半在于
+**「和第一代比，哪些结论翻了」**——删掉 n=3 就等于删掉对照臂本身。实现上第二代
+**对角 3 对直接复用第一代的物理产物**（不重跑），故两份记录之间不存在「两个版本打架」。
+
+**复用合法性不是假设**：`run_ablation_n9.reuse_violations` 逐 run 逐键把旧 `config.json`
+与现行代码重建的命令行对拍，3/3 抽查**逐位一致**（仅 `timing.infer_seconds` 不同）。
+⇒ 第二代只需补**非对角 6 对**（21 臂 × 2 组 × 6 = 252 run），而非全量 396。
+
+**三个正典不可互换**（`AGENTS.md` 语义锁死项）：
+
+| 正典 | `graph_dir` | `split_dir` | 池 | 用在哪 |
+| --- | --- | --- | --- | --- |
+| §37 正典 | `products/alldata/graphs_ft/ss{S}` | `products/alldata/splits` | 453 | 主实验 `runs/seed{S}`、第二代消融 |
+| 任务2 新正典 | `products/alldata/graphs_ft_buggy/cb_ft_ss{S}` | `products/alldata/splits/withbuggy_snapshot` | 497 | `runs/buggy_canon`、**第三代消融** |
+| ② 增强集 | `products/augmentation/graphs_ft/ss{S}` | `products/augmentation/splits` | 1774 | `runs/augmentation`、② 的消融 |
+
+⚠ **注意 `cb_ft_ss{S}` 这个前缀**：它是**新正典专有**的命名，`graph_dir` 的逐种子模板化
+必须同时认 `ss{S}` 与 `cb_ft_ss{S}` 两种形态（2026-09-21 修掉的正则漏洞，见手册 §12 错误清单）。
+
+**第三代要补的两件前置**（2026-09-21 已完成）：
+1. `products/alldata/graphs_ft_buggy/graph_variants/{cb_rev,cb_unlimited}_ss{S}/` —— 由
+   `build_ft_edge_variants.py --dataset alldata --layout buggy` 造（该 layout 为本次新增）。
+   边变体源与冻结树**与 §37 正典共用同一份**（边结构与冻结 `_cb.pt` 都与池/划分/微调无关），
+   只有微调基座与编码器不同 ⇒ 产物 `variant.json` 与 §37 版**只差 `derived_from` 一个键**（机检过）。
+2. `run_ablation.py` 的 train→evaluate 链**补上 diagnose**（原先缺，见下）。
+
+### 12.8.3 `test_probs.pt` 只由 `diagnose.py` 写（2026-09-21 修）
+
+🔴 `evaluate.py` 写 `val_best_probs.pt` 与 `results.json`，**但不写 `test_probs.pt`**；
+后者由 `diagnose.py` 写（`scripts/diagnose.py:210`）。而 `collect_three_caliber_tables.py` /
+`error_rates.py` / `collect_ablation_results.py` **全都只读 `test_probs.pt`**。
+
+`run_ablation.py` 原先只有 train→evaluate 两步 ⇒ 它跑出的 run **缺 `test_probs.pt`**，
+下游不是报错而是**整列变 `—`**（与 `run_buggy_canon.py` docstring 里记录的同一个坑）。
+已修：链条改为 train→evaluate→**diagnose**，且 `resume_state(run_dir, require_probs=True)`
+会识别"有 `results.json` 但无 `test_probs.pt`"的 run 并**只补那一步**（不重训）。
+`require_probs` 默认 `False`，故 `run_study` 那条链的既有判据**逐字未变**。
 
 ### 12.9 执行顺序（单步最小验证）
 > M5 正式决议（按大纲改II）：主划分用**固定种子 8:1:1 + 覆盖约束校正**（C1 验证+内部测试合计每类 ≥ 该类正样本总数的30%，C2 每划分每类 ≥1；2026-09-12 修订，原“每类 val/内部测试 ≥20”；不再用迭代分层作主方案）；零正类用 class mask 跳过逐元素 BCE；主阈值为验证集选择的全局单值并保存全扫描；L_var 按图使用 population std 并保留梯度；ReduceLROnPlateau 监控 **val micro-F1**（2026-09-12 主指标口径，macro-F1 同步记录作参考）；DropEdge 先单图 mask 再 batch；至少 3 个 seed；记录可比较的训练时间和吞吐；外部泛化只用 DIVE（一次性，不参与模型选择）。

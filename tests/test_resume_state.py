@@ -97,3 +97,71 @@ def test_run_study_shares_the_predicate():
     src = (REPO / "scripts" / "run_study.py").read_text(encoding="utf-8")
     assert "run_ablation.resume_state(" in src, \
         "run_study.py 应复用 run_ablation.resume_state，避免两份判据漂移"
+
+
+# ---------------------------------------------------------------- diagnose 那一步（2026-09-21 修）
+def test_missing_test_probs_is_diagnose_not_done():
+    """🔴 回归锁：`results.json` 在而 `test_probs.pt` 不在 ⇒ **只补 diagnose**，不得判 `done`。
+
+    洞的形状（2026-09-21 发现）：`test_probs.pt` 由 `diagnose.py` 写（`scripts/diagnose.py:210`），
+    **`evaluate.py` 不写**；而 `run_ablation.py` 原先是 train→evaluate 两步链。
+    于是它跑出的 run 有 `results.json` 却**没有** `test_probs.pt`，下游
+    `collect_three_caliber_tables.py` / `error_rates.py` 只读这个缓存 ⇒ **整列变 `—`、不报错**。
+    判据只看 `results.json` 就会把它当"已完成"永久跳过 ⇒ 缓存**永远补不上**。
+    """
+    d = REPO / "runs" / "_probe_no_probs"
+    _touch(d, "best.pt", "config.json", "results.json", "thresholds.json", "val_best_probs.pt")
+    try:
+        assert run_ablation.resume_state(d, require_probs=True) == "diagnose", \
+            "缺 test_probs.pt 时判成 done = 三口径表整列变 —，且不报错"
+        # 默认参数**必须保持旧行为**（run_study 也调它，改默认值会让那条链的判据漂移）
+        assert run_ablation.resume_state(d) == "done", \
+            "默认参数的行为不得改变"
+    finally:
+        for f in d.iterdir():
+            f.unlink()
+        d.rmdir()
+
+
+def test_test_probs_present_is_done_with_require_probs():
+    """补上 `test_probs.pt` 之后必须回到 `done`（否则每轮都要重跑一遍 diagnose）。"""
+    d = REPO / "runs" / "_probe_with_probs"
+    _touch(d, "config.json", "results.json", "test_probs.pt")
+    try:
+        assert run_ablation.resume_state(d, require_probs=True) == "done"
+    finally:
+        for f in d.iterdir():
+            f.unlink()
+        d.rmdir()
+
+
+def test_ablation_chain_includes_diagnose():
+    """把"链条必须含 diagnose"写成对源码的断言——防止有人把这一步删回去。
+
+    行为测试难以覆盖（要真跑一次 train），而这一步**删掉不会报错**，
+    正是本仓反复记录的那类失效模式，故用源码断言直接钉住。
+    """
+    src = (REPO / "scripts" / "run_ablation.py").read_text(encoding="utf-8")
+    assert "argv_for_diagnose(a)" in src, "run_ablation 主循环必须真的调 diagnose"
+    assert 'require_probs=True' in src, "主循环必须用 require_probs=True 判据"
+
+
+def test_diagnose_argv_has_one_implementation():
+    """`run_study.argv_for_diagnose` 必须**委托**给 `run_ablation`，不得各写一份。
+
+    两份实现的危险不是"跑不起来"，而是**其中一个后来被改**（如补一个 `--label-key-mode`）
+    而另一个没跟上 ⇒ 两条链产出的 `test_probs.pt` 口径不同，且都不报错。
+    """
+    import run_study
+    a = {"out_dir": "runs/x", "seed": 1, "graph_dir": "products/alldata/graphs_ft/ss1",
+         "split_dir": "products/alldata/splits"}
+    assert run_study.argv_for_diagnose(a) == run_ablation.argv_for_diagnose(a)
+    src = (REPO / "scripts" / "run_study.py").read_text(encoding="utf-8")
+    body = src.split("def argv_for_diagnose", 1)[1].split("\ndef ", 1)[0]
+    assert "run_ablation.argv_for_diagnose(args)" in body, \
+        "run_study 的 argv_for_diagnose 应当是委托，而不是又一份实现"
+    # 带 label 键时的形状（② 增强集走这条分支）
+    b = dict(a, label_file="products/augmentation/contract_labels_repaired.json",
+             label_key_mode="repaired")
+    assert run_study.argv_for_diagnose(b) == run_ablation.argv_for_diagnose(b)
+    assert "--label-file" in run_ablation.argv_for_diagnose(b)

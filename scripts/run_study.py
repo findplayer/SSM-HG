@@ -97,14 +97,15 @@ def build_args(base: dict, study: str, t: int, s: int) -> dict:
 
 
 def argv_for_diagnose(args: dict) -> list[str]:
-    """diagnose.py 的命令行（产出 `test_probs.pt` 与 `diagnosis.json`）。"""
-    argv = [sys.executable, str(REPO / "scripts" / "diagnose.py"),
-            "--runs-dir", args["out_dir"], "--seed", str(args["seed"]),
-            "--graph-dir", args["graph_dir"], "--split-dir", args["split_dir"]]
-    for key in ("label_file", "label_key_mode"):
-        if args.get(key):
-            argv += ["--" + key.replace("_", "-"), str(args[key])]
-    return argv
+    """diagnose.py 的命令行（产出 `test_probs.pt` 与 `diagnosis.json`）。
+
+    2026-09-21：实现**移到 `run_ablation.argv_for_diagnose`**（与 `argv_for_train`/
+    `argv_for_eval` 并列，三者形状一致），此处**委托**过去，保持一份实现。
+    起因：`run_ablation.py` 原先的 train→evaluate 两步链**不含 diagnose**，
+    产出的 run 缺 `test_probs.pt` ⇒ 三口径逐类表读不到（整列 `—`、不报错）。
+    本函数名字与签名不变，`run_ablation_n9.py` 等既有调用方**无需改动**。
+    """
+    return run_ablation.argv_for_diagnose(args)
 
 
 def preflight(study: str, pairs: list[tuple[int, int]]) -> None:

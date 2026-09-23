@@ -1,0 +1,20 @@
+[n9] 分组 ['main']；2 臂 × 2 对 + 基线 = 6 个条目；dry_run=False
+
+组     臂                配对      唯一开关                           复用判定
+----------------------------------------------------------------------------------------
+main  _base            2:1     （基线臂）                          ♻ 复用
+main  _base            0:1     （基线臂）                          ♻ 复用
+main  no_prior_drop    2:1     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    0:1     --prior-dropout 0.0            ▶ 新跑
+main  feat_base        2:1     --feat-groups base             ▶ 新跑
+main  feat_base        0:1     --feat-groups base             ▶ 新跑
+
+[清点] 共 6 个条目：复用 2、新跑 4
+
+[main/no_prior_drop/2:1] ✓   18.6s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/0:1] 跳过：results.json 已存在
+[main/feat_base/2:1] ✓   43.2s  结构特征分组 (a) base
+[main/feat_base/0:1] ✓   70.4s  结构特征分组 (a) base
+
+[n9] 结束：新跑 3 个 run，wall 1.2 min，失败 0
+[n9] 下一步：python scripts/collect_ablation_n9.py --group both

@@ -1,0 +1,34 @@
++ echo 1
++ sudo -S apt-get install -y openjdk-8-jdk
++ tail -8
+update-alternatives: using /usr/lib/jvm/java-8-openjdk-amd64/bin/serialver to provide /usr/bin/serialver (serialver) in auto mode
+update-alternatives: using /usr/lib/jvm/java-8-openjdk-amd64/bin/wsgen to provide /usr/bin/wsgen (wsgen) in auto mode
+update-alternatives: using /usr/lib/jvm/java-8-openjdk-amd64/bin/wsimport to provide /usr/bin/wsimport (wsimport) in auto mode
+update-alternatives: using /usr/lib/jvm/java-8-openjdk-amd64/bin/xjc to provide /usr/bin/xjc (xjc) in auto mode
+Setting up openjdk-8-jdk:amd64 (8u504-ga-1ubuntu1~24.04.3) ...
+update-alternatives: using /usr/lib/jvm/java-8-openjdk-amd64/bin/appletviewer to provide /usr/bin/appletviewer (appletviewer) in auto mode
+update-alternatives: using /usr/lib/jvm/java-8-openjdk-amd64/bin/jconsole to provide /usr/bin/jconsole (jconsole) in auto mode
+Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
++ echo '########## java check ##########'
+########## java check ##########
++ /usr/lib/jvm/java-8-openjdk-amd64/bin/java -version
+openjdk version "1.8.0_504"
+OpenJDK Runtime Environment (build 1.8.0_504-8u504-ga-1ubuntu1~24.04.3-b01)
+OpenJDK 64-Bit Server VM (build 25.504-b01, mixed mode)
++ echo '########## npm smartcheck ##########'
+########## npm smartcheck ##########
++ npm install -g @smartdec/smartcheck
++ tail -10
+npm ERR! 
+npm ERR! The operation was rejected by your operating system.
+npm ERR! It is likely you do not have the permissions to access this file as the current user
+npm ERR! 
+npm ERR! If you believe this might be a permissions issue, please double-check the
+npm ERR! permissions of the file and its containing directories, or try running
+npm ERR! the command again as root/Administrator.
+
+npm ERR! A complete log of this run can be found in:
+npm ERR!     /home/saumarez/.npm/_logs/2026-09-23T00_37_40_319Z-debug-0.log
++ which smartcheck
++ echo '########## DONE ##########'
+########## DONE ##########

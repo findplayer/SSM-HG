@@ -334,7 +334,7 @@ train 362 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；�
 
 **5.4.2 可选消融（6 项）**：CALLBACK_RISK_REV（重跑 M2 加反边）、L=1/2/3（model 加 `num_layers`）、num_bases、hid 128/256、DropEdge、微调 vs 冻结 CodeBERT。
 
-**基线**（统一七维多标签 + BCE 训练，两种设定 MVD-HG 内部测试 + DIVE）：Slither 规则基线（`_m1.json` node_flags 图级聚合：任一节点命中该类→图命中，输出七维 0/1）、CodeBERT 序列、GCN（`conv_type="gcn"`）。GAT 需另行实现 RGAT，不作主实验硬依赖。
+**基线**（统一七维多标签 + BCE 训练，两种设定 MVD-HG 内部测试 + DIVE）——🔴 **2026-09-21 按大纲 `改II` 5.3 原文重列**：六个传统工具（`Securify/Mythril/Slither/Manticore/Smartcheck/Oyente`，输出七维规则命中 0/1）+ `EGFL` + `MVD-HG/MANDO-LLM` + 本文方法。**旧写法「Slither 规则 + CodeBERT 序列 + GCN」已作废**（大纲 5.3 既无 CodeBERT 也无 GCN/GAT）。映射与现状见 `Todo_List.md` §12.7.1 与 `论文开发手册.md` §10.6。
 
 产物写 `eval_results/{ablation,baseline}/`，**不污染 `runs/` 主结果**；任何消融结果不得在主实验完成前替换主方案。
 

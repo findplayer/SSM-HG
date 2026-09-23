@@ -189,11 +189,24 @@ def test_action_table_covers_every_class():
 
 
 # ------------------------------------------------------------ 端到端：脚本可跑且数字自洽
+#
+# 🔴 **子进程必须显式给 `MKL_THREADING_LAYER=GNU`**（2026-09-21 修，本仓第二次踩）：
+#   本仓的 numpy/MKL 组合下，**只要 pytest 进程 import 过 numpy**，之后启动的子进程就会
+#   以 `mkl-service + Intel(R) MKL: MKL_THREADING_LAYER=INTEL is incompatible with
+#   libgomp-…so.1` **退出码 1**（子进程本身没有任何问题）。于是这三个测试**依赖测试文件的
+#   字母序**：一旦有排在 `test_audit_scripts.py` 之前的新测试文件在模块层 import numpy
+#   （本次是 `test_ablation_n9.py`），它们就集体挂掉 —— 而报错信息里看不出与排序有关。
+#   `tests/test_binary_arm.py` 早已用同一条 workaround，此处补齐。
+def _subprocess_env() -> dict:
+    import os
+    return {**os.environ, "MKL_THREADING_LAYER": "GNU"}
+
+
 def test_audit_data_funnel_print_only_runs():
     """--print 端到端跑通（含全部断言：漏斗不变量、池规模、targets 列宽、边类型键）。"""
     import subprocess
     r = subprocess.run([sys.executable, str(_REPO / "scripts/audit_data_funnel.py"), "--print"],
-                       cwd=_REPO, capture_output=True, text=True)
+                       cwd=_REPO, capture_output=True, text=True, env=_subprocess_env())
     assert r.returncode == 0, r.stderr[-2000:]
     assert "两级去重" in r.stdout
 
@@ -201,7 +214,7 @@ def test_audit_data_funnel_print_only_runs():
 def test_audit_cb_func_gap_print_only_runs():
     import subprocess
     r = subprocess.run([sys.executable, str(_REPO / "scripts/audit_cb_func_gap.py"), "--print"],
-                       cwd=_REPO, capture_output=True, text=True)
+                       cwd=_REPO, capture_output=True, text=True, env=_subprocess_env())
     assert r.returncode == 0, r.stderr[-2000:]
     assert "缺口" in r.stdout
 
@@ -251,7 +264,7 @@ def test_include_buggy_isolates_output_and_keeps_canon(tmp_path):
 
     r = subprocess.run([sys.executable, str(_REPO / "scripts/make_splits.py"),
                         "--include-buggy", "--seeds", "0", "--out-dir", str(tmp_path)],
-                       cwd=_REPO, capture_output=True, text=True)
+                       cwd=_REPO, capture_output=True, text=True, env=_subprocess_env())
     assert r.returncode == 0, r.stderr[-2000:]
 
     arm = tmp_path / "withbuggy_snapshot"

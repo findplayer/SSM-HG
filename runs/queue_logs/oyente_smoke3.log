@@ -1,0 +1,27 @@
+WARNING:root:You are using an untested version of z3. 4.5.1 is the officially tested version
+INFO:CryticCompile:Compilation warnings/errors on /tmp/oyente_test.sol:
+/tmp/oyente_test.sol:11:40: Warning: "throw" is deprecated in favour of "revert()", "require()" and "assert()".
+        if (balances[msg.sender] <= 0) throw;
+                                       ^---^
+/tmp/oyente_test.sol:12:61: Warning: "throw" is deprecated in favour of "revert()", "require()" and "assert()".
+        if (!msg.sender.call.value(balances[msg.sender])()) throw;
+                                                            ^---^
+
+INFO:root:contract /tmp/oyente_test.sol:Reentrant:
+INFO:symExec:	============ Results ===========
+INFO:symExec:	  EVM Code Coverage: 			 97.8%
+INFO:symExec:	  Integer Underflow: 			 False
+INFO:symExec:	  Integer Overflow: 			 True
+INFO:symExec:	  Parity Multisig Bug 2: 		 False
+INFO:symExec:	  Callstack Depth Attack Vulnerability:  False
+INFO:symExec:	  Transaction-Ordering Dependence (TOD): False
+INFO:symExec:	  Timestamp Dependency: 		 False
+INFO:symExec:	  Re-Entrancy Vulnerability: 		 True
+INFO:symExec:/tmp/oyente_test.sol:7:9: Warning: Integer Overflow.
+        balances[msg.sender] += msg.value
+Integer Overflow occurs if:
+    balances[msg.sender] = 94173514620073062542221823594841294574919295641086499042051484457848550896230
+INFO:symExec:/tmp/oyente_test.sol:12:14: Warning: Re-Entrancy Vulnerability.
+        if (!msg.sender.call.value(balances[msg.sender])()
+INFO:symExec:	====== Analysis Completed ======
+########## DONE ##########

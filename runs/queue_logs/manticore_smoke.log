@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/saumarez/anaconda3/envs/manticore/bin/manticore", line 8, in <module>
+    sys.exit(main())
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/__main__.py", line 43, in main
+    ethereum_main(args, logger)
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/ethereum/cli.py", line 90, in ethereum_main
+    m = ManticoreEVM(workspace_url=args.workspace)
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/ethereum/manticore.py", line 416, in __init__
+    super().__init__(initial_state, **kwargs)
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/core/manticore.py", line 387, in __init__
+    nworkers = max(consts.procs // initial_state._solver.ncores, 1)
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/core/state.py", line 185, in __getattr__
+    return getattr(self._solver, item)
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/core/state.py", line 141, in _solver
+    return SelectedSolver.instance()  # solver
+  File "/home/saumarez/anaconda3/envs/manticore/lib/python3.9/site-packages/manticore/core/smtlib/solver.py", line 1106, in instance
+    raise SolverException(
+manticore.core.smtlib.solver.SolverException: No Solver not found. Install one (yices-smt2, z3, cvc4, boolector).
+########## DONE ##########

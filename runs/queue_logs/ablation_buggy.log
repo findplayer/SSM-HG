@@ -1,0 +1,112 @@
+[ablation] 基线 runs/buggy_canon/seed0/config.json；21 项 × 3 种子 = 63 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+dfg_dep          --drop-edges 3                     ✅ 恰一个变量
+cfg_flow         --drop-edges 0                     ✅ 恰一个变量
+ast_parent       --drop-ast                         ✅ 恰一个变量
+callback_risk    --drop-edges 4                     ✅ 恰一个变量
+cb_node_only     --cb-channels cb_node              ✅ 恰一个变量
+cb_func_only     --cb-channels cb_func              ✅ 恰一个变量
+meanpool         --meanpool                         ✅ 恰一个变量
+no_lvar          --lambda-var 0.0                   ✅ 恰一个变量
+no_prior_drop    --prior-dropout 0.0                ✅ 恰一个变量
+feat_base        --feat-groups base                 ✅ 恰一个变量
+feat_base_sem    --feat-groups base+sem             ✅ 恰一个变量
+hid256           --hid 256                          ✅ 恰一个变量
+numbases1        --num-bases 1                      ✅ 恰一个变量
+numbases3        --num-bases 3                      ✅ 恰一个变量
+numbases4        --num-bases 4                      ✅ 恰一个变量
+dropedge02       --drop-edge-prob 0.2               ✅ 恰一个变量
+layers1          --layers 1                         ✅ 恰一个变量
+layers3          --layers 3                         ✅ 恰一个变量
+cb_unlimited     --graph-dir {variants}/cb_unlimited_ss{seed} ✅ 恰一个变量
+cb_rev           --graph-dir {variants}/cb_rev_ss{seed} ✅ 恰一个变量
+cb_frozen        --graph-dir {frozen}               ✅ 恰一个变量
+
+[dfg_dep/seed0] ✓  19.8s  去 DFG_DEP（物理关系 3）
+[dfg_dep/seed1] ✓  23.8s  去 DFG_DEP（物理关系 3）
+[dfg_dep/seed2] ✓  16.1s  去 DFG_DEP（物理关系 3）
+[dfg_dep] summarize ✓
+[cfg_flow/seed0] ✓  21.6s  去 CFG_FLOW（物理关系 0）
+[cfg_flow/seed1] ✓  24.5s  去 CFG_FLOW（物理关系 0）
+[cfg_flow/seed2] ✓  24.0s  去 CFG_FLOW（物理关系 0）
+[cfg_flow] summarize ✓
+[ast_parent/seed0] ✓  19.8s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent/seed1] ✓  17.2s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent/seed2] ✓  27.4s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent] summarize ✓
+[callback_risk/seed0] ✓  17.7s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk/seed1] ✓  20.7s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk/seed2] ✓  23.8s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk] summarize ✓
+[cb_node_only/seed0] ✓  17.8s  去函数级 CodeBERT（只留节点级）
+[cb_node_only/seed1] ✓  27.5s  去函数级 CodeBERT（只留节点级）
+[cb_node_only/seed2] ✓  17.4s  去函数级 CodeBERT（只留节点级）
+[cb_node_only] summarize ✓
+[cb_func_only/seed0] ✓  17.2s  去节点级 CodeBERT（只留函数级）
+[cb_func_only/seed1] ✓  25.2s  去节点级 CodeBERT（只留函数级）
+[cb_func_only/seed2] ✓  18.9s  去节点级 CodeBERT（只留函数级）
+[cb_func_only] summarize ✓
+[meanpool/seed0] ✓  21.0s  meanpool 替换 a_v 加权 readout
+[meanpool/seed1] ✓  28.7s  meanpool 替换 a_v 加权 readout
+[meanpool/seed2] ✓  20.9s  meanpool 替换 a_v 加权 readout
+[meanpool] summarize ✓
+[no_lvar/seed0] ✓  24.3s  关闭 L_var（方差正则项）
+[no_lvar/seed1] ✓  29.1s  关闭 L_var（方差正则项）
+[no_lvar/seed2] ✓  19.4s  关闭 L_var（方差正则项）
+[no_lvar] summarize ✓
+[no_prior_drop/seed0] ✓  22.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop/seed1] ✓  26.6s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop/seed2] ✓  21.1s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop] summarize ✓
+[feat_base/seed0] ✓  26.6s  结构特征分组 (a) base
+[feat_base/seed1] ✓  25.6s  结构特征分组 (a) base
+[feat_base/seed2] ✓  19.0s  结构特征分组 (a) base
+[feat_base] summarize ✓
+[feat_base_sem/seed0] ✓  27.3s  结构特征分组 (b) base+sem
+[feat_base_sem/seed1] ✓  22.5s  结构特征分组 (b) base+sem
+[feat_base_sem/seed2] ✓  17.7s  结构特征分组 (b) base+sem
+[feat_base_sem] summarize ✓
+[hid256/seed0] ✓  27.1s  隐藏维度 256（基线 128）
+[hid256/seed1] ✓  17.6s  隐藏维度 256（基线 128）
+[hid256/seed2] ✓  16.3s  隐藏维度 256（基线 128）
+[hid256] summarize ✓
+[numbases1/seed0] ✓  28.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[numbases1/seed1] ✓  18.0s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[numbases1/seed2] ✓  17.5s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[numbases1] summarize ✓
+[numbases3/seed0] ✓  21.0s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3/seed1] ✓  22.1s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3/seed2] ✓  18.2s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3] summarize ✓
+[numbases4/seed0] ✓  22.4s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4/seed1] ✓  24.6s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4/seed2] ✓  18.8s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4] summarize ✓
+[dropedge02/seed0] ✓  24.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02/seed1] ✓  20.9s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02/seed2] ✓  17.0s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02] summarize ✓
+[layers1/seed0] ✓  20.6s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed1] ✓  20.8s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed2] ✓  18.2s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1] summarize ✓
+[layers3/seed0] ✓  34.5s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed1] ✓  24.9s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed2] ✓  20.7s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3] summarize ✓
+[cb_unlimited/seed0] ✓  20.2s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited/seed1] ✓  27.0s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited/seed2] ✓  24.4s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited] summarize ✓
+[cb_rev/seed0] ✓  25.7s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[cb_rev/seed1] ✓  29.4s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[cb_rev/seed2] ✓  18.9s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[cb_rev] summarize ✓
+[cb_frozen/seed0] ✓  23.5s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[cb_frozen/seed1] ✓  27.0s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[cb_frozen/seed2] ✓  27.7s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[cb_frozen] summarize ✓
+
+[ablation] 结束：用时 1461.5s；产物 runs/ablation_buggy

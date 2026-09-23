@@ -840,9 +840,10 @@ ASL 的 `@0.5` 崩溃**更强**（−0.3734 → **−0.2729，但 t 从 −8.76 
 > 论文中须写成「本实验未能检验该问题」）；且它**从来不是纯边消融**（20/590 图的 `_feat.sv` 随边改变，与边改变那批完全重合）。
 > ⚠ `num_bases` 因模型约束 `1<=num_bases<=num_relations` 修正为 1/3/4（见该文 §7）。
 
-## 3. 基线（阶段 F，待执行）
+## 3. 基线（阶段 F，部分执行）
 
-Slither 规则七维命中 / CodeBERT 序列 / GCN（`conv_type="gcn"`）→ `eval_results/baseline/`。未开始。
+🔴 **2026-09-21 按大纲 `改II` 5.3 原文重列**：六个传统工具（`Securify/Mythril/Slither/Manticore/Smartcheck/Oyente`，输出七维规则命中）+ `EGFL` + `MVD-HG/MANDO-LLM` + 本文方法，**全部按七维多标签 + `BCEWithLogitsLoss` 训练**。**旧写法「Slither 规则七维命中 / CodeBERT 序列 / GCN（`conv_type="gcn"`）」已作废**——大纲 5.3 表里既无 CodeBERT 也无 GCN/GAT。
+现状（2026-09-22 更新）：**四个已跑** —— `slither_alldata`（test micro-F1 0.4547，分母与其余行不同）、`mvdhg`、`egfl`（另有其本论文 `lr=0.002` 的并列臂 `egfl_ownlr`）、`mando`，各 3 种子。逐类三口径 × 两工作点的完整表见 **`experiments/baseline_three_caliber_tables.md`**；其余五个传统工具**未实跑**。映射见 `Todo_List.md` §12.7.1、决议见 `decisions.md` §46。
 
 ## 4. DIVE 外部测试（阶段 G，**2026-09-19 已执行** —— 见 `decisions.md` §38）
 

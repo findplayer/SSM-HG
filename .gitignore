@@ -63,6 +63,32 @@ runs/**/*.pt
 runs/prior_badmetric/**/best.pt
 runs/prior_badmetric/**/last.pt
 
+# 🔴 消融 n=9 的复现研究区：**只入概率缓存、不入权重**（2026-09-21，用户裁定）。
+# 目录：`runs/ablation_n9{,_aug}/`（21 臂的非对角 6 对）与 `runs/arch_n9{,_aug}/`
+#       （架构基线族 + 参数量匹配对照）。共约 **314 个 run × 4.8 MB ≈ 1.5 GB**，其中
+#       `best.pt` 一个文件就占 4.8 MB ⇒ 全入会使入库 `runs/` 由 452 MB 涨到约 2.0 GB（**4 倍**）。
+# **为什么这里可以只要缓存**：本区是**复现研究**，回答的是"Δ 的分布与显著性"——
+#   全部指标都能由 `test_probs.pt` / `val_best_probs.pt` 离线重算（`collect_ablation_n9.py`
+#   与全部审计脚本**只读这两个缓存**，从不加载权重）。
+# ⚠ **代价（必须知情）**：没有 `best.pt` 就**不能**从零重跑 `evaluate.py`（它读权重）。
+#   可接受的理由：这 21 臂的**对角 3 对仍在 `runs/ablation{,_aug}/<item>/seed{S}/` 且保留 `best.pt`**
+#   ——即每个臂仍有 1/3 的配对可完整重跑评测；本区补的只是"另外 6 对"。
+# ⚠ 规则顺序敏感：必须写在上面的 `!runs/**/best.pt` **之后**，后者才被覆盖。
+# ⚠ 按本仓教训用**前缀通配**而非字面量（`ablation_n9*` 一并覆盖 `_aug`；同形态已踩坑三次）。
+runs/ablation_n9*/**/best.pt
+runs/arch_n9*/**/best.pt
+
+# 目录：`runs/ablation_buggy/`（**含 buggy_* 的新正典（池 497）上的 21 臂 × 3 种子 = 63 run**，
+#       2026-09-21，供 `experiments/per_class_three_caliber_tables_buggy.md` 的消融行）。
+# 口径**与上面两组一致**（同一条用户裁定：新跑批只入概率缓存）——理由同样成立：
+#   ① 下游（`collect_three_caliber_tables.py` / `error_rates.py`）**只读 `test_probs.pt`**，
+#      从不加载权重；② 63 个 `best.pt` 约 **315 MB**，而本区是复现研究。
+# ⚠ **代价（知情）**：本组**没有**"对角 3 对另有完整备份"这层兜底（它只有 3 个种子、不是 9 对网格），
+#   故这 63 个 run **全部**不能从零重跑 `evaluate.py`。可接受的理由是它与 `per_class_*_buggy.md`
+#   一样属于**申报口径的补充读数**，不是论文主表；基线 `runs/buggy_canon/seed{S}/best.pt` **仍在**。
+# ⚠ 规则顺序敏感：必须写在上面的 `!runs/**/best.pt` **之后**，后者才被覆盖。
+runs/ablation_buggy/**/best.pt
+
 # 🔴 §37 正典的**微调编码器**：`runs/codebert_ft/<语料>/ss{S}/encoder/`（2026-09-20 补规则）。
 # 实测 **2.9 GB**，其中 6 份 `pytorch_model.bin` 各 **498 MB** —— 单文件即超本仓「不提交 >100 MB」硬规则。
 # 上面那条 `runs/**/*.pt` **只认 `.pt`**，`.bin`/`tokenizer.json` 全部漏网 ⇒ 补规则前 `git add -A`
@@ -81,4 +107,25 @@ runs/codebert_ft*/**
 !runs/codebert_ft*/**/corpus.json
 !runs/codebert_ft*/**/config.json
 !runs/codebert_ft*/**/special_tokens_map.json
+
+# 🔴 5.3 三条论文基线的**离线中间产物**：`products/alldata/baseline/{mvdhg,egfl,mando}/`
+#    （2026-09-22 新增形态）。MVD-HG 的 `sol_source/`+`AST_json/`+`raw/`+`graphs/`，
+#    EGFL 的 `seq/`+`feat/`、以及各自的 `w2v.model`。
+#    **整体排除**：它们是**离线特征**（可由 `baseline_*_build.py` 重建），不是复现所需的最小集——
+#    下游汇总只读 `eval_results/baseline/<name>/seed{S}/test_probs.pt`。
+#    ⚠ 按本仓教训用**前缀通配**（同形态已踩坑三次：`graphs_ft`→`codebert_ft`→`graphs_ft_buggy`）。
+products/**/baseline/**
+!products/**/baseline/**/
+!products/**/baseline/**/manifest.json
+!products/**/baseline/**/hgt_metadata.json
+!products/**/baseline/**/opcodes.json
+
+# 三基线的**模型产物**：与 `runs/**` 同一口径 —— 只入**可离线重算指标的**概率缓存，
+# `best.pt` 排除（三个基线 × 3 种子 = 9 个，各约 3–11 MB；指标全部可由 probs 离线重算）。
+# ⚠ 规则顺序：`eval_results/baseline/**/*.pt` 必须写在两条 `!` **之前**才有效。
+# ⚠ **不要**写成 `eval_results/baseline/**`（那会把 slither 的 `seed{S}_eval.json`
+#    与三基线的 results/config/thresholds/log 全部扫掉——它们是要入库的读数本体）。
+eval_results/baseline/**/*.pt
+!eval_results/baseline/**/test_probs.pt
+!eval_results/baseline/**/val_best_probs.pt
 !runs/codebert_ft*/**/tokenizer_config.json

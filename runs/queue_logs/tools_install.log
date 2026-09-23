@@ -1,0 +1,57 @@
++ export CONDA_PLUGINS_AUTO_ACCEPT_TOS=yes
++ CONDA_PLUGINS_AUTO_ACCEPT_TOS=yes
++ PIP='pip install --no-input -i https://pypi.tuna.tsinghua.edu.cn/simple'
++ echo '########## [1/2] mythril env (py3.11) ##########'
+########## [1/2] mythril env (py3.11) ##########
++ conda create -y -n mythril python=3.11
++ tail -5
+
+Channel "defaults" has the following notices:
+  [info] -- Thu Aug  6 00:00:00 2026
+  main-x (Anaconda's new authenticated channel) is now generally available, with thousands of additional packages from our secure supply chain. Get started at: https://anaconda.com/docs/getting-started/main-x?utm_source=channel_notices
+
++ tail -15
++ /home/saumarez/anaconda3/envs/mythril/bin/pip install --no-input -i https://pypi.tuna.tsinghua.edu.cn/simple mythril==0.24.8
+  Building wheel for parsimonious (pyproject.toml): finished with status 'done'
+  Created wheel for parsimonious: filename=parsimonious-0.9.0-py3-none-any.whl size=44377 sha256=ba7ec223d440a6b417bd38dfd39719d45ff2caee2bc84093afb3444273d756e8
+  Stored in directory: /home/saumarez/.cache/pip/wheels/15/45/eb/505ce92afb03cdd5a106f51d8d70ada352597a39ef89260712
+  Building wheel for pyethash (pyproject.toml): started
+  Building wheel for pyethash (pyproject.toml): finished with status 'done'
+  Created wheel for pyethash: filename=pyethash-0.1.27-cp311-cp311-linux_x86_64.whl size=24233 sha256=f34d212d6f379040e635b5ebe5035b930d4fff58b420988a7a167caff7ee10ea
+  Stored in directory: /home/saumarez/.cache/pip/wheels/68/b6/45/1ac615f3faaa40579d1bfd8cf9aba8957ce9a1ecde8922e527
+  Building wheel for ethereum-input-decoder (pyproject.toml): started
+  Building wheel for ethereum-input-decoder (pyproject.toml): finished with status 'done'
+  Created wheel for ethereum-input-decoder: filename=ethereum_input_decoder-0.2.2-py3-none-any.whl size=6412 sha256=4f534adae6ee73a5c1ddb550a20738d65aed8d65fd2666804fad7d27b2ba3aac
+  Stored in directory: /home/saumarez/.cache/pip/wheels/60/2c/1b/ccc21c987969772593eb096b10278eeb85378e360adda94e28
+Successfully built mythril MarkupSafe mypy-extensions parsimonious pyethash ethereum-input-decoder
+Installing collected packages: sortedcontainers, pyethash, distlib, dictionaries, ckzg, cached-property, asn1crypto, zope.interface, urllib3, typing-extensions, toolz, toml, threadpoolctl, six, semantic_version, regex, pyyaml, pyparsing, pygments, pycryptodome, pycparser, py-flags, py_ecc, pluggy, platformdirs, pillow, numpy, nodeenv, narwhals, mypy-extensions, mock, MarkupSafe, lru-dict, kiwisolver, iniconfig, importlib-resources, idna, identify, humanfriendly, hexbytes, fonttools, filelock, eth-hash, cycler, coverage, configparser, coincurve, cloudpickle, charset_normalizer, cfgv, certifi, blake2b-py, bitarray, zope.proxy, z3-solver, transaction, scipy, requests, python-discovery, python-dateutil, pytest, py-solc, parsimonious, joblib, jinja2, eth-typing, cytoolz, contourpy, coloredlogs, cffi, zope.deferredimport, virtualenv, scikit-learn, pytest_mock, pytest-cov, py-solc-x, matplotlib, eth-utils, eth-bloom, rlp, pre-commit, persistent, eth-keys, eth-abi, trie, ethereum-input-decoder, eth-rlp, eth-keyfile, py-evm, eth-account, mythril
+
+Successfully installed MarkupSafe-2.0.1 asn1crypto-1.5.1 bitarray-3.11.0 blake2b-py-0.4.0 cached-property-1.5.2 certifi-2026.7.22 cffi-2.1.1 cfgv-3.5.0 charset_normalizer-3.5.1 ckzg-1.0.2 cloudpickle-3.1.2 coincurve-21.0.0 coloredlogs-15.0.1 configparser-7.2.0 contourpy-1.3.3 coverage-6.5.0 cycler-0.12.1 cytoolz-1.1.0 dictionaries-0.0.2 distlib-0.4.3 eth-abi-4.2.1 eth-account-0.11.3 eth-bloom-1.0.4 eth-hash-0.3.3 eth-keyfile-0.8.1 eth-keys-0.4.0 eth-rlp-0.3.0 eth-typing-3.5.2 eth-utils-2.3.2 ethereum-input-decoder-0.2.2 filelock-4.0.1 fonttools-4.65.0 hexbytes-0.2.3 humanfriendly-10.0 identify-2.6.19 idna-3.20 importlib-resources-7.1.0 iniconfig-2.3.0 jinja2-3.1.6 joblib-1.6.0 kiwisolver-1.5.1 lru-dict-1.4.1 matplotlib-3.10.6 mock-5.2.0 mypy-extensions-0.4.4 mythril-0.24.8 narwhals-2.26.0 nodeenv-1.10.0 numpy-2.4.6 parsimonious-0.9.0 persistent-6.8 pillow-12.3.0 platformdirs-4.11.12 pluggy-1.6.0 pre-commit-2.20.0 py-evm-0.7.0a1 py-flags-1.1.4 py-solc-3.2.0 py-solc-x-1.1.1 py_ecc-1.4.7 pycparser-3.0 pycryptodome-3.23.0 pyethash-0.1.27 pygments-2.21.0 pyparsing-2.4.7 pytest-9.1.1 pytest-cov-5.0.0 pytest_mock-3.15.1 python-dateutil-2.9.0.post0 python-discovery-1.6.1 pyyaml-6.0.3 regex-2026.9.10 requests-2.34.2 rlp-3.0.0 scikit-learn-1.9.1 scipy-1.17.1 semantic_version-2.10.0 six-1.17.0 sortedcontainers-2.4.0 threadpoolctl-3.7.0 toml-0.10.2 toolz-1.1.0 transaction-5.1 trie-2.2.0 typing-extensions-4.16.0 urllib3-2.8.0 virtualenv-21.10.0 z3-solver-4.12.5.0 zope.deferredimport-6.1.1 zope.interface-8.6 zope.proxy-7.3
++ echo '########## [2/2] manticore env (py3.9) ##########'
+########## [2/2] manticore env (py3.9) ##########
++ conda create -y -n manticore python=3.9
++ tail -5
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+
++ tail -15
++ /home/saumarez/anaconda3/envs/manticore/bin/pip install --no-input -i https://pypi.tuna.tsinghua.edu.cn/simple manticore==0.3.8.dev240227
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 69.6/69.6 kB 18.8 MB/s eta 0:00:00
+Collecting charset_normalizer<4,>=2
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/9f/cf/7568d8c1c9100b7c8bab9035215a6b36b32b39bb50cabaee9389c4606887/charset_normalizer-3.5.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (262 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 262.7/262.7 kB 8.3 MB/s eta 0:00:00
+Collecting urllib3<3,>=1.21.1
+  Downloading https://pypi.tuna.tsinghua.edu.cn/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl (131 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.6/131.6 kB 7.0 MB/s eta 0:00:00
+Building wheels for collected packages: pysha3
+  Building wheel for pysha3 (setup.py): started
+  Building wheel for pysha3 (setup.py): finished with status 'done'
+  Created wheel for pysha3: filename=pysha3-1.0.2-cp39-cp39-linux_x86_64.whl size=45709 sha256=d8ab2a97c527425cef9d5b12515669cd36e2f2f1616250903416593ca1ebbb3e
+  Stored in directory: /home/saumarez/.cache/pip/wheels/3a/c6/9e/70f078e847ba9366f42b5db3c23a39f3656b0634b538eee4dc
+Successfully built pysha3
+Installing collected packages: z3-solver, sortedcontainers, pysha3, ply, wcwidth, wasm, urllib3, typing_extensions, toolz, pyyaml, pycryptodome, protobuf, packaging, intervaltree, idna, future, eth-hash, charset_normalizer, certifi, cbor2, annotated-types, typing-inspection, requests, pyevmasm, pydantic-core, prettytable, eth-typing, cytoolz, solc-select, pydantic, eth-utils, crytic-compile, rlp, manticore
+Successfully installed annotated-types-0.7.0 cbor2-5.9.0 certifi-2026.7.22 charset_normalizer-3.5.1 crytic-compile-0.3.11 cytoolz-1.1.0 eth-hash-0.7.1 eth-typing-5.2.1 eth-utils-5.3.1 future-1.0.0 idna-3.20 intervaltree-3.2.1 manticore-0.3.8.dev240227 packaging-26.3 ply-3.11 prettytable-3.16.0 protobuf-3.20.3 pycryptodome-3.23.0 pydantic-2.13.5 pydantic-core-2.46.5 pyevmasm-0.2.3 pysha3-1.0.2 pyyaml-6.0.3 requests-2.32.5 rlp-4.1.0 solc-select-1.2.0 sortedcontainers-2.4.0 toolz-1.1.0 typing-inspection-0.4.2 typing_extensions-4.16.0 urllib3-2.6.3 wasm-1.2 wcwidth-0.8.4 z3-solver-5.1.0.0
++ echo '########## DONE ##########'
+########## DONE ##########

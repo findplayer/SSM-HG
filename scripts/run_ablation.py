@@ -137,9 +137,15 @@ def canonical_args(base_config: Path) -> dict:
     #   否则**所有**开关臂都会停在 `ss0`，与 seed1/seed2 的划分对不上（dry-run 实测过）。
     #   ⚠ 模板化只对"正典是微调版"这一形态生效；冻结版正典（`products/<语料>/graphs`）不含
     #     `/ss<数字>` 后缀，正则不匹配 ⇒ 原样返回，行为与改动前逐字一致。
-    m = re.fullmatch(r"(.+)/ss\d+", str(args.get("graph_dir", "")))
+    # 🔴 2026-09-21 补：**必须同时认 `cb_ft_ss{S}` 这一形态**。任务 2 的新正典（含 `buggy_*` 的池 497）
+    #   编码器树落在 `products/alldata/graphs_ft_buggy/cb_ft_ss{S}`（`build_graph_variant` 的命名，
+    #   见 `run_arch_baselines.graph_dir_for` 的两种兼容写法）。原正则只认 `/ss\d+`，
+    #   对 `cb_ft_ss0` **不匹配** ⇒ `graph_dir` 被原样写死 ⇒ seed1/seed2 静默拿到 **ss0 的编码器**
+    #   （与划分种子错配，正是 AGENTS.md 说的"本仓第三次全量作废的根因"同一形态、且**不报错**）。
+    #   故正则改为**保留前缀**：`(cb_ft_)?ss\d+` → 展开成 `<root>/<前缀>ss{seed}`。
+    m = re.fullmatch(r"(.+)/(cb_ft_)?ss\d+", str(args.get("graph_dir", "")))
     if m:
-        args["graph_dir"] = m.group(1) + "/ss{seed}"
+        args["graph_dir"] = f"{m.group(1)}/{m.group(2) or ''}ss{{seed}}"
     return args
 
 
@@ -192,13 +198,15 @@ def build_args(base: dict, override: dict, seed: int, item: str,
     return args
 
 
-def resume_state(run_dir: Path) -> str:
+def resume_state(run_dir: Path, require_probs: bool = False) -> str:
     """一个 run 目录走到哪一步了——决定本次该重跑什么。**判据必须是"最后一步的产物"。**
 
-    三态：
-      `"done"`  —— `results.json` 在（evaluate 已完成）→ 整项跳过；
-      `"eval"`  —— `config.json` 在而 `results.json` 不在 → 训练已完成、evaluate 未完成 → 只补 evaluate；
-      `"train"` —— 其余（含目录不存在）→ 训练 + evaluate 全跑。
+    四态：
+      `"done"`     —— `results.json` 在（evaluate 已完成）→ 整项跳过；
+      `"diagnose"` —— `results.json` 在而 `test_probs.pt` 不在 → 只补 diagnose（**仅
+                      `require_probs=True` 时可能出现**，见下）；
+      `"eval"`     —— `config.json` 在而 `results.json` 不在 → 训练已完成、evaluate 未完成 → 只补 evaluate；
+      `"train"`    —— 其余（含目录不存在）→ 训练 + evaluate + diagnose 全跑。
 
     ⚠ **不得用 `best.pt` 判"已完成"（2026-09-18 修）**：`best.pt` 是**训练中途**落盘的
     （每 epoch 刷新），而 `config.json` 由 `train.py` 在**训练全部结束后**才写（`train.py:624`）。
@@ -207,12 +215,39 @@ def resume_state(run_dir: Path) -> str:
     **永远补不上** ⇒ `--summarize` 只聚合到剩下的种子 ⇒ 产出 **n=2 的均值**却挂在"3 种子消融"
     名下（`summary.json` 的 `n` 字段会显形，但极易漏看）。这是本仓第三次栽在"不报错的错"上
     （§28 `.ravel()`、§29.4 标签源），故判据收敛成一个显式三态函数，而不是散在循环里。
+
+    🔴 **`require_probs`（2026-09-21 修一个真洞）**：`test_probs.pt` 由 `diagnose.py` 写，
+    **`evaluate.py` 不写**（`scripts/diagnose.py:210`）。而 `results.json` 由 evaluate 写 ⇒
+    只看 `results.json` 会把"跑完 train+evaluate 但没跑 diagnose"的 run 判成 `done`。
+    下游的 `collect_three_caliber_tables.py` / `error_rates.py` / `collect_ablation_results.py`
+    **只读 `test_probs.pt`** ⇒ 少了这一步不是报错，而是**整列变 `—`**（与 `run_buggy_canon.py`
+    里 diagnose 那段记录的是同一个坑）。故凡"本脚本要负责把 run 跑到可被下游读取"的调用方
+    都传 `require_probs=True`。
+    ⚠ 默认 `False` 是**刻意**的：`run_study` 也调本函数，改默认值会让它的既有判据漂移
+    （那是另一条调用链，不在本次修复范围内）。
     """
     if (run_dir / "results.json").exists():
+        if require_probs and not (run_dir / "test_probs.pt").exists():
+            return "diagnose"
         return "done"
     if (run_dir / "config.json").exists():
         return "eval"
     return "train"
+
+
+def argv_for_diagnose(args: dict) -> list[str]:
+    """`diagnose.py` 的命令行（产出 `test_probs.pt` 与 `diagnosis.json`）。
+
+    实现放在本模块（与 `argv_for_train`/`argv_for_eval` 并列，三者形状一致），
+    `run_study.argv_for_diagnose` 反过来委托到这里 —— 保持**一份实现**。
+    """
+    argv = [sys.executable, str(REPO / "scripts" / "diagnose.py"),
+            "--runs-dir", args["out_dir"], "--seed", str(args["seed"]),
+            "--graph-dir", args["graph_dir"], "--split-dir", args["split_dir"]]
+    for key in ("label_file", "label_key_mode"):
+        if args.get(key):
+            argv += ["--" + key.replace("_", "-"), str(args[key])]
+    return argv
 
 
 def verify_single_variable(base: dict, args: dict, override: dict) -> list[str]:
@@ -337,12 +372,15 @@ def main() -> None:
             tag = f"{item}/seed{s}"
             a = build_args(base, override, s, item, root, variants)
             run_dir = root / item / f"seed{s}"
-            state = resume_state(run_dir)
+            state = resume_state(run_dir, require_probs=True)
             if state == "done":
-                print(f"[{tag}] 跳过：results.json 已存在", flush=True)
+                print(f"[{tag}] 跳过：results.json 与 test_probs.pt 均已存在", flush=True)
                 continue
             t0 = time.perf_counter()
-            if state == "eval":
+            if state == "diagnose":
+                # 训练与评测都完成，只缺 diagnose（`test_probs.pt` = 三口径表/误报率的唯一输入）
+                print(f"[{tag}] 续跑：只补 diagnose（缺 test_probs.pt）", flush=True)
+            elif state == "eval":
                 # 训练产物齐、只差 evaluate（上一轮 evaluate 失败或进程被腰斩在此处）
                 print(f"[{tag}] 续跑：config.json 已在，只补 evaluate", flush=True)
             else:
@@ -353,10 +391,20 @@ def main() -> None:
                     if not args.keep_going:
                         break
                     continue
-            ev = subprocess.run(argv_for_eval(a), cwd=REPO, capture_output=True, text=True)
-            if ev.returncode != 0:
-                failures.append((tag, f"evaluate: {(ev.stderr or ev.stdout)[-500:]}"))
-                print(f"[{tag}] ✗ evaluate 退出码 {ev.returncode}", flush=True)
+            if state != "diagnose":
+                ev = subprocess.run(argv_for_eval(a), cwd=REPO, capture_output=True, text=True)
+                if ev.returncode != 0:
+                    failures.append((tag, f"evaluate: {(ev.stderr or ev.stdout)[-500:]}"))
+                    print(f"[{tag}] ✗ evaluate 退出码 {ev.returncode}", flush=True)
+                    if not args.keep_going:
+                        break
+                    continue
+            # 🔴 diagnose 不是可选项：`test_probs.pt` 只由它写，而三口径逐类表、误报率、
+            #   消融汇总**全都只读这个缓存** ⇒ 少了它不是报错，是下游整列变 `—`。
+            dg = subprocess.run(argv_for_diagnose(a), cwd=REPO, capture_output=True, text=True)
+            if dg.returncode != 0:
+                failures.append((tag, f"diagnose: {(dg.stderr or dg.stdout)[-500:]}"))
+                print(f"[{tag}] ✗ diagnose 退出码 {dg.returncode}", flush=True)
                 if not args.keep_going:
                     break
                 continue

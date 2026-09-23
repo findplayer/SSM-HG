@@ -1,0 +1,73 @@
+########################### SECURIFY ###########################
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Requirement already satisfied: py-solc in /home/saumarez/anaconda3/envs/securify/lib/python3.7/site-packages (from securify==0.0.1) (3.2.0)
+Requirement already satisfied: semantic_version in /home/saumarez/anaconda3/envs/securify/lib/python3.7/site-packages (from securify==0.0.1) (2.10.0)
+Requirement already satisfied: graphviz in /home/saumarez/anaconda3/envs/securify/lib/python3.7/site-packages (from securify==0.0.1) (0.20.1)
+Requirement already satisfied: py-etherscan-api in /home/saumarez/anaconda3/envs/securify/lib/python3.7/site-packages (from securify==0.0.1) (0.8.0)
+Installing collected packages: securify
+  Running setup.py develop for securify
+Successfully installed securify-0.0.1
+   用法见脚本末尾 usage 段
+
+-------------------------------------------------------------------------- 调用口径备忘
+五个工具**都要先激活各自的 env**（PATH 里要有 env 的 bin），否则会出各种"找不到依赖"：
+
+  # Mythril（solc 自己下；~3-10 min/合约）
+  conda activate mythril
+  cd <合约目录> && myth analyze <file>.sol --execution-timeout 90 -o json
+
+  # Manticore（必须 --thorough-mode，见上）
+  conda activate manticore
+  manticore <file>.sol --thorough-mode --workspace /tmp/mcore_x
+
+  # SmartCheck（--help 非法；-p 必给）
+  cd <合约目录> && smartcheck -p .
+
+  # Securify2（solc 必须 0.5.12；SOUFFLE_BINARY 可指定 souffle）
+  conda activate securify
+  export SOLC_BINARY=$HOME/.solc-select/artifacts/solc-0.5.12/solc-0.5.12
+  export LD_LIBRARY_PATH=$HOME/tools/securify2/securify/staticanalysis/libfunctors:$LD_LIBRARY_PATH
+  securify <file>.sol
+
+  # Oyente（solc 必须 0.4.19；须在 oyente/ 子目录内跑，源码用顶层 import）
+  conda activate oyente
+  export PATH=$HOME/tools/geth-alltools-linux-amd64-1.7.3-4bb3c89d:$PATH
+  export SOLC_BINARY=$HOME/.solc-select/artifacts/solc-0.4.19/solc-0.4.19
+  cd $HOME/tools/oyente/oyente && python oyente.py -s <file>.sol
+
+⚠ 两个 solc 需求互相冲突（securify=0.5.12 / oyente=0.4.19）：
+  **一律用 `export SOLC_BINARY=...` 按 env 隔离，不要动 `solc-select use` 的全局 symlink**
+  —— 那个 symlink 会漏到别的工具下面去。
+########################### OYENTE ###########################
+
+-------------------------------------------------------------------------- 调用口径备忘
+五个工具**都要先激活各自的 env**（PATH 里要有 env 的 bin），否则会出各种"找不到依赖"：
+
+  # Mythril（solc 自己下；~3-10 min/合约）
+  conda activate mythril
+  cd <合约目录> && myth analyze <file>.sol --execution-timeout 90 -o json
+
+  # Manticore（必须 --thorough-mode，见上）
+  conda activate manticore
+  manticore <file>.sol --thorough-mode --workspace /tmp/mcore_x
+
+  # SmartCheck（--help 非法；-p 必给）
+  cd <合约目录> && smartcheck -p .
+
+  # Securify2（solc 必须 0.5.12；SOUFFLE_BINARY 可指定 souffle）
+  conda activate securify
+  export SOLC_BINARY=$HOME/.solc-select/artifacts/solc-0.5.12/solc-0.5.12
+  export LD_LIBRARY_PATH=$HOME/tools/securify2/securify/staticanalysis/libfunctors:$LD_LIBRARY_PATH
+  securify <file>.sol
+
+  # Oyente（solc 必须 0.4.19；须在 oyente/ 子目录内跑，源码用顶层 import）
+  conda activate oyente
+  export PATH=$HOME/tools/geth-alltools-linux-amd64-1.7.3-4bb3c89d:$PATH
+  export SOLC_BINARY=$HOME/.solc-select/artifacts/solc-0.4.19/solc-0.4.19
+  cd $HOME/tools/oyente/oyente && python oyente.py -s <file>.sol
+
+⚠ 两个 solc 需求互相冲突（securify=0.5.12 / oyente=0.4.19）：
+  **一律用 `export SOLC_BINARY=...` 按 env 隔离，不要动 `solc-select use` 的全局 symlink**
+  —— 那个 symlink 会漏到别的工具下面去。
+########## DONE ##########

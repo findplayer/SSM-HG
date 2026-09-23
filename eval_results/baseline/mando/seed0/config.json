@@ -1,0 +1,72 @@
+{
+  "args": {
+    "seed": 0,
+    "split_seed": null,
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/ss0",
+    "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
+    "label_file": null,
+    "label_key_mode": null,
+    "out_dir": "/home/saumarez/projects/deep-learning/SSM-HG/eval_results/baseline/mando",
+    "epochs": 200,
+    "batch_size": 32,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "scheduler_patience": 3,
+    "early_stop_patience": 20,
+    "pos_weight_cap": 20.0,
+    "model_dropout": 0.3,
+    "limit_graphs": 0,
+    "limit_batches": 0,
+    "accum_steps": 1,
+    "device": null,
+    "overwrite": true,
+    "deterministic": false,
+    "smoke": false,
+    "node_feature": "fuser",
+    "heads": 8,
+    "hgt_layers": 2,
+    "hgt_hidden": 128,
+    "prior_dropout": 0.2,
+    "struct_dropout": 0.2,
+    "meta_only": false,
+    "force_meta": false
+  },
+  "split_seed": 0,
+  "head": "multi",
+  "baseline": "mando",
+  "notes": [
+    "🔴 图算子用 PyG 2.7 的 `HGTConv` 替代 dgl 的 `HGTLayer`（base 环境无 dgl、不新建 conda 环境）。逐项对应：relation_att/relation_msg/relation_pri ⟷ k_rel/v_rel/p_rel、edge_softmax(norm_by='dst') ⟷ 按目标结点 softmax、cross_reducer='mean' ⟷ mean 聚合、skip(α=sigmoid(skip)) + a_linear + LayerNorm ⟷ PyG 的 skip/out_lin。**参数化方式不是逐位等价**（PyG 用 bases/attention 分解），故不得声称复现了作者原结果。",
+    "🔴 图 = **我方 CFG 中心异构图**（`graphs_ft/ss{S}`），不是原版的 slither 图；节点类型取 `_feat.pt::type_id` 的 9 类语义角色（原版用 slither CFG 节点种类）。",
+    "节点输入主臂 = `model.NodeFuser` 融合后的 h_v^(0)（与本文方法**逐字相同**的通道字典）⇒ 与本文方法的唯一变量 = 图算子。对照臂 `role_onehot` / `cb_node_raw` 见 `--node-feature`。",
+    "fuser 与 HGT **联合训练**（端到端），不是冻结特征。",
+    "🔴 **metadata 跨 seed 冻结**（`hgt_metadata.json`，带 pool_sha256）：三 seed 必须共用同一份`(node_types, edge_types)`，否则各 seed 参数量不同、不是同一个模型。它只由 `type_id` 与 `edge_type` 扫出，不碰标签 ⇒ 不构成泄漏。",
+    "输出头 2→7（原版是 7 个独立二分类 / CE）、改 BCEWithLogitsLoss（大纲 5.3 [411]）。",
+    "训练期先验/结构 dropout 沿用本方 `sample_dropout_masks`（p=0.2），随 batch 传入 `NodeFuser`；验证/推理不传掩码。"
+  ],
+  "derived": {
+    "in_dim": 128,
+    "n_params": 3075065,
+    "n_node_types": 9,
+    "n_edge_types": 186,
+    "pool_sha256": "df1433960c94936c94d848ce1d6ba34d9544980f1692ef62e9c2c6e67a2cd4f7",
+    "active_classes": 7,
+    "train_pos": [
+      11,
+      10,
+      4,
+      2,
+      21,
+      2,
+      35
+    ],
+    "pos_weight": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      16.2381,
+      20.0,
+      9.3429
+    ]
+  }
+}

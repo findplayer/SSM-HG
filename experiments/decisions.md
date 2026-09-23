@@ -3318,3 +3318,381 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 须回到干净 test（或等 C1 的池级 OOF）才能问。
 
 ⚠ 仍是 **n=3**（本仓规范：n=3 不得判方向），且**参数量不匹配**（§40.4 已记）。
+
+---
+
+## §44 消融 n=9 同配对复核 + 三处静默错误修复 + 两代记录并存（2026-09-21）
+
+### 44.1 用户裁定（原文）
+
+> 「消融按新跑的来，但原来的结果不要删，且同步记录到组织架构中。三个论文基线在别的会话做，本对话只做消融实验并记录结果。」
+
+⇒ (a) 判方向以 **n=9** 为准；(b) n=3 的产物与报告**原地保留**（理由见 44.6）；(c) 目录与口径改动
+同步进 `项目组织架构.md`；(d) **5.3 的三个论文基线（EGFL / MVD-HG / MANDO-LLM）不在本次范围**。
+
+### 44.2 做了什么
+
+| 项 | 内容 | 产物 |
+|---|---|---|
+| A | **21 臂的 n=9 同配对复核**（`ts × ss` 3×3 网格，只补非对角 6 对） | `runs/ablation_n9/`、`runs/ablation_n9_aug/` |
+| B | **架构基线族 GCN/GAT/SAGE 的 n=9**（§40.4 的 n≥9 那一半） | `runs/arch_n9/` |
+| C | **参数量匹配对照** `*_pm`（§12.4 第 3 项 + §40.4 前置） | `runs/arch_n9/` |
+| D | **L_var 剂量-反应臂**（大纲之外的后处理，单独列、不进正典表） | `runs/ablation_n9/lvar_dose_*` |
+| E | **`cb_unlimited` 干预触达审计**（§12.4 第 2 项收尾） | `experiments/cb_unlimited_reach.md` |
+| F | **修掉三处静默错误**（见 44.4） | 代码 + 回归锁 |
+| G | **buggy 新正典上的 21 臂 × 3 种子** | `runs/ablation_buggy/`（见 §45） |
+
+**复用口径（这是"只补 6 对"的依据）**：对角 3 对复用 `runs/ablation{,_aug}/<item>/seed{S}`；
+① 的 9 对基线复用 `runs/cbft_study/cbft_ts{T}_ss{S}`（论文正典 `runs/seed{S}` 正是由其对角
+**提升**而来，`config.json::promoted_from` 留痕）；② 的对角基线复用 `runs/augmentation/seed{S}`。
+**复用合法性是实测的不是假设的**：`run_ablation_n9.reuse_violations` 逐 run 逐键把旧 `config.json`
+与现行代码重建的命令行对拍，**3/3 抽查逐位一致**（仅 `timing.infer_seconds` 不同）
+⇒ 21 臂 × 2 组只需补 **252 个 run**，而非全量 396。
+
+### 44.3 结果：n=3 里哪些结论翻了
+
+**① 主库**（n=9 配对，判据 `|t| > 2.306`）：
+
+| 臂 | Δmicro@val_thr | t | 同号 | 处置 |
+|---|---|---|---|---|
+| **`cb_frozen`** | **−0.3077** | **−10.13** | **0+/9−** | ✅ **全部 6 个指标均过 Bonferroni**，效应确认（与 §36 同向） |
+| **`no_prior_drop`** | **−0.0290** | **−2.55** | 0+/5−/4=0 | ✅ 过 n=9 门槛（未过 Bonferroni） |
+| 其余 19 臂 | — | \|t\| ≤ 1.90 | — | ○ **判不了方向** |
+
+🔴 **6 个臂在 n=3 → n=9 之间符号翻转**，但**必须再分两类**（判据 = 两侧 |Δ| 是否都在
+重跑抖动 `0.012` 以内，`decisions.md` §36.4）：
+
+| 类 | 臂 | 读法 |
+|---|---|---|
+| **实质翻转（4 个）** | `cb_node_only`、`cb_func_only`、`hid256`、`layers1` | 方向真的反了 ⇒ 论文里**不得**按 n=3 的符号写结论 |
+| **抖动内的翻转（2 个）** | `meanpool`、`no_lvar` | 两侧都测不出效应、符号只是噪声朝向 ⇒ **既不能当成翻转、也不能当成「没翻转」**，只能记作「该臂在本组不可分辨」 |
+
+（这与 §26.7/§27.5 的既有教训同型：n=3 的表面模式不可信。加了抖动判据是为了**不把噪声报成翻转**——
+② 那组就是这个判据救回来的，见 44.3.1。）
+
+**架构基线族（§40.4 的 n≥9 那一半）**：`conv_gcn` t=+0.95、`conv_gat` t=+0.65、`conv_sage` t=−0.28
+⇒ **三者全部不显著**。§40.4 里那个"n=3 下 GCN 更差"的读数是**噪声**。
+
+**参数量匹配对照**（有意的双键，只能读成"这一组结构差异的作用"）：
+
+| 臂 | 变量 | 参数比 | Δmicro@0.5 | 读法 |
+|---|---|---|---|---|
+| `gcn_pm` | `--conv=gcn --hid=366` | 1.000× | **−0.0928★** | 参数量对齐后 **GCN 仍然更差** |
+| `gat_pm` | `--conv=gat --hid=364` | 0.999× | **−0.0766★** | 同上 |
+| `sage_pm` | `--conv=sage --hid=250` | 1.001× | −0.0487 | 同上（未过门槛） |
+| `hid256_pm` | `--hid=256 --num-bases=1` | 1.021× | **−0.0548★** | 🔴 **`hid256` 的增益在参数量对齐后反转为负** |
+
+🔴 **`hid256_pm` 是本次最干净的一个结论**：`hid256`（参数量 1.968×）在 n=9 下 Δ≈0；
+把它**参数量对齐到正典**（1.021×，同时基 5→1、深度不变）后 Δ 变成 **显著为负**
+⇒ 那个"加宽有效"的读数**是容量效应，不是宽度效应**（`decisions.md` §12.4 第 3 项的开口就此闭案）。
+
+⚠ **一个**未过 Bonferroni 但值得记的线索：`numbases3` 的 **Δmacro@0.5 = −0.0929**，
+同号 **6+/3−**，t 不显著但效应量为 21 臂中除 `cb_frozen` 外最大。**但它参数量 0.842×**
+⇒ 与容量混淆，**不得**读成"基分解 3 比 5 差"。留下一条待验线索。
+
+### 44.3.1 ② 增强集（n=9）——**饱和区间，只有一条能读**
+
+② 的 9 对基线绝对值：`micro@0.5` **0.9869±0.0112**、`micro@val_thr` **0.9856±0.0135**、
+`macro@val_thr` 0.9871±0.0122、`mAP` **0.9948±0.0068** ⇒ **已经到顶**，21 臂几乎无处可动。
+
+| 臂 | Δmicro@0.5 | Δmicro@val_thr | Δmacro@val_thr | ΔmAP | t | 同号 |
+|---|---|---|---|---|---|---|
+| **`cb_frozen`** | **−0.0574★★** | **−0.0320★★** | **−0.0304★★** | **−0.0162★★** | **−4.67** | 0+/9− |
+| 其余 20 臂 | \|Δ\| ≤ 0.010 | \|Δ\| ≤ 0.005 | \|Δ\| ≤ 0.006 | \|Δ\| ≤ 0.005 | \|t\| ≤ 1.59 | — |
+
+🔴 **本组唯一可读的结论 = `cb_frozen` 仍显著为负**（六个指标全部过 Bonferroni、9/9 同号）
+⇒ 与 ① 的 n=9（−0.3077）**方向一致**，是从第二组结果集来的**独立佐证**。
+⚠ 但**量级不可跨组比**（两组**禁止**比绝对值，`decisions.md` §23）：② 的 −0.032 与 ① 的 −0.308
+差一个量级，正是因为 ② 已经饱和、**天花板效应把效应量压扁了**。
+
+⚠⚠ **② 的「符号翻转」绝大多数是噪声**：机械判据会报出 **9 个**翻转，但加了抖动判据后
+**只有 `numbases3` 一个是实质翻转**，其余 **8 个**（`cfg_flow`、`ast_parent`、`callback_risk`、
+`cb_node_only`、`no_lvar`、`feat_base_sem`、`hid256`、`cb_rev`）两侧 |Δ| 均 ≤ 0.012
+⇒ 它们是**两侧都测不出效应、符号只是噪声朝向**，**既不算翻转也不算「没翻转」**。
+🔴 **这条判据是本次新加的**（`collect_ablation_n9.REPRO_JITTER`）：不加的话 ② 会报出 9 个
+"结论翻转"，而其中 8 个纯属把噪声当信号 —— 与本仓反复记录的"判据太松"是同一类错误。
+
+**L_var 剂量臂（λ = 0.01/0.1/1.0）**：三者 Δ 全部不显著（|t| ≤ 1.29）
+⇒ 与 §4.1 的逐 epoch 实测一致（λ·L_var 只占总损失 **0.0003%–0.0054%**）。
+**正确写法**：本实验的 λ 取值使其不产生可测影响，**不得**写成"L_var 无作用"。这一点 §12.4 第 4 项已记，
+现在有了 9 对判据。
+
+### 44.4 途中修掉的三处**静默错误**（都不报错，只会产出无意义的数字）
+
+1. 🔴 **逐种子路径模板化正则只认一种命名形态**（`scripts/run_ablation.py::canonical_args`）。
+   原正则 `(.+)/ss\d+` 对任务 2 的新正典 `products/alldata/graphs_ft_buggy/cb_ft_ss0`
+   **不匹配**（该段是 `cb_ft_ss0`、不含字面 `/ss`）⇒ `graph_dir` 原样写死 ⇒ 逐种子展开后
+   **seed1/seed2 静默拿到 ss0 的编码器**，与划分种子错配。这正是 `AGENTS.md` 点名的
+   「本仓第三次全量作废的根因」**同一形态**。
+   ✅ 改为**保留前缀**的正则 `(.+)/(cb_ft_)?ss\d+`；回归锁
+   `tests/test_ablation_n9.py::test_canonical_args_templates_both_encoder_tree_naming_forms`
+   含"展开后三种子必须不同"的断言。
+
+2. 🔴 **`run_ablation.py` 的链条缺 `diagnose`**。`test_probs.pt`（test 推理缓存）
+   **只由 `diagnose.py` 写**（`scripts/diagnose.py:210`），`evaluate.py` 写的是
+   `val_best_probs.pt` 与 `results.json`；而 `collect_three_caliber_tables.py` /
+   `error_rates.py` / `collect_ablation_results.py` **全都只读 `test_probs.pt`**。
+   原链条只有 train→evaluate ⇒ 它跑出的 run 缺这个缓存，下游**整列变 `—`、不报错**
+   （`run_buggy_canon.py` 早已记录同一坑，但只修在那一条链上）。
+   ✅ 链条改为 train→evaluate→**diagnose**；`resume_state(run_dir, require_probs=True)` 会识别
+   "有 `results.json` 但无 `test_probs.pt`"的 run 并**只补那一步**（不重训）。
+   ⚠ 新参数**默认 `False`** 是刻意的：`run_study` 也调这个函数，改默认值会让那条链的判据漂移。
+   `run_study.argv_for_diagnose` 反向**委托**到 `run_ablation`，保持一份实现。
+
+3. 🔴 **同一个模式的第四次重犯**：中文 f-string 里嵌 ASCII 引号在 Python 3.11 下是 SyntaxError。
+   本日第四次（`collect_ablation_n9.py` 三次）。已加 `tests/test_all_scripts_parse.py`：
+   ① 全仓 `scripts/`+`tests/` 逐文件 `ast.parse`（**不被 import 的脚本不会在任何测试里暴露**）；
+   ② **自证测试**——把已知会炸的合成样本喂进去，必须报错，否则守卫本身失效。
+   ⚠ 我最初写的第二版守卫（按行数引号个数）**误报一片**、第三版（扫 token）
+   **实测抓不到真凶**（tokenize 把那一行切成两个独立 STRING）——已实测否掉，不留假守卫。
+
+### 44.5 🔴 一处**读法纠正**：`Δ` 恰好为 0 **不等于**「干预没作用」
+
+`同号` 列里的 `=0` 原先被注释成"构造性空操作臂"（`cb_unlimited` 只触达 20/590 图等），
+听上去像"模型没被改动"。**实测推翻了这个读法**：
+
+> ① 的 **全部 35 个 `=0` 配对**（横跨 **13 个臂**）里，两侧的 `test_probs.pt` **都逐位不同**。
+> 例：`no_prior_drop` 的 `0:0` 配对，最大绝对差 **4.9×10⁻²**、**322/322** 个元素全变，
+> 而 `micro@0.5` / `micro@val_thr` / `macro@0.5` / `mAP` **四项读数完全相同**。
+
+成因是**指标的性质**：本表的 6 个指标是**阈值型**（@0.5 / @val_thr）+ **排序型**（mAP），
+而本仓 test 的逐类 AP 是**很粗的有理数**（`no_prior_drop` `0:0` 实测
+`[0.5159, 1.0, 0.3333, 0.5, 1.0, 1.0, 1.0]`，逐类 support 仅个位数）
+⇒ **两个不同的概率向量可以给出完全相同的 AP**；阈值型指标只要没有元素跨过阈值就完全一样。
+
+**正确读法**：`=0` = 「**本表这 6 个指标对该配对的差异不敏感**」，
+**不是**「该干预没有作用」。要判"干预是否真的生效"须看**概率向量本身**，不能看这一列。
+
+### 44.6 两代记录并存（用户裁定「原来的结果不要删」）
+
+| 代 | 产物 | 报告 | n |
+|---|---|---|---|
+| 第一代 | `runs/ablation{,_aug}/` | `experiments/ablation_results.md`、`eval_results/ablation/collected{,_aug}.{json,md}` | 3 |
+| 第二代 | `runs/ablation_n9{,_aug}/`、`runs/arch_n9/` | `experiments/ablation_n9_results.md`、`eval_results/ablation/n9_*.json` | 9 |
+| 第三代（buggy 正典） | `runs/ablation_buggy/` | `experiments/per_class_three_caliber_tables_buggy.md` | 3 |
+
+**为什么不删第一代**：第二代的价值有一半在于**「和第一代比，哪些结论翻了」**；
+删掉 n=3 就等于删掉对照臂本身。**两代之间也不打架**——第二代的对角 3 对**就是第一代的同一份
+物理产物**（复用而非重跑），故不存在"两个版本的数字不一致"。
+两份报告的抬头各自写明口径与 n，**不得互相覆盖**。
+
+### 44.7 顺带记录：`collect_ablation_n9.py` 的两处渲染修正
+
+1. 组标题原来把 `①②` 印了**两遍**（`GROUPS[...]["title"]` 已带前缀）→ `## ① ① 主库 …`。
+2. 扩充臂（架构族 / `*_pm`）在 `items_for` 里对**两组都**声明，但实际只跑了 ①
+   ⇒ ② 会印出**整张 `—` 表**，读者无法区分「跑过但缺数据」与「压根没跑」。
+   现改为按"有无读数"过滤，缺整组时打一行显式说明。
+3. `★` 的 Bonferroni 分母由**实际臂数**算（21 臂 126 个检验 / 31 臂 186 个），不再写死 126。
+4. 标注补一句：`★` 是**该格自己那个指标**的 t，与右侧 `t(micro@val_thr)` 列**不是同一个数**
+   （`cb_node_only` 实测 Δmicro@0.5 带 ★ 而主指标 t 只有 −0.81）。
+
+---
+
+## §45 buggy 新正典上的 21 臂消融（填充 `per_class_three_caliber_tables_buggy.md`）（2026-09-21）
+
+### 45.1 用户裁定
+
+> 「完成全部消融实验后填充 `per_class_three_caliber_tables_buggy.md` 表格。」
+
+该文件此前**只有一行**（`**① 主库 · 正典（runs/buggy_canon）**`），而
+`per_class_three_caliber_tables.md` 有「①正典 + ①21 臂 + ②正典 + ②21 臂 + DIVE」。
+故"填充"= **在 buggy 正典上跑同一套 21 臂**，使其与主表**结构对齐**。
+
+### 45.2 与主表**不是同一个正典**（引用前必读）
+
+| 正典 | `graph_dir` | `split_dir` | 池 | test |
+|---|---|---|---|---|
+| §37 正典 | `products/alldata/graphs_ft/ss{S}` | `products/alldata/splits` | 453 | 46 |
+| **buggy 新正典** | `products/alldata/graphs_ft_buggy/cb_ft_ss{S}` | `products/alldata/splits/withbuggy_snapshot` | **497** | **49** |
+
+⇒ **两表数字不可直接相减**（test 集换了）。这一点已写进两表的抬头。
+
+### 45.3 两件前置（不做就静默出错，故先记录）
+
+1. 🔴 **buggy 树的边变体不存在** ⇒ `cb_unlimited` / `cb_rev` 会**带着 §37 的微调编码器**
+   去和新正典比 = 两个变量。已给 `build_ft_edge_variants.py` **新增 `--layout buggy`**，
+   产物落 `products/alldata/graphs_ft_buggy/graph_variants/{cb_rev,cb_unlimited}_ss{S}/`。
+   **单变量性机检过**：buggy 变体的 `variant.json` 与 §37 版**只差 `derived_from` 一个键**
+   （连 `n_rerun_graphs` 都同为 20）；且 `_cb.pt` 三方比对 = **buggy变体==buggy微调基座 ✓、
+   ==§37微调基座 ✗、§37变体==§37微调基座 ✓** ⇒ 各自带着本语料的编码器。
+   🔴 边变体源与冻结树**与 §37 共用同一份**——依据是"边结构与冻结 `_cb.pt` 都与池/划分/微调无关"，
+   这一点由上述三方比对**实测**（不是假设）。
+2. 🔴 **`run_ablation.py` 原先的链条缺 `diagnose`**（见 §44.4 第 2 条）——若无此修复，
+   这次跑出的 63 个 run 会缺 `test_probs.pt`，**本表会整列变 `—` 且不报错**。
+   本次是该修复的**第一次实际受益**。
+
+### 45.4 跑了什么
+
+`python scripts/run_ablation.py --base-config runs/buggy_canon/seed0/config.json --root runs/ablation_buggy --keep-going`
+
+- **21 臂 × 3 种子 = 63 run**，**0 失败**，wall **1461.5 s**（约 24 分钟；单 run ≈ 20–28 s）。
+- **开跑前 21 项单变量断言全部 ✅**（`--graph-dir` 逐种子正确展开成 `cb_ft_ss{0,1,2}`）。
+- 产物 `runs/ablation_buggy/<臂>/seed{S}/{config,results,diagnosis,test_probs,thresholds}.json|pt`，
+  另加每臂 `summary.json`。**`.gitignore` 排除 `best.pt`**（约 315 MB，与本仓对 n=9 那批的
+  同一条裁定一致；⚠ 本批**没有**"对角另有完整备份"的兜底，见 `.gitignore` 内的知情代价说明）。
+
+### 45.5 结果（3 种子 mean±std，Δ 相对 `runs/buggy_canon/seed{S}`）
+
+| 臂 | Δmicro@0.5 | Δmicro@val_thr | Δmacro@val_thr | ΔmAP |
+|---|---|---|---|---|
+| **`cb_frozen`** | **−0.2205**±0.0451 | **−0.2158**±0.1305 | **−0.2143**±0.1426 | **−0.1923**±0.1060 |
+| `layers1` | +0.0243±0.0357 | +0.0164±0.0013 | +0.0198±0.0023 | +0.0049±0.0106 |
+| `numbases3` | +0.0170±0.0084 | +0.0179±0.0102 | +0.0208±0.0049 | +0.0013±0.0041 |
+| `dropedge02` | +0.0162±0.0293 | +0.0186±0.0049 | +0.0229±0.0076 | +0.0011±0.0045 |
+| `cb_unlimited` | +0.0237±0.0417 | +0.0133±0.0167 | +0.0157±0.0205 | +0.0025±0.0050 |
+| `cb_rev` | +0.0142±0.0137 | +0.0132±0.0047 | +0.0152±0.0049 | +0.0008±0.0065 |
+| `ast_parent` | +0.0133±0.0133 | +0.0156±0.0072 | +0.0186±0.0068 | +0.0025±0.0063 |
+| 其余 14 臂 | \|Δ\| ≤ 0.027 | \|Δ\| ≤ 0.013 | \|Δ\| ≤ 0.013 | \|Δ\| ≤ 0.016 |
+
+🔴 **读法（三条，缺一条就会读反）**：
+
+1. **只有 `cb_frozen` 有实质效应**（−0.22，四个指标同向且量级一致），**方向与 ① 的 n=9
+   结论一致**（① n=9 为 −0.3077，判据 `|t|=10.13`）⇒ 这是**跨正典的独立复现**，
+   是本表最可信的一条。⚠ 但**量级不可直接比**（两个正典的 test 集不同）。
+2. **其余 20 臂全部落在 ±0.03 以内**，而本表正典的**种子间 std 是 ±0.0552**
+   ⇒ **这些臂在这个正典上不可分辨**。**这不是"这些组件都不重要"**——见第 3 条。
+3. 🔴🔴 **本表整体处在「标签假象」区间，对消融几乎没有分辨力**。`buggy_canon_summary.md` §3 已量化：
+   test 49 个合约里 **7 个是 `buggy_*`（七类全 1 标签）**，模型「全报有漏洞」即可拿满分；
+   把她们剔掉后 micro **0.9404→0.7968**、macro **0.9351→0.4065**。在这个饱和区间里，
+   **任何**算子的指标都挤在 0.92–0.97（§43.7 实测：rgcn/gcn/gat/sage 四算子持平）
+   ⇒ **本表的消融行只可用于「申报口径下的完整呈现」，不得用于任何「某组件重要/不重要」的结论。**
+   这与 §43.3 的裁定同性质，是 §40.7 第 5 条（样板句失真）点过名的那类风险。
+
+⚠ **本表是 n=3**（3 个种子，不是 9 对网格）⇒ **只有 ±，没有配对 t 检验**，
+上述"±0.03 以内"是描述性读数，**不构成"无显著差异"的统计陈述**。
+
+### 45.6 产物与代码
+
+| 类型 | 路径 |
+|---|---|
+| 表 | `experiments/per_class_three_caliber_tables_buggy.md`（**22 行 = 1 正典 + 21 臂，12 张表，0 空行**） |
+| 运行产物 | `runs/ablation_buggy/`（63 run） |
+| 变体 | `products/alldata/graphs_ft_buggy/graph_variants/{cb_rev,cb_unlimited}_ss{0,1,2}/` |
+| 代码 | `scripts/build_ft_edge_variants.py`（新增 `--layout buggy`）、`scripts/run_ablation.py`（补 diagnose + 修模板化正则）、`scripts/collect_three_caliber_tables.py`（新增 `--ablation-root`） |
+| 测试 | `tests/test_m2_guard_and_rev.py`（+3：两种 layout 的路径解析、与 `run_ablation` 推导的路径一致、buggy×aug 硬拒绝）、`tests/test_resume_state.py`（+4：缺 `test_probs.pt` 判 `diagnose`、默认参数不变、链条含 diagnose、diagnose argv 单一实现） |
+
+---
+
+## §46 5.3 三条论文基线（EGFL / MVD-HG / MANDO-LLM）接入（2026-09-22）
+
+### 46.1 为什么必须重训而不是"跑原仓库"
+
+大纲 `改II` 5.3 的对比表点名三条基线，`Todo_List.md` §12.7.1 全标 **⏳ 未实现**。
+三份只读调查的结论：**三个仓库没有一个是多标签**（EGFL `Dense(1)`+BCE /
+MVD-HG `Linear(8→1)`+`BCELoss` / MANDO-LLM `Linear(128→2)`+CE），
+**base 环境三个都跑不起来**（EGFL 要 TF1.15、MANDO-LLM 要 dgl、MVD-HG 要 gensim 3.x），
+**三个都没有可用预训练权重**。大纲 [411] 原文已定死口径：
+
+> 所有基线均按多标签任务统一训练和评估。……均输出七维 logits，并使用 `BCEWithLogitsLoss` 训练。
+
+**用户三条裁定**：① 路线 2（MVD-HG 驱动原码忠实复现 + EGFL/MANDO-LLM 按论文重实现）；
+② **不新建 conda 环境**，base 改造；③ 对比实验喂**去除 `buggy_*` 的数据集**、
+EGFL 走**原生字节码模态**。
+
+### 46.2 数据口径：「去除 buggy_* 的数据集」= §37 正典本身
+
+**硬证据**：`withbuggy_snapshot`（池 497）删掉 44 个 `buggy_*` 后，与 §37 正典的 453
+**集合级恒等**（双向差集为 0），逐类正样本同为 `[17,15,6,4,31,5,50]`。
+🔴 **不得**用「`withbuggy_snapshot` 删掉 buggy 行」代替——那份在池 497 上**重新打乱**过，
+test 会变成另一批合约，与正典 test 46 不可比（本仓已栽过同类口径错配）。
+
+### 46.3 五处口径决议
+
+| # | 决议 | 理由 |
+|---|---|---|
+| 1 | **MVD-HG 走驱动原码建图**（`read_compile` → CFG → DFG → 4 层 RGCN），不重实现 | 它是数据集自身的方法，重实现会把"复现"变成"我的实现" |
+| 2 | **EGFL 的 256 维图分支是重建件** | 原 `cfg_graph` 是**作者未开源的预处理产物**（`Weights_CFG_SimOp/` 为 0 字节目录，全仓无脚本产出，`main_run.py:49` 只负责读入）。论文只写「BFS 展平成 linear node feature matrix」，切法不可考 ⇒ **不得声称复现了作者原结果** |
+| 3 | **MANDO-LLM 用 PyG `HGTConv` 替 dgl**，节点类型取 `_feat.pt::type_id` 的 9 类语义角色 | 不新建 conda 环境（裁定 ②）；只用 1 类节点会把「异构图 transformer」退化成「带 N 组关系参数的 RGCN」，丢掉算子本质 |
+| 4 | **词表/词向量只用 train 划分拟合**（三条基线一致） | 原实现用全体语料，对我们构成泄漏 |
+| 5 | **`early_stop_patience` 三基线用 20**（正典是 5） | 正典的 5 是为 SSM-HG 调的。实测套到 MVD-HG 上会在 **loss 仍在下降**（2.20→0.64、val micro 仍在爬）时于第 14 轮截断，**系统性压低基线** |
+
+### 46.4 实测口径损失（必须随结果披露，不得隐瞒）
+
+| 基线 | 覆盖 | 损失 |
+|---|---|---|
+| MVD-HG | **448/453（98.9%）** | 5 个合约在**任何已装 solc**（试过全部 101 个候选）下都编不出 compact AST。**全在 train**（seed2 另有 1 个在 val），**test 一个没少** ⇒ 逐类 support 与本文方法逐格可比 |
+| EGFL | **453/453（100%）** | — |
+| EGFL 序列 | **83.2% 的合约被截断到 `seq_len=512`**（池内 token 数中位数 **3118**、p50 原始 3304） | 🔴 它的 Attention 是**稠密 O(L²)**。本机 8 GB 卡实测：L=512 → 2.5 GB / 0.16 s 每步；**L=1024 就溢出到共享显存**（9.9 GB 峰值、7.75 s 每步，慢 48 倍）。原论文 `SEQ_LEN=8000` 在 8 GB 卡上**任何实现都跑不动**（单是 `dots` 就 2 GB/批）。**这是硬件逼出来的口径损失，不是调参选择** |
+| MVD-HG 词向量 | 6 个节点（2 个文件）命中 OOV，记零向量 | 词向量只用 train 拟合 ⇒ 非 train 才出现的 AST 节点类型（`IdentifierPath`，Solidity ≥0.6）缺词。已计数上报，占比可忽略 |
+
+### 46.5 汇总接入（零重实现）
+
+产物落 `eval_results/baseline/<name>/seed{S}/`，**形制与 `runs/seed{S}/` 完全一致** ⇒
+`collect_three_caliber_tables.row_from_run(run_rel, seeds)` 可直接读（它内部就是
+`REPO/<run_rel>/seed{S}/test_probs.pt` 与 `thresholds.json`）。
+三口径定义、support 表、薄支撑警告**一律复用**既有实现，不另写一份指标。
+
+### 46.6 本次修掉的 9 个坑（详见 `docs/baseline_dev_plan.md` §5）
+
+其中三个是**「不报错、只出错数字」**类，正是本仓点过名的那类：
+① EGFL 未链接库占位符（`__<限定名>__`）被当成"编译失败"→ 8 个合约被静默丢掉，**其中 1 个在 seed1 的 test 里**，
+会让那一行的分母与其它行不同；
+② EGFL 的截断计数器在**截断后**取长度 → 永远报「0% 被截断」（一个只会说谎的计数器）；
+③ `to_hetero` 的桶号反解把源/目标类型**写反** → GPU 上表现为一句 device-side assert。
+
+另有一个**跨进程环境污染**值得单独记：父进程 `import torch` 后，用 `subprocess` 默认继承方式
+启动的子进程会集体 rc=1 并报
+`MKL_THREADING_LAYER=INTEL is incompatible with libgomp-….so.1`——**报错完全指向 MKL，
+与真正根因无关**，且同一条命令手工跑完全正常。修法 = `subprocess.run(..., env=dict(os.environ))`
+（实测：`env=None` 连跑 5 次 rc 全 1；显式 env 连跑 5 次 rc 全 0）。
+
+---
+
+## §47 六个传统工具的环境落地（2026-09-23）
+
+**背景**：大纲 `改II` 5.3 点名六个传统工具（Securify / Mythril / Slither / Manticore /
+Smartcheck / Oyente），但此前**只跑通了 Slither**，其余 5 个一直挂在「装进 conda base 有污染
+torch 2.0.1 的风险，待裁定」。本节记录装法的**裁定与实测**。
+
+### 47.1 裁定：五个工具各开独立 conda env，**base 一个包都不动**
+
+- base 保持 `slither 0.11.5` + `torch 2.0.1+cu118` 原样，**未新增任何包**（这是本仓全部
+  实验的地基，污染代价远高于隔离成本）。
+- 新增 env：`mythril`(py3.11) / `manticore`(py3.9) / `securify`(py3.7) / `oyente`(py3.8)；
+  SmartCheck 走 npm + apt 的 Java 8（不占 conda env）。
+- 安装脚本 `scripts/install_traditional_tools.sh`（可复现，逐条 `PIN` 注释写明每个坑）。
+- 实测增重：`~/anaconda3/envs` 604 MB → 约 3 GB；**C 盘可用 23 GB → 18 GB**（硬规则 ≥8 GB 仍满足）。
+
+### 47.2 三条**非显而易见**的坑（都在本轮实测中撞到）
+
+**(a) `crytic-compile` 需要两个互不相同的版本**——这是本轮最大的坑，且**三种失败都是静默的**：
+
+| 工具 | 需要 | 装错（pip 默认装最新）的后果 |
+| --- | --- | --- |
+| Manticore | **0.2.4** | 0.3.11 把 `CompilationUnit` 拆分重命名（`bytecode_init` 搬去了 `SourceUnit`）⇒ 编译拿不到字节码，**"创建合约"产出 0 笔交易**，只留一句 `Manticore failed to run`，看起来像合约太难 |
+| Oyente | **0.1.2** | oyente 用**扁平 API**（`com.contracts_names` / `com.bytecode_runtime` / `com.contracts_filenames`）。该 API **只存在于 0.1.2**（逐 tag 实测：0.1.4/0.1.10/0.1.12 均为 0 个定义）⇒ 编译成功后才崩 `AttributeError` |
+
+**(b) souffle 必须 1.6.2，2.5 不行**（与安装前的推测相反）：
+2.5 的类型检查更严，securify2 那套 2019 年的 `.dl` 直接被拒
+（`Atom's argument type is not a subtype of its declared type` ×3 + `Ambiguous record` ×1 ⇒
+`5 errors generated, evaluation aborted`）。且 souffle **不在 Ubuntu 24.04 apt 源、也不在
+conda-forge**（均已实测）；用官方 1.6.2 deb + 三个已移除旧 soname 库
+（`libffi.so.6`/`libncurses.so.5`/`libtinfo.so.5`）解包到 `/opt/souffle162`，
+wrapper 内限定 `LD_LIBRARY_PATH` 隔离，**不污染系统库**。
+
+**(c) Manticore 必须 `--thorough-mode`**，两条理由缺一不可：
+- 它的 CLI 在**非** thorough 模式下强制 `exclude_all=True` ⇒ **一个检测器都不跑**；
+- 同一分支还会撞上上游 `finalize()` 里 `last_tx.result` 的**判空缺失 bug**
+  （`manticore.py:1758`，而紧邻的 `:1761` 才做 `if last_tx else` 兜底）。
+  **thorough-mode 同时绕开这两点，故不需要给 conda 包打补丁**（曾试过改 site-packages，被安全策略拦下且不必要）。
+
+### 47.3 六个工具的实测状态（均为**真实跑通**，非仅安装）
+
+| 工具 | 验证方式 | 结果 |
+| --- | --- | --- |
+| Slither | 既有 | micro-F1 0.4547（§2.2） |
+| Mythril | 真实合约 | `{"success": true, "issues": []}` |
+| Manticore | 再入测试合约 | 25+ 测试用例、覆盖 86%、正确报 `Potential reentrancy vulnerability` |
+| SmartCheck | 真实合约 | 输出 `ruleId`/`severity`/`line`（可解析） |
+| Securify | 自带 testContract | 正确报 `Unused Return Pattern`（MEDIUM） |
+| Oyente | 0.4.x 再入合约 | 正确报 `Re-Entrancy Vulnerability: True` + 整数溢出，EVM 覆盖 97.8% |
+
+### 47.4 🔴 三条**工具能力边界**（不是安装问题，但 5.3 对比表必须随结果披露）
+
+1. **securify2 只吃 Solidity ≥ 0.5.8 且扁平（无 `import`）的合约**（其 README 明写）。
+   本仓池 453 跨 0.4.x–0.8.x，**必然出现系统性缺失**。
+2. **oyente 按 solc 0.4.19 编译**（源码内 tested 版本）；对 0.5+/0.8 的合约行为未知。
+3. **manticore 无 `front_running` 对应检测器**（与 Slither 同）。
+
+⇒ 进 5.3 表之前，**必须先统计每个工具的「可分析合约数」并写进行注**；
+否则「工具跑不了」会被误读成「工具说没漏洞」，那是系统性偏差（与 §2.2 的覆盖率口径同源）。

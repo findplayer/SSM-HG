@@ -1,0 +1,31 @@
+
+[0m
+[0;33mSeverity:    CRITICAL
+Pattern:     Unrestricted Ether Flow
+Description: The execution of ether flows should be restricted to an
+             authorized set of users.
+Type:        Warning
+Contract:    UnrestrictedDelegateCall2
+Line:        22
+Source: 
+>     function forward(bytes memory _data) public {
+>         callee.delegatecall(_data);
+>         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+>     }
+
+[0m
+[0;31mSeverity:    MEDIUM
+Pattern:     Unused Return Pattern
+Description: The value returned by an external function call is never
+             used
+Type:        Violation
+Contract:    UnrestrictedDelegateCall2
+Line:        22
+Source: 
+>     function forward(bytes memory _data) public {
+>         callee.delegatecall(_data);
+>         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+>     }
+
+[0m
+########## DONE ##########

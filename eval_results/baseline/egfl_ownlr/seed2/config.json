@@ -1,0 +1,69 @@
+{
+  "args": {
+    "seed": 2,
+    "split_seed": null,
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/ss0",
+    "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
+    "label_file": null,
+    "label_key_mode": null,
+    "out_dir": "eval_results/baseline/egfl_ownlr",
+    "epochs": 200,
+    "batch_size": 4,
+    "lr": 0.002,
+    "weight_decay": 0.0001,
+    "scheduler_patience": 3,
+    "early_stop_patience": 20,
+    "pos_weight_cap": 20.0,
+    "model_dropout": 0.3,
+    "limit_graphs": 0,
+    "limit_batches": 0,
+    "accum_steps": 8,
+    "device": null,
+    "overwrite": true,
+    "deterministic": false,
+    "smoke": false,
+    "seq_len": 512
+  },
+  "split_seed": 2,
+  "head": "multi",
+  "baseline": "egfl",
+  "notes": [
+    "输入模态 = **原生字节码**（用户 2026-09-22 裁定）：solc --bin 的 creation bytecode → 反汇编 → 基本块 CFG → BFS 展平。不走源码异构图。",
+    "🔴 **图分支的 256 维是重建件**：原 `cfg_graph` 是作者未开源的预处理产物（`Weights_CFG_SimOp/` 是 0 字节目录，全仓无脚本产出它，`main_run.py:49` 只负责读入）。本实现对「块内 opcode 词向量取平均 → BFS 前 k 块 concat」重建，默认 (node_dim=128, k=2)。论文只写「BFS 展平成 linear node feature matrix」，切法不可考 ⇒ **不得声称复现了作者原结果**。",
+    "词表与词向量**只用 train 划分的 362 个合约**拟合（原实现用 train+val，对我们是泄漏）。",
+    "opcode 词表**截断到 1000**（论文原设）。EVM 共 144 条 opcode，PUSH 立即数按 `PUSH1 0x2a` 形态整体成一个记号，故实际词表可能略超 1000，超出部分归 UNK(1)。",
+    "🔴 **序列截断到 `--seq-len=512`，本库多数合约因此被截断**（池内 opcode token 数 p50≈3304）。**为什么只能是 512**：它的 Attention 是**稠密 O(L²)** 的（无 mask、无稀疏），本机 8 GB 卡实测 —— L=512 时 2.5 GB / 0.16 s 每步；**L=1024 就已溢出到共享显存**（9.9 GB 峰值、7.75 s 每步，慢 48 倍）。原论文的 `SEQ_LEN=8000` 在 8 GB 卡上**任何实现都跑不动**（单是 `dots` 就 2 GB/批）。这是**硬件逼出来的口径损失**，不是调参选择；交付物抬头必须引用本段。本实现另把注意力改成**分块在线 softmax**（数学等价）并把相对位置表按显存预算自适应收缩，见 `baseline_models._RelPosAttention`。",
+    "`ConformerConvModule` 的 depthwise conv 在原代码里**被注释掉了**，本实现照抄该形态（LN → 1×1 Conv → GLU → BN → Swish → 1×1 Conv → Dropout），没有替它「修好」。",
+    "`Attention` 的 mask 分支原代码写死 `tf.ones(...)`（永远全 1）⇒ 等价于无 mask，本实现直接省略。",
+    "输出头 1→7、去掉末尾 Sigmoid、改 BCEWithLogitsLoss（大纲 5.3 [411]）；原实现是二分类。",
+    "`Basic_blocks` 原代码有 `if f\"{n}\" and _opcode_of(n) in TERMINALS:`（字符串恒真）——语义上不影响结果，本实现写成 `if _opcode_of(n) in TERMINALS:`。",
+    "⚠ **学习率口径（读本行前必看）**：本行用**正典统一的 `lr=1e-4`**，而 EGFL 论文自己的默认是 `lr=0.002`（`EGFL/parser_set.py:13`，**20 倍**）。实测后果是**双重压制**：① 起点就低 20 倍；② `ReduceLROnPlateau(patience=3, factor=0.5)` 在 val 不涨时每 3 轮减半，实测 **第 20 轮 lr 已跌到 3.13e-06**（≈ 冻结），训练 loss 从 0.99 只降到 0.83 就再不动了，`best_epoch` 停在 **0–2**、`micro@0.5` 两个种子为 **0.0000**（模型几乎不报正类）。⇒ **本行读数主要反映「超参没调对」，不是 EGFL 方法的能力**。两种口径并列在交付物里（本目录 = 统一 1e-4；`eval_results/baseline/egfl_ownlr/` = 其论文 2e-3），读者可自行判断——这正是计划 R5 点名的风险，只报一行会让两种解释无法区分。"
+  ],
+  "derived": {
+    "vocab_size": 1000,
+    "seq_len": 512,
+    "truncated_graphs": 377,
+    "truncated_frac": 0.8322,
+    "token_len_median": 3118,
+    "n_params": 2787121,
+    "active_classes": 7,
+    "train_pos": [
+      11,
+      10,
+      4,
+      2,
+      21,
+      3,
+      35
+    ],
+    "pos_weight": [
+      20.0,
+      20.0,
+      20.0,
+      20.0,
+      16.2381,
+      20.0,
+      9.3429
+    ]
+  }
+}

@@ -30,6 +30,11 @@
   python scripts/build_ft_edge_variants.py --dataset alldata --dry-run
   python scripts/build_ft_edge_variants.py --dataset alldata
   python scripts/build_ft_edge_variants.py --dataset augmentation
+  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy   # 任务 2 新正典的配套变体
+
+🔴 **`--layout buggy` 的产物落在 `products/alldata/graphs_ft_buggy/graph_variants/`**，
+与 `run_ablation.variants_root_of()` 从 buggy 正典 `graph_dir` 推导出的路径一致 ——
+即 `python scripts/run_ablation.py --base-config runs/buggy_canon/seed0/config.json` 能直接取到。
 """
 from __future__ import annotations
 
@@ -51,16 +56,31 @@ FROM_EDGE = ("_pyg.pt", "_m1.json", "_hetero.json")
 CHANNELS = ("struct", "type_id", "sv")
 
 
-def paths(ds: str) -> dict[str, Path]:
+def paths(ds: str, layout: str = "canon") -> dict[str, Path]:
     """目录布局。
 
     ⚠ **冻结 IR 字典只有一份（在 ① 下）**，② 没有它 —— 故一律经
     `build_graph_variant.frozen_categories()` 取（缺文件即硬失败），
     不得按语料各取各的（那会造出两个可能漂移的来源，`AGENTS.md`「数据边界」）。
+
+    `layout` 两种（2026-09-21 新增 `buggy`）：
+      - `canon`：§37 正典。微调基座 `products/<语料>/graphs_ft/ss{S}`，
+        编码器 `runs/codebert_ft/<语料>/ss{S}/encoder`。
+      - `buggy`：任务 2 的新正典（池 497）。微调基座 `products/alldata/graphs_ft_buggy/cb_ft_ss{S}`，
+        编码器 `runs/codebert_ft_buggy/ss{S}/encoder`。
+    两者的**边变体源 `products/<语料>/graph_variants/` 是同一份**且**冻结树也是同一份**：
+    边结构与冻结 `_cb.pt` 都与池/划分/微调无关，只有微调编码器不同 —— 这正是"可复用"的依据。
     """
     import build_graph_variant as bgv
     base = REPO / "products" / ds
-    return {"ft": base / "graphs_ft", "edge": base / "graph_variants",
+    if layout == "canon":
+        ft_dir, prefix, enc = base / "graphs_ft", "", REPO / "runs" / "codebert_ft" / ds
+    elif layout == "buggy":
+        ft_dir, prefix, enc = base / "graphs_ft_buggy", "cb_ft_", REPO / "runs" / "codebert_ft_buggy"
+    else:
+        raise SystemExit(f"[ftvar] 未知 layout {layout!r}")
+    return {"ft": ft_dir, "ft_prefix": prefix, "encoder_root": enc,
+            "edge": base / "graph_variants",
             "frozen": base / "graphs", "categories": bgv.frozen_categories()}
 
 
@@ -128,16 +148,17 @@ def run_m3(stage: Path, encoder: Path, categories: Path) -> None:
         raise SystemExit("[ftvar] M3 失败：\n" + (r.stderr or r.stdout or "")[-800:])
 
 
-def build(ds: str, dry_run: bool) -> None:
-    P = paths(ds)
+def build(ds: str, dry_run: bool, layout: str = "canon") -> None:
+    P = paths(ds, layout)
+    pre, enc_root = P["ft_prefix"], P["encoder_root"]
     if not P["ft"].is_dir():
         raise SystemExit(f"[ftvar] 找不到微调基座 {P['ft']}")
     if not P["categories"].exists():
         raise SystemExit(f"[ftvar] 找不到冻结 IR 字典 {P['categories']}（跨语料列宽锚点，必须显式给出）")
     out_root = P["ft"] / "graph_variants"
-    encoder_root = REPO / "runs" / "codebert_ft" / ds
-    print(f"[ftvar] 语料 {ds}\n        微调基座 {P['ft']}\n        边变体源 {P['edge']}\n"
-          f"        编码器   {encoder_root}/ss{{0,1,2}}/encoder\n        产出     {out_root}\n")
+    print(f"[ftvar] 语料 {ds}（layout={layout}）\n        微调基座 {P['ft']}/{pre}ss{{S}}\n"
+          f"        边变体源 {P['edge']}\n"
+          f"        编码器   {enc_root}/ss{{0,1,2}}/encoder\n        产出     {out_root}\n")
 
     for short, edge_name in EDGE_VARIANTS.items():
         edge_dir = P["edge"] / edge_name
@@ -145,7 +166,7 @@ def build(ds: str, dry_run: bool) -> None:
             raise SystemExit(f"[ftvar] 找不到边变体 {edge_dir}")
         names = sorted(p.name for p in edge_dir.glob("*_feat.pt"))
         print(f"[ftvar] {short} ← {edge_name}：{len(names)} 图，逐图分流中…", flush=True)
-        same, must = partition(edge_dir, P["ft"] / "ss0", P["frozen"], names)
+        same, must = partition(edge_dir, P["ft"] / f"{pre}ss0", P["frozen"], names)
         print(f"        ✅ 断言 1/2 通过：节点集一致、冻结 _cb.pt 逐位相同")
         print(f"        分流：可软链 {len(same)} 图  |  须重跑 M3 {len(must)} 图")
         if must:
@@ -157,8 +178,8 @@ def build(ds: str, dry_run: bool) -> None:
             continue
 
         for s in SPLIT_SEEDS:
-            ft_dir = P["ft"] / f"ss{s}"
-            enc = encoder_root / f"ss{s}" / "encoder"
+            ft_dir = P["ft"] / f"{pre}ss{s}"
+            enc = enc_root / f"ss{s}" / "encoder"
             if not ft_dir.is_dir() or not (enc / "config.json").exists():
                 raise SystemExit(f"[ftvar] 缺微调基座或编码器：{ft_dir} / {enc}")
             out = out_root / f"{short}_ss{s}"
@@ -209,7 +230,7 @@ def build(ds: str, dry_run: bool) -> None:
             (out / "variant.json").write_text(json.dumps({
                 "created": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 "variant": f"{short}_ft", "split_seed": s,
-                "derived_from": f"products/{ds}/graphs_ft/ss{s}",
+                "derived_from": str(ft_dir.relative_to(REPO)),
                 "edges_from": f"products/{ds}/graph_variants/{edge_name}",
                 "only_variable": f"相对新正典（微调 CodeBERT）只改边：{edge_name} 的边"
                                  + ("（其中 {} 图的先验 s_v 随之改变，见下）".format(len(must)) if must else ""),
@@ -237,9 +258,17 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dataset", required=True, choices=["alldata", "augmentation"])
+    ap.add_argument("--layout", default="canon", choices=["canon", "buggy"],
+                    help="微调基座布局。`canon`=§37 正典（graphs_ft/ss{S}）；"
+                         "`buggy`=任务 2 新正典（graphs_ft_buggy/cb_ft_ss{S}）。"
+                         "默认 canon ⇒ 既有调用行为逐字不变。")
     ap.add_argument("--dry-run", action="store_true", help="只断言 + 分流 + 打印将要建的目录。")
     args = ap.parse_args()
-    build(args.dataset, args.dry_run)
+    # 🔴 `buggy` 只存在于 ①：它的产物是"被剔除的 buggy_* 补回池后重划"的 ① 专属正典，
+    #   ② 没有对应的池，静默套用会产出一个「编码器属于别的语料」的错误变体（不报错）。
+    if args.layout == "buggy" and args.dataset != "alldata":
+        raise SystemExit("[ftvar] 🔴 layout=buggy 只对 dataset=alldata 成立（② 没有 buggy 池）")
+    build(args.dataset, args.dry_run, args.layout)
 
 
 if __name__ == "__main__":

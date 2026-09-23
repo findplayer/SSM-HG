@@ -632,7 +632,7 @@ M3 构建（GPU，`--device cuda --force`）：增强集 1774 图 **49 分 10 �
 | 阶段 | 内容 | 产物目录 | 状态 |
 |---|---|---|---|
 | F | 5.4.1 必要消融 + 5.4.2 可选消融（**①②各 21 臂**） | `eval_results/ablation/collected{,_aug}.{json,md}`、`runs/ablation/`、`runs/ablation_aug/` | ✅ **已完成**：①②各 21 臂 ×3 种子 = **126 run、0 失败**；文档 `ablation_results.md` |
-| F | 基线：Slither 规则七维 / CodeBERT 序列 / GCN | `eval_results/baseline/` | 空（仅 `.gitkeep`） |
+| F | 基线：**六个传统工具 + EGFL + MVD-HG/MANDO-LLM**（2026-09-21 按大纲 5.3 原文重列；旧写的「Slither 规则七维 / CodeBERT 序列 / GCN」已作废） | `eval_results/baseline/` | **三条论文基线已跑（2026-09-22）**：`mvdhg` / `egfl`（+ 其本论文 lr 臂 `egfl_ownlr`）/ `mando`，各 seed{0,1,2}；另有 `slither_alldata`。汇总 = `experiments/baseline_three_caliber_tables.md`（`scripts/collect_baseline_tables.py`）。其余 5 个传统工具未实跑 |
 | G | DIVE 外部测试（n=900 抽样，front_running=30） | `eval_results/dive/comparison.{json,md}`、`products/dive/graphs{,_ft,_ft_aug}/` | ✅ **已完成**：过滤后 891/900 图；文档 `dive_external_results.md` |
 | G | SolidiFI 层次二（$a_v$/$s_v$/$g_v$ 三分数） | `eval_results/solidifi/` | 空（仅 `.gitkeep`） |
 

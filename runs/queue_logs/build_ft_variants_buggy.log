@@ -1,0 +1,27 @@
+[ftvar] 语料 alldata（layout=buggy）
+        微调基座 /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_buggy/cb_ft_ss{S}
+        边变体源 /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graph_variants
+        编码器   /home/saumarez/projects/deep-learning/SSM-HG/runs/codebert_ft_buggy/ss{0,1,2}/encoder
+        产出     /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_buggy/graph_variants
+
+[ftvar] cb_rev ← callback_rev：590 图，逐图分流中…
+     …已分流 500/590
+        ✅ 断言 1/2 通过：节点集一致、冻结 _cb.pt 逐位相同
+        分流：可软链 590 图  |  须重跑 M3 0 图
+        ✅ products/alldata/graphs_ft_buggy/graph_variants/cb_rev_ss0  （2950 软链 / 0 实文件）
+        ✅ products/alldata/graphs_ft_buggy/graph_variants/cb_rev_ss1  （2950 软链 / 0 实文件）
+        ✅ products/alldata/graphs_ft_buggy/graph_variants/cb_rev_ss2  （2950 软链 / 0 实文件）
+[ftvar] cb_unlimited ← callback_unlimited：590 图，逐图分流中…
+     …已分流 500/590
+        ✅ 断言 1/2 通过：节点集一致、冻结 _cb.pt 逐位相同
+        分流：可软链 570 图  |  须重跑 M3 20 图
+        ⚠ 这 20 张图的 `_feat.sv` 被边改动 —— 本臂的变量不止「边」，还含先验分数（已记入 variant.json）
+        [M3] cb_unlimited_ss0：对 20 张图用微调编码器重跑…
+        ✅ 断言 3 通过：重跑的 _cb.pt 与微调基座逐位相同
+        ✅ products/alldata/graphs_ft_buggy/graph_variants/cb_unlimited_ss0  （2910 软链 / 40 实文件）
+        [M3] cb_unlimited_ss1：对 20 张图用微调编码器重跑…
+        ✅ 断言 3 通过：重跑的 _cb.pt 与微调基座逐位相同
+        ✅ products/alldata/graphs_ft_buggy/graph_variants/cb_unlimited_ss1  （2910 软链 / 40 实文件）
+        [M3] cb_unlimited_ss2：对 20 张图用微调编码器重跑…
+        ✅ 断言 3 通过：重跑的 _cb.pt 与微调基座逐位相同
+        ✅ products/alldata/graphs_ft_buggy/graph_variants/cb_unlimited_ss2  （2910 软链 / 40 实文件）

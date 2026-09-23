@@ -1,0 +1,664 @@
+[n9] 分组 ['main', 'aug']；21 臂 × 9 对 + 基线 = 396 个条目；dry_run=False
+
+组     臂                配对      唯一开关                           复用判定
+----------------------------------------------------------------------------------------
+main  _base            0:0     （基线臂）                          ♻ 复用
+main  _base            0:1     （基线臂）                          ♻ 复用
+main  _base            0:2     （基线臂）                          ♻ 复用
+main  _base            1:0     （基线臂）                          ♻ 复用
+main  _base            1:1     （基线臂）                          ♻ 复用
+main  _base            1:2     （基线臂）                          ♻ 复用
+main  _base            2:0     （基线臂）                          ♻ 复用
+main  _base            2:1     （基线臂）                          ♻ 复用
+main  _base            2:2     （基线臂）                          ♻ 复用
+main  dfg_dep          0:0     --drop-edges 3                 ♻ 复用
+main  dfg_dep          0:1     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          0:2     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          1:0     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          1:1     --drop-edges 3                 ♻ 复用
+main  dfg_dep          1:2     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          2:0     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          2:1     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          2:2     --drop-edges 3                 ♻ 复用
+main  cfg_flow         0:0     --drop-edges 0                 ♻ 复用
+main  cfg_flow         0:1     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         0:2     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         1:0     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         1:1     --drop-edges 0                 ♻ 复用
+main  cfg_flow         1:2     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         2:0     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         2:1     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         2:2     --drop-edges 0                 ♻ 复用
+main  ast_parent       0:0     --drop-ast                     ♻ 复用
+main  ast_parent       0:1     --drop-ast                     ▶ 新跑
+main  ast_parent       0:2     --drop-ast                     ▶ 新跑
+main  ast_parent       1:0     --drop-ast                     ▶ 新跑
+main  ast_parent       1:1     --drop-ast                     ♻ 复用
+main  ast_parent       1:2     --drop-ast                     ▶ 新跑
+main  ast_parent       2:0     --drop-ast                     ▶ 新跑
+main  ast_parent       2:1     --drop-ast                     ▶ 新跑
+main  ast_parent       2:2     --drop-ast                     ♻ 复用
+main  callback_risk    0:0     --drop-edges 4                 ♻ 复用
+main  callback_risk    0:1     --drop-edges 4                 ▶ 新跑
+main  callback_risk    0:2     --drop-edges 4                 ▶ 新跑
+main  callback_risk    1:0     --drop-edges 4                 ▶ 新跑
+main  callback_risk    1:1     --drop-edges 4                 ♻ 复用
+main  callback_risk    1:2     --drop-edges 4                 ▶ 新跑
+main  callback_risk    2:0     --drop-edges 4                 ▶ 新跑
+main  callback_risk    2:1     --drop-edges 4                 ▶ 新跑
+main  callback_risk    2:2     --drop-edges 4                 ♻ 复用
+main  cb_node_only     0:0     --cb-channels cb_node          ♻ 复用
+main  cb_node_only     0:1     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     0:2     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     1:0     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     1:1     --cb-channels cb_node          ♻ 复用
+main  cb_node_only     1:2     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     2:0     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     2:1     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     2:2     --cb-channels cb_node          ♻ 复用
+main  cb_func_only     0:0     --cb-channels cb_func          ♻ 复用
+main  cb_func_only     0:1     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     0:2     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     1:0     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     1:1     --cb-channels cb_func          ♻ 复用
+main  cb_func_only     1:2     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     2:0     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     2:1     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     2:2     --cb-channels cb_func          ♻ 复用
+main  meanpool         0:0     --meanpool                     ♻ 复用
+main  meanpool         0:1     --meanpool                     ▶ 新跑
+main  meanpool         0:2     --meanpool                     ▶ 新跑
+main  meanpool         1:0     --meanpool                     ▶ 新跑
+main  meanpool         1:1     --meanpool                     ♻ 复用
+main  meanpool         1:2     --meanpool                     ▶ 新跑
+main  meanpool         2:0     --meanpool                     ▶ 新跑
+main  meanpool         2:1     --meanpool                     ▶ 新跑
+main  meanpool         2:2     --meanpool                     ♻ 复用
+main  no_lvar          0:0     --lambda-var 0.0               ♻ 复用
+main  no_lvar          0:1     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          0:2     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          1:0     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          1:1     --lambda-var 0.0               ♻ 复用
+main  no_lvar          1:2     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          2:0     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          2:1     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          2:2     --lambda-var 0.0               ♻ 复用
+main  no_prior_drop    0:0     --prior-dropout 0.0            ♻ 复用
+main  no_prior_drop    0:1     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    0:2     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    1:0     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    1:1     --prior-dropout 0.0            ♻ 复用
+main  no_prior_drop    1:2     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    2:0     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    2:1     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    2:2     --prior-dropout 0.0            ♻ 复用
+main  feat_base        0:0     --feat-groups base             ♻ 复用
+main  feat_base        0:1     --feat-groups base             ▶ 新跑
+main  feat_base        0:2     --feat-groups base             ▶ 新跑
+main  feat_base        1:0     --feat-groups base             ▶ 新跑
+main  feat_base        1:1     --feat-groups base             ♻ 复用
+main  feat_base        1:2     --feat-groups base             ▶ 新跑
+main  feat_base        2:0     --feat-groups base             ▶ 新跑
+main  feat_base        2:1     --feat-groups base             ▶ 新跑
+main  feat_base        2:2     --feat-groups base             ♻ 复用
+main  feat_base_sem    0:0     --feat-groups base+sem         ♻ 复用
+main  feat_base_sem    0:1     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    0:2     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    1:0     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    1:1     --feat-groups base+sem         ♻ 复用
+main  feat_base_sem    1:2     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    2:0     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    2:1     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    2:2     --feat-groups base+sem         ♻ 复用
+main  hid256           0:0     --hid 256                      ♻ 复用
+main  hid256           0:1     --hid 256                      ▶ 新跑
+main  hid256           0:2     --hid 256                      ▶ 新跑
+main  hid256           1:0     --hid 256                      ▶ 新跑
+main  hid256           1:1     --hid 256                      ♻ 复用
+main  hid256           1:2     --hid 256                      ▶ 新跑
+main  hid256           2:0     --hid 256                      ▶ 新跑
+main  hid256           2:1     --hid 256                      ▶ 新跑
+main  hid256           2:2     --hid 256                      ♻ 复用
+main  numbases1        0:0     --num-bases 1                  ♻ 复用
+main  numbases1        0:1     --num-bases 1                  ▶ 新跑
+main  numbases1        0:2     --num-bases 1                  ▶ 新跑
+main  numbases1        1:0     --num-bases 1                  ▶ 新跑
+main  numbases1        1:1     --num-bases 1                  ♻ 复用
+main  numbases1        1:2     --num-bases 1                  ▶ 新跑
+main  numbases1        2:0     --num-bases 1                  ▶ 新跑
+main  numbases1        2:1     --num-bases 1                  ▶ 新跑
+main  numbases1        2:2     --num-bases 1                  ♻ 复用
+main  numbases3        0:0     --num-bases 3                  ♻ 复用
+main  numbases3        0:1     --num-bases 3                  ▶ 新跑
+main  numbases3        0:2     --num-bases 3                  ▶ 新跑
+main  numbases3        1:0     --num-bases 3                  ▶ 新跑
+main  numbases3        1:1     --num-bases 3                  ♻ 复用
+main  numbases3        1:2     --num-bases 3                  ▶ 新跑
+main  numbases3        2:0     --num-bases 3                  ▶ 新跑
+main  numbases3        2:1     --num-bases 3                  ▶ 新跑
+main  numbases3        2:2     --num-bases 3                  ♻ 复用
+main  numbases4        0:0     --num-bases 4                  ♻ 复用
+main  numbases4        0:1     --num-bases 4                  ▶ 新跑
+main  numbases4        0:2     --num-bases 4                  ▶ 新跑
+main  numbases4        1:0     --num-bases 4                  ▶ 新跑
+main  numbases4        1:1     --num-bases 4                  ♻ 复用
+main  numbases4        1:2     --num-bases 4                  ▶ 新跑
+main  numbases4        2:0     --num-bases 4                  ▶ 新跑
+main  numbases4        2:1     --num-bases 4                  ▶ 新跑
+main  numbases4        2:2     --num-bases 4                  ♻ 复用
+main  dropedge02       0:0     --drop-edge-prob 0.2           ♻ 复用
+main  dropedge02       0:1     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       0:2     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       1:0     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       1:1     --drop-edge-prob 0.2           ♻ 复用
+main  dropedge02       1:2     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       2:0     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       2:1     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       2:2     --drop-edge-prob 0.2           ♻ 复用
+main  layers1          0:0     --layers 1                     ♻ 复用
+main  layers1          0:1     --layers 1                     ▶ 新跑
+main  layers1          0:2     --layers 1                     ▶ 新跑
+main  layers1          1:0     --layers 1                     ▶ 新跑
+main  layers1          1:1     --layers 1                     ♻ 复用
+main  layers1          1:2     --layers 1                     ▶ 新跑
+main  layers1          2:0     --layers 1                     ▶ 新跑
+main  layers1          2:1     --layers 1                     ▶ 新跑
+main  layers1          2:2     --layers 1                     ♻ 复用
+main  layers3          0:0     --layers 3                     ♻ 复用
+main  layers3          0:1     --layers 3                     ▶ 新跑
+main  layers3          0:2     --layers 3                     ▶ 新跑
+main  layers3          1:0     --layers 3                     ▶ 新跑
+main  layers3          1:1     --layers 3                     ♻ 复用
+main  layers3          1:2     --layers 3                     ▶ 新跑
+main  layers3          2:0     --layers 3                     ▶ 新跑
+main  layers3          2:1     --layers 3                     ▶ 新跑
+main  layers3          2:2     --layers 3                     ♻ 复用
+main  cb_unlimited     0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss0 ♻ 复用
+main  cb_unlimited     0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss1 ▶ 新跑
+main  cb_unlimited     0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss2 ▶ 新跑
+main  cb_unlimited     1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss0 ▶ 新跑
+main  cb_unlimited     1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss1 ♻ 复用
+main  cb_unlimited     1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss2 ▶ 新跑
+main  cb_unlimited     2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss0 ▶ 新跑
+main  cb_unlimited     2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss1 ▶ 新跑
+main  cb_unlimited     2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_unlimited_ss2 ♻ 复用
+main  cb_rev           0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss0 ♻ 复用
+main  cb_rev           0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss1 ▶ 新跑
+main  cb_rev           0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss2 ▶ 新跑
+main  cb_rev           1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss0 ▶ 新跑
+main  cb_rev           1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss1 ♻ 复用
+main  cb_rev           1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss2 ▶ 新跑
+main  cb_rev           2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss0 ▶ 新跑
+main  cb_rev           2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss1 ▶ 新跑
+main  cb_rev           2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft/graph_variants/cb_rev_ss2 ♻ 复用
+main  cb_frozen        0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ♻ 复用
+main  cb_frozen        0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ♻ 复用
+main  cb_frozen        1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ♻ 复用
+aug   _base            0:0     （基线臂）                          ♻ 复用
+aug   _base            0:1     （基线臂）                          ▶ 新跑
+aug   _base            0:2     （基线臂）                          ▶ 新跑
+aug   _base            1:0     （基线臂）                          ▶ 新跑
+aug   _base            1:1     （基线臂）                          ♻ 复用
+aug   _base            1:2     （基线臂）                          ▶ 新跑
+aug   _base            2:0     （基线臂）                          ▶ 新跑
+aug   _base            2:1     （基线臂）                          ▶ 新跑
+aug   _base            2:2     （基线臂）                          ♻ 复用
+aug   dfg_dep          0:0     --drop-edges 3                 ♻ 复用
+aug   dfg_dep          0:1     --drop-edges 3                 ▶ 新跑
+aug   dfg_dep          0:2     --drop-edges 3                 ▶ 新跑
+aug   dfg_dep          1:0     --drop-edges 3                 ▶ 新跑
+aug   dfg_dep          1:1     --drop-edges 3                 ♻ 复用
+aug   dfg_dep          1:2     --drop-edges 3                 ▶ 新跑
+aug   dfg_dep          2:0     --drop-edges 3                 ▶ 新跑
+aug   dfg_dep          2:1     --drop-edges 3                 ▶ 新跑
+aug   dfg_dep          2:2     --drop-edges 3                 ♻ 复用
+aug   cfg_flow         0:0     --drop-edges 0                 ♻ 复用
+aug   cfg_flow         0:1     --drop-edges 0                 ▶ 新跑
+aug   cfg_flow         0:2     --drop-edges 0                 ▶ 新跑
+aug   cfg_flow         1:0     --drop-edges 0                 ▶ 新跑
+aug   cfg_flow         1:1     --drop-edges 0                 ♻ 复用
+aug   cfg_flow         1:2     --drop-edges 0                 ▶ 新跑
+aug   cfg_flow         2:0     --drop-edges 0                 ▶ 新跑
+aug   cfg_flow         2:1     --drop-edges 0                 ▶ 新跑
+aug   cfg_flow         2:2     --drop-edges 0                 ♻ 复用
+aug   ast_parent       0:0     --drop-ast                     ♻ 复用
+aug   ast_parent       0:1     --drop-ast                     ▶ 新跑
+aug   ast_parent       0:2     --drop-ast                     ▶ 新跑
+aug   ast_parent       1:0     --drop-ast                     ▶ 新跑
+aug   ast_parent       1:1     --drop-ast                     ♻ 复用
+aug   ast_parent       1:2     --drop-ast                     ▶ 新跑
+aug   ast_parent       2:0     --drop-ast                     ▶ 新跑
+aug   ast_parent       2:1     --drop-ast                     ▶ 新跑
+aug   ast_parent       2:2     --drop-ast                     ♻ 复用
+aug   callback_risk    0:0     --drop-edges 4                 ♻ 复用
+aug   callback_risk    0:1     --drop-edges 4                 ▶ 新跑
+aug   callback_risk    0:2     --drop-edges 4                 ▶ 新跑
+aug   callback_risk    1:0     --drop-edges 4                 ▶ 新跑
+aug   callback_risk    1:1     --drop-edges 4                 ♻ 复用
+aug   callback_risk    1:2     --drop-edges 4                 ▶ 新跑
+aug   callback_risk    2:0     --drop-edges 4                 ▶ 新跑
+aug   callback_risk    2:1     --drop-edges 4                 ▶ 新跑
+aug   callback_risk    2:2     --drop-edges 4                 ♻ 复用
+aug   cb_node_only     0:0     --cb-channels cb_node          ♻ 复用
+aug   cb_node_only     0:1     --cb-channels cb_node          ▶ 新跑
+aug   cb_node_only     0:2     --cb-channels cb_node          ▶ 新跑
+aug   cb_node_only     1:0     --cb-channels cb_node          ▶ 新跑
+aug   cb_node_only     1:1     --cb-channels cb_node          ♻ 复用
+aug   cb_node_only     1:2     --cb-channels cb_node          ▶ 新跑
+aug   cb_node_only     2:0     --cb-channels cb_node          ▶ 新跑
+aug   cb_node_only     2:1     --cb-channels cb_node          ▶ 新跑
+aug   cb_node_only     2:2     --cb-channels cb_node          ♻ 复用
+aug   cb_func_only     0:0     --cb-channels cb_func          ♻ 复用
+aug   cb_func_only     0:1     --cb-channels cb_func          ▶ 新跑
+aug   cb_func_only     0:2     --cb-channels cb_func          ▶ 新跑
+aug   cb_func_only     1:0     --cb-channels cb_func          ▶ 新跑
+aug   cb_func_only     1:1     --cb-channels cb_func          ♻ 复用
+aug   cb_func_only     1:2     --cb-channels cb_func          ▶ 新跑
+aug   cb_func_only     2:0     --cb-channels cb_func          ▶ 新跑
+aug   cb_func_only     2:1     --cb-channels cb_func          ▶ 新跑
+aug   cb_func_only     2:2     --cb-channels cb_func          ♻ 复用
+aug   meanpool         0:0     --meanpool                     ♻ 复用
+aug   meanpool         0:1     --meanpool                     ▶ 新跑
+aug   meanpool         0:2     --meanpool                     ▶ 新跑
+aug   meanpool         1:0     --meanpool                     ▶ 新跑
+aug   meanpool         1:1     --meanpool                     ♻ 复用
+aug   meanpool         1:2     --meanpool                     ▶ 新跑
+aug   meanpool         2:0     --meanpool                     ▶ 新跑
+aug   meanpool         2:1     --meanpool                     ▶ 新跑
+aug   meanpool         2:2     --meanpool                     ♻ 复用
+aug   no_lvar          0:0     --lambda-var 0.0               ♻ 复用
+aug   no_lvar          0:1     --lambda-var 0.0               ▶ 新跑
+aug   no_lvar          0:2     --lambda-var 0.0               ▶ 新跑
+aug   no_lvar          1:0     --lambda-var 0.0               ▶ 新跑
+aug   no_lvar          1:1     --lambda-var 0.0               ♻ 复用
+aug   no_lvar          1:2     --lambda-var 0.0               ▶ 新跑
+aug   no_lvar          2:0     --lambda-var 0.0               ▶ 新跑
+aug   no_lvar          2:1     --lambda-var 0.0               ▶ 新跑
+aug   no_lvar          2:2     --lambda-var 0.0               ♻ 复用
+aug   no_prior_drop    0:0     --prior-dropout 0.0            ♻ 复用
+aug   no_prior_drop    0:1     --prior-dropout 0.0            ▶ 新跑
+aug   no_prior_drop    0:2     --prior-dropout 0.0            ▶ 新跑
+aug   no_prior_drop    1:0     --prior-dropout 0.0            ▶ 新跑
+aug   no_prior_drop    1:1     --prior-dropout 0.0            ♻ 复用
+aug   no_prior_drop    1:2     --prior-dropout 0.0            ▶ 新跑
+aug   no_prior_drop    2:0     --prior-dropout 0.0            ▶ 新跑
+aug   no_prior_drop    2:1     --prior-dropout 0.0            ▶ 新跑
+aug   no_prior_drop    2:2     --prior-dropout 0.0            ♻ 复用
+aug   feat_base        0:0     --feat-groups base             ♻ 复用
+aug   feat_base        0:1     --feat-groups base             ▶ 新跑
+aug   feat_base        0:2     --feat-groups base             ▶ 新跑
+aug   feat_base        1:0     --feat-groups base             ▶ 新跑
+aug   feat_base        1:1     --feat-groups base             ♻ 复用
+aug   feat_base        1:2     --feat-groups base             ▶ 新跑
+aug   feat_base        2:0     --feat-groups base             ▶ 新跑
+aug   feat_base        2:1     --feat-groups base             ▶ 新跑
+aug   feat_base        2:2     --feat-groups base             ♻ 复用
+aug   feat_base_sem    0:0     --feat-groups base+sem         ♻ 复用
+aug   feat_base_sem    0:1     --feat-groups base+sem         ▶ 新跑
+aug   feat_base_sem    0:2     --feat-groups base+sem         ▶ 新跑
+aug   feat_base_sem    1:0     --feat-groups base+sem         ▶ 新跑
+aug   feat_base_sem    1:1     --feat-groups base+sem         ♻ 复用
+aug   feat_base_sem    1:2     --feat-groups base+sem         ▶ 新跑
+aug   feat_base_sem    2:0     --feat-groups base+sem         ▶ 新跑
+aug   feat_base_sem    2:1     --feat-groups base+sem         ▶ 新跑
+aug   feat_base_sem    2:2     --feat-groups base+sem         ♻ 复用
+aug   hid256           0:0     --hid 256                      ♻ 复用
+aug   hid256           0:1     --hid 256                      ▶ 新跑
+aug   hid256           0:2     --hid 256                      ▶ 新跑
+aug   hid256           1:0     --hid 256                      ▶ 新跑
+aug   hid256           1:1     --hid 256                      ♻ 复用
+aug   hid256           1:2     --hid 256                      ▶ 新跑
+aug   hid256           2:0     --hid 256                      ▶ 新跑
+aug   hid256           2:1     --hid 256                      ▶ 新跑
+aug   hid256           2:2     --hid 256                      ♻ 复用
+aug   numbases1        0:0     --num-bases 1                  ♻ 复用
+aug   numbases1        0:1     --num-bases 1                  ▶ 新跑
+aug   numbases1        0:2     --num-bases 1                  ▶ 新跑
+aug   numbases1        1:0     --num-bases 1                  ▶ 新跑
+aug   numbases1        1:1     --num-bases 1                  ♻ 复用
+aug   numbases1        1:2     --num-bases 1                  ▶ 新跑
+aug   numbases1        2:0     --num-bases 1                  ▶ 新跑
+aug   numbases1        2:1     --num-bases 1                  ▶ 新跑
+aug   numbases1        2:2     --num-bases 1                  ♻ 复用
+aug   numbases3        0:0     --num-bases 3                  ♻ 复用
+aug   numbases3        0:1     --num-bases 3                  ▶ 新跑
+aug   numbases3        0:2     --num-bases 3                  ▶ 新跑
+aug   numbases3        1:0     --num-bases 3                  ▶ 新跑
+aug   numbases3        1:1     --num-bases 3                  ♻ 复用
+aug   numbases3        1:2     --num-bases 3                  ▶ 新跑
+aug   numbases3        2:0     --num-bases 3                  ▶ 新跑
+aug   numbases3        2:1     --num-bases 3                  ▶ 新跑
+aug   numbases3        2:2     --num-bases 3                  ♻ 复用
+aug   numbases4        0:0     --num-bases 4                  ♻ 复用
+aug   numbases4        0:1     --num-bases 4                  ▶ 新跑
+aug   numbases4        0:2     --num-bases 4                  ▶ 新跑
+aug   numbases4        1:0     --num-bases 4                  ▶ 新跑
+aug   numbases4        1:1     --num-bases 4                  ♻ 复用
+aug   numbases4        1:2     --num-bases 4                  ▶ 新跑
+aug   numbases4        2:0     --num-bases 4                  ▶ 新跑
+aug   numbases4        2:1     --num-bases 4                  ▶ 新跑
+aug   numbases4        2:2     --num-bases 4                  ♻ 复用
+aug   dropedge02       0:0     --drop-edge-prob 0.2           ♻ 复用
+aug   dropedge02       0:1     --drop-edge-prob 0.2           ▶ 新跑
+aug   dropedge02       0:2     --drop-edge-prob 0.2           ▶ 新跑
+aug   dropedge02       1:0     --drop-edge-prob 0.2           ▶ 新跑
+aug   dropedge02       1:1     --drop-edge-prob 0.2           ♻ 复用
+aug   dropedge02       1:2     --drop-edge-prob 0.2           ▶ 新跑
+aug   dropedge02       2:0     --drop-edge-prob 0.2           ▶ 新跑
+aug   dropedge02       2:1     --drop-edge-prob 0.2           ▶ 新跑
+aug   dropedge02       2:2     --drop-edge-prob 0.2           ♻ 复用
+aug   layers1          0:0     --layers 1                     ♻ 复用
+aug   layers1          0:1     --layers 1                     ▶ 新跑
+aug   layers1          0:2     --layers 1                     ▶ 新跑
+aug   layers1          1:0     --layers 1                     ▶ 新跑
+aug   layers1          1:1     --layers 1                     ♻ 复用
+aug   layers1          1:2     --layers 1                     ▶ 新跑
+aug   layers1          2:0     --layers 1                     ▶ 新跑
+aug   layers1          2:1     --layers 1                     ▶ 新跑
+aug   layers1          2:2     --layers 1                     ♻ 复用
+aug   layers3          0:0     --layers 3                     ♻ 复用
+aug   layers3          0:1     --layers 3                     ▶ 新跑
+aug   layers3          0:2     --layers 3                     ▶ 新跑
+aug   layers3          1:0     --layers 3                     ▶ 新跑
+aug   layers3          1:1     --layers 3                     ♻ 复用
+aug   layers3          1:2     --layers 3                     ▶ 新跑
+aug   layers3          2:0     --layers 3                     ▶ 新跑
+aug   layers3          2:1     --layers 3                     ▶ 新跑
+aug   layers3          2:2     --layers 3                     ♻ 复用
+aug   cb_unlimited     0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss0 ♻ 复用
+aug   cb_unlimited     0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss1 ▶ 新跑
+aug   cb_unlimited     0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss2 ▶ 新跑
+aug   cb_unlimited     1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss0 ▶ 新跑
+aug   cb_unlimited     1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss1 ♻ 复用
+aug   cb_unlimited     1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss2 ▶ 新跑
+aug   cb_unlimited     2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss0 ▶ 新跑
+aug   cb_unlimited     2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss1 ▶ 新跑
+aug   cb_unlimited     2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_unlimited_ss2 ♻ 复用
+aug   cb_rev           0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss0 ♻ 复用
+aug   cb_rev           0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss1 ▶ 新跑
+aug   cb_rev           0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss2 ▶ 新跑
+aug   cb_rev           1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss0 ▶ 新跑
+aug   cb_rev           1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss1 ♻ 复用
+aug   cb_rev           1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss2 ▶ 新跑
+aug   cb_rev           2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss0 ▶ 新跑
+aug   cb_rev           2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss1 ▶ 新跑
+aug   cb_rev           2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs_ft/graph_variants/cb_rev_ss2 ♻ 复用
+aug   cb_frozen        0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ♻ 复用
+aug   cb_frozen        0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ▶ 新跑
+aug   cb_frozen        0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ▶ 新跑
+aug   cb_frozen        1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ▶ 新跑
+aug   cb_frozen        1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ♻ 复用
+aug   cb_frozen        1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ▶ 新跑
+aug   cb_frozen        2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ▶ 新跑
+aug   cb_frozen        2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ▶ 新跑
+aug   cb_frozen        2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/augmentation/graphs ♻ 复用
+
+[清点] 共 396 个条目：复用 138、新跑 258
+
+[main/dfg_dep/0:1] ✓   16.4s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/0:2] ✓   30.7s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/1:0] ✓   45.3s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/1:2] ✓   58.0s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/2:0] ✓   74.5s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/2:1] ✓   89.3s  去 DFG_DEP（物理关系 3）
+[main/cfg_flow/0:1] ✓  104.8s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/0:2] ✓  119.8s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/1:0] ✓  135.2s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/1:2] ✓  149.8s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/2:0] ✓  167.4s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/2:1] ✓  181.7s  去 CFG_FLOW（物理关系 0）
+[main/ast_parent/0:1] ✓  198.1s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/0:2] ✓  211.5s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/1:0] ✓  225.5s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/1:2] ✓  240.4s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/2:0] ✓  255.5s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/2:1] ✓  271.7s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/callback_risk/0:1] ✓  286.8s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/0:2] ✓  300.6s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/1:0] ✓  317.2s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/1:2] ✓  334.0s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/2:0] ✓  352.2s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/2:1] ✓  367.5s  去 CALLBACK_RISK（物理关系 4）
+[main/cb_node_only/0:1] ✓  386.6s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/0:2] ✓  402.6s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/1:0] ✓  419.8s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/1:2] ✓  437.9s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/2:0] ✓  454.6s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/2:1] ✓  473.0s  去函数级 CodeBERT（只留节点级）
+[main/cb_func_only/0:1] ✓  497.1s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/0:2] ✓  522.4s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/1:0] ✓  541.4s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/1:2] ✓  555.5s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/2:0] ✓  572.4s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/2:1] ✓  589.5s  去节点级 CodeBERT（只留函数级）
+[main/meanpool/0:1] ✓  608.2s  meanpool 替换 a_v 加权 readout
+[main/meanpool/0:2] ✓  625.0s  meanpool 替换 a_v 加权 readout
+[main/meanpool/1:0] ✓  640.7s  meanpool 替换 a_v 加权 readout
+[main/meanpool/1:2] 跳过：results.json 已存在
+[main/meanpool/2:0] ✓  663.3s  meanpool 替换 a_v 加权 readout
+[main/meanpool/2:1] ✓  681.1s  meanpool 替换 a_v 加权 readout
+[main/no_lvar/0:1] ✓  699.5s  关闭 L_var（方差正则项）
+[main/no_lvar/0:2] ✓  715.4s  关闭 L_var（方差正则项）
+[main/no_lvar/1:0] ✓  730.8s  关闭 L_var（方差正则项）
+[main/no_lvar/1:2] ✓  745.6s  关闭 L_var（方差正则项）
+[main/no_lvar/2:0] ✓  763.8s  关闭 L_var（方差正则项）
+[main/no_lvar/2:1] ✓  779.0s  关闭 L_var（方差正则项）
+[main/no_prior_drop/0:1] ✓  796.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/0:2] ✓  812.0s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/1:0] ✓  826.8s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/1:2] ✓  841.8s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/2:0] ✓  860.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/2:1] ✓  881.7s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/feat_base/0:1] ✓  901.0s  结构特征分组 (a) base
+[main/feat_base/0:2] ✓  919.3s  结构特征分组 (a) base
+[main/feat_base/1:0] ✓  935.7s  结构特征分组 (a) base
+[main/feat_base/1:2] ✓  957.9s  结构特征分组 (a) base
+[main/feat_base/2:0] ✓  986.8s  结构特征分组 (a) base
+[main/feat_base/2:1] 跳过：results.json 已存在
+[main/feat_base_sem/0:1] ✓ 1009.4s  结构特征分组 (b) base+sem
+[main/feat_base_sem/0:2] ✓ 1026.8s  结构特征分组 (b) base+sem
+[main/feat_base_sem/1:0] ✓ 1044.3s  结构特征分组 (b) base+sem
+[main/feat_base_sem/1:2] ✓ 1063.8s  结构特征分组 (b) base+sem
+[main/feat_base_sem/2:0] ✓ 1084.6s  结构特征分组 (b) base+sem
+[main/feat_base_sem/2:1] ✓ 1102.1s  结构特征分组 (b) base+sem
+[main/hid256/0:1] ✓ 1118.8s  隐藏维度 256（基线 128）
+[main/hid256/0:2] ✓ 1138.6s  隐藏维度 256（基线 128）
+[main/hid256/1:0] ✓ 1158.2s  隐藏维度 256（基线 128）
+[main/hid256/1:2] ✓ 1177.1s  隐藏维度 256（基线 128）
+[main/hid256/2:0] ✓ 1197.8s  隐藏维度 256（基线 128）
+[main/hid256/2:1] ✓ 1216.6s  隐藏维度 256（基线 128）
+[main/numbases1/0:1] ✓ 1237.0s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/0:2] ✓ 1254.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/1:0] ✓ 1274.7s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/1:2] ✓ 1293.1s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/2:0] ✓ 1312.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/2:1] ✓ 1329.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases3/0:1] ✓ 1348.4s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/0:2] ✓ 1366.4s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/1:0] ✓ 1387.4s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/1:2] ✓ 1404.6s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/2:0] ✓ 1424.5s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/2:1] ✓ 1441.4s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases4/0:1] ✓ 1458.0s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/0:2] ✓ 1474.0s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/1:0] ✓ 1494.9s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/1:2] ✓ 1511.2s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/2:0] ✓ 1528.3s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/2:1] ✓ 1546.0s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/dropedge02/0:1] ✓ 1565.3s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/0:2] ✓ 1584.3s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/1:0] ✓ 1602.1s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/1:2] ✓ 1622.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/2:0] ✓ 1642.7s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/2:1] ✓ 1660.6s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/layers1/0:1] ✓ 1678.3s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/0:2] ✓ 1695.2s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/1:0] ✓ 1710.9s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/1:2] ✓ 1727.8s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/2:0] ✓ 1745.4s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/2:1] ✓ 1760.5s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/0:1] ✓ 1781.0s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/0:2] ✓ 1800.5s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/1:0] ✓ 1823.2s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/1:2] ✓ 1845.6s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/2:0] ✓ 1865.8s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/2:1] ✓ 1887.3s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/cb_unlimited/0:1] ✓ 1908.2s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/0:2] ✓ 1928.4s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/1:0] ✓ 1946.6s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/1:2] ✓ 1965.4s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/2:0] ✓ 1987.9s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/2:1] ✓ 2006.5s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_rev/0:1] ✓ 2028.4s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/0:2] ✓ 2048.2s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/1:0] ✓ 2070.6s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/1:2] ✓ 2088.2s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/2:0] ✓ 2108.6s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/2:1] ✓ 2124.0s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_frozen/0:1] ✓ 2150.0s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/0:2] ✓ 2179.9s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/1:0] ✓ 2197.8s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/1:2] 跳过：results.json 已存在
+[main/cb_frozen/2:0] ✓ 2212.7s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/2:1] ✓ 2230.6s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[aug/_base/0:1] ✓ 2312.8s  基线（全开关默认）
+[aug/_base/0:2] ✓ 2373.8s  基线（全开关默认）
+[aug/_base/1:0] ✓ 2439.7s  基线（全开关默认）
+[aug/_base/1:2] ✓ 2495.9s  基线（全开关默认）
+[aug/_base/2:0] ✓ 2575.9s  基线（全开关默认）
+[aug/_base/2:1] ✓ 2628.5s  基线（全开关默认）
+[aug/dfg_dep/0:1] ✓ 2670.7s  去 DFG_DEP（物理关系 3）
+[aug/dfg_dep/0:2] ✓ 2720.3s  去 DFG_DEP（物理关系 3）
+[aug/dfg_dep/1:0] ✓ 2764.1s  去 DFG_DEP（物理关系 3）
+[aug/dfg_dep/1:2] ✓ 2800.6s  去 DFG_DEP（物理关系 3）
+[aug/dfg_dep/2:0] ✓ 2846.7s  去 DFG_DEP（物理关系 3）
+[aug/dfg_dep/2:1] ✓ 2919.9s  去 DFG_DEP（物理关系 3）
+[aug/cfg_flow/0:1] ✓ 2989.3s  去 CFG_FLOW（物理关系 0）
+[aug/cfg_flow/0:2] ✓ 3095.1s  去 CFG_FLOW（物理关系 0）
+[aug/cfg_flow/1:0] ✓ 3194.1s  去 CFG_FLOW（物理关系 0）
+[aug/cfg_flow/1:2] ✓ 3271.4s  去 CFG_FLOW（物理关系 0）
+[aug/cfg_flow/2:0] ✓ 3333.5s  去 CFG_FLOW（物理关系 0）
+[aug/cfg_flow/2:1] ✓ 3420.7s  去 CFG_FLOW（物理关系 0）
+[aug/ast_parent/0:1] ✓ 3501.3s  去 AST_PARENT（关系 1+2，--drop-ast）
+[aug/ast_parent/0:2] ✓ 3567.0s  去 AST_PARENT（关系 1+2，--drop-ast）
+[aug/ast_parent/1:0] ✓ 3628.2s  去 AST_PARENT（关系 1+2，--drop-ast）
+[aug/ast_parent/1:2] ✓ 3694.1s  去 AST_PARENT（关系 1+2，--drop-ast）
+[aug/ast_parent/2:0] ✓ 3793.3s  去 AST_PARENT（关系 1+2，--drop-ast）
+[aug/ast_parent/2:1] ✓ 3890.0s  去 AST_PARENT（关系 1+2，--drop-ast）
+[aug/callback_risk/0:1] ✓ 3988.3s  去 CALLBACK_RISK（物理关系 4）
+[aug/callback_risk/0:2] ✓ 4107.3s  去 CALLBACK_RISK（物理关系 4）
+[aug/callback_risk/1:0] ✓ 4189.5s  去 CALLBACK_RISK（物理关系 4）
+[aug/callback_risk/1:2] ✓ 4271.4s  去 CALLBACK_RISK（物理关系 4）
+[aug/callback_risk/2:0] ✓ 4334.4s  去 CALLBACK_RISK（物理关系 4）
+[aug/callback_risk/2:1] ✓ 4387.4s  去 CALLBACK_RISK（物理关系 4）
+[aug/cb_node_only/0:1] ✓ 4447.4s  去函数级 CodeBERT（只留节点级）
+[aug/cb_node_only/0:2] ✓ 4516.4s  去函数级 CodeBERT（只留节点级）
+[aug/cb_node_only/1:0] ✓ 4588.4s  去函数级 CodeBERT（只留节点级）
+[aug/cb_node_only/1:2] ✓ 4652.9s  去函数级 CodeBERT（只留节点级）
+[aug/cb_node_only/2:0] ✓ 4703.8s  去函数级 CodeBERT（只留节点级）
+[aug/cb_node_only/2:1] ✓ 4774.6s  去函数级 CodeBERT（只留节点级）
+[aug/cb_func_only/0:1] ✓ 4825.7s  去节点级 CodeBERT（只留函数级）
+[aug/cb_func_only/0:2] ✓ 4876.1s  去节点级 CodeBERT（只留函数级）
+[aug/cb_func_only/1:0] ✓ 4934.9s  去节点级 CodeBERT（只留函数级）
+[aug/cb_func_only/1:2] ✓ 4979.1s  去节点级 CodeBERT（只留函数级）
+[aug/cb_func_only/2:0] ✓ 5026.3s  去节点级 CodeBERT（只留函数级）
+[aug/cb_func_only/2:1] ✓ 5078.1s  去节点级 CodeBERT（只留函数级）
+[aug/meanpool/0:1] ✓ 5137.4s  meanpool 替换 a_v 加权 readout
+[aug/meanpool/0:2] ✓ 5213.2s  meanpool 替换 a_v 加权 readout
+[aug/meanpool/1:0] ✓ 5279.1s  meanpool 替换 a_v 加权 readout
+[aug/meanpool/1:2] ✓ 5358.8s  meanpool 替换 a_v 加权 readout
+[aug/meanpool/2:0] ✓ 5429.7s  meanpool 替换 a_v 加权 readout
+[aug/meanpool/2:1] ✓ 5514.8s  meanpool 替换 a_v 加权 readout
+[aug/no_lvar/0:1] ✓ 5593.2s  关闭 L_var（方差正则项）
+[aug/no_lvar/0:2] ✓ 5652.5s  关闭 L_var（方差正则项）
+[aug/no_lvar/1:0] ✓ 5719.6s  关闭 L_var（方差正则项）
+[aug/no_lvar/1:2] ✓ 5774.2s  关闭 L_var（方差正则项）
+[aug/no_lvar/2:0] ✓ 5842.7s  关闭 L_var（方差正则项）
+[aug/no_lvar/2:1] ✓ 5907.6s  关闭 L_var（方差正则项）
+[aug/no_prior_drop/0:1] ✓ 5967.0s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[aug/no_prior_drop/0:2] ✓ 6043.1s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[aug/no_prior_drop/1:0] ✓ 6126.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[aug/no_prior_drop/1:2] ✓ 6184.9s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[aug/no_prior_drop/2:0] ✓ 6254.7s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[aug/no_prior_drop/2:1] ✓ 6327.4s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[aug/feat_base/0:1] ✓ 6379.2s  结构特征分组 (a) base
+[aug/feat_base/0:2] ✓ 6434.4s  结构特征分组 (a) base
+[aug/feat_base/1:0] ✓ 6512.9s  结构特征分组 (a) base
+[aug/feat_base/1:2] ✓ 6577.5s  结构特征分组 (a) base
+[aug/feat_base/2:0] ✓ 6646.7s  结构特征分组 (a) base
+[aug/feat_base/2:1] ✓ 6710.8s  结构特征分组 (a) base
+[aug/feat_base_sem/0:1] ✓ 6764.1s  结构特征分组 (b) base+sem
+[aug/feat_base_sem/0:2] ✓ 6819.4s  结构特征分组 (b) base+sem
+[aug/feat_base_sem/1:0] ✓ 6893.0s  结构特征分组 (b) base+sem
+[aug/feat_base_sem/1:2] ✓ 6938.8s  结构特征分组 (b) base+sem
+[aug/feat_base_sem/2:0] ✓ 7000.1s  结构特征分组 (b) base+sem
+[aug/feat_base_sem/2:1] ✓ 7071.4s  结构特征分组 (b) base+sem
+[aug/hid256/0:1] ✓ 7131.1s  隐藏维度 256（基线 128）
+[aug/hid256/0:2] ✓ 7211.0s  隐藏维度 256（基线 128）
+[aug/hid256/1:0] ✓ 7283.2s  隐藏维度 256（基线 128）
+[aug/hid256/1:2] ✓ 7342.1s  隐藏维度 256（基线 128）
+[aug/hid256/2:0] ✓ 7401.9s  隐藏维度 256（基线 128）
+[aug/hid256/2:1] ✓ 7461.2s  隐藏维度 256（基线 128）
+[aug/numbases1/0:1] ✓ 7542.3s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[aug/numbases1/0:2] ✓ 7622.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[aug/numbases1/1:0] ✓ 7694.7s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[aug/numbases1/1:2] ✓ 7752.1s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[aug/numbases1/2:0] ✓ 7819.0s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[aug/numbases1/2:1] ✓ 7879.5s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[aug/numbases3/0:1] ✓ 7934.7s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[aug/numbases3/0:2] ✓ 8016.9s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[aug/numbases3/1:0] ✓ 8077.9s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[aug/numbases3/1:2] ✓ 8168.5s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[aug/numbases3/2:0] ✓ 8245.3s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[aug/numbases3/2:1] ✓ 8335.5s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[aug/numbases4/0:1] ✓ 8411.7s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[aug/numbases4/0:2] ✓ 8497.0s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[aug/numbases4/1:0] ✓ 8554.7s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[aug/numbases4/1:2] ✓ 8603.0s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[aug/numbases4/2:0] ✓ 8663.3s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[aug/numbases4/2:1] ✓ 8732.1s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[aug/dropedge02/0:1] ✓ 8788.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[aug/dropedge02/0:2] ✓ 8844.4s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[aug/dropedge02/1:0] ✓ 8902.0s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[aug/dropedge02/1:2] ✓ 8965.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[aug/dropedge02/2:0] ✓ 9024.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[aug/dropedge02/2:1] ✓ 9069.6s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[aug/layers1/0:1] ✓ 9111.2s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers1/0:2] ✓ 9158.6s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers1/1:0] ✓ 9212.2s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers1/1:2] ✓ 9264.2s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers1/2:0] ✓ 9318.0s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers1/2:1] ✓ 9362.9s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers3/0:1] ✓ 9422.9s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers3/0:2] ✓ 9511.2s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers3/1:0] ✓ 9603.7s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers3/1:2] ✓ 9697.6s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers3/2:0] ✓ 9784.4s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/layers3/2:1] ✓ 9883.8s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[aug/cb_unlimited/0:1] ✓ 9946.8s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[aug/cb_unlimited/0:2] ✓ 10000.5s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[aug/cb_unlimited/1:0] ✓ 10062.3s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[aug/cb_unlimited/1:2] ✓ 10116.7s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[aug/cb_unlimited/2:0] ✓ 10178.7s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[aug/cb_unlimited/2:1] ✓ 10265.9s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[aug/cb_rev/0:1] ✓ 10330.5s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[aug/cb_rev/0:2] ✓ 10401.3s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[aug/cb_rev/1:0] ✓ 10474.5s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[aug/cb_rev/1:2] ✓ 10533.1s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[aug/cb_rev/2:0] ✓ 10611.3s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[aug/cb_rev/2:1] ✓ 10673.2s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[aug/cb_frozen/0:1] ✓ 10805.8s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[aug/cb_frozen/0:2] ✓ 10971.2s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[aug/cb_frozen/1:0] ✓ 11117.3s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[aug/cb_frozen/1:2] ✓ 11273.1s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[aug/cb_frozen/2:0] ✓ 11407.3s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[aug/cb_frozen/2:1] ✓ 11536.1s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+
+[n9] 结束：新跑 255 个 run，wall 192.3 min，失败 0
+[n9] 下一步：python scripts/collect_ablation_n9.py --group both

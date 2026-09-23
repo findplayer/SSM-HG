@@ -235,3 +235,54 @@ def test_cb_ft_reverse_check_is_exhaustive_not_sampled():
     assert "names[:40]" not in code, "反向核验又变回抽样了"
     assert "for name in names:" in code
     assert "changed != len(names)" in code
+
+
+# ------------------------------------------- §37 变体 × 布局（2026-09-21 新增 buggy 布局）
+def test_ft_edge_variant_layouts_resolve_to_the_right_tree():
+    """🔴 回归锁：`build_ft_edge_variants` 的两种 layout 必须指向**各自的**微调树与编码器。
+
+    两种 layout 的差别只有"微调基座 / 编码器"两处（边变体源与冻结树**是同一份**：
+    边结构与冻结 `_cb.pt` 都与池、划分、微调无关）。写错的后果是**静默**的——
+    `cb_unlimited`/`cb_rev` 会带着**正典的微调编码器**去和 **buggy 正典**比，
+    结构齐全、`variant.json` 照写，只是这两个臂的变量不止"边"那一个。
+    """
+    import build_ft_edge_variants as B
+
+    canon = B.paths("alldata", "canon")
+    buggy = B.paths("alldata", "buggy")
+    assert canon["ft"] == REPO / "products/alldata/graphs_ft"
+    assert canon["ft_prefix"] == "" and canon["encoder_root"] == REPO / "runs/codebert_ft/alldata"
+    assert buggy["ft"] == REPO / "products/alldata/graphs_ft_buggy"
+    assert buggy["ft_prefix"] == "cb_ft_"
+    assert buggy["encoder_root"] == REPO / "runs/codebert_ft_buggy"
+    # 边变体源与冻结树两种 layout **共用**（这正是"可复用"的依据，不是疏漏）
+    assert canon["edge"] == buggy["edge"] and canon["frozen"] == buggy["frozen"]
+    # 逐种子展开后必须**逐种子不同**（否则就是"seed1 拿到 ss0 编码器"那个错）
+    for P in (canon, buggy):
+        got = {f"{P['ft_prefix']}ss{s}" for s in (0, 1, 2)}
+        assert len(got) == 3, P["ft_prefix"]
+
+
+def test_buggy_layout_output_matches_what_run_ablation_derives():
+    """🔴 两处**各自推导**同一路径，必须一致——否则 `run_ablation` 取不到变体。
+
+    `build_ft_edge_variants` 把产物写在 `<微调树>/graph_variants/`；
+    `run_ablation.variants_root_of` 从基线 `graph_dir` 的**兄弟目录**推出变体根。
+    两者若漂移，`cb_unlimited`/`cb_rev` 会指向一个**不存在的目录** ⇒ `train.py` 报错
+    （这一种至少会报错），或者更糟：指向一个**别的正典的**变体目录（不会报错）。
+    """
+    import build_ft_edge_variants as B
+    import run_ablation as RA
+
+    base = RA.canonical_args(REPO / "runs" / "buggy_canon" / "seed0" / "config.json")
+    derived = RA.variants_root_of(base)
+    assert derived == B.paths("alldata", "buggy")["ft"] / "graph_variants", \
+        f"run_ablation 推出 {derived}，而变体建在别处"
+    # 冻结臂必须落在正典语料的 graphs/（两份正典共用同一份冻结编码器树）
+    assert RA.frozen_graphs_of(base) == REPO / "products/alldata/graphs"
+
+
+def test_buggy_layout_rejects_the_augmentation_corpus():
+    """`layout=buggy` 只对 ① 成立（② 没有 buggy 池）——静默套用会产出跨语料的错误变体。"""
+    src = (REPO / "scripts" / "build_ft_edge_variants.py").read_text(encoding="utf-8")
+    assert 'layout == "buggy" and args.dataset != "alldata"' in src

@@ -8,7 +8,12 @@
 |---|---|---|
 | ① 主库 | `runs/seed{S}/`、`runs/ablation/<臂>/seed{S}/` | `test_probs.pt` + `thresholds.json` |
 | ② 增强集 | `runs/augmentation/seed{S}/`、`runs/ablation_aug/<臂>/seed{S}/` | 同上 |
+| ① 主库 · 含 buggy 新正典 | `runs/buggy_canon/seed{S}/`、`runs/ablation_buggy/<臂>/seed{S}/` | 同上（`--canon-only-runs` + `--ablation-root`） |
 | DIVE 外部测试 | `eval_results/dive/matrix_{main,aug}.json` | 逐种子逐类 P/R/F1 + 漏洞子集块 |
+
+🔴 **`test_probs.pt` 由 `diagnose.py` 写，`evaluate.py` 不写**（2026-09-21）。故任何"产出可被本表读取的
+run"的跑批链条**必须含 diagnose 这一步**，否则不是报错而是**整列 `—`**。`run_ablation.py` 原先只有
+train→evaluate 两步，已补上 diagnose（`resume_state(..., require_probs=True)` 会识别并只补那一步）。
 
 🔴 **三个口径的逐类格含义不同，但都落在同一张「行 × 7 类」网格上**：
 
@@ -277,15 +282,29 @@ def main() -> None:
                     help="**只出主库一行**：行 = 该 run 目录的正典（如 `runs/buggy_canon`）。"
                          "供新正典（任务 2 的含 buggy 臂）单独出一份表；"
                          "最佳种子从**该目录自己的** results.json 选，不读旧正典的 collected.json。")
+    ap.add_argument("--ablation-root", default=None,
+                    help="配合 `--canon-only-runs`：把该根下的消融臂也加进来（如 `runs/ablation_buggy`）。"
+                         "**臂集合与顺序一律取 `run_ablation.ABLATIONS`**（21 项）——不另立一份清单，"
+                         "否则两张表的臂集合会漂移。缺目录的臂**跳过并打印**，不静默补 `—` 行。")
     args = ap.parse_args()
 
     if args.canon_only_runs:
         rel = args.canon_only_runs
         k = best_seed_from_runs(rel)
-        rows_best = [(f"**① 主库 · 正典（{rel}）**", row_from_run(rel, [k]))]
-        rows = [(f"**① 主库 · 正典（{rel}）**", row_from_run(rel, list(SEEDS)))]
+        canon_label = f"**① 主库 · 正典（{rel}）**"
+        rows_best = [(canon_label, row_from_run(rel, [k]))]
+        rows = [(canon_label, row_from_run(rel, list(SEEDS)))]
         supports = {"① 主库": rows[0][1]["support"]}
         k_main, k_aug = k, k
+        if args.ablation_root:
+            aroot = args.ablation_root.rstrip("/")
+            for arm, _ov, _desc in RA.ABLATIONS:
+                arel = f"{aroot}/{arm}"
+                if not (REPO / arel).exists():
+                    print(f"[tables] ⚠ 缺 {arel}，该臂跳过（不补空行）")
+                    continue
+                rows_best.append((f"① 主库 · `{arm}`", row_from_run(arel, [k])))
+                rows.append((f"① 主库 · `{arm}`", row_from_run(arel, list(SEEDS))))
         header_extra = [
             f"> 🔴 **本表的正典 = `{rel}`**（含 `buggy_*` 的新池 497 / 新划分），"
             f"**与 `per_class_three_caliber_tables.md` 不是同一个 test 集** ⇒ "
@@ -296,6 +315,15 @@ def main() -> None:
             "实测（3 种子）：把 test 里那 **7 个** `buggy_*` 剔掉后，"
             "**micro 掉 0.10–0.16、macro 掉 0.33–0.61**（`buggy_canon_summary.md` §3）。",
             "> ⇒ **本表可用于「申报口径下的完整读数」，但不得据此声称「补回 buggy 提升了检测能力」。**", ""]
+        if args.ablation_root:
+            header_extra += [
+                f"> **消融行 = `{args.ablation_root}`**（21 臂 × 3 种子，"
+                f"由 `run_ablation.py --base-config runs/buggy_canon/seed0/config.json` 跑出），"
+                f"**臂集合与顺序取自 `run_ablation.ABLATIONS`**。"
+                f"最佳种子行列（表 1–6）与本表正典**共用同一个种子 seed{k}**（`decisions.md` §39 口径）。", "",
+                "> ⚠ **这些消融行是 n=3**（种子数 3），只有 ± ，**没有**配对 t 检验 —— "
+                "`per_class_three_caliber_tables.md` 里那种「某臂显著」的说法在 n=3 下不成立"
+                "（n=9 的同配对复核见 `experiments/ablation_n9_results.md`）。", ""]
     else:
         rows_best, sup_best = build_rows(best_seed=True)
         rows, supports = build_rows(best_seed=False)
@@ -331,7 +359,11 @@ def main() -> None:
                 "buggy": "buggy-F1 口径（仅有漏洞合约子集逐类 F1）",
                 "macro": "macro-F1 口径（逐类格同 micro，汇总列 = 7 类未加权平均）"}
     n = 0
-    doc += ["---", "", f"# 一、主口径：最佳种子（① seed{k_main} / ② seed{k_aug}）", ""]
+    # ⚠ 标题也要跟着模式变：`--canon-only-runs` 下 `k_main == k_aug == k`，
+    #   照抄两组会印出「① seed1 / ② seed1」——凭空多一个不存在的 ②（2026-09-21 实测到并修）。
+    _wp_title = (f"# 一、主口径：最佳种子（① seed{k_main}）" if args.canon_only_runs
+                 else f"# 一、主口径：最佳种子（① seed{k_main} / ② seed{k_aug}）")
+    doc += ["---", "", _wp_title, ""]
     for wp, disp, _dk, _bk in WORKPOINTS:
         for caliber in CALIBERS:
             n += 1

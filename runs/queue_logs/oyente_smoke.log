@@ -1,0 +1,11 @@
+WARNING:root:You are using an untested version of z3. 4.5.1 is the officially tested version
+WARNING:root:You are using solc version 0.5.17, The latest supported version is 0.4.19
+INFO:CryticCompile:'solc --version' running
+INFO:CryticCompile:'solc /tmp/oyente_test.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format --allow-paths .,/tmp' running
+INFO:CryticCompile:Compilation warnings/errors on /tmp/oyente_test.sol:
+/tmp/oyente_test.sol:1:1: Error: Source file requires different compiler version (current compiler is 0.5.17+commit.d19bba13.Linux.g++ - note that nightly builds are considered to be strictly less than the released version
+pragma solidity ^0.4.19;
+^----------------------^
+
+CRITICAL:root:Solidity compilation failed. Please use -ce flag to see the detail.
+########## DONE ##########

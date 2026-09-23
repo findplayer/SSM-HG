@@ -1,0 +1,28 @@
+WARNING:root:You are using an untested version of z3. 4.5.1 is the officially tested version
+INFO:CryticCompile:'solc --version' running
+INFO:CryticCompile:'solc /tmp/oyente_test.sol --combined-json abi,ast,bin,bin-runtime,srcmap,srcmap-runtime,userdoc,devdoc,hashes,compact-format --allow-paths .,/tmp' running
+INFO:CryticCompile:Compilation warnings/errors on /tmp/oyente_test.sol:
+/tmp/oyente_test.sol:11:40: Warning: "throw" is deprecated in favour of "revert()", "require()" and "assert()".
+        if (balances[msg.sender] <= 0) throw;
+                                       ^---^
+/tmp/oyente_test.sol:12:61: Warning: "throw" is deprecated in favour of "revert()", "require()" and "assert()".
+        if (!msg.sender.call.value(balances[msg.sender])()) throw;
+                                                            ^---^
+
+Traceback (most recent call last):
+  File "oyente.py", line 232, in <module>
+    main()
+  File "oyente.py", line 227, in main
+    exit_code = analyze_solidity()
+  File "oyente.py", line 109, in analyze_solidity
+    inputs = helper.get_inputs(global_params.TARGET_CONTRACTS)
+  File "/home/saumarez/tools/oyente/oyente/input_helper.py", line 70, in get_inputs
+    contracts = self._get_compiled_contracts()
+  File "/home/saumarez/tools/oyente/oyente/input_helper.py", line 103, in _get_compiled_contracts
+    self.compiled_contracts = self._compile_solidity()
+  File "/home/saumarez/tools/oyente/oyente/input_helper.py", line 121, in _compile_solidity
+    contracts = self._extract_bin_obj(com)
+  File "/home/saumarez/tools/oyente/oyente/input_helper.py", line 112, in _extract_bin_obj
+    return [(com.contracts_filenames[name].absolute + ':' + name, com.bytecode_runtime(name)) for name in com.contracts_names if com.bytecode_runtime(name)]
+AttributeError: 'CryticCompile' object has no attribute 'contracts_names'
+########## DONE ##########
