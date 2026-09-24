@@ -249,17 +249,37 @@ def test_identity_default_lets_single_variable_assertion_see_the_new_key():
 
 
 def test_identity_default_keys_are_real_cli_flags():
-    """漂移守卫：登记进 `IDENTITY_DEFAULTS` 的键必须是 `train.parse_args()` 真有的开关。
+    """漂移守卫：登记进 `IDENTITY_DEFAULTS` 的键必须是**某个真实消费方**真有的开关。
 
-    挡的是"将来新增身份键却忘了登记"——同一漏洞会为新键重现（见 `IDENTITY_DEFAULTS` 注释）。
+    挡的是"拼错键名"——`diff_args` 走 `setdefault(key, default)`，一个拼错的键会
+    **永远静默不生效**，而表面上"已登记"。
+
+    🔴 **消费方是两族**：`train.py`（`head`/`layers`）与基线族
+    （`baseline_common.base_parser()`，`feature_suffix`）。故键集合取**两族的并集**，
+    且**必须从真 parser 现算**（写成字面量等于把守卫关掉）。
     """
     import io
     import contextlib
+    import baseline_common
     with contextlib.redirect_stdout(io.StringIO()):     # --help 之类不会触发，但保持安静
         saved, sys.argv = sys.argv, ["train.py"]
         try:
             flags = set(vars(train.parse_args()))
         finally:
             sys.argv = saved
+        saved, sys.argv = sys.argv, ["baseline_mvdhg.py"]
+        try:
+            flags |= set(vars(baseline_common.base_parser("漂移守卫", "mvdhg").parse_args([])))
+        finally:
+            sys.argv = saved
     unknown = set(run_guard.IDENTITY_DEFAULTS) - flags
-    assert not unknown, f"IDENTITY_DEFAULTS 里有非 train.py CLI 键：{unknown}"
+    assert not unknown, f"IDENTITY_DEFAULTS 里有不存在的 CLI 键（拼写错误？）：{unknown}"
+    # `feature_suffix` 只属于基线族：它必须**不在** train.py 里，否则上面那条并集断言会
+    # 掩盖"两边同名不同义"的坑（本仓 §31.3 的教训是键要可见，不是键要同名）。
+    with contextlib.redirect_stdout(io.StringIO()):
+        saved, sys.argv = sys.argv, ["train.py"]
+        try:
+            train_flags = set(vars(train.parse_args()))
+        finally:
+            sys.argv = saved
+    assert "feature_suffix" not in train_flags, "feature_suffix 不该出现在 train.py 里"

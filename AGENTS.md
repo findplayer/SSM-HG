@@ -74,6 +74,20 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   （`experiments/ablation_n9_results.md` / `n9_summary.json`）。**理由**：n=9 的价值有一半在于
   「和 n=3 比，哪些结论翻了」——删掉 n=3 就是删掉对照臂。两代之间不打架：**n=9 的对角 3 对
   就是 n=3 的同一份物理产物**（靠复用而非重跑，`run_ablation_n9.reuse_violations` 逐 run 逐键对拍过）。
+- 🔴 **2026-09-23（7 个独立二分类器补充臂）新增形态**：
+  `runs/perclass_arm/cap{20,0}/cls_{7类名,ANY_union}/seed{S}/`（**每类一个独立模型**，
+  回答「多标签共享是否压制了稀有类」；驱动 `scripts/run_perclass_arm.py`、汇总
+  `scripts/collect_perclass_arm.py` → `experiments/perclass_arm_results.md`）
+  + `products/alldata/perclass_labels/cls_<类名>.json`（逐类标签文件）。
+  🔴 **零模型改动**：`--head binary` 的塌缩是 `any(targets)`（`dataset.stack_labels` 唯一的塌缩点），
+  故把标签文件里除第 c 列外全部置 0 即可得到「该类有没有漏洞」的独立二分类器。
+  **入库口径**：`best.pt` 排除（42+3 = 45 个，各约 5 MB ⇒ 约 225 MB；同 `runs/ablation_n9*` 那条裁定），
+  逐类标签文件**整体排除**（可由 `--steps labels` 从只读源逐位重建）。
+  `.gitignore` 用**前缀通配**：`runs/perclass_arm/**/best.pt` + `products/**/perclass_labels/**`。
+  ⚠ **顺序敏感**：必须写在 `!runs/**/best.pt` **之后**才生效。
+  **实测（2026-09-23，三步自检全过）**：`git add -A --dry-run` 共 **345 个文件 / 2.1 MB**、
+  最大单文件 <1 MB、**`best.pt` 命中 0 个**（全部被忽略）；`test_probs.pt` 被 `!` 白名单**命中 ⇒ 入库**；
+  `thresholds.json` 同样入库（离线重算 val_thr 必需）；`runs/seed0/best.pt` 仍**未被忽略**（规则没漏出去）。
 - 🔴 **2026-09-22（5.3 三条论文基线）新增形态**：
   `products/alldata/baseline/{mvdhg,egfl,mando}/`（**离线特征**：MVD-HG 的
   `sol_source/`+`AST_json/`+`raw/`+`graphs/`、EGFL 的 `seq/`+`feat/`、各自的 `w2v.model`）
@@ -98,6 +112,33 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   🔴 **`test_probs.pt` 只由 `diagnose.py` 写，`evaluate.py` 不写** —— 任何"要产出可被
   `collect_three_caliber_tables.py` / `error_rates.py` 读取的 run"的链条**必须含 diagnose**，
   否则不是报错而是**整列 `—`**。`run_ablation.py` 已补上这一步（原先缺）。
+- 🔴 **2026-09-23（三条论文基线在含 `buggy_*` 的新正典上补跑）新增形态**：
+  `products/alldata/baseline/{mvdhg,egfl,mando}_buggy/`（**池 497 的离线特征**，与 canon37 的
+  `{mvdhg,egfl,mando}/` **并列、绝不合并**）+ `eval_results/baseline/{mvdhg,egfl,egfl_ownlr,mando}_buggy/seed{S}/`
+  + `eval_results/baseline/slither_buggy/{seed0,1,2}_eval.json` + `products/alldata/raw/logs/baseline_buggy/`。
+  **入库口径与 canon37 段逐条相同**（`.gitignore` 的 `products/**/baseline/**` 与
+  `eval_results/baseline/**/*.pt` 都是 `**` 通配，`_buggy` 这一层**无需新增规则**；仍按三步自检实测）。
+  **运行入口**：`python scripts/run_baselines.py --layout buggy`（布局与四条路径的唯一真源 =
+  `scripts/baseline_common.py::LAYOUTS`）；汇总 = `scripts/collect_baseline_tables.py --with-buggy`
+  → `experiments/baseline_three_caliber_tables.md` 的「**三、**」段（表 15–28）。
+  🔴 **五条硬约束（每条都对应本次实测踩到或差点踩到的静默错，`decisions.md` §52）**：
+  ① **别再写 `B.feature_root(NAME)` 不带后缀**——两个 build 都是「`feat/` 存在即跳过」+
+  「`w2v.model` 存在即复用」⇒ 同根会把两池的特征混在一起且**不报错**；有源码级守卫
+  `tests/test_baseline_tables.py::test_all_feature_root_calls_pass_the_suffix` 盯着这条；
+  ② 换正典必须**四处一起换**（`split_dir`/`graph_dir`/`feature_suffix`/`out_dir`），
+  由 `baseline_common.check_layout()` 在开工前硬拒不一致的组合；
+  ③ 🔴 **canon37 段的三条基线三种子用的都是 `graphs_ft/ss0`**（既存事实、**未修**），
+  而 `_buggy` 段用与 `--split-seed` **配对**的 `cb_ft_ss{S}`：`_cb.pt` 的 CodeBERT 节点行
+  **逐张量随 `ss` 变**（实测全不同）⇒ 两段**跨段不可比**，除了池还差着特征配对方式；
+  ④ **MVD-HG 在 `_buggy` 的 ss1 上 test 少 1 个**（48/49）⇒ 该行分母与其余行不同，
+  表里已显式标注，读表时必须带着；
+  ⑤ **Slither 的评测输出目录只由 `--tag` 决定、与 `--split-dir` 无关** ⇒ 换划分时必须同时传
+  `--tag` 与**新的** `--out`（`analyze()` 会把新结果**并集**进既有 JSON）。
+  ⑥ **MANDO 的 `hgt_metadata.json` 守卫只看池、不看路径**（`structure_fingerprint`）——
+  该文件只依赖 `_pyg.pt`/`_feat.pt::type_id` 的**结构**，而本仓要求 `cb_ft_ss{S}` 与 `--split-seed S`
+  **配对** ⇒ 旧口径（把 `graph_dir` 路径也哈希进去）会把一份形态完全正确的词表判成「不同语料」，
+  实测让 MANDO 的 seed1/seed2 **在 2–3 秒内 rc=1**。库里 canon 那份老文件行为**不变**（只有
+  `pool_sha256`），新写的两个指纹都有、**匹配其一即放行**；**换池仍会被拒**（保护没丢）。
 - `alldata_augmentation/` 是 **MVD-HG 论文增强集**，与 `alldata(readonly)` **并行的第二个数据集**（2026-09-14 置入）：1780 个**扁平** `.sol` + 9026 条 7 维标签（同类别序）。**2026-09-16 裁定：两组结果集并存**（`decisions.md` §23、总表 `results.md` §0）——① 主库（池 453，真实部署合约、含天然极稀缺类）与 ② 增强集（池 1774，单标签、正样本充足）**各自独立完整、并列呈现**；**禁止**跨组比较绝对值、**禁止**合并成一个数字、**禁止**用 ② 的数字宣称 ① 的问题已解决。
 - ⚠ **该集的标签必须用修正版**：只读源里的 `contract_labels.json` 有 298 个 `{类}__buggy_N`（同名不同内容）被并集规则推成 `1111111`，正样本 59% 虚高。**正典标签 = `products/augmentation/contract_labels_repaired.json`**（`scripts/repair_augmentation_labels.py` 生成，逐类 7383→2997）；只读源原文件仅留痕。该集是**单标签**数据集（每条非零恰一类），勿套用主库多标签叙事。详见 `experiments/decisions.md` §19.3.1。
 - 路径含空格/括号（`alldata(readonly)/`、`DIVE/Source codes/`），命令中必须加引号；产物区 `products/…` 无空格。

@@ -1,0 +1,231 @@
+{
+  "baseline": "mando",
+  "seed": 2,
+  "split_seed": 2,
+  "head": "multi",
+  "select_metric": "val_micro_f1",
+  "val_threshold": 0.45,
+  "threshold_scan": {
+    "metric": "micro_f1",
+    "best_threshold": 0.45,
+    "best_micro_f1": 0.3896103896103895,
+    "best_macro_f1": 0.3836989041097216,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "micro_f1": 0.3490566037735849,
+        "macro_f1": 0.3464335469955532
+      },
+      {
+        "threshold": 0.25,
+        "micro_f1": 0.3490566037735849,
+        "macro_f1": 0.3464335469955532
+      },
+      {
+        "threshold": 0.3,
+        "micro_f1": 0.3507109004739336,
+        "macro_f1": 0.34821520703627223
+      },
+      {
+        "threshold": 0.35,
+        "micro_f1": 0.35294117647058826,
+        "macro_f1": 0.349389542469175
+      },
+      {
+        "threshold": 0.4,
+        "micro_f1": 0.3786666666666667,
+        "macro_f1": 0.37520904810627853
+      },
+      {
+        "threshold": 0.45,
+        "micro_f1": 0.3896103896103895,
+        "macro_f1": 0.3836989041097216
+      },
+      {
+        "threshold": 0.5,
+        "micro_f1": 0.29145728643216084,
+        "macro_f1": 0.28325598867470786
+      },
+      {
+        "threshold": 0.55,
+        "micro_f1": 0.10869565217391305,
+        "macro_f1": 0.10293040293040293
+      },
+      {
+        "threshold": 0.6,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      },
+      {
+        "threshold": 0.65,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      },
+      {
+        "threshold": 0.7,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      },
+      {
+        "threshold": 0.75,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      },
+      {
+        "threshold": 0.8,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "mAP": {
+    "mAP": 0.21796657861741314,
+    "ap": [
+      0.16282264483483996,
+      0.21447621194071498,
+      0.12502973046629534,
+      0.12326886626547068,
+      0.4101736770854418,
+      0.21262156145706484,
+      0.2773733582720644
+    ],
+    "ap_classes_used": 7,
+    "skipped": []
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.2624434389140271,
+      "macro_f1": 0.2560991669395031,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.16666666666666666,
+          0.21052631578947367,
+          0.05555555555555555,
+          0.10714285714285714,
+          0.3181818181818182,
+          0.17857142857142858,
+          0.2631578947368421
+        ],
+        "recall": [
+          0.5,
+          0.4444444444444444,
+          0.14285714285714285,
+          0.5,
+          0.5833333333333334,
+          0.7142857142857143,
+          0.35714285714285715
+        ],
+        "f1": [
+          0.25,
+          0.2857142857142857,
+          0.08,
+          0.17647058823529413,
+          0.4117647058823529,
+          0.2857142857142857,
+          0.30303030303030304
+        ],
+        "support": [
+          8,
+          9,
+          7,
+          6,
+          12,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.3841059602649007,
+      "subset_accuracy": 0.061224489795918366
+    },
+    "val_threshold": {
+      "threshold": 0.45,
+      "micro_f1": 0.3132530120481928,
+      "macro_f1": 0.3030990173847317,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.17647058823529413,
+          0.1794871794871795,
+          0.10344827586206896,
+          0.14285714285714285,
+          0.2727272727272727,
+          0.17073170731707318,
+          0.275
+        ],
+        "recall": [
+          0.75,
+          0.7777777777777778,
+          0.42857142857142855,
+          1.0,
+          1.0,
+          1.0,
+          0.7857142857142857
+        ],
+        "f1": [
+          0.2857142857142857,
+          0.29166666666666663,
+          0.16666666666666663,
+          0.25,
+          0.42857142857142855,
+          0.2916666666666667,
+          0.40740740740740744
+        ],
+        "support": [
+          8,
+          9,
+          7,
+          6,
+          12,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.5123152709359605,
+      "subset_accuracy": 0.061224489795918366
+    }
+  },
+  "best_epoch": 5,
+  "best_val_micro_f1": 0.3896103896103895,
+  "n_train_graphs": 398,
+  "n_val_graphs": 50,
+  "n_test_graphs": 49,
+  "n_params": 3083273,
+  "reconstruction_notes": [
+    "🔴 图算子用 PyG 2.7 的 `HGTConv` 替代 dgl 的 `HGTLayer`（base 环境无 dgl、不新建 conda 环境）。逐项对应：relation_att/relation_msg/relation_pri ⟷ k_rel/v_rel/p_rel、edge_softmax(norm_by='dst') ⟷ 按目标结点 softmax、cross_reducer='mean' ⟷ mean 聚合、skip(α=sigmoid(skip)) + a_linear + LayerNorm ⟷ PyG 的 skip/out_lin。**参数化方式不是逐位等价**（PyG 用 bases/attention 分解），故不得声称复现了作者原结果。",
+    "🔴 图 = **我方 CFG 中心异构图**（`graphs_ft/ss{S}`），不是原版的 slither 图；节点类型取 `_feat.pt::type_id` 的 9 类语义角色（原版用 slither CFG 节点种类）。",
+    "节点输入主臂 = `model.NodeFuser` 融合后的 h_v^(0)（与本文方法**逐字相同**的通道字典）⇒ 与本文方法的唯一变量 = 图算子。对照臂 `role_onehot` / `cb_node_raw` 见 `--node-feature`。",
+    "fuser 与 HGT **联合训练**（端到端），不是冻结特征。",
+    "🔴 **metadata 跨 seed 冻结**（`hgt_metadata.json`，带 pool_sha256）：三 seed 必须共用同一份`(node_types, edge_types)`，否则各 seed 参数量不同、不是同一个模型。它只由 `type_id` 与 `edge_type` 扫出，不碰标签 ⇒ 不构成泄漏。",
+    "输出头 2→7（原版是 7 个独立二分类 / CE）、改 BCEWithLogitsLoss（大纲 5.3 [411]）。",
+    "训练期先验/结构 dropout 沿用本方 `sample_dropout_masks`（p=0.2），随 batch 传入 `NodeFuser`；验证/推理不传掩码。"
+  ],
+  "partial": false,
+  "timing": {
+    "train_seconds": 2416.37,
+    "wall_seconds": 2417.55,
+    "seconds_per_epoch": 92.94
+  },
+  "environment": {
+    "device": "cuda",
+    "torch": "2.0.1+cu118"
+  }
+}

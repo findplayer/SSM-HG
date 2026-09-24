@@ -1,6 +1,6 @@
 {
  "meta": {
-  "created_utc": "2026-09-14T13:42:44+00:00",
+  "created_utc": "2026-09-23T12:13:50+00:00",
   "buggy": 90,
   "steps": [
    {
@@ -313,6 +313,72 @@
     "source": "products/alldata/splits/split_report.json::rule_check",
     "command": "python scripts/make_splits.py",
     "note": "全 0 = 大纲 5.1「同一合约及其所有重复记录不跨划分」已构造性保证"
+   },
+   {
+    "stage": "上游类别文件夹 × 上游单类标签文件",
+    "name": "文件夹记录数 → 剔除 buggy → 上游标签正例 → 本仓池正例（逐类）",
+    "value": {
+     "access_control": [
+      114,
+      74,
+      57,
+      17,
+      17
+     ],
+     "arithmetic": [
+      120,
+      75,
+      60,
+      15,
+      15
+     ],
+     "dos": [
+      92,
+      52,
+      46,
+      6,
+      6
+     ],
+     "front_running": [
+      88,
+      48,
+      44,
+      4,
+      4
+     ],
+     "reentrancy": [
+      142,
+      102,
+      71,
+      31,
+      31
+     ],
+     "time_manipulation": [
+      100,
+      55,
+      50,
+      5,
+      5
+     ],
+     "uncheck": [
+      190,
+      145,
+      95,
+      50,
+      50
+     ]
+    },
+    "source": "MVD-HG-dataset/<类>_contract/{sol_source,contract_labels.json} ↔ products/alldata/splits/split_seed0.json + alldata(readonly)/contract_labels.json",
+    "command": "",
+    "note": "五列依次为 ①文件夹 .sol 记录数（含跨类重复）②非 buggy 项目键 ③其中上游标签判 **0** ④其中上游标签判 **1** ⑤本仓 453 池正例；脚本内断言 ②=③+④ 且 ④=⑤ 逐类成立。⚠ 另有一个**含 buggy 的正例数**（= ④ + 被判 1 的 buggy 项目键，逐类 40/45/40/40/40/45/45 个）在本数据上**恰好恒等于 ③**（因 `非buggy键 = buggy正例键 + 2×④`），故不单列以免误导"
+   },
+   {
+    "stage": "上游类别文件夹 × 上游单类标签文件",
+    "name": "⑤ 上游标签正例（剔 buggy）与 ⑥ 本仓池正例 恒等类数",
+    "value": "7/7",
+    "source": "同上一行",
+    "command": "",
+    "note": "7/7 = 本仓多标签池是上游标签的忠实投影，多标签改造未丢/未造正例"
    },
    {
     "stage": "DIVE 外部测试",
@@ -1009,6 +1075,90 @@
    }
   },
   "n_graphs_indexed": 590
+ },
+ "class_folder_funnel": {
+  "rows": [
+   {
+    "class": "access_control",
+    "folder_records": 114,
+    "nonbuggy_keys": 74,
+    "labeled_negative": 57,
+    "labeled_positive": 17,
+    "pos_nonbuggy": 17,
+    "pool_pos": 17,
+    "buggy_positive_keys": 40
+   },
+   {
+    "class": "arithmetic",
+    "folder_records": 120,
+    "nonbuggy_keys": 75,
+    "labeled_negative": 60,
+    "labeled_positive": 15,
+    "pos_nonbuggy": 15,
+    "pool_pos": 15,
+    "buggy_positive_keys": 45
+   },
+   {
+    "class": "dos",
+    "folder_records": 92,
+    "nonbuggy_keys": 52,
+    "labeled_negative": 46,
+    "labeled_positive": 6,
+    "pos_nonbuggy": 6,
+    "pool_pos": 6,
+    "buggy_positive_keys": 40
+   },
+   {
+    "class": "front_running",
+    "folder_records": 88,
+    "nonbuggy_keys": 48,
+    "labeled_negative": 44,
+    "labeled_positive": 4,
+    "pos_nonbuggy": 4,
+    "pool_pos": 4,
+    "buggy_positive_keys": 40
+   },
+   {
+    "class": "reentrancy",
+    "folder_records": 142,
+    "nonbuggy_keys": 102,
+    "labeled_negative": 71,
+    "labeled_positive": 31,
+    "pos_nonbuggy": 31,
+    "pool_pos": 31,
+    "buggy_positive_keys": 40
+   },
+   {
+    "class": "time_manipulation",
+    "folder_records": 100,
+    "nonbuggy_keys": 55,
+    "labeled_negative": 50,
+    "labeled_positive": 5,
+    "pos_nonbuggy": 5,
+    "pool_pos": 5,
+    "buggy_positive_keys": 45
+   },
+   {
+    "class": "uncheck",
+    "folder_records": 190,
+    "nonbuggy_keys": 145,
+    "labeled_negative": 95,
+    "labeled_positive": 50,
+    "pos_nonbuggy": 50,
+    "pool_pos": 50,
+    "buggy_positive_keys": 45
+   }
+  ],
+  "sums": {
+   "folder_records": 846,
+   "nonbuggy_keys": 551,
+   "labeled_negative": 423,
+   "labeled_positive": 128,
+   "pos_nonbuggy": 128,
+   "pool_pos": 128,
+   "buggy_positive_keys": 295
+  },
+  "identity_classes": 7
  },
  "dive": {
   "n": 21696,

@@ -1,0 +1,243 @@
+{
+  "baseline": "egfl",
+  "seed": 2,
+  "split_seed": 2,
+  "head": "multi",
+  "select_metric": "val_micro_f1",
+  "val_threshold": 0.55,
+  "threshold_scan": {
+    "metric": "micro_f1",
+    "best_threshold": 0.55,
+    "best_micro_f1": 0.6034482758620691,
+    "best_macro_f1": 0.6158542364314147,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "micro_f1": 0.357487922705314,
+        "macro_f1": 0.3543527626799685
+      },
+      {
+        "threshold": 0.25,
+        "micro_f1": 0.3560975609756098,
+        "macro_f1": 0.3536572771275783
+      },
+      {
+        "threshold": 0.3,
+        "micro_f1": 0.3560975609756098,
+        "macro_f1": 0.3536572771275783
+      },
+      {
+        "threshold": 0.35,
+        "micro_f1": 0.37988826815642457,
+        "macro_f1": 0.3801705649554428
+      },
+      {
+        "threshold": 0.4,
+        "micro_f1": 0.48101265822784806,
+        "macro_f1": 0.5202861806807556
+      },
+      {
+        "threshold": 0.45,
+        "micro_f1": 0.5555555555555555,
+        "macro_f1": 0.5707116179805255
+      },
+      {
+        "threshold": 0.5,
+        "micro_f1": 0.5737704918032787,
+        "macro_f1": 0.586326955024434
+      },
+      {
+        "threshold": 0.55,
+        "micro_f1": 0.6034482758620691,
+        "macro_f1": 0.6158542364314147
+      },
+      {
+        "threshold": 0.6,
+        "micro_f1": 0.5663716814159292,
+        "macro_f1": 0.5795730572930927
+      },
+      {
+        "threshold": 0.65,
+        "micro_f1": 0.26086956521739135,
+        "macro_f1": 0.27200180771609345
+      },
+      {
+        "threshold": 0.7,
+        "micro_f1": 0.16470588235294117,
+        "macro_f1": 0.17349317349317347
+      },
+      {
+        "threshold": 0.75,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      },
+      {
+        "threshold": 0.8,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "mAP": {
+    "mAP": 0.4622565820786928,
+    "ap": [
+      0.47255492644212155,
+      0.4540969540969541,
+      0.44580498866213153,
+      0.48611111111111105,
+      0.3976068788568788,
+      0.47342463301109916,
+      0.5061965823705531
+    ],
+    "ap_classes_used": 7,
+    "skipped": []
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.42857142857142855,
+      "macro_f1": 0.4434707265313192,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6
+        ],
+        "recall": [
+          0.375,
+          0.3333333333333333,
+          0.42857142857142855,
+          0.5,
+          0.25,
+          0.42857142857142855,
+          0.21428571428571427
+        ],
+        "f1": [
+          0.4615384615384615,
+          0.42857142857142855,
+          0.5,
+          0.5454545454545454,
+          0.35294117647058826,
+          0.5,
+          0.3157894736842105
+        ],
+        "support": [
+          8,
+          9,
+          7,
+          6,
+          12,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.5,
+      "subset_accuracy": 0.5102040816326531
+    },
+    "val_threshold": {
+      "threshold": 0.55,
+      "micro_f1": 0.42857142857142855,
+      "macro_f1": 0.4434707265313192,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6
+        ],
+        "recall": [
+          0.375,
+          0.3333333333333333,
+          0.42857142857142855,
+          0.5,
+          0.25,
+          0.42857142857142855,
+          0.21428571428571427
+        ],
+        "f1": [
+          0.4615384615384615,
+          0.42857142857142855,
+          0.5,
+          0.5454545454545454,
+          0.35294117647058826,
+          0.5,
+          0.3157894736842105
+        ],
+        "support": [
+          8,
+          9,
+          7,
+          6,
+          12,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.5,
+      "subset_accuracy": 0.5102040816326531
+    }
+  },
+  "best_epoch": 8,
+  "best_val_micro_f1": 0.6034482758620691,
+  "n_train_graphs": 398,
+  "n_val_graphs": 50,
+  "coverage": {
+    "n_features": 497,
+    "dropped": {
+      "train": 0,
+      "val": 0,
+      "test": 0
+    },
+    "dropped_test": []
+  },
+  "n_test_graphs": 49,
+  "n_params": 2787121,
+  "reconstruction_notes": [
+    "输入模态 = **原生字节码**（用户 2026-09-22 裁定）：solc --bin 的 creation bytecode → 反汇编 → 基本块 CFG → BFS 展平。不走源码异构图。",
+    "🔴 **图分支的 256 维是重建件**：原 `cfg_graph` 是作者未开源的预处理产物（`Weights_CFG_SimOp/` 是 0 字节目录，全仓无脚本产出它，`main_run.py:49` 只负责读入）。本实现对「块内 opcode 词向量取平均 → BFS 前 k 块 concat」重建，默认 (node_dim=128, k=2)。论文只写「BFS 展平成 linear node feature matrix」，切法不可考 ⇒ **不得声称复现了作者原结果**。",
+    "词表与词向量**只用 train 划分的 362 个合约**拟合（原实现用 train+val，对我们是泄漏）。",
+    "opcode 词表**截断到 1000**（论文原设）。EVM 共 144 条 opcode，PUSH 立即数按 `PUSH1 0x2a` 形态整体成一个记号，故实际词表可能略超 1000，超出部分归 UNK(1)。",
+    "🔴 **序列截断到 `--seq-len=512`，本库多数合约因此被截断**（池内 opcode token 数 p50≈3304）。**为什么只能是 512**：它的 Attention 是**稠密 O(L²)** 的（无 mask、无稀疏），本机 8 GB 卡实测 —— L=512 时 2.5 GB / 0.16 s 每步；**L=1024 就已溢出到共享显存**（9.9 GB 峰值、7.75 s 每步，慢 48 倍）。原论文的 `SEQ_LEN=8000` 在 8 GB 卡上**任何实现都跑不动**（单是 `dots` 就 2 GB/批）。这是**硬件逼出来的口径损失**，不是调参选择；交付物抬头必须引用本段。本实现另把注意力改成**分块在线 softmax**（数学等价）并把相对位置表按显存预算自适应收缩，见 `baseline_models._RelPosAttention`。",
+    "`ConformerConvModule` 的 depthwise conv 在原代码里**被注释掉了**，本实现照抄该形态（LN → 1×1 Conv → GLU → BN → Swish → 1×1 Conv → Dropout），没有替它「修好」。",
+    "`Attention` 的 mask 分支原代码写死 `tf.ones(...)`（永远全 1）⇒ 等价于无 mask，本实现直接省略。",
+    "输出头 1→7、去掉末尾 Sigmoid、改 BCEWithLogitsLoss（大纲 5.3 [411]）；原实现是二分类。",
+    "`Basic_blocks` 原代码有 `if f\"{n}\" and _opcode_of(n) in TERMINALS:`（字符串恒真）——语义上不影响结果，本实现写成 `if _opcode_of(n) in TERMINALS:`。",
+    "⚠ **学习率口径（读本行前必看）**：本行用**正典统一的 `lr=1e-4`**，而 EGFL 论文自己的默认是 `lr=0.002`（`EGFL/parser_set.py:13`，**20 倍**）。实测后果是**双重压制**：① 起点就低 20 倍；② `ReduceLROnPlateau(patience=3, factor=0.5)` 在 val 不涨时每 3 轮减半，实测 **第 20 轮 lr 已跌到 3.13e-06**（≈ 冻结），训练 loss 从 0.99 只降到 0.83 就再不动了，`best_epoch` 停在 **0–2**、`micro@0.5` 两个种子为 **0.0000**（模型几乎不报正类）。⇒ **本行读数主要反映「超参没调对」，不是 EGFL 方法的能力**。两种口径并列在交付物里（本目录 = 统一 1e-4；`eval_results/baseline/egfl_ownlr/` = 其论文 2e-3），读者可自行判断——这正是计划 R5 点名的风险，只报一行会让两种解释无法区分。"
+  ],
+  "partial": false,
+  "timing": {
+    "train_seconds": 312.77,
+    "wall_seconds": 313.48,
+    "seconds_per_epoch": 10.79
+  },
+  "environment": {
+    "device": "cuda",
+    "torch": "2.0.1+cu118"
+  }
+}

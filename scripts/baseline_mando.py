@@ -68,6 +68,7 @@ RECONSTRUCTION_NOTES = [
 
 # --------------------------------------------------------------------------- metadata
 def pool_fingerprint(pool: list[str], graph_dir: str) -> str:
+    """**旧口径**指纹：把 `graph_dir` 的**路径**也哈希进去。保留只为兼容库里的老 metadata。"""
     h = hashlib.sha256()
     h.update(str(Path(graph_dir).resolve()).encode())
     for b in sorted(pool):
@@ -75,19 +76,59 @@ def pool_fingerprint(pool: list[str], graph_dir: str) -> str:
     return h.hexdigest()
 
 
-def scan_metadata(pool: list[str], graph_dir: str, *, force: bool = False) -> dict:
+def structure_fingerprint(pool: list[str]) -> str:
+    """**新口径**指纹：只按**池**算，不含路径。
+
+    它才是 `hgt_metadata.json` 真正依赖的东西——该文件是
+    `(node_types, edge_types)` 的并集，而这两者只来自 `_pyg.pt::edge_type/edge_index`
+    与 `_feat.pt::type_id`（**结构通道**），与 `graph_dir` 叫什么名字无关。
+
+    🔴 **为什么必须去掉路径**（2026-09-23 实测踩到）：`graphs_ft/ss{S}` 与
+    `graphs_ft_buggy/cb_ft_ss{S}` 的三种子变体**结构逐字节相同**（`_hetero.json` 同哈希、
+    `_pyg.pt` 逐位相同、`_feat.pt::type_id` 逐位相同、全池词表同为 9×187），
+    只有 CodeBERT 通道 `_cb.pt` 不同。任务 2 的新正典要求 `cb_ft_ss{S}` 与 `--split-seed S`
+    **配对**（`AGENTS.md` 语义锁死项），于是一份形态上完全正确的 metadata 会被
+    path-based 的旧指纹判成「不同语料」而**硬失败**（实测：MANDO 的 seed1/seed2 在 2–3 s 内 rc=1）。
+    旧口径之所以没暴露这个错，是因为 canon37 段三种子**都用 `ss0`**（`decisions.md` §52.3）。
+
+    ⚠ **保护没有丢**：池换了（453 ↔ 497）指纹就变，故「漏传 `--feature-suffix` 就会拿另一个池的
+    metadata」这条仍然被挡住。**路径**本身从来不是保护对象。
+    """
+    h = hashlib.sha256(b"ssmhg-hgt-structure-v1\x00")
+    for b in sorted(pool):
+        h.update(b.encode())
+        h.update(b"\x00")
+    return h.hexdigest()
+
+
+def scan_metadata(pool: list[str], graph_dir: str, *, force: bool = False,
+                  suffix: str = "") -> dict:
     """扫全池 → `(node_types, edge_types)` 并集，冻结进 `hgt_metadata.json`。
 
     只用 `type_id` 与 `edge_type`（**不碰标签**）⇒ 结构词表，不构成泄漏。
+
+    `suffix` = 正典后缀（同 `feature_root`）。497 池实测比 453 池**多一种边类型**
+    （`('OTHER','AST_PARENT','CONDITION')`，9×187 vs 9×186），故两个正典的 metadata
+    **不是同一份**。若漏传后缀，指纹会不匹配并提示「加 `--force-meta` 重建」——
+    **照做就会用 497 的结构覆盖 453 那份**，而文件"看起来还对"，canon MANDO 从此静默不可复现。
+    故后缀与池必须同进同出。
     """
-    path = B.feature_root(NAME) / "hgt_metadata.json"
+    path = B.feature_root(NAME, suffix) / "hgt_metadata.json"
     fp = pool_fingerprint(pool, graph_dir)
+    sfp = structure_fingerprint(pool)
     if path.exists() and not force:
         d = json.loads(path.read_text(encoding="utf-8"))
-        if d.get("pool_sha256") != fp:
+        # 🔴 **两个指纹匹配其一即放行**（见 `structure_fingerprint` 的 docstring）：
+        # 库里的老 metadata 只有 `pool_sha256`（含路径）⇒ 按老口径仍能匹配；
+        # 新写的两者都有 ⇒ **同结构、不同编码器变体**（`ss{S}` vs `cb_ft_ss{S}`、跨 ss 变体）
+        # 可以合法复用一份词表，而**换池**依然会被拒。
+        ok = (d.get("pool_sha256") == fp) or (d.get("structure_sha256") == sfp)
+        if not ok:
             raise SystemExit(
-                f"[mando] {path} 的 pool_sha256 与当前 graph_dir/split 不符（不同语料/划分）："
-                f"{d.get('pool_sha256')[:12]} != {fp[:12]}；确认无误后加 --force-meta 重建")
+                f"[mando] {path} 的词表指纹与当前池不符（不同语料）："
+                f"pool_sha256 {str(d.get('pool_sha256'))[:12]} != {fp[:12]}；"
+                f"structure_sha256 {str(d.get('structure_sha256'))[:12]} != {sfp[:12]}；"
+                f"确认无误后加 --force-meta 重建")
         # 🔴 JSON 会把 tuple 还原成 list，而 `HGTConv` 用 edge type 做 dict 的键 ⇒
         # **unhashable type: 'list'**。落盘用 list（JSON 只认 list），**读回必须转回 tuple**。
         d["edge_types"] = [tuple(e) for e in d["edge_types"]]
@@ -109,8 +150,10 @@ def scan_metadata(pool: list[str], graph_dir: str, *, force: bool = False) -> di
             ets.add((roles[s], D.RELATION_NAMES_EXT.get(r, str(r)), roles[d_]))
         n_seen += 1
     meta = {"node_types": roles, "edge_types": [list(e) for e in sorted(ets)],
-            "pool_sha256": fp, "n_graphs_scanned": n_seen,
-            "note": "结构词表（type_id × edge_type 并集），不含标签"}
+            "pool_sha256": fp, "structure_sha256": sfp, "n_graphs_scanned": n_seen,
+            "note": "结构词表（type_id × edge_type 并集），不含标签。"
+                    "structure_sha256 只按池算（不含路径）⇒ 同结构的不同编码器变体可复用；"
+                    "pool_sha256 是含路径的旧口径，保留供老文件匹配"}
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[mando] metadata 已冻结：{len(roles)} 种节点类型 × {len(ets)} 种边类型"
@@ -266,11 +309,13 @@ def main() -> int:
     split_seed = B.resolve_split_seed(args)
     device = B.resolve_device(args.device)
     B.set_seed(args.seed, args.deterministic)
+    B.check_layout(args, NAME)
 
     split = B.load_split(args.split_dir, split_seed)
     index, _ = B.load_index(args.graph_dir, args.label_file, args.label_key_mode)
     pool = [b for b in split["train"] + split["val"] + split["test"] if b in index]
-    meta = scan_metadata(pool, args.graph_dir, force=args.force_meta)
+    meta = scan_metadata(pool, args.graph_dir, force=args.force_meta,
+                         suffix=args.feature_suffix)
 
     if args.meta_only:
         probe = [b for b in pool if (Path(args.graph_dir) / f"{b}_feat.pt").exists()][:3]

@@ -1,0 +1,240 @@
+{
+  "baseline": "mvdhg",
+  "seed": 0,
+  "split_seed": 0,
+  "head": "multi",
+  "select_metric": "val_micro_f1",
+  "val_threshold": 0.8,
+  "threshold_scan": {
+    "metric": "micro_f1",
+    "best_threshold": 0.8,
+    "best_micro_f1": 0.9241379310344827,
+    "best_macro_f1": 0.9288462436550047,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "micro_f1": 0.5855513307984792,
+        "macro_f1": 0.5914710661847865
+      },
+      {
+        "threshold": 0.25,
+        "micro_f1": 0.6,
+        "macro_f1": 0.607406381481426
+      },
+      {
+        "threshold": 0.3,
+        "micro_f1": 0.6410256410256411,
+        "macro_f1": 0.6645419624959267
+      },
+      {
+        "threshold": 0.35,
+        "micro_f1": 0.6756756756756757,
+        "macro_f1": 0.7022388316505965
+      },
+      {
+        "threshold": 0.4,
+        "micro_f1": 0.7437185929648241,
+        "macro_f1": 0.7692361515222429
+      },
+      {
+        "threshold": 0.45,
+        "micro_f1": 0.776595744680851,
+        "macro_f1": 0.7988800503674646
+      },
+      {
+        "threshold": 0.5,
+        "micro_f1": 0.8439306358381503,
+        "macro_f1": 0.8558415268941585
+      },
+      {
+        "threshold": 0.55,
+        "micro_f1": 0.8834355828220859,
+        "macro_f1": 0.8867225092658242
+      },
+      {
+        "threshold": 0.6,
+        "micro_f1": 0.8774193548387098,
+        "macro_f1": 0.8822484568671626
+      },
+      {
+        "threshold": 0.65,
+        "micro_f1": 0.8933333333333334,
+        "macro_f1": 0.8998038574697614
+      },
+      {
+        "threshold": 0.7,
+        "micro_f1": 0.8993288590604026,
+        "macro_f1": 0.9073226544622426
+      },
+      {
+        "threshold": 0.75,
+        "micro_f1": 0.9115646258503401,
+        "macro_f1": 0.9202120207350675
+      },
+      {
+        "threshold": 0.8,
+        "micro_f1": 0.9241379310344827,
+        "macro_f1": 0.9288462436550047
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "mAP": {
+    "mAP": 0.8636453539177315,
+    "ap": [
+      0.7925222925222926,
+      0.7052240411508146,
+      0.8333333333333333,
+      0.8655913978494624,
+      0.9797979797979799,
+      1.0,
+      0.8690484327702372
+    ],
+    "ap_classes_used": 7,
+    "skipped": []
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.6838709677419356,
+      "macro_f1": 0.709293252990732,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.47058823529411764,
+          0.3333333333333333,
+          0.7142857142857143,
+          0.45454545454545453,
+          0.8181818181818182,
+          1.0,
+          0.5652173913043478
+        ],
+        "recall": [
+          0.8888888888888888,
+          0.6666666666666666,
+          0.7142857142857143,
+          0.8333333333333334,
+          1.0,
+          1.0,
+          0.9285714285714286
+        ],
+        "f1": [
+          0.6153846153846153,
+          0.4444444444444444,
+          0.7142857142857143,
+          0.5882352941176471,
+          0.9,
+          1.0,
+          0.7027027027027025
+        ],
+        "support": [
+          9,
+          9,
+          7,
+          6,
+          9,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.7310344827586208,
+      "subset_accuracy": 0.5306122448979592
+    },
+    "val_threshold": {
+      "threshold": 0.8,
+      "micro_f1": 0.7962962962962963,
+      "macro_f1": 0.8044445050747573,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.7142857142857143,
+          1.0,
+          0.7142857142857143,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "recall": [
+          0.5555555555555556,
+          0.5555555555555556,
+          0.7142857142857143,
+          0.8333333333333334,
+          0.8888888888888888,
+          1.0,
+          0.5714285714285714
+        ],
+        "f1": [
+          0.6250000000000001,
+          0.7142857142857143,
+          0.7142857142857143,
+          0.9090909090909091,
+          0.9411764705882353,
+          1.0,
+          0.7272727272727273
+        ],
+        "support": [
+          9,
+          9,
+          7,
+          6,
+          9,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.7962962962962963,
+      "subset_accuracy": 0.6326530612244898
+    }
+  },
+  "best_epoch": 25,
+  "best_val_micro_f1": 0.9241379310344827,
+  "n_train_graphs": 393,
+  "n_val_graphs": 50,
+  "coverage": {
+    "n_features": 492,
+    "dropped": {
+      "train": 5,
+      "val": 0,
+      "test": 0
+    },
+    "dropped_test": []
+  },
+  "n_test_graphs": 49,
+  "reconstruction_notes": [
+    "建图由 MVD-HG 原仓库代码（read_compile / append_control_flow_information / append_data_flow_information）产出，AST 为 solc --ast-compact-json 的 compact 格式。",
+    "词向量用 gensim 4.3 的 Word2Vec(vector_size=300)，语料**只用 train 划分**（原实现用 train+val 全体拟合，对我们是泄漏）；原代码的 gensim 3 `size=` 在 base 里会 TypeError。",
+    "节点特征公式逐字保留：w2v[node_type] + Σ w2v[hump2sub(value/name)]；已用原实现逐字段对拍（--faithful-node-json）。",
+    "DFG 有 40 s/文件上限（原仓库默认）：超时样本记 dfg_timeout，其图只含部分 DFG 边。",
+    "输出头 1→7、去掉末尾 Sigmoid、改 BCEWithLogitsLoss（大纲 5.3 [411]）；原实现把标签 OR 塌成 1 维，我们保留 7 维。",
+    "dropout 保持它的 config.dropout_pro=0.1（不是正典的 0.3）—— 复现优先。",
+    "池化按图中实际出现的 owner_contract 分组（逐合约均值 → 跨合约平均），而不是按 contract_buggy_record 的键（后者取决于标签文件是否收录该合约名）。"
+  ],
+  "partial": false,
+  "n_params": 87735,
+  "timing": {
+    "train_seconds": 255.77,
+    "wall_seconds": 260.36,
+    "seconds_per_epoch": 5.56
+  },
+  "environment": {
+    "device": "cuda",
+    "torch": "2.0.1+cu118"
+  }
+}

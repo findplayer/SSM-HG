@@ -89,6 +89,22 @@ runs/arch_n9*/**/best.pt
 # ⚠ 规则顺序敏感：必须写在上面的 `!runs/**/best.pt` **之后**，后者才被覆盖。
 runs/ablation_buggy/**/best.pt
 
+# 目录：`runs/perclass_arm/cap{20,0}/cls_<类名>/seed{0,1,2}/`（**7 个独立二分类器补充臂**，
+#       2026-09-23，`scripts/run_perclass_arm.py`；回答「多标签共享是否压制了稀有类」）。
+# 口径**与上面几组一致**（同一条用户裁定：补充臂只入概率缓存）——理由同样成立：
+#   ① 下游只读 `test_probs.pt` / `val_best_probs.pt`，从不加载权重；
+#   ② 7 类 × 3 种子 × 2 个 pos_weight 档 = 42 个 `best.pt`，各约 5 MB ⇒ 约 **210 MB**。
+# ⚠ **代价（知情）**：本组不能从零重跑 `evaluate.py`。可接受——它是**补充臂**、不进论文主表，
+#   且正典 `runs/seed{S}/best.pt` 与 42 份概率缓存**都还在**，全部指标可离线重算。
+# ⚠ 规则顺序敏感：必须写在上面的 `!runs/**/best.pt` **之后**，后者才被覆盖。
+runs/perclass_arm/**/best.pt
+
+# 目录：`products/alldata/perclass_labels/`（逐类标签文件，2026-09-23）。
+# 可由 `scripts/run_perclass_arm.py --steps labels` 从 `alldata(readonly)/contract_labels.json`
+# **逐位重建**（只是把除第 c 列外全部置 0），故整体排除——同 `graphs_ft/` 一类"可重建的中间产物"。
+# ⚠ 用**前缀通配**而非字面量（本仓同形态已踩坑三次，见 AGENTS.md）。
+products/**/perclass_labels/**
+
 # 🔴 §37 正典的**微调编码器**：`runs/codebert_ft/<语料>/ss{S}/encoder/`（2026-09-20 补规则）。
 # 实测 **2.9 GB**，其中 6 份 `pytorch_model.bin` 各 **498 MB** —— 单文件即超本仓「不提交 >100 MB」硬规则。
 # 上面那条 `runs/**/*.pt` **只认 `.pt`**，`.bin`/`tokenizer.json` 全部漏网 ⇒ 补规则前 `git add -A`

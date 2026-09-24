@@ -1,0 +1,70 @@
+{
+  "args": {
+    "seed": 1,
+    "split_seed": 1,
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_buggy/cb_ft_ss1",
+    "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits/withbuggy_snapshot",
+    "feature_suffix": "_buggy",
+    "label_file": null,
+    "label_key_mode": null,
+    "out_dir": "/home/saumarez/projects/deep-learning/SSM-HG/eval_results/baseline/mvdhg_buggy",
+    "epochs": 200,
+    "batch_size": 4,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "scheduler_patience": 3,
+    "early_stop_patience": 20,
+    "pos_weight_cap": 20.0,
+    "model_dropout": 0.3,
+    "limit_graphs": 0,
+    "limit_batches": 0,
+    "accum_steps": 8,
+    "device": null,
+    "overwrite": false,
+    "deterministic": false,
+    "smoke": false
+  },
+  "split_seed": 1,
+  "head": "multi",
+  "baseline": "mvdhg",
+  "notes": [
+    "建图由 MVD-HG 原仓库代码（read_compile / append_control_flow_information / append_data_flow_information）产出，AST 为 solc --ast-compact-json 的 compact 格式。",
+    "词向量用 gensim 4.3 的 Word2Vec(vector_size=300)，语料**只用 train 划分**（原实现用 train+val 全体拟合，对我们是泄漏）；原代码的 gensim 3 `size=` 在 base 里会 TypeError。",
+    "节点特征公式逐字保留：w2v[node_type] + Σ w2v[hump2sub(value/name)]；已用原实现逐字段对拍（--faithful-node-json）。",
+    "DFG 有 40 s/文件上限（原仓库默认）：超时样本记 dfg_timeout，其图只含部分 DFG 边。",
+    "输出头 1→7、去掉末尾 Sigmoid、改 BCEWithLogitsLoss（大纲 5.3 [411]）；原实现把标签 OR 塌成 1 维，我们保留 7 维。",
+    "dropout 保持它的 config.dropout_pro=0.1（不是正典的 0.3）—— 复现优先。",
+    "池化按图中实际出现的 owner_contract 分组（逐合约均值 → 跨合约平均），而不是按 contract_buggy_record 的键（后者取决于标签文件是否收录该合约名）。"
+  ],
+  "derived": {
+    "in_dim": 300,
+    "hidden": [
+      64,
+      32,
+      16,
+      8
+    ],
+    "num_relations": 3,
+    "num_classes": 7,
+    "dropout": 0.1,
+    "active_classes": 7,
+    "train_pos": [
+      38,
+      41,
+      30,
+      29,
+      47,
+      31,
+      65
+    ],
+    "pos_weight": [
+      9.3684,
+      8.6098,
+      12.1333,
+      12.5862,
+      7.383,
+      11.7097,
+      5.0615
+    ]
+  }
+}

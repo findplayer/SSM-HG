@@ -1,0 +1,113 @@
+{
+  "seed": 2,
+  "split_seed": 2,
+  "head": "binary",
+  "select_metric": "val_binary_ap",
+  "val_threshold": 0.5,
+  "threshold_scan": {
+    "metric": "binary_f1",
+    "best_threshold": 0.5,
+    "best_binary_f1": 1.0,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "f1": 0.19999999999999998
+      },
+      {
+        "threshold": 0.25,
+        "f1": 0.19999999999999998
+      },
+      {
+        "threshold": 0.3,
+        "f1": 0.20408163265306123
+      },
+      {
+        "threshold": 0.35,
+        "f1": 0.2857142857142857
+      },
+      {
+        "threshold": 0.4,
+        "f1": 0.4347826086956522
+      },
+      {
+        "threshold": 0.45,
+        "f1": 0.625
+      },
+      {
+        "threshold": 0.5,
+        "f1": 1.0
+      },
+      {
+        "threshold": 0.55,
+        "f1": 1.0
+      },
+      {
+        "threshold": 0.6,
+        "f1": 1.0
+      },
+      {
+        "threshold": 0.65,
+        "f1": 0.888888888888889
+      },
+      {
+        "threshold": 0.7,
+        "f1": 0.888888888888889
+      },
+      {
+        "threshold": 0.75,
+        "f1": 0.7499999999999999
+      },
+      {
+        "threshold": 0.8,
+        "f1": 0.5714285714285715
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "AP": {
+    "AP": 0.8555555555555556,
+    "support": 5,
+    "n": 46
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.8,
+      "binary_f1": 0.8000000000000002,
+      "binary_precision": 0.8,
+      "binary_recall": 0.8,
+      "binary_accuracy": 0.9565217391304348,
+      "binary_FPR": 0.024390243902439025,
+      "binary_FNR": 0.2,
+      "TP": 4,
+      "FP": 1,
+      "FN": 1,
+      "TN": 40,
+      "support": 5
+    },
+    "val_threshold": {
+      "threshold": 0.5,
+      "micro_f1": 0.8,
+      "binary_f1": 0.8000000000000002,
+      "binary_precision": 0.8,
+      "binary_recall": 0.8,
+      "binary_accuracy": 0.9565217391304348,
+      "binary_FPR": 0.024390243902439025,
+      "binary_FNR": 0.2,
+      "TP": 4,
+      "FP": 1,
+      "FN": 1,
+      "TN": 40,
+      "support": 5
+    }
+  },
+  "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
+  "timing": {
+    "infer_seconds": 0.1987
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3"
+  }
+}

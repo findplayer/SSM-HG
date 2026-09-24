@@ -316,6 +316,78 @@ def stage_pipeline() -> dict:
             "report": report}
 
 
+# ------------------------------------------------- 上游类别文件夹记录数 ≠ 正例数（三层漏斗）
+def stage_class_folder_vs_labels(index: dict[str, list[int]], pool: list[str]) -> dict:
+    """逐类拆解「类别文件夹记录数 → 上游自己标注的正例数」，并与本仓池正例对拍。
+
+    动机（2026-09-23）：`MVD-HG-dataset/<类>_contract/sol_source/` 的目录数（88–190）常被
+    误读为「MVD-HG 该类数据集的正例数」。它只是**源码池记录数**，有三层虚高：
+      ① 跨类别重复收录（同一文件进多个类文件夹，合计 255 条重复计数）；
+      ② `buggy_*` 注入副本被复制进**全部 7 个文件夹**（每类 40–45 条）；
+      ③ **文件夹归属 ≠ 标签** —— 文件夹里的部署合约，上游自己的单类标签文件
+         `<类>_contract/contract_labels.json` 判它们**没有**该类漏洞。
+    本函数把 ①→②→③ 逐类钉死，并断言 ⑤ == ⑥（上游标签剔 buggy 后的唯一正例 == 本仓池该类正例）。
+
+    参数由 main 传入 `stage_pipeline()` 的 `index`/`pool`，标签键走 `scripts/dataset.py`
+    与训练**同一条代码路径**（`strip_project_prefix` / `project_of_base`），不二次实现。
+    """
+    rows: list[dict] = []
+    for i, cls in enumerate(CLASSES):
+        class_dir = MVD_ROOT / f"{cls}_contract"
+        records = len(glob.glob(str(class_dir / "sol_source" / "*" / "*.sol")))
+        folder_keys = {dataset.strip_project_prefix(p.name)
+                       for p in (class_dir / "sol_source").iterdir() if p.is_dir()}
+        entries = json.loads((class_dir / "contract_labels.json").read_text(encoding="utf-8"))
+        pos_keys: set[str] = set()
+        neg_keys: set[str] = set()
+        for e in entries:
+            name = str(e.get("contract_name") or "")
+            if "-" not in name:
+                continue
+            targets = e["targets"]
+            # 单类文件的 targets 是标量 0/1；若哪天变成 list，说明拿错了文件（手册 §12 第 17 条）
+            assert not isinstance(targets, list), (
+                f"{class_dir.name}/contract_labels.json 的 targets 应为单类标量，出现 list——"
+                "疑似把七维主标签文件当单类文件读，拒绝继续")
+            key = dataset.strip_project_prefix(name.split("-", 1)[0])
+            (pos_keys if int(targets) == 1 else neg_keys).add(key)
+
+        nonbuggy = {k for k in folder_keys if not k.startswith("buggy_")}
+        pos_nonbuggy = {k for k in pos_keys if not k.startswith("buggy_")}
+        only_neg = {k for k in nonbuggy if k in neg_keys and k not in pos_keys}
+        pool_pos = {dataset.project_of_base(b) for b in pool if index[b][i] == 1}
+        # 不变量 1：每个非 buggy 项目键都被上游明确判过 0 或 1，无“未标注”的第三态
+        assert only_neg | pos_nonbuggy == nonbuggy, (
+            f"{cls}：③+⑤={len(only_neg)}+{len(pos_nonbuggy)} != 非 buggy 键 {len(nonbuggy)}"
+            f"（残差 {sorted(nonbuggy - only_neg - pos_nonbuggy)[:5]}）——上游标签覆盖出现空洞")
+        # 不变量 2：上游标签（剔 buggy）的唯一正例 == 本仓 453 池该类正例（逐类恒等）
+        assert pos_nonbuggy == pool_pos, (
+            f"{cls}：上游标签正例 {len(pos_nonbuggy)} != 本仓池正例 {len(pool_pos)}；"
+            f"仅在标签 {sorted(pos_nonbuggy - pool_pos)[:5]}；仅在池 {sorted(pool_pos - pos_nonbuggy)[:5]}")
+        rows.append({"class": cls, "folder_records": records,
+                     "nonbuggy_keys": len(nonbuggy), "labeled_negative": len(only_neg),
+                     "labeled_positive": len(pos_nonbuggy), "pos_nonbuggy": len(pos_nonbuggy),
+                     "pool_pos": len(pool_pos), "buggy_positive_keys": len(pos_keys - pos_nonbuggy)})
+
+    sums = {k: sum(r[k] for r in rows)
+            for k in ("folder_records", "nonbuggy_keys", "labeled_negative",
+                      "labeled_positive", "pos_nonbuggy", "pool_pos", "buggy_positive_keys")}
+    step("上游类别文件夹 × 上游单类标签文件",
+         "文件夹记录数 → 剔除 buggy → 上游标签正例 → 本仓池正例（逐类）",
+         {r["class"]: [r["folder_records"], r["nonbuggy_keys"], r["labeled_negative"],
+                       r["labeled_positive"], r["pool_pos"]] for r in rows},
+         "MVD-HG-dataset/<类>_contract/{sol_source,contract_labels.json}"
+         " ↔ products/alldata/splits/split_seed0.json + alldata(readonly)/contract_labels.json",
+         "", "五列依次为 ①文件夹 .sol 记录数（含跨类重复）②非 buggy 项目键 ③其中上游标签判 **0** "
+         "④其中上游标签判 **1** ⑤本仓 453 池正例；脚本内断言 ②=③+④ 且 ④=⑤ 逐类成立。"
+         "⚠ 另有一个**含 buggy 的正例数**（= ④ + 被判 1 的 buggy 项目键，逐类 40/45/40/40/40/45/45 个）"
+         "在本数据上**恰好恒等于 ③**（因 `非buggy键 = buggy正例键 + 2×④`），故不单列以免误导")
+    step("上游类别文件夹 × 上游单类标签文件", "⑤ 上游标签正例（剔 buggy）与 ⑥ 本仓池正例 恒等类数",
+         f"{sum(1 for r in rows if r['pos_nonbuggy'] == r['pool_pos'])}/{len(rows)}",
+         "同上一行", "", "7/7 = 本仓多标签池是上游标签的忠实投影，多标签改造未丢/未造正例")
+    return {"rows": rows, "sums": sums, "identity_classes": sum(1 for r in rows if r["pos_nonbuggy"] == r["pool_pos"])}
+
+
 # ---------------------------------------------------------------- DIVE 抽样门槛
 def stage_dive() -> dict:
     """DIVE 外部测试集抽样门槛核查（含多标签期望）。"""
@@ -485,13 +557,14 @@ def stage_binding() -> dict:
 
 
 def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
-              binding: dict, meta: dict) -> str:
+              binding: dict, meta: dict, folder: dict) -> str:
     lines: list[str] = []
     add = lines.append
     lv1 = pipe["dedup"]["levels"]["source-sha1"]["dropped"]
     lv2 = pipe["dedup"]["levels"]["address"]["dropped"]
     n_all = pipe["n_graphs_indexed"]      # 漏斗起点：以 *_pyg.pt 计的图数（§0 用）
     n_pool = pipe["pool_stats"]["n"]
+    s = folder["sums"]                    # §0 与 §3 共用，避免两处各算一遍而漂移
     # 三个划分种子规模一致（make_splits 固定比例）→ 写成 train/val/test 三元组
     sizes = {tuple(sorted(v.items())) for v in pipe["split_sizes"].values()}
     assert len(sizes) == 1, f"三种子划分规模不一致，不能合并书写：{pipe['split_sizes']}"
@@ -512,6 +585,10 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         f"（sha1 丢 {lv1}、地址丢 {lv2}）→ **{n_pool}** → {split_str}；"
         f"池内正样本 {pipe['pool_stats']['pos']}、全零 {pipe['pool_stats']['zero']}、"
         f"多标签 **{pipe['pool_stats']['multi']}**。")
+    add(f"- 上游类别文件夹的 **88–190 不是正例数**：其中 {s['folder_records'] - s['nonbuggy_keys']} 条是 "
+        f"`buggy_*` 副本，另有 {s['labeled_negative']} 个非 buggy 项目键被上游**自己的**单类标签文件判为"
+        f"**负例**；按上游标签算的正例 = **{s['labeled_positive']}**，与本仓 {n_pool} 池正例 "
+        f"**{folder['identity_classes']}/{len(folder['rows'])} 逐类恒等**（详见 §3）。")
     add("")
     add("## 1. `846 → 591` 的 255 个去向（逐条拆解）")
     add("")
@@ -544,7 +621,41 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         note = (s["note"] or "").replace("|", "/")
         add(f"| {s['stage']} | {s['name']} | {val.replace('|', '/')} | {src}{cmd} | {note} |")
     add("")
-    add("## 3. DIVE 外部测试抽样门槛")
+    add("## 3. 类别文件夹记录数 ≠ 正例数（两级虚高，2026-09-23）")
+    add("")
+    add("> 动机：`MVD-HG-dataset/<类>_contract/sol_source/` 的**目录数**（88–190）常被误读为"
+        "「MVD-HG 该类数据集的正例数」。它只是**源码池记录数**，有两级虚高；"
+        "与「本仓池正例 4–50」**不是同一量在缩水**，而是两个不同的量在对照。")
+    add("")
+    add("| 漏洞类 | ① 文件夹 `.sol` 记录数 | ② 其中非 `buggy_*` 项目键 | "
+        "③ 上游自己的标签判 **0** | ④ 上游自己的标签判 **1** | ⑤ 本仓 453 池正例 |")
+    add("| --- | --- | --- | --- | --- | --- |")
+    for r in folder["rows"]:
+        add(f"| {r['class']} | {r['folder_records']} | {r['nonbuggy_keys']} | {r['labeled_negative']} | "
+            f"**{r['labeled_positive']}** | **{r['pool_pos']}** |")
+    s = folder["sums"]
+    add(f"| **合计** | **{s['folder_records']}** | **{s['nonbuggy_keys']}** | **{s['labeled_negative']}** | "
+        f"**{s['labeled_positive']}** | **{s['pool_pos']}** |")
+    add("")
+    add("- 不变量 1（脚本内断言）：**② = ③ + ④ 逐类成立，无残差** ⇒ 类别文件夹里每个非 `buggy_*` 项目键，"
+        "都被上游**自己的**单类标签文件明确判为 0 或 1，不存在「未标注」的第三态。")
+    add(f"- 不变量 2（脚本内断言）：**④ = ⑤ 逐类恒等（{folder['identity_classes']}/{len(folder['rows'])}）** "
+        "⇒ 本仓 453 池是上游标签的**忠实投影**，多标签改造既未丢正例、也未造正例。")
+    add("- 两层虚高的来源：①→② 是 `buggy_*` 注入副本（45 个项目被**复制进全部 7 个文件夹**，"
+        f"每类 40–45 条，合计 {s['folder_records'] - s['nonbuggy_keys']} 条记录）；"
+        "②→③ 是**文件夹归属 ≠ 标签**——类别文件夹里收进来的部署合约，上游自己的标签文件判它们"
+        f"**没有**该类漏洞（access_control：74 个非 buggy 键里 {folder['rows'][0]['labeled_negative']} 个判 0）。")
+    add("- ⇒ 论文里若要引用上游的「88–190」，**必须**写成「`<类>_contract` 文件夹的 `.sol` 记录数"
+        "（含跨类重复与非 buggy 部署合约）」，**不得**写成「该类正例数」；"
+        "以上游自己发布的标签为准，两边逐类正例**相同**。")
+    buggy_pos = "/".join(str(r["buggy_positive_keys"]) for r in folder["rows"])
+    add(f"- 🔴 **与 MVD-HG 论文 Table 1 的对应（2026-09-23 核对）**：该表「Contract-Origin files」逐类 "
+        f"= 114/120/92/88/142/100/190，**与本表第 ① 列逐位相同** ⇒ 论文列的正是**语料文件数（正+负）**，"
+        f"**论文从未把它写成「正例数」**。其每类正例 = ④ + 被判 1 的 buggy 项目键（逐类 {buggy_pos} 个）"
+        f"，即 **57/60/46/44/71/50/95**；**剔注入样本后 = ④ = ⑤，与本仓逐类相同**。详见 "
+        f"`experiments/decisions.md` §51.5。")
+    add("")
+    add("## 4. DIVE 外部测试抽样门槛")
     add("")
     add(f"- DIVE 标签 {dive['n']} 条，多标签 {dive['multi']} 条（{100*dive['multi']/dive['n']:.1f}%）。")
     for size, info in dive["expectations"].items():
@@ -558,7 +669,7 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         "均匀抽样在 500 规模下对 front_running 不可达（期望 12.2），**抽样规模已定稿 n=900**"
         "（2026-09-12 P1；固定 seed，一次确定事件；实测结果见下表），后备路径见 decisions §13。")
     add("")
-    add("## 4. 图结构口径（AST 稀疏性 / 关系数映射）")
+    add("## 5. 图结构口径（AST 稀疏性 / 关系数映射）")
     add("")
     add(f"- {graph['graphs']} 图 / {graph['nodes']} 节点 / {graph['edges']} 边"
         "（本节全部来自 `*_hetero.json`；与 §0 的 `*_pyg.pt` 图数相等，脚本内断言）。")
@@ -585,7 +696,7 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         "`DROPPABLE_EDGES` 为**全部 5 个物理关系**的白名单，`load_graph` 在加载时强制校验"
         "（越界编号直接报错）；不做物理合并（5 个物理关系、`num_bases=5` 不变）。")
     add("")
-    add("## 5. 口径绑定指纹与刷新义务（防文档/产物漂移）")
+    add("## 6. 口径绑定指纹与刷新义务（防文档/产物漂移）")
     add("")
     add("- **注释必须与被解释的指标同口径**（decisions §13 第 8 条）：")
     add("  - macro-F1 的*低支撑构成*注释 → 用**计算它的那个划分**（seed0 test：‘5 个类 support ≤2’）；")
@@ -604,7 +715,7 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         "的池规模、划分规模与逐类支撑数字已同步刷新；今后任何划分产物变更必须重复这一链条，"
         "未刷新即视为口径漂移（验收不通过）。")
     add("")
-    add("## 6. 论文口径写法（按本表）")
+    add("## 7. 论文口径写法（按本表）")
     add("")
     add(f"- 训练/验证/内部测试：**{n_pool} 个源文件级样本**（非 {ald['entries']} 个合约定义），"
         f"并说明 {ald['entries']} 的来由与差额；")
@@ -612,6 +723,9 @@ def render_md(up: dict, ald: dict, pipe: dict, dive: dict, graph: dict,
         f"多标签 **{pipe['pool_stats']['multi']}** → 多标签证据改由 DIVE 承担；")
     add("- 去重口径：两级（源码内容 sha1 → 项目标识/地址），保两级的跨划分不变量均为 0；")
     add("- 逐类支撑必须随指标一起报告（见 `experiments/decisions.md` §13）。")
+    add("- 🔴 与 MVD-HG 对比时，**上游的「88–190」只能写成「类别文件夹的 `.sol` 记录数」**，"
+        "不得写成「该类正例数」——它是文件夹记录数，而以上游自己发布的标签为准，两边逐类正例相同"
+        "（§3 表，`experiments/decisions.md` §51）。")
     add("")
     return "\n".join(lines) + "\n"
 
@@ -624,6 +738,8 @@ def main() -> None:
     up = stage_upstream()
     ald = stage_alldata()
     pipe = stage_pipeline()
+    # 依赖 pipe 的 index/pool（标签键走 dataset 同一条代码路径），故在 stage_pipeline 之后调用
+    folder = stage_class_folder_vs_labels(pipe["index"], pipe["pool"])
     dive = stage_dive()
     graph = stage_graph_structure()
     # 两个图数来源必须一致：`*_pyg.pt`（漏斗/划分口径）与 `*_hetero.json`（边结构口径）。
@@ -639,6 +755,7 @@ def main() -> None:
 
     payload = {"meta": meta, "upstream": up, "alldata": ald,
                "pipeline": {k: v for k, v in pipe.items() if k not in ("index", "pool", "report")},
+               "class_folder_funnel": folder,
                "dive": dive, "graph": graph, "binding": binding}
 
     summary = {
@@ -653,6 +770,9 @@ def main() -> None:
         "DIVE 多标签占比": f"{dive['multi']}/{dive['n']} = {100*dive['multi']/dive['n']:.1f}%",
         "图结构/AST_PARENT 占比": f"{graph['table']['AST_PARENT']['edges']} 条 / "
                                   f"{graph['table']['AST_PARENT']['share']:.2%}",
+        "上游文件夹记录→标签正例→池正例": (
+            f"{folder['sums']['folder_records']} → {folder['sums']['pos_nonbuggy']} → "
+            f"{folder['sums']['pool_pos']}（恒等 {folder['identity_classes']}/7 类）"),
         "DIVE 抽样": (binding["sample"]["gate"] if binding.get("sample") else "未生成"),
     }
     for k, v in summary.items():
@@ -663,7 +783,7 @@ def main() -> None:
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
     OUT_MD.parent.mkdir(parents=True, exist_ok=True)
-    OUT_MD.write_text(render_md(up, ald, pipe, dive, graph, binding, meta), encoding="utf-8")
+    OUT_MD.write_text(render_md(up, ald, pipe, dive, graph, binding, meta, folder), encoding="utf-8")
     print(f"written: {OUT_JSON.relative_to(BASE)}")
     print(f"written: {OUT_MD.relative_to(BASE)}")
 

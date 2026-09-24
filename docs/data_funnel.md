@@ -1,6 +1,6 @@
 # 数据口径追溯（由 `scripts/audit_data_funnel.py` 生成，勿手改）
 
-> 生成时间（UTC）：2026-09-14T13:42:44+00:00；运行方式：`python scripts/audit_data_funnel.py`
+> 生成时间（UTC）：2026-09-23T12:13:50+00:00；运行方式：`python scripts/audit_data_funnel.py`
 > 论文里出现的每个样本/标签数字都应能在下表中找到出处；下表未列出的数字不得写进论文。
 
 ## 0. 一句话口径
@@ -8,6 +8,7 @@
 - 上游 `MVD-HG-dataset`（只读参考）：7 个类别文件夹共 **846** 条 `.sol` 记录（跨类别重复收录），去重后唯一（目录,文件）**591** 个。
 - 主库 `alldata(readonly)`：**591** 个 `.sol`；标签文件 **2002** 条（合约定义级），其中正样本 257 条、多标签 123 条。
 - 图与划分：**590** 图 → 剔除 90 个 `buggy_*` → 池 **500** → 两级去重（sha1 丢 46、地址丢 1）→ **453** → 362/45/46；池内正样本 127、全零 326、多标签 **1**。
+- 上游类别文件夹的 **88–190 不是正例数**：其中 295 条是 `buggy_*` 副本，另有 423 个非 buggy 项目键被上游**自己的**单类标签文件判为**负例**；按上游标签算的正例 = **128**，与本仓 453 池正例 **7/7 逐类恒等**（详见 §3）。
 
 ## 1. `846 → 591` 的 255 个去向（逐条拆解）
 
@@ -58,6 +59,8 @@
 | 池内标签 | 全量图（581）标签分布 | `{"n": 590, "pos": 218, "zero": 372, "multi": 92, "per_class_pos": {"access_control": 97, "arithmetic": 105, "dos": 86, "front_running": 84, "reentrancy": 112, "time_manipulation": 95, "uncheck": 141}}` | products/alldata/graphs/*_pyg.pt + alldata(readonly)/contract_labels.json |  |
 | 池内标签 | 划分池（448）标签分布 | `{"n": 453, "pos": 127, "zero": 326, "multi": 1, "per_class_pos": {"access_control": 17, "arithmetic": 15, "dos": 6, "front_running": 4, "reentrancy": 31, "time_manipulation": 5, "uncheck": 50}}` | 同上 | 逐类支撑决定宏平均是否可用（见 decisions §13） |
 | 图→划分 | 去重不变量（同 sha1 / 同地址不得跨划分，逐种子） | `{"0": {"content_ok": true, "address_ok": true, "content_cross": 0, "address_cross": 0}, "1": {"content_ok": true, "address_ok": true, "content_cross": 0, "address_cross": 0}, "2": {"content_ok": true, "address_ok": true, "content_cross": 0, "address_cross": 0}}` | products/alldata/splits/split_report.json::rule_check<br>`python scripts/make_splits.py` | 全 0 = 大纲 5.1「同一合约及其所有重复记录不跨划分」已构造性保证 |
+| 上游类别文件夹 × 上游单类标签文件 | 文件夹记录数 → 剔除 buggy → 上游标签正例 → 本仓池正例（逐类） | `{"access_control": [114, 74, 57, 17, 17], "arithmetic": [120, 75, 60, 15, 15], "dos": [92, 52, 46, 6, 6], "front_running": [88, 48, 44, 4, 4], "reentrancy": [142, 102, 71, 31, 31], "time_manipulation": [100, 55, 50, 5, 5], "uncheck": [190, 145, 95, 50, 50]}` | MVD-HG-dataset/<类>_contract/{sol_source,contract_labels.json} ↔ products/alldata/splits/split_seed0.json + alldata(readonly)/contract_labels.json | 五列依次为 ①文件夹 .sol 记录数（含跨类重复）②非 buggy 项目键 ③其中上游标签判 **0** ④其中上游标签判 **1** ⑤本仓 453 池正例；脚本内断言 ②=③+④ 且 ④=⑤ 逐类成立。⚠ 另有一个**含 buggy 的正例数**（= ④ + 被判 1 的 buggy 项目键，逐类 40/45/40/40/40/45/45 个）在本数据上**恰好恒等于 ③**（因 `非buggy键 = buggy正例键 + 2×④`），故不单列以免误导 |
+| 上游类别文件夹 × 上游单类标签文件 | ⑤ 上游标签正例（剔 buggy）与 ⑥ 本仓池正例 恒等类数 | 7/7 | 同上一行 | 7/7 = 本仓多标签池是上游标签的忠实投影，多标签改造未丢/未造正例 |
 | DIVE 外部测试 | 标签条目数 / 多标签条数 / 全零条数 | `{"n": 21696, "multi": 14789, "zero": 2686}` | DIVE/contract_labels.json | 多标签占比 68.2% → 外部测试可支撑「多类共存」的实证 |
 | DIVE 外部测试 | 逐类正样本数与占比 | `{"access_control": "16134 (74.36%)", "arithmetic": "9183 (42.33%)", "dos": "3548 (16.35%)", "front_running": "530 (2.44%)", "reentrancy": "10936 (50.41%)", "time_manipulation": "6065 (27.95%)", "uncheck": "5712 (26.33%)"}` | DIVE/contract_labels.json | front_running 占比最低，决定抽样规模下限 |
 | DIVE 外部测试 | 均匀抽样下的逐类期望（500/900） | `{"500": {"per_class_expected": {"access_control": 371.8, "arithmetic": 211.6, "dos": 81.8, "front_running": 12.2, "reentrancy": 252.0, "time_manipulation": 139.8, "uncheck": 131.6}, "multi_label_expected": 340.8}, "900": {"per_class_expected": {"access_control": 669.3, "arithmetic": 380.9, "dos": 147.2, "front_running": 22.0, "reentrancy": 453.7, "time_manipulation": 251.6, "uncheck": 236.9}, "multi_label_expected": 613.5}, "front_running_p_ge20": {"500": 0.022, "900": 0.7, "1100": 0.936}}` | DIVE/contract_labels.json | 大纲 5.1(6)「≥500 且每类 ≥20」在 500 规模下对 front_running 不可达（期望 12.2）；n=900 期望 22.0、P(fr≥20)=0.70，三条件自洽 → 2026-09-12 P1 定稿 n=900 |
@@ -68,7 +71,28 @@
 | 口径绑定 | 划分产物指纹 sha256（支撑数字绑定的版本） | `{"split_seed0.json": "17be7e24d3fd9937282b25abf1ebd99ae89da01404493d1e2df2d71c665d2fa1", "split_seed1.json": "99fcdc8ae330292eb075132e9841995eeb5d530af3f92f05e94b414f933a4604", "split_seed2.json": "9f6c3e1ab63fe5b60dce559497cb9c5e560be299ee19c5a0e8fbf056206e56f9"}` | products/alldata/splits/split_seed{0,1,2}.json<br>`python scripts/make_splits.py` | 本报告与 decisions 中所有 val/test 支撑数字均对应此指纹（**两级去重后的现行 splits**）；任何划分产物变更（含去重口径、覆盖约束、种子）都会改变指纹 → 必须重跑本脚本并刷新 decisions/手册的支撑数字 |
 | DIVE 外部测试 | 抽样结果（固定协议） | `{"seed": 0, "n": 900, "attempt": 1, "per_class": {"access_control": 682, "arithmetic": 378, "dos": 136, "front_running": 30, "reentrancy": 468, "time_manipulation": 234, "uncheck": 246}, "multi_label": 614, "all_zero": 105, "gate": "closed: n=900, front_running=30 (≥20)"}` | products/dive/splits/sample_report.json<br>`python scripts/sample_dive_subset.py` | 抽样是一次确定事件：实测支撑即结果（front_running≥20 → 闭案）；后备路径（n→1100 重抽一次，再不足则记 report-only）与“禁止换 seed 重抽”见 decisions §13 |
 
-## 3. DIVE 外部测试抽样门槛
+## 3. 类别文件夹记录数 ≠ 正例数（两级虚高，2026-09-23）
+
+> 动机：`MVD-HG-dataset/<类>_contract/sol_source/` 的**目录数**（88–190）常被误读为「MVD-HG 该类数据集的正例数」。它只是**源码池记录数**，有两级虚高；与「本仓池正例 4–50」**不是同一量在缩水**，而是两个不同的量在对照。
+
+| 漏洞类 | ① 文件夹 `.sol` 记录数 | ② 其中非 `buggy_*` 项目键 | ③ 上游自己的标签判 **0** | ④ 上游自己的标签判 **1** | ⑤ 本仓 453 池正例 |
+| --- | --- | --- | --- | --- | --- |
+| access_control | 114 | 74 | 57 | **17** | **17** |
+| arithmetic | 120 | 75 | 60 | **15** | **15** |
+| dos | 92 | 52 | 46 | **6** | **6** |
+| front_running | 88 | 48 | 44 | **4** | **4** |
+| reentrancy | 142 | 102 | 71 | **31** | **31** |
+| time_manipulation | 100 | 55 | 50 | **5** | **5** |
+| uncheck | 190 | 145 | 95 | **50** | **50** |
+| **合计** | **846** | **551** | **423** | **128** | **128** |
+
+- 不变量 1（脚本内断言）：**② = ③ + ④ 逐类成立，无残差** ⇒ 类别文件夹里每个非 `buggy_*` 项目键，都被上游**自己的**单类标签文件明确判为 0 或 1，不存在「未标注」的第三态。
+- 不变量 2（脚本内断言）：**④ = ⑤ 逐类恒等（7/7）** ⇒ 本仓 453 池是上游标签的**忠实投影**，多标签改造既未丢正例、也未造正例。
+- 两层虚高的来源：①→② 是 `buggy_*` 注入副本（45 个项目被**复制进全部 7 个文件夹**，每类 40–45 条，合计 295 条记录）；②→③ 是**文件夹归属 ≠ 标签**——类别文件夹里收进来的部署合约，上游自己的标签文件判它们**没有**该类漏洞（access_control：74 个非 buggy 键里 57 个判 0）。
+- ⇒ 论文里若要引用上游的「88–190」，**必须**写成「`<类>_contract` 文件夹的 `.sol` 记录数（含跨类重复与非 buggy 部署合约）」，**不得**写成「该类正例数」；以上游自己发布的标签为准，两边逐类正例**相同**。
+- 🔴 **与 MVD-HG 论文 Table 1 的对应（2026-09-23 核对）**：该表「Contract-Origin files」逐类 = 114/120/92/88/142/100/190，**与本表第 ① 列逐位相同** ⇒ 论文列的正是**语料文件数（正+负）**，**论文从未把它写成「正例数」**。其每类正例 = ④ + 被判 1 的 buggy 项目键（逐类 40/45/40/40/40/45/45 个），即 **57/60/46/44/71/50/95**；**剔注入样本后 = ④ = ⑤，与本仓逐类相同**。详见 `experiments/decisions.md` §51.5。
+
+## 4. DIVE 外部测试抽样门槛
 
 - DIVE 标签 21696 条，多标签 14789 条（68.2%）。
 - n=500 均匀抽样：多标签期望 340.8；逐类期望 {'access_control': 371.8, 'arithmetic': 211.6, 'dos': 81.8, 'front_running': 12.2, 'reentrancy': 252.0, 'time_manipulation': 139.8, 'uncheck': 131.6}
@@ -76,7 +100,7 @@
 - front_running 达到 ≥20 的超几何概率（抽样前口径）：{'500': 0.022, '900': 0.7, '1100': 0.936}
 - 结论：多标签计数在 DIVE 上不是退化项（占比高），外部测试的多标签证据成立；均匀抽样在 500 规模下对 front_running 不可达（期望 12.2），**抽样规模已定稿 n=900**（2026-09-12 P1；固定 seed，一次确定事件；实测结果见下表），后备路径见 decisions §13。
 
-## 4. 图结构口径（AST 稀疏性 / 关系数映射）
+## 5. 图结构口径（AST 稀疏性 / 关系数映射）
 
 - 590 图 / 95918 节点 / 229898 边（本节全部来自 `*_hetero.json`；与 §0 的 `*_pyg.pt` 图数相等，脚本内断言）。
 
@@ -101,7 +125,7 @@
 - 论文默认 **4 语义边**（AST_PARENT_SAME 并入 AST_PARENT 叙述）；实现为 **5 个物理关系**（`num_bases=5`）；若把 CFG_FLOW 三子类当独立关系则为 **6**（需补 `kind→edge_type` 映射，当前未实现）。
 - 边消融口径：**去 AST_PARENT = 同时删 relation 1 与 2**（`dataset.py::DROP_AST`）；`DROPPABLE_EDGES` 为**全部 5 个物理关系**的白名单，`load_graph` 在加载时强制校验（越界编号直接报错）；不做物理合并（5 个物理关系、`num_bases=5` 不变）。
 
-## 5. 口径绑定指纹与刷新义务（防文档/产物漂移）
+## 6. 口径绑定指纹与刷新义务（防文档/产物漂移）
 
 - **注释必须与被解释的指标同口径**（decisions §13 第 8 条）：
   - macro-F1 的*低支撑构成*注释 → 用**计算它的那个划分**（seed0 test：‘5 个类 support ≤2’）；
@@ -118,10 +142,11 @@
 
 - **刷新义务（已履行 2026-09-12）**：T-A 两级池去重重跑后，本报告（重跑本脚本）、`experiments/decisions.md`（§12 历史标注 + §14 现行口径）、`论文开发手册.md` §10.2/§10.5 的池规模、划分规模与逐类支撑数字已同步刷新；今后任何划分产物变更必须重复这一链条，未刷新即视为口径漂移（验收不通过）。
 
-## 6. 论文口径写法（按本表）
+## 7. 论文口径写法（按本表）
 
 - 训练/验证/内部测试：**453 个源文件级样本**（非 2002 个合约定义），并说明 2002 的来由与差额；
 - 正/负样本：池内正样本 127、全零 326；多标签 **1** → 多标签证据改由 DIVE 承担；
 - 去重口径：两级（源码内容 sha1 → 项目标识/地址），保两级的跨划分不变量均为 0；
 - 逐类支撑必须随指标一起报告（见 `experiments/decisions.md` §13）。
+- 🔴 与 MVD-HG 对比时，**上游的「88–190」只能写成「类别文件夹的 `.sol` 记录数」**，不得写成「该类正例数」——它是文件夹记录数，而以上游自己发布的标签为准，两边逐类正例相同（§3 表，`experiments/decisions.md` §51）。
 

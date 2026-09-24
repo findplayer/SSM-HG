@@ -449,6 +449,29 @@
 | **MANDO-LLM** | 🟡 **代码已就绪、训练中（2026-09-22）**：`scripts/baseline_mando.py`（PyG `HGTConv` 替 dgl，无需新建 conda 环境），产物 `eval_results/baseline/mando/seed{0,1,2}/` |  ✅ 名称已裁定（2026-09-21）：以 **`MANDO-LLM`** 为准，大纲正文的 `MANDO-HGT` 须同步改（`.docx` 改动需作者授权）。基线代码已由作者安装在 `/home/saumarez/projects/deep-learning`（⚠ 在本仓读取硬边界之外，见 AGENTS.md） |
 | 本文方法 | ✅ `runs/seed{0,1,2}` | 两设定评估（DIVE 见 `eval_results/dive/`） |
 
+✅ **2026-09-22/23 状态收口**：四个基线（`slither_alldata` / `mvdhg` / `egfl`（+ 其论文 lr 臂 `egfl_ownlr`）/ `mando`）
+各 3 种子**全部跑完**，逐类三口径 × 两工作点的明细见 `experiments/baseline_three_caliber_tables.md`
+（`scripts/collect_baseline_tables.py` 程序生成，**16 张表**）。**2026-09-23 新增两块跨口径读数**（`decisions.md` §49）：
+**表 1 = 逐类二分类 F1（binary-F1）**（三篇论文「7 个独立二分类器」的原生判决规则；平均列 本文方法 0.6363 /
+MVD-HG 0.3224 / EGFL 0.1138 / MANDO-LLM 0.1091 / Slither 0.2937）、**表 2 = 方法 × 8 口径总览**。
+🔴 该二分类口径**仅补充、不进主表**（`metrics.py` 契约 + 手册 §1223 的「稀有类不单独调阈」裁定）；
+其 **@0.5 工作点逐位等于 macro 表的逐类格**（恒等，故不另列）。⚠ 换到该口径后**排序与量级都不变**
+⇒ 基线读数低**不是**「阈值没调好」；且 EGFL 两行与 MANDO 行的最高口径读数**都不高于平凡下限 0.6199**。
+
+✅ **2026-09-23（同日晚）第二轮：三条基线在「含 `buggy_*` 的新正典（池 497）」上补跑完毕**（`decisions.md` §52）。
+§51.6.2 的「换 497 池不可行」**被用户裁定推翻**（理由仍写成表头警告，不是取消）。新增产物区一律带 `_buggy`
+后缀（离线特征 `products/alldata/baseline/<名>_buggy/`、模型产物 `eval_results/baseline/<臂>_buggy/seed{S}/`、
+`slither_buggy/`），驱动 = `python scripts/run_baselines.py --layout buggy`；
+交付物 = `experiments/baseline_three_caliber_tables.md` 的**「三、」段（表 15–28）**，**canon37 段（表 1–14）逐字节不变**。
+🔴 **读该段前必须知道的三条**：① 两段 test 集不同（46→49）**且**特征配对方式也不同
+（canon37 段三种子全用 `graphs_ft/ss0`，本段用配对的 `cb_ft_ss{S}`；`_cb.pt` 逐张量随 ss 变）⇒ **跨段不可比**；
+② `buggy_*` 标签绝大多数是全 1 ⇒ 该段必须并列 `clean_only`（剔 buggy）诊断列，**不得**据此声称补数据提升了检测能力；
+③ **MVD-HG 在 ss1 上 test 少 1 个**（48/49）⇒ 该行分母与其余行不同，表头已显式标注。
+🔴 **本次顺带修掉 5 个「只出错、不报错」的坑**（§52.4），其中第 1 个是实测踩到的：
+`baseline_mvdhg_build.ensure_layout()` 漏改正典后缀 ⇒ 497 池的 44 份 AST 被写进**正典根**，
+而 `_assert_under_feature_root` 因为**自己也在查正典根**而放行（已复原正典根 + 新增源码级守卫
+`test_all_feature_root_calls_pass_the_suffix`）。
+
 ✅ **四条已裁定（2026-09-21 用户）**：
 (a) 基线名 = **`MANDO-LLM`**（非 `MANDO-HGT`）；(b) **`SCVHunter(2024)` 不纳入**；(c) 三个论文基线（EGFL / MVD-HG / MANDO-LLM）**已安装在 `/home/saumarez/projects/deep-learning`**——⚠ **该路径超出「只能读取 SSM-HG」的硬边界，接入方式待确认**；(d) 关系盲算子族（GCN/GAT/SAGE + `*_pm`）**保留**（按「有 F1 结果则保留」，实测全部有完整 micro/macro/mAP），作 §40.4 附录证据，不入 5.3。
 

@@ -632,7 +632,9 @@ M3 构建（GPU，`--device cuda --force`）：增强集 1774 图 **49 分 10 �
 | 阶段 | 内容 | 产物目录 | 状态 |
 |---|---|---|---|
 | F | 5.4.1 必要消融 + 5.4.2 可选消融（**①②各 21 臂**） | `eval_results/ablation/collected{,_aug}.{json,md}`、`runs/ablation/`、`runs/ablation_aug/` | ✅ **已完成**：①②各 21 臂 ×3 种子 = **126 run、0 失败**；文档 `ablation_results.md` |
-| F | 基线：**六个传统工具 + EGFL + MVD-HG/MANDO-LLM**（2026-09-21 按大纲 5.3 原文重列；旧写的「Slither 规则七维 / CodeBERT 序列 / GCN」已作废） | `eval_results/baseline/` | **三条论文基线已跑（2026-09-22）**：`mvdhg` / `egfl`（+ 其本论文 lr 臂 `egfl_ownlr`）/ `mando`，各 seed{0,1,2}；另有 `slither_alldata`。汇总 = `experiments/baseline_three_caliber_tables.md`（`scripts/collect_baseline_tables.py`）。其余 5 个传统工具未实跑 |
+| F | 基线：**六个传统工具 + EGFL + MVD-HG/MANDO-LLM**（2026-09-21 按大纲 5.3 原文重列；旧写的「Slither 规则七维 / CodeBERT 序列 / GCN」已作废） | `eval_results/baseline/` | **三条论文基线已跑（2026-09-22）**：`mvdhg` / `egfl`（+ 其本论文 lr 臂 `egfl_ownlr`）/ `mando`，各 seed{0,1,2}；另有 `slither_alldata`。汇总 = `experiments/baseline_three_caliber_tables.md`（`scripts/collect_baseline_tables.py`）。其余 5 个传统工具未实跑。**2026-09-23 同日晚：同一批基线在「含 `buggy_*` 的新正典（池 497）」上补跑完毕**（`{mvdhg,egfl,egfl_ownlr,mando}_buggy` + `slither_buggy`，各 3 种子）⇒ 该交付物新增「**三、**」段（**表 15–28**，`--with-buggy` 追加，canon37 段逐字节不变）。🔴 两段跨段不可比：test 集换了（46→49），**且**特征配对方式也变了（canon37 段三种子全用 `graphs_ft/ss0`，本段用配对的 `cb_ft_ss{S}`）。见 `decisions.md` §52 |
+
+> **2026-09-23 补**：该交付物已扩到 **16 张表**，新增 **表 1 = 逐类二分类 F1（binary-F1）**（三篇论文「7 个独立二分类器」的原生判决规则，阈值**逐类各一个、只在 val 上选**；平均列 本文方法 **0.6363±0.0919** / MVD-HG **0.3224±0.0795** / EGFL 0.1138 / MANDO-LLM 0.1091 / EGFL(论文 lr) 0.1369 / Slither 0.2937）与 **表 2 = 方法 × 8 口径汇总列总览**（选口径用）。🔴 **@0.5 的 binary-F1 逐位等于三口径表的逐类格、平均列恒等于 macro-F1@0.5**（故不另列）；该口径**仅补充、不进主结果**，过拟合已量化（val 每类 1–3 个正样本，`dos` 阈值三种子极差 0.55）。见 `decisions.md` §49。
 | G | DIVE 外部测试（n=900 抽样，front_running=30） | `eval_results/dive/comparison.{json,md}`、`products/dive/graphs{,_ft,_ft_aug}/` | ✅ **已完成**：过滤后 891/900 图；文档 `dive_external_results.md` |
 | G | SolidiFI 层次二（$a_v$/$s_v$/$g_v$ 三分数） | `eval_results/solidifi/` | 空（仅 `.gitkeep`） |
 

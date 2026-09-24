@@ -79,8 +79,15 @@ def opcode_table(dst: Path) -> dict:
     return table
 
 
-def _hex_table() -> dict:
-    return json.loads((B.feature_root(NAME) / "opcodes.json").read_text(encoding="utf-8"))
+def _hex_table(root: Path) -> dict:
+    """读回 `opcodes.json` 的 int→opcode 表。
+
+    🔴 `root` **必须由调用方传**（本次实际用的那个特征根）——原先在函数体里自己调
+    `B.feature_root(NAME)`（= 正典根），换正典时它读的是**另一个根**的表。
+    该表是常量（来自 `opcodes.py`），故实测数值相同、不报错——但"守卫/读取指错根"
+    是本仓 2026-09-23 在 MVD-HG 侧真栽过的失效模式（`decisions.md` §52.6），此处一并堵上。
+    """
+    return json.loads((root / "opcodes.json").read_text(encoding="utf-8"))
 
 
 # --------------------------------------------------------------------------- 编译
@@ -369,6 +376,9 @@ def parse_args():
     p = argparse.ArgumentParser(description="EGFL 基线离线特征（字节码 → opcode + CFG）。")
     p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft/ss0"))
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
+    p.add_argument("--feature-suffix", default="",
+                   help="离线特征根后缀：`\"\"`=§37 正典（池 453），`_buggy`=新正典（池 497）。"
+                        "🔴 必须与 --graph-dir/--split-dir 同时换（见 baseline_common.LAYOUTS）。")
     p.add_argument("--split-seed", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--label-file", default=None)
@@ -400,11 +410,12 @@ def _seq_of(contracts, mode, int2op):
 def main() -> int:
     args = parse_args()
     split_seed = B.resolve_split_seed(args)
-    root = B.feature_root(NAME)
+    B.check_layout(args, NAME)
+    root = B.feature_root(NAME, args.feature_suffix)
     (root / "seq").mkdir(exist_ok=True)
     (root / "feat").mkdir(exist_ok=True)
     opcode_table(root / "opcodes.json")
-    int2op = _hex_table()
+    int2op = _hex_table(root)
 
     split = B.load_split(args.split_dir, split_seed)
     index, _ = B.load_index(args.graph_dir, args.label_file, args.label_key_mode)

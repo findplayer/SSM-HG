@@ -51,6 +51,13 @@ PATH_ARG_KEYS = frozenset({
 IDENTITY_DEFAULTS = {
     "head": "multi",        # train.py --head；老目录（引入该开关前）语义即 multi
     "layers": 2,            # train.py --layers；老目录（引入该开关前）语义即两层（decisions §34）
+    # 基线族 `--feature-suffix`：离线特征根的正典后缀（`""`=§37 正典池 453，`_buggy`=新正典池 497）。
+    # 🔴 不登记就有洞：`baseline_mvdhg.py --feature-suffix _buggy --out-dir eval_results/baseline/mvdhg`
+    # 时老 `config.json` 里没有这个键 ⇒ `diff_args` 只比双方都有的键 ⇒ 差异为 0 ⇒ 守卫放行
+    # ⇒ 用 497 池的特征**静默覆盖**正典结果。默认值 `""` 恰等于老目录的语义，故补默认值不误伤复跑。
+    # ⚠ 与 head/layers 的差别：这个键**不在 `train.py` 里**，只在基线族里
+    # （`tests/test_run_guard.py` 的漂移守卫已相应放宽为「train ∪ 基线族」，见该测试注释）。
+    "feature_suffix": "",
 }
 
 

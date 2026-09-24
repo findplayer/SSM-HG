@@ -120,9 +120,15 @@ def _import_mvdhg(data_dir: Path, dfg_cap: int) -> _Mods:
     return m
 
 
-def _assert_under_feature_root(p: Path) -> None:
-    """★ 每次调用 `read_compile` 前硬断言——它是唯一会**删改输入文件**的一步。"""
-    root = (B.feature_root(NAME)).resolve()
+def _assert_under_feature_root(p: Path, root: Path) -> None:
+    """★ 每次调用 `read_compile` 前硬断言——它是唯一会**删改输入文件**的一步。
+
+    🔴 `root` **必须由调用方传进来**（取自 `ensure_layout` 本次实际用的那个根）。
+    它原先在函数体里自己调 `B.feature_root(NAME)`（= 正典根），于是换正典时
+    **守卫自己指着另一个根**：497 池的 AST 明明编译进了正典根，它却一路放行
+    （2026-09-23 实测踩到，见 `decisions.md` §52.6）。守卫指向的根与本次用的根
+    **必须是同一个**，否则它不是守卫，只是装饰。
+    """
     rp = Path(p).resolve()
     if root not in rp.parents and rp != root:
         raise SystemExit(
@@ -202,14 +208,20 @@ def compile_compact_ast(src_sol: Path, dst_json: Path, *, timeout: int = 180) ->
     raise RuntimeError(f"编译失败（试过 {len(cand)} 个候选 {cand}）：{last_err}")
 
 
-def ensure_layout(bases: list[str], graph_dir: str, *, refresh: bool) -> dict:
+def ensure_layout(bases: list[str], graph_dir: str, *, refresh: bool,
+                  suffix: str = "") -> dict:
     """准备 `sol_source/<proj>/<stem>.sol` 与 `AST_json/<proj>/<stem>.json` 两棵树。
 
     布局**必须字面含** `sol_source` / `AST_json` / `raw` 三段——它的代码里有两个
     `str.replace("AST_json", "raw")` 和一个 `str.replace("/raw/", "/sol_source/")`，
     目录名一改就静默错位。
+
+    🔴 `suffix` = 正典后缀（同 `feature_root`）。**必须与 `main()` 用的是同一个根**，
+    否则 AST 会编译进另一个正典的目录（2026-09-23 实测：`_buggy` 池的 44 份 AST
+    被写进了正典根，而守卫因为指错根而放行，见 `decisions.md` §52.6）。
+    每个 entry 里带 `root`，供 `_assert_under_feature_root` 复核。
     """
-    root = B.feature_root(NAME)
+    root = B.feature_root(NAME, suffix)
     layout = {}
     n_compiled, n_reused, fails = 0, 0, []
     for base in bases:
@@ -222,7 +234,8 @@ def ensure_layout(bases: list[str], graph_dir: str, *, refresh: bool) -> dict:
         dst_ast = dst_dir_ast / f"{stem}.json"
         if refresh or not dst_sol.exists():
             dst_sol.write_bytes(src.read_bytes())
-        entry = {"proj": proj, "stem": stem, "sol": dst_sol, "ast": dst_ast, "solc": None}
+        entry = {"proj": proj, "stem": stem, "sol": dst_sol, "ast": dst_ast, "solc": None,
+                 "root": root}
         if dst_ast.exists() and not refresh:
             try:
                 json.loads(dst_ast.read_text(encoding="utf-8"))
@@ -281,7 +294,7 @@ def build_graphs_one(m, base: str, lay: dict, *, dfg_cap: int) -> dict:
     if not lay["ast"].exists():
         return {"status": "compile_error", "error": "compact AST 未生成（solc 编译失败）",
                 "seconds": 0.0}
-    _assert_under_feature_root(lay["ast"])
+    _assert_under_feature_root(lay["ast"], lay["root"])
     status, err = "ok", ""
     try:
         node_list, node_dict = m.read_compile(now_dir=str(lay["ast"].parent),
@@ -445,6 +458,9 @@ def parse_args():
     p = argparse.ArgumentParser(description="MVD-HG 基线离线建图（驱动原仓库代码）。")
     p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft/ss0"))
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
+    p.add_argument("--feature-suffix", default="",
+                   help="离线特征根后缀：`\"\"`=§37 正典（池 453），`_buggy`=新正典（池 497）。"
+                        "🔴 必须与 --graph-dir/--split-dir 同时换（见 baseline_common.LAYOUTS）。")
     p.add_argument("--split-seed", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--label-file", default=None)
@@ -464,7 +480,8 @@ def main() -> int:
     global M
     args = parse_args()
     split_seed = B.resolve_split_seed(args)
-    root = B.feature_root(NAME)
+    B.check_layout(args, NAME)
+    root = B.feature_root(NAME, args.feature_suffix)
     (root / "graphs").mkdir(exist_ok=True)
     (root / "feat").mkdir(exist_ok=True)
     (root / "raw").mkdir(exist_ok=True)
@@ -479,7 +496,8 @@ def main() -> int:
         pool = pool[:args.limit]
     print(f"[mvdhg] 池 {len(pool)} 个 base（split_seed={split_seed}）", flush=True)
 
-    layout = ensure_layout(pool, args.graph_dir, refresh=args.refresh_layout)
+    layout = ensure_layout(pool, args.graph_dir, refresh=args.refresh_layout,
+                           suffix=args.feature_suffix)
     M = _import_mvdhg(root, args.dfg_cap)
     print(f"[mvdhg] 外部仓库已接入：{MVDHG_REPO}", flush=True)
 

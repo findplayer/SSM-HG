@@ -49,6 +49,15 @@ SEEDS = (0, 1, 2)
 N_CLASSES = len(metrics.VULN_NAMES)          # 7，顺序锁死，不得重排
 BASELINE_NAMES = ("mvdhg", "egfl", "mando")
 
+# 臂 → **离线特征根**的名字。`egfl_ownlr` 与 `egfl` 共用同一份离线特征
+# （该臂的唯一变量是 lr，见 `run_baselines.PIPELINE`）⇒ 它不该、也没有自己的 `feat/`。
+# 不登记就会在 `feature_root()` 里被当未知名字拒掉。
+FEATURE_NAME_OF = {"egfl_ownlr": "egfl"}
+
+
+def feature_name(arm: str) -> str:
+    return FEATURE_NAME_OF.get(arm, arm)
+
 # 正典超参的**唯一真源**：三个基线脚本的 argparse 默认值必须逐个等于这里的值，
 # 并由 tests/test_baseline_tables.py 对照 train.parse_args() 机检（防 R5 口径漂移）。
 CANON_DEFAULTS = {
@@ -56,6 +65,139 @@ CANON_DEFAULTS = {
     "scheduler_patience": 3, "early_stop_patience": 5, "pos_weight_cap": 20.0,
     "model_dropout": 0.3,
 }
+
+# ---------------------------------------------------------------- 正典布局（唯一真源）
+# 🔴 **两个正典的四条路径必须一起换**。本仓「换数据集时四处默认值都指向正典区、
+# 只改一处」已栽过不止一次（`AGENTS.md` 的「改动原则」段）：换一处**不报错**，
+# 只是静默地拿另一套划分训练、或把产物写进正典目录。
+# 故布局知识集中在**这一个表**，由 `run_baselines.py --layout` 展开、由 `check_layout()`
+# 在每条基线真正开工前复核。
+#
+# - `canon37`：§37 正典（池 453，已剔除全部 `buggy_*`）——**默认，逐字节等价于引入本表之前**。
+# - `buggy` ：任务 2 新正典（池 497，`withbuggy_snapshot` + `graphs_ft_buggy/cb_ft_ss{S}`）。
+LAYOUTS = {
+    "canon37": {
+        "split_dir": "products/alldata/splits",
+        "graph_dir": "products/alldata/graphs_ft/ss{S}",
+        "feature_suffix": "",
+        "out_dir": "eval_results/baseline/{name}",
+        "n_pyg_min": 450,
+    },
+    "buggy": {
+        "split_dir": "products/alldata/splits/withbuggy_snapshot",
+        "graph_dir": "products/alldata/graphs_ft_buggy/cb_ft_ss{S}",
+        "feature_suffix": "_buggy",
+        "out_dir": "eval_results/baseline/{name}_buggy",
+        "n_pyg_min": 490,
+    },
+}
+DEFAULT_LAYOUT = "canon37"
+
+
+def layout_paths(layout: str, name: str, split_seed: int) -> dict:
+    """布局名 → 四条显式路径（供 `run_baselines.py` 展开成子进程参数）。"""
+    if layout not in LAYOUTS:
+        raise SystemExit(f"[baseline] 未知 layout {layout!r}；允许 {sorted(LAYOUTS)}")
+    L = LAYOUTS[layout]
+    return {"layout": layout,
+            "split_dir": L["split_dir"],
+            "graph_dir": L["graph_dir"].format(S=int(split_seed)),
+            "feature_suffix": L["feature_suffix"],
+            "out_dir": L["out_dir"].format(name=name)}
+
+
+def _rel(p) -> str:
+    """路径 → 仓库相对 posix 串（不在仓库内则原样返回绝对串）。"""
+    try:
+        ap = Path(str(p)).resolve()
+    except (OSError, ValueError):
+        return str(p)
+    try:
+        return ap.relative_to(REPO).as_posix()
+    except ValueError:
+        return ap.as_posix()
+
+
+def _match_split(split_dir) -> str | None:
+    r = _rel(split_dir).rstrip("/")
+    for key, L in LAYOUTS.items():
+        if r == L["split_dir"].rstrip("/"):
+            return key
+    return None
+
+
+def _match_graph(graph_dir) -> str | None:
+    """按 `graph_dir` 模板 `{S}` **之前**的固定前缀匹配。
+
+    ⚠ `graphs_ft/` 与 `graphs_ft_buggy/` 靠**尾斜杠**区分——若把前缀写成 `graphs_ft`
+    （不带斜杠），`graphs_ft_buggy/...` 会同时命中两个正典。这是本函数唯一要注意的地方。
+    """
+    r = _rel(graph_dir)
+    for key, L in LAYOUTS.items():
+        if r.startswith(L["graph_dir"].split("{")[0]):
+            return key
+    return None
+
+
+def _match_suffix(suffix: str) -> str | None:
+    for key, L in LAYOUTS.items():
+        if suffix == L["feature_suffix"]:
+            return key
+    return None
+
+
+def _match_out(out_dir) -> str | None:
+    """按**产物根名的正典后缀**判，**不看臂名**——臂名是自由的（`egfl` / `egfl_ownlr` /
+    将来的臂），正典标记才是固定的。判据 = `eval_results/baseline/<臂名><后缀>` 里的 `<后缀>`。
+
+    ⚠ 若写成 `out_dir == LAYOUTS[k]["out_dir"].format(name=<本脚本的 NAME>)`，那么
+    `baseline_egfl.py --out-dir .../egfl_ownlr_buggy` 会因为 `NAME="egfl"` 而**认不出**，
+    这一格静默失效（其余三格仍在校验，故不会放行错误组合，只是少一层保险）。
+    """
+    r = _rel(out_dir).rstrip("/")
+    prefix = "eval_results/baseline/"
+    if not r.startswith(prefix):
+        return None
+    arm = r[len(prefix):]
+    if not arm or "/" in arm:
+        return None
+    for key, L in LAYOUTS.items():
+        if L["feature_suffix"] and arm.endswith(L["feature_suffix"]):
+            return key
+    return DEFAULT_LAYOUT          # 不带任何正典后缀 ⇒ 默认正典（§37）
+
+
+def check_layout(args, name: str) -> str:
+    """开工前的**一致性硬守卫**：四条路径必须指向同一个正典，否则 `SystemExit`。
+
+    🔴 **判据是「互不一致」，不是「是不是我们认识的目录」**——认不出的路径记 `None` 并忽略，
+    故自定义 `--graph-dir`（消融、外部语料）照常可跑；**只有**当四条里出现**两个不同**的正典
+    标识时才拒绝。这样既挡得住「换正典只改一处」，又不会误伤合法的自定义路径。
+
+    最典型的失效面：`--feature-suffix _buggy` 单独加在正典 out-dir 上
+    ⇒ `run_guard.diff_args` 只比**双方都有**的键，老 `config.json` 里没有这个键，
+    差异为 0 ⇒ 守卫放行 ⇒ **静默覆盖正典结果**（§31.3 那个洞）。本函数正是它的一层保险。
+    """
+    marks = {"split_dir": _match_split(args.split_dir),
+             "graph_dir": _match_graph(args.graph_dir),
+             "feature_suffix": _match_suffix(getattr(args, "feature_suffix", "") or "")}
+    # 两个 build 脚本没有 `--out-dir`（它们不写模型产物）⇒ 缺席时跳过这一格，不判它。
+    if getattr(args, "out_dir", None):
+        marks["out_dir"] = _match_out(args.out_dir)
+    known = {v for v in marks.values() if v is not None}
+    if len(known) > 1:
+        detail = "\n  ".join(f"{k}: {v or '（不认识）'}" for k, v in marks.items())
+        raise SystemExit(
+            f"[baseline] 🔴 {name}：本次调用的四条路径**不指向同一个正典**——\n  {detail}\n"
+            f"  换正典必须一起换（`split_dir` / `graph_dir` / `feature_suffix` / `out_dir`），"
+            f"只改一处不会报错、只会静默拿另一套划分训练或覆盖正典结果。\n"
+            f"  正典布局表见 `baseline_common.LAYOUTS`；跑批请用 "
+            f"`scripts/run_baselines.py --layout {{canon37,buggy}}` 展开。")
+    hit = next(iter(known), None)
+    print(f"[baseline] {name}：layout={hit or 'custom'}"
+          f"（split {_rel(args.split_dir)}；graph {_rel(args.graph_dir)}；"
+          f"feat-suffix {getattr(args, 'feature_suffix', '')!r}）", flush=True)
+    return hit or "custom"
 
 
 # ------------------------------------------------------------------ 划分与标签
@@ -111,11 +253,21 @@ def sample_ids_of(split: dict, arm: str) -> list[str]:
 
 
 # ------------------------------------------------------------------ 产物路径
-def feature_root(name: str) -> Path:
-    """中间产物根：`products/alldata/baseline/<name>/`（大文件，不入库）。"""
+def feature_root(name: str, suffix: str = "") -> Path:
+    """中间产物根：`products/alldata/baseline/<name><suffix>/`（大文件，不入库）。
+
+    `suffix` = **正典选择器**（取值见 `LAYOUTS`）：`""` = §37 正典（池 453，默认），
+    `"_buggy"` = 任务 2 新正典（池 497）。
+
+    🔴 **换正典必须换根，不能往老根里增量补**：两个 build 脚本都是「`feat/<base>.pt` 存在即跳过」，
+    且 `w2v.model` 一旦存在就复用。把 497 池的样本补进 453 的根里，会得到
+    **同一个目录下混着两套词向量的节点特征**——下游照常读、照常出数，**不报错**
+    （`tests/test_baseline_tables.py` 的三条契约测试也只覆盖 canon 目录）。
+    """
+    name = feature_name(name)          # 臂名 → 特征根名（`egfl_ownlr` → `egfl`），**先归一化再校验**
     if name not in BASELINE_NAMES:
         raise ValueError(f"未知基线名 {name!r}（应为 {BASELINE_NAMES}）")
-    p = REPO / "products" / "alldata" / "baseline" / name
+    p = REPO / "products" / "alldata" / "baseline" / f"{name}{suffix}"
     p.mkdir(parents=True, exist_ok=True)
     return p
 
@@ -405,6 +557,10 @@ def base_parser(desc: str, name: str) -> argparse.ArgumentParser:
     p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft/ss0"),
                    help="图目录（正典必须带 ss{S}，且 {S} 与 --split-seed 配对）。")
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
+    p.add_argument("--feature-suffix", default="",
+                   help="离线特征根的正典后缀（`\"\"`=§37 正典池 453；`_buggy`=新正典池 497）。"
+                        "🔴 必须与 `--graph-dir`/`--split-dir`/`--out-dir` **同时**换，"
+                        "开工前由 `baseline_common.check_layout()` 复核。")
     p.add_argument("--label-file", default=None)
     p.add_argument("--label-key-mode", choices=["project", "stem"], default=None)
     p.add_argument("--out-dir", default=str(REPO / "eval_results" / "baseline" / name),

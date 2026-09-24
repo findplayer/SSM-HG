@@ -145,13 +145,14 @@ def main() -> int:
     split_seed = B.resolve_split_seed(args)
     device = B.resolve_device(args.device)
     B.set_seed(args.seed, args.deterministic)
+    B.check_layout(args, NAME)
 
     split = B.load_split(args.split_dir, split_seed)
     index, _ = B.load_index(args.graph_dir, args.label_file, args.label_key_mode)
     out_dir = Path(args.out_dir) / f"seed{args.seed}"
     B.guard_dir(out_dir, args, split_seed, overwrite=args.overwrite)
 
-    feat_root = B.feature_root(NAME)
+    feat_root = B.feature_root(NAME, args.feature_suffix)
     split, dropped = B.drop_without_features(split, feat_root, name=NAME)
 
     def limited(arm):

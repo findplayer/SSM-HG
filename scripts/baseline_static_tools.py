@@ -394,10 +394,17 @@ def main() -> int:
     ap.add_argument("--split-seeds", type=int, nargs="*", default=[0, 1, 2])
     ap.add_argument("--label-file", default=None)
     ap.add_argument("--label-key-mode", default=None, choices=[None, "project", "stem"])
+    ap.add_argument("--tag", default=None,
+                    help="产物标签（默认 = graph_dir 的父目录名）。"
+                         "🔴 **评测输出目录只由它决定**（`eval_results/baseline/slither_<tag>/`），"
+                         "而它与 `--split-dir` **无关** ⇒ 同一个 `--graph-dir` 配两套划分时，"
+                         "若不传不同的 `--tag`，两份 `seed{S}_eval.json` 会**静默互相覆盖**。"
+                         "换语料/换正典时必须显式传（如池 497 用 `--tag buggy`），"
+                         "并配一个**新的** `--out`（`analyze()` 会把新结果并集进既有 JSON）。")
     args = ap.parse_args()
 
     graph_dir = REPO / args.graph_dir
-    tag = corpus_tag(graph_dir)
+    tag = args.tag or corpus_tag(graph_dir)
     run_path = Path(args.out) if args.out else OUT_ROOT / f"slither_{tag}.json"
 
     if not args.eval_only:

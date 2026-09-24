@@ -1,0 +1,231 @@
+{
+  "baseline": "mando",
+  "seed": 0,
+  "split_seed": 0,
+  "head": "multi",
+  "select_metric": "val_micro_f1",
+  "val_threshold": 0.55,
+  "threshold_scan": {
+    "metric": "micro_f1",
+    "best_threshold": 0.55,
+    "best_micro_f1": 0.5859872611464968,
+    "best_macro_f1": 0.5876940519797662,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "micro_f1": 0.3644859813084112,
+        "macro_f1": 0.3629738222411815
+      },
+      {
+        "threshold": 0.25,
+        "micro_f1": 0.3644859813084112,
+        "macro_f1": 0.3629738222411815
+      },
+      {
+        "threshold": 0.3,
+        "micro_f1": 0.36705882352941177,
+        "macro_f1": 0.3654800879053419
+      },
+      {
+        "threshold": 0.35,
+        "micro_f1": 0.3732057416267942,
+        "macro_f1": 0.3712601180806074
+      },
+      {
+        "threshold": 0.4,
+        "micro_f1": 0.39294710327455923,
+        "macro_f1": 0.39113148693587707
+      },
+      {
+        "threshold": 0.45,
+        "micro_f1": 0.4643962848297214,
+        "macro_f1": 0.46494037907834956
+      },
+      {
+        "threshold": 0.5,
+        "micro_f1": 0.5643153526970954,
+        "macro_f1": 0.571429056918905
+      },
+      {
+        "threshold": 0.55,
+        "micro_f1": 0.5859872611464968,
+        "macro_f1": 0.5876940519797662
+      },
+      {
+        "threshold": 0.6,
+        "micro_f1": 0.41739130434782606,
+        "macro_f1": 0.4219892263125346
+      },
+      {
+        "threshold": 0.65,
+        "micro_f1": 0.15217391304347827,
+        "macro_f1": 0.1412201244134017
+      },
+      {
+        "threshold": 0.7,
+        "micro_f1": 0.07317073170731708,
+        "macro_f1": 0.06122448979591836
+      },
+      {
+        "threshold": 0.75,
+        "micro_f1": 0.02531645569620253,
+        "macro_f1": 0.025974025974025976
+      },
+      {
+        "threshold": 0.8,
+        "micro_f1": 0.0,
+        "macro_f1": 0.0
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "mAP": {
+    "mAP": 0.3347408244831989,
+    "ap": [
+      0.5081425428965474,
+      0.2135008344237735,
+      0.3819249209981475,
+      0.24092443785648654,
+      0.34759361009361006,
+      0.2833895655036208,
+      0.36770985961020664
+    ],
+    "ap_classes_used": 7,
+    "skipped": []
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.358974358974359,
+      "macro_f1": 0.34407395188748885,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.2857142857142857,
+          0.18181818181818182,
+          0.13636363636363635,
+          0.19047619047619047,
+          0.2727272727272727,
+          0.23809523809523808,
+          0.32432432432432434
+        ],
+        "recall": [
+          0.8888888888888888,
+          0.4444444444444444,
+          0.42857142857142855,
+          0.6666666666666666,
+          0.6666666666666666,
+          0.7142857142857143,
+          0.8571428571428571
+        ],
+        "f1": [
+          0.43243243243243246,
+          0.2580645161290322,
+          0.20689655172413793,
+          0.2962962962962963,
+          0.3870967741935484,
+          0.35714285714285715,
+          0.4705882352941177
+        ],
+        "support": [
+          9,
+          9,
+          7,
+          6,
+          9,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.5316455696202531,
+      "subset_accuracy": 0.16326530612244897
+    },
+    "val_threshold": {
+      "threshold": 0.55,
+      "micro_f1": 0.31292517006802717,
+      "macro_f1": 0.2985329906180626,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.26666666666666666,
+          0.21428571428571427,
+          0.2727272727272727,
+          0.08333333333333333,
+          0.3,
+          0.2,
+          0.5
+        ],
+        "recall": [
+          0.4444444444444444,
+          0.3333333333333333,
+          0.42857142857142855,
+          0.16666666666666666,
+          0.3333333333333333,
+          0.2857142857142857,
+          0.5
+        ],
+        "f1": [
+          0.33333333333333337,
+          0.2608695652173913,
+          0.33333333333333326,
+          0.1111111111111111,
+          0.3157894736842105,
+          0.23529411764705882,
+          0.5
+        ],
+        "support": [
+          9,
+          9,
+          7,
+          6,
+          9,
+          7,
+          14
+        ]
+      },
+      "buggy_f1": 0.38016528925619836,
+      "subset_accuracy": 0.2653061224489796
+    }
+  },
+  "best_epoch": 17,
+  "best_val_micro_f1": 0.5859872611464968,
+  "n_train_graphs": 398,
+  "n_val_graphs": 50,
+  "n_test_graphs": 49,
+  "n_params": 3083273,
+  "reconstruction_notes": [
+    "🔴 图算子用 PyG 2.7 的 `HGTConv` 替代 dgl 的 `HGTLayer`（base 环境无 dgl、不新建 conda 环境）。逐项对应：relation_att/relation_msg/relation_pri ⟷ k_rel/v_rel/p_rel、edge_softmax(norm_by='dst') ⟷ 按目标结点 softmax、cross_reducer='mean' ⟷ mean 聚合、skip(α=sigmoid(skip)) + a_linear + LayerNorm ⟷ PyG 的 skip/out_lin。**参数化方式不是逐位等价**（PyG 用 bases/attention 分解），故不得声称复现了作者原结果。",
+    "🔴 图 = **我方 CFG 中心异构图**（`graphs_ft/ss{S}`），不是原版的 slither 图；节点类型取 `_feat.pt::type_id` 的 9 类语义角色（原版用 slither CFG 节点种类）。",
+    "节点输入主臂 = `model.NodeFuser` 融合后的 h_v^(0)（与本文方法**逐字相同**的通道字典）⇒ 与本文方法的唯一变量 = 图算子。对照臂 `role_onehot` / `cb_node_raw` 见 `--node-feature`。",
+    "fuser 与 HGT **联合训练**（端到端），不是冻结特征。",
+    "🔴 **metadata 跨 seed 冻结**（`hgt_metadata.json`，带 pool_sha256）：三 seed 必须共用同一份`(node_types, edge_types)`，否则各 seed 参数量不同、不是同一个模型。它只由 `type_id` 与 `edge_type` 扫出，不碰标签 ⇒ 不构成泄漏。",
+    "输出头 2→7（原版是 7 个独立二分类 / CE）、改 BCEWithLogitsLoss（大纲 5.3 [411]）。",
+    "训练期先验/结构 dropout 沿用本方 `sample_dropout_masks`（p=0.2），随 batch 传入 `NodeFuser`；验证/推理不传掩码。"
+  ],
+  "partial": false,
+  "timing": {
+    "train_seconds": 3550.43,
+    "wall_seconds": 3554.43,
+    "seconds_per_epoch": 93.43
+  },
+  "environment": {
+    "device": "cuda",
+    "torch": "2.0.1+cu118"
+  }
+}

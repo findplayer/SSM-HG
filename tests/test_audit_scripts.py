@@ -211,6 +211,70 @@ def test_audit_data_funnel_print_only_runs():
     assert "两级去重" in r.stdout
 
 
+def test_class_folder_records_are_not_positive_counts():
+    """上游 `<类>_contract/sol_source/` 的目录数是**源码池记录数**，不是该类正例数。
+
+    2026-09-23 实测（`decisions.md` §51、`docs/data_funnel.md` §3）：那 88–190 常被误读成
+    「MVD-HG 该类正例数」，进而误判成「我们的多标签改造把正例砍小了」。实际是两级虚高——
+    ① 45 个 `buggy_*` 项目被复制进全部 7 个文件夹；② **文件夹归属 ≠ 标签**：收进文件夹的
+    部署合约，上游**自己的**单类标签文件判它们没有该类漏洞。
+
+    本测试锁死两条不变量（都**不需要**加载图，秒级）：
+      - ② = ③ + ④：每个非 buggy 项目键都被上游明确判过 0 或 1，无「未标注」第三态；
+      - ④ = ⑤：按上游标签算的正例 == 本仓 453 池该类正例，**逐类恒等**。
+    任一条被破坏即先在这里炸，而不是等论文里的支撑度数字错一个数量级。
+    """
+    import dataset as ds
+
+    classes = ["access_control", "arithmetic", "dos", "front_running",
+               "reentrancy", "time_manipulation", "uncheck"]
+    split = json.loads((_REPO / "products/alldata/splits/split_seed0.json").read_text(encoding="utf-8"))
+    pool = list(split["train"]) + list(split["val"]) + list(split["test"])
+
+    # 主标签文件 → {项目键: 7 维并集}（同键多合约定义取并集，与训练同一条键规则）
+    main_labels: dict[str, list[int]] = {}
+    for e in json.loads((_REPO / "alldata(readonly)/contract_labels.json").read_text(encoding="utf-8")):
+        name = str(e.get("contract_name") or "")
+        if "-" not in name:
+            continue
+        key = ds.strip_project_prefix(name.split("-", 1)[0])
+        cur = main_labels.setdefault(key, [0] * len(classes))
+        for i, v in enumerate(e["targets"]):
+            cur[i] |= int(v)
+    pool_by_class = {
+        i: {ds.project_of_base(b) for b in pool
+            if main_labels.get(ds.project_of_base(b), [0] * len(classes))[i] == 1}
+        for i in range(len(classes))
+    }
+
+    for i, cls in enumerate(classes):
+        class_dir = _REPO / f"MVD-HG-dataset/{cls}_contract"
+        folder = {ds.strip_project_prefix(p.name)
+                  for p in (class_dir / "sol_source").iterdir() if p.is_dir()}
+        nonbuggy = {k for k in folder if not k.startswith("buggy_")}
+        labeled_pos: set[str] = set()
+        labeled_neg: set[str] = set()
+        for e in json.loads((class_dir / "contract_labels.json").read_text(encoding="utf-8")):
+            name = str(e.get("contract_name") or "")
+            if "-" not in name:
+                continue
+            assert not isinstance(e["targets"], list), f"{cls} 单类文件的 targets 应为标量"
+            key = ds.strip_project_prefix(name.split("-", 1)[0])
+            (labeled_pos if int(e["targets"]) == 1 else labeled_neg).add(key)
+        pos_nonbuggy = {k for k in labeled_pos if not k.startswith("buggy_")}
+        only_neg = {k for k in nonbuggy if k in labeled_neg and k not in labeled_pos}
+
+        assert only_neg | pos_nonbuggy == nonbuggy, (
+            f"{cls}：非 buggy 键 {len(nonbuggy)} != ③{len(only_neg)} + ④{len(pos_nonbuggy)}；"
+            f"残差 {sorted(nonbuggy - only_neg - pos_nonbuggy)[:5]} ⇒ 上游标签覆盖出现空洞")
+        assert pos_nonbuggy == pool_by_class[i], (
+            f"{cls}：上游标签正例 {len(pos_nonbuggy)} != 本仓池正例 {len(pool_by_class[i])}；"
+            f"仅在标签 {sorted(pos_nonbuggy - pool_by_class[i])[:5]}；"
+            f"仅在池 {sorted(pool_by_class[i] - pos_nonbuggy)[:5]} ⇒ 池不再是上游标签的忠实投影")
+        # 第三层证据：文件夹里确有成规模的「被上游判 0」的键（否则本条备注在说谎）
+        assert len(only_neg) >= 40, f"{cls}：被判 0 的非 buggy 键仅 {len(only_neg)} 个，与 §51 不符"
+
+
 def test_audit_cb_func_gap_print_only_runs():
     import subprocess
     r = subprocess.run([sys.executable, str(_REPO / "scripts/audit_cb_func_gap.py"), "--print"],
