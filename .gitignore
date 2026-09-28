@@ -54,6 +54,21 @@ runs/**/*.pt
 !runs/**/val_best_probs.pt
 !runs/**/test_probs.pt
 
+# 草稿区（2026-09-24 加）：`runs/_snap/` 只放**分析中途的临时件**——对比快照、事实清单、
+# 文档改写前的大纲备份、git 自检清单等。它们**不是**复现所需的最小集，也不是任何报告的依据
+# （报告依据一律是 `products/`、`runs/<正式目录>/` 与脚本本身）。
+# 🔴 大纲改写的**审计链是脚本**（`scripts/edit_outline.py` + `scripts/outline_spec.py`，
+#    每条编辑都写了依据），不是这里的 `.docx` 备份 ⇒ 备份不必入库。
+# 实测（2026-09-24）：不加本规则时 `git add -A runs/ products/ eval_results/` 会捎带
+# 28 个文件，其中 6 个来自本目录（最大 88 KB）——体积无害，但会把草稿混进正式提交。
+runs/_snap/
+
+# 传统工具的工作目录（2026-09-25 加）：只放**源码副本**与工具的中间产物
+# （manticore 的 workspace 单文件可达数百 MB）。判据同 `_snap`：**不是**复现所需的最小集——
+# 源码可由只读源重建，工具产物可由 `baseline_static_tools.py --tool <名>` 重跑。
+# ⚠ 必须落在 `runs/` 下（硬规则：中间产物只能写 `products/`、`runs/`、`eval_results/`）。
+runs/_tools_work/
+
 # 例外之例外：**作废口径的归档不入库权重**（2026-09-17，decisions §28）。
 # `runs/prior_badmetric/` 是坏指标（`.ravel()` 使 micro-F1 退化为 accuracy）口径下选出的权重——
 # 它们**不是**"复现所需的最小集"，而是"坏指标如何改变模型选择"的物证，物证价值在 log.txt 的轨迹
@@ -62,6 +77,19 @@ runs/**/*.pt
 # ⚠ 文件仍**留在磁盘上**（未删除，供人工复核）；此处只阻止它们进入版本库。
 runs/prior_badmetric/**/best.pt
 runs/prior_badmetric/**/last.pt
+
+# 🔴 编码器换代（2026-09-25）的两个归档根：**只入概率缓存、不入权重**，口径同 `runs/ablation_n9*`。
+#   `runs/prior_canon37/` = §37 谱系 5 轮档（正典 3 + cbft_study 18 + ablation 63 + ablation_n9 153
+#                           + arch_n9 63 + perclass_arm 45 + baseline_gcn 3，共 348 个 run）
+#   `runs/prior_buggy16/`  = 任务 2 的 16 轮档（buggy_canon 3 + ablation_buggy 63 + baseline_arch_buggy 9）
+#   **为什么归档**：`decisions.md` §55 的逐单元格 before/after 对照表要拿它们与新正典逐格相减
+#   ——没有这两个目录，那张表无法复核（本仓既有裁定「两代并存、旧的一律不删」）。
+#   **为什么排除权重**：全部指标都能由 `test_probs.pt` / `val_best_probs.pt` 离线重算，
+#   而 `best.pt` 有 348×3 MB 量级；且它们是**审计材料**，不是复现主结果所必需（新正典已就位）。
+#   ⚠ 规则顺序敏感：必须写在上面的 `!runs/**/best.pt` **之后**才生效。
+#   ⚠ 文件仍**留在磁盘上**（未删除）；此处只阻止它们进入版本库。
+runs/prior_canon37/**/best.pt
+runs/prior_buggy16/**/best.pt
 
 # 🔴 消融 n=9 的复现研究区：**只入概率缓存、不入权重**（2026-09-21，用户裁定）。
 # 目录：`runs/ablation_n9{,_aug}/`（21 臂的非对角 6 对）与 `runs/arch_n9{,_aug}/`

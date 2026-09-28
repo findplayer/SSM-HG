@@ -11,7 +11,8 @@
 + 逐关系 softmax」，丢掉该算子的本质。它的原图节点类型来自 slither 的 CFG 节点种类，
 本仓最近似的现成类比物就是 `_feat.pt::type_id` 的 9 类角色。
 
-**图 = 我方 CFG 中心异构图**（`products/<语料>/graphs_ft/ss{S}`）——这一点必须随结果披露：
+**图 = 我方 CFG 中心异构图**（① 现行正典 `products/alldata/graphs_ft_p2/cb_ft_ss{S}`）
+——这一点必须随结果披露：
 原版吃的是它自己的 slither 图，形态不同。
 
 输入走 `dataset.load_graph`（与本文方法**逐字相同的通道字典**），主臂 `--node-feature fuser`
@@ -52,7 +53,7 @@ RECONSTRUCTION_NOTES = [
     "edge_softmax(norm_by='dst') ⟷ 按目标结点 softmax、cross_reducer='mean' ⟷ mean 聚合、"
     "skip(α=sigmoid(skip)) + a_linear + LayerNorm ⟷ PyG 的 skip/out_lin。"
     "**参数化方式不是逐位等价**（PyG 用 bases/attention 分解），故不得声称复现了作者原结果。",
-    "🔴 图 = **我方 CFG 中心异构图**（`graphs_ft/ss{S}`），不是原版的 slither 图；"
+    "🔴 图 = **我方 CFG 中心异构图**（`graphs_ft_p2/cb_ft_ss{S}`），不是原版的 slither 图；"
     "节点类型取 `_feat.pt::type_id` 的 9 类语义角色（原版用 slither CFG 节点种类）。",
     "节点输入主臂 = `model.NodeFuser` 融合后的 h_v^(0)（与本文方法**逐字相同**的通道字典）"
     "⇒ 与本文方法的唯一变量 = 图算子。对照臂 `role_onehot` / `cb_node_raw` 见 `--node-feature`。",
@@ -83,13 +84,14 @@ def structure_fingerprint(pool: list[str]) -> str:
     `(node_types, edge_types)` 的并集，而这两者只来自 `_pyg.pt::edge_type/edge_index`
     与 `_feat.pt::type_id`（**结构通道**），与 `graph_dir` 叫什么名字无关。
 
-    🔴 **为什么必须去掉路径**（2026-09-23 实测踩到）：`graphs_ft/ss{S}` 与
-    `graphs_ft_buggy/cb_ft_ss{S}` 的三种子变体**结构逐字节相同**（`_hetero.json` 同哈希、
+    🔴 **为什么必须去掉路径**（2026-09-23 实测踩到，2026-09-25 换代后路径名变更、论证不变）：
+    `graphs_ft_p2/cb_ft_ss{S}` 与 `graphs_ft_buggy_p2/cb_ft_ss{S}` 的三种子变体**结构逐字节相同**（`_hetero.json` 同哈希、
     `_pyg.pt` 逐位相同、`_feat.pt::type_id` 逐位相同、全池词表同为 9×187），
     只有 CodeBERT 通道 `_cb.pt` 不同。任务 2 的新正典要求 `cb_ft_ss{S}` 与 `--split-seed S`
     **配对**（`AGENTS.md` 语义锁死项），于是一份形态上完全正确的 metadata 会被
     path-based 的旧指纹判成「不同语料」而**硬失败**（实测：MANDO 的 seed1/seed2 在 2–3 s 内 rc=1）。
-    旧口径之所以没暴露这个错，是因为 canon37 段三种子**都用 `ss0`**（`decisions.md` §52.3）。
+    旧口径之所以没暴露这个错，是因为 2026-09-25 换代前 canon37 段三种子**都用 `ss0`**
+    （`decisions.md` §52.3）；换代已把两段统一为配对写法。
 
     ⚠ **保护没有丢**：池换了（453 ↔ 497）指纹就变，故「漏传 `--feature-suffix` 就会拿另一个池的
     metadata」这条仍然被挡住。**路径**本身从来不是保护对象。

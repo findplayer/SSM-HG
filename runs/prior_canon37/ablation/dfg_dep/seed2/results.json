@@ -1,0 +1,212 @@
+{
+  "seed": 2,
+  "split_seed": 2,
+  "head": "multi",
+  "select_metric": "val_micro_f1",
+  "val_threshold": 0.8,
+  "threshold_scan": {
+    "metric": "micro_f1",
+    "best_threshold": 0.8,
+    "best_micro_f1": 0.8648648648648648,
+    "best_macro_f1": 0.5333333333333333,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "micro_f1": 0.6,
+        "macro_f1": 0.48278705421562557
+      },
+      {
+        "threshold": 0.25,
+        "micro_f1": 0.6792452830188678,
+        "macro_f1": 0.5414565826330533
+      },
+      {
+        "threshold": 0.3,
+        "micro_f1": 0.7083333333333334,
+        "macro_f1": 0.525
+      },
+      {
+        "threshold": 0.35,
+        "micro_f1": 0.7555555555555556,
+        "macro_f1": 0.553968253968254
+      },
+      {
+        "threshold": 0.4,
+        "micro_f1": 0.7272727272727272,
+        "macro_f1": 0.4825396825396826
+      },
+      {
+        "threshold": 0.45,
+        "micro_f1": 0.7619047619047619,
+        "macro_f1": 0.4904761904761905
+      },
+      {
+        "threshold": 0.5,
+        "micro_f1": 0.7804878048780488,
+        "macro_f1": 0.4904761904761905
+      },
+      {
+        "threshold": 0.55,
+        "micro_f1": 0.8,
+        "macro_f1": 0.5006802721088436
+      },
+      {
+        "threshold": 0.6,
+        "micro_f1": 0.8421052631578947,
+        "macro_f1": 0.5142857142857142
+      },
+      {
+        "threshold": 0.65,
+        "micro_f1": 0.8421052631578947,
+        "macro_f1": 0.5142857142857142
+      },
+      {
+        "threshold": 0.7,
+        "micro_f1": 0.8421052631578947,
+        "macro_f1": 0.5142857142857142
+      },
+      {
+        "threshold": 0.75,
+        "micro_f1": 0.8421052631578947,
+        "macro_f1": 0.5142857142857142
+      },
+      {
+        "threshold": 0.8,
+        "micro_f1": 0.8648648648648648,
+        "macro_f1": 0.5333333333333333
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "mAP": {
+    "mAP": 0.656547619047619,
+    "ap": [
+      0.5625,
+      1.0,
+      0.5,
+      0.5,
+      0.8666666666666667,
+      0.16666666666666666,
+      0.9999999999999998
+    ],
+    "ap_classes_used": 7,
+    "skipped": []
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.7234042553191489,
+      "macro_f1": 0.542027417027417,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.25,
+          1.0,
+          0.5,
+          0.0,
+          1.0,
+          0.0,
+          0.7777777777777778
+        ],
+        "recall": [
+          0.6666666666666666,
+          1.0,
+          1.0,
+          0.0,
+          0.8,
+          0.0,
+          1.0
+        ],
+        "f1": [
+          0.36363636363636365,
+          1.0,
+          0.6666666666666666,
+          0.0,
+          0.888888888888889,
+          0.0,
+          0.8750000000000001
+        ],
+        "support": [
+          3,
+          3,
+          1,
+          1,
+          5,
+          1,
+          7
+        ]
+      },
+      "subset_accuracy": 0.782608695652174
+    },
+    "val_threshold": {
+      "threshold": 0.8,
+      "micro_f1": 0.8108108108108109,
+      "macro_f1": 0.46984126984126984,
+      "per_class": {
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "precision": [
+          0.5,
+          1.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "recall": [
+          0.3333333333333333,
+          1.0,
+          0.0,
+          0.0,
+          0.8,
+          0.0,
+          1.0
+        ],
+        "f1": [
+          0.4,
+          1.0,
+          0.0,
+          0.0,
+          0.888888888888889,
+          0.0,
+          1.0
+        ],
+        "support": [
+          3,
+          3,
+          1,
+          1,
+          5,
+          1,
+          7
+        ]
+      },
+      "subset_accuracy": 0.8695652173913043
+    }
+  },
+  "support_note": "support≤2 的类仅描述性呈现、不进方法间比较结论（decisions §13）",
+  "timing": {
+    "infer_seconds": 0.4768
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3"
+  }
+}

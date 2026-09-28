@@ -11,18 +11,19 @@
   1. **不重新实现单变量断言**——直接 import 复用 `run_ablation` 的
      `verify_single_variable` / `argv_for_train` / `argv_for_eval` / `resume_state`
      （同 `run_study.py` 的既定做法，`decisions.md` §31.4）。
-  2. **不复刻微调**——三个编码器变体 `products/alldata/graph_variants/cb_ft_ss{0,1,2}` 已存在，
-     本脚本**只读**它们（零微调 = 原估的 3×848 s 全部省掉）。
+  2. **不复刻微调**——微调编码器树已存在（`products/alldata/graphs_ft_p2/cb_ft_ss{0,1,2}`），
+     本脚本**只读**它（零微调 = 原估的 3×848 s 全部省掉）。
   3. **不碰正典**——产物全部落在 `runs/cbft_study/`；`runs/seed{0,1,2}` 与 `products/` 均**只读**。
 
 **与 `run_study.py`（二分类研究）的唯一实质差别**：本研究的**变量就是 `graph_dir` 本身**
-（冻结 `products/alldata/graphs` vs 微调 `…/graph_variants/cb_ft_ss{S}`），
+（冻结 `products/alldata/graphs` vs 微调正典树 `graphs_ft_p2/cb_ft_ss{S}`），
 故「一对两臂同语料」断言**必须排除 `graph_dir`** —— 它是变量，不是语料键
 （`run_study.CORPUS_KEYS` 把它含在内，是二分类研究的情形：那里的变量是 `head`）。
 语料同一性由 `split_dir` / `label_file` / `label_key_mode` / `seed` / `split_seed` 五键保证。
 
-⚠ **`ts ∈ {0,1,2}` 的额外用意**：(0,0)/(1,1)/(2,2) 三对在配置上与 `runs/seed{0,1,2}` 完全相同
-⇒ 可把冻结臂与正典对拍，**量化主实验的"重跑抖动"**（`--check-repro`）。
+⚠ **`ts ∈ {0,1,2}` 的额外用意**：`cbft` 臂取的就是正典树，故 (0,0)/(1,1)/(2,2) 三对在配置上
+与 `runs/seed{0,1,2}` **完全相同** ⇒ 可把 `cbft` 臂与正典对拍，**量化主实验的"重跑抖动"**
+（`--check-repro`）。
 🔴 实测该抖动**不为零**（GPU 非确定性，见 `check_repro` 的 docstring）——
 本节最初以为会"逐位复现"，实测推翻；这层噪声的量级本身是论文局限陈述的一条实证。
 
@@ -63,7 +64,7 @@ PAIRS = [(t, s) for t in (0, 1, 2) for s in (0, 1, 2)]     # n=9 同配对
 # 两条臂：`cfg` 名会进叶目录名，必须是 `paired_study_analysis.LEAF_RE` 认得的 `<cfg>_ts{T}_ss{S}`
 ARMS: dict[str, dict] = {
     "frozen": dict(note="冻结 CodeBERT（正典，graph_dir=products/alldata/graphs）"),
-    "cbft":   dict(note="微调 CodeBERT 后重编码（graph_dir=…/graph_variants/cb_ft_ss{S}）"),
+    "cbft":   dict(note="微调 CodeBERT 后重编码（graph_dir=正典树本身 `graphs_ft_p2/cb_ft_ss{S}`）"),
 }
 BASELINE_CFG = "frozen"
 
@@ -96,11 +97,28 @@ def override_of(arm: str, base: dict, split_seed: int) -> dict:
 
     ⚠ 变体按**划分种子**取（`cb_ft_ss{S}`）：微调用的训练标签来自该划分的训练集，
     故编码器只依赖 `split_seed`、不依赖训练种子 —— 这正是 9 对只需 3 套编码器的原因。
+
+    🔴 **2026-09-25 修掉一处静默漂移（本脚本写于"冻结=正典"时期）**：
+      原实现 `frozen` 臂返回 `{}`（继承基线 `graph_dir`）——在写脚本时基线就是冻结树
+      `products/alldata/graphs`，故当时正确。**§37（2026-09-19）把微调树升为正典后**，
+      基线 `graph_dir` 变成 `graphs_ft/ss{S}`（现为 `graphs_ft_p2/cb_ft_ss{S}`），
+      于是 `frozen` 臂**悄悄不再冻结**，变成了正典的副本 ——
+      「冻结 vs 微调」的对照实际是「微调 vs 微调」，**不报错、结论失真**。
+      现改为**显式**取冻结树（`…/<语料>/graphs`，由 `run_ablation.frozen_graphs_of` 派生），
+      与 `ARMS["frozen"]` 的注释一致。
+    ⚠ `cbft` 臂**直接取正典树**（不再经 `graph_variants/cb_ft_ss{S}` 这层副本）：
+      §36 原设计用"逐字节相同的副本树"，靠**实测**确认对角与正典指标逐位相同；
+      直接取正典树使这条等价性**由构造成立**，`run_ablation_n9.py` 的 9 对基线
+      因而不必再依赖一次可失败的对拍。单变量性质改由 `check_artifacts()` 对**冻结树 ↔ 正典树**断言。
     """
-    if arm == BASELINE_CFG:
-        return {}
-    if arm == "cbft":
-        return {"graph_dir": str(variants_root(base) / f"cb_ft_ss{split_seed}")}
+    if arm == BASELINE_CFG:                       # frozen：冻结编码器树，与正典只差 _cb.pt
+        return {"graph_dir": str(run_ablation.frozen_graphs_of(base))}
+    if arm == "cbft":                             # cbft：正典本身（微调编码器树）
+        # 🔴 必须走 `canonical_args` 的模板化，**不能**直接用 `base["graph_dir"]`：
+        #   config 里记的是已展开的 `…/cb_ft_ss0`，直接拿会让 ss1/ss2 也去读 ss0 的编码器
+        #   （与划分种子错配、且**不报错** —— 本仓已三次全量作废的同一形态）。
+        tmpl = run_ablation.canonical_args(BASE_CONFIG)["graph_dir"]     # `…/cb_ft_ss{seed}`
+        return {"graph_dir": tmpl.format(seed=split_seed)}
     raise SystemExit(f"[cbft] 未知臂 {arm}；可选 {sorted(ARMS)}")
 
 
@@ -127,50 +145,56 @@ def build_args(base: dict, arm: str, t: int, s: int) -> dict:
 # --------------------------------------------------------------- 开跑前断言
 
 def check_artifacts(base: dict, split_seeds=(0, 1, 2)) -> list[str]:
-    """**产物层**单变量：微调变体与正典逐图比对，三通道相同、CodeBERT 两通道全不同。
+    """**产物层**单变量：冻结树与正典树逐图比对，三通道相同、CodeBERT 两通道全不同。
 
     为什么值得在开跑前做：`graph_dir` 一换，训练侧看到的是一整套文件。
     只断言"命令行差一个键"并不能证明**磁盘上**差的也只有 `_cb.pt`——
     变体构建脚本若悄悄多改了别的东西，本断言是唯一能拦住它的地方。
     证据藏在 `_feat.pt` schema v2 自带的 `meta.channel_sha256`（struct/type_id/sv）
     与 `meta.cb_sha256`（cb_func/cb_node）里，故无需重算张量、逐文件读 meta 即可（590 图）。
+
+    🔴 **2026-09-25 改了比较对象**：原设计比「正典 vs `graph_variants/cb_ft_ss{S}` 副本树」，
+    但 §37 之后正典自己就是微调树 ⇒ 那个比较退化成"微调 vs 微调"，**证明不了本研究要证的事**。
+    现在比「**冻结树** `…/<语料>/graphs` ↔ **正典树**」，这才是"冻结 vs 微调"的单变量证据。
+    ⚠ 正典树逐划分种子一套，故仍按 `split_seeds` 循环取 `…/cb_ft_ss{S}`（经 `canonical_args` 模板化）。
     """
     import torch  # 局部 import：只在本断言需要
 
-    canon = Path(base["graph_dir"]).resolve()
+    frozen = run_ablation.frozen_graphs_of(base)
+    canon_tmpl = run_ablation.canonical_args(BASE_CONFIG)["graph_dir"]     # `…/cb_ft_ss{seed}`
     bad: list[str] = []
     for ss in split_seeds:
-        vdir = variants_root(base) / f"cb_ft_ss{ss}"
-        if not vdir.is_dir():
-            bad.append(f"{vdir} 不存在")
+        canon = Path(canon_tmpl.format(seed=ss)).resolve()
+        if not canon.is_dir():
+            bad.append(f"{canon} 不存在")
             continue
+        frozen_feats = sorted(frozen.glob("*_feat.pt"))
         canon_feats = sorted(canon.glob("*_feat.pt"))
-        var_feats = sorted(vdir.glob("*_feat.pt"))
-        if len(var_feats) != len(canon_feats):
-            bad.append(f"cb_ft_ss{ss} 图数 {len(var_feats)} != 正典 {len(canon_feats)}")
+        if len(canon_feats) != len(frozen_feats):
+            bad.append(f"正典(ss{ss}) 图数 {len(canon_feats)} != 冻结 {len(frozen_feats)}")
             continue
 
         sym_bad, ch_same, cb_diff, n = [], 0, 0, 0
-        for f in var_feats:
-            # 结构侧必须是软链（复用正典，不是拷贝）——拷贝会让"结构未变"失去可证性
+        for f in canon_feats:
+            # 结构侧必须是软链（复用冻结树，不是拷贝）——拷贝会让"结构未变"失去可证性
             for suffix in ("_pyg.pt", "_m1.json", "_hetero.json"):
-                p = vdir / f.name.replace("_feat.pt", suffix)
+                p = canon / f.name.replace("_feat.pt", suffix)
                 if p.exists() and not p.is_symlink():
                     sym_bad.append(f"{p.name}({suffix})")
-            vm = torch.load(f, map_location="cpu")["meta"]
-            cm = torch.load(canon / f.name, map_location="cpu")["meta"]
+            cm = torch.load(f, map_location="cpu")["meta"]
+            fm = torch.load(frozen / f.name, map_location="cpu")["meta"]
             n += 1
-            if vm["channel_sha256"] == cm["channel_sha256"]:
+            if cm["channel_sha256"] == fm["channel_sha256"]:
                 ch_same += 1
-            if vm["cb_sha256"] != cm["cb_sha256"]:
+            if cm["cb_sha256"] != fm["cb_sha256"]:
                 cb_diff += 1
 
         if sym_bad:
-            bad.append(f"cb_ft_ss{ss} 有 {len(sym_bad)} 个结构文件不是软链，例：{sym_bad[:3]}")
+            bad.append(f"正典(ss{ss}) 有 {len(sym_bad)} 个结构文件不是软链，例：{sym_bad[:3]}")
         if ch_same != n:
-            bad.append(f"cb_ft_ss{ss} 三通道相同的图只有 {ch_same}/{n}（应为 {n}）")
+            bad.append(f"正典(ss{ss}) 三通道相同的图只有 {ch_same}/{n}（应为 {n}）")
         if cb_diff != n:
-            bad.append(f"cb_ft_ss{ss} CodeBERT 通道不同的图只有 {cb_diff}/{n}（应为 {n}）")
+            bad.append(f"正典(ss{ss}) CodeBERT 通道不同的图只有 {cb_diff}/{n}（应为 {n}）")
     return bad
 
 
@@ -187,7 +211,15 @@ def preflight(pairs: list[tuple[int, int]], artifact_check: bool = True) -> None
 
         # 1) 单变量：每臂相对正典恰差 override 的那一个键（冻结臂恰差 0 个）
         for arm, a in (("frozen", fargs), ("cbft", cargs)):
-            v = run_ablation.verify_single_variable(base, a, override_of(arm, base, s))
+            ov = override_of(arm, base, s)
+            # ⚠ 逐键剔除「覆盖值**恰等于**基线值」的那些（按解析后的绝对路径比）。
+            #   成因：`cbft` 取的就是正典树本身，故 **ss=0 时它与基线逐字相同**，不构成"变化"；
+            #   若不剔除，`verify_single_variable` 会判「预期覆盖的键未生效」而误报。
+            #   与 `run_arch_baselines.py:96`（`if str(base.get("graph_dir")) != gdir`）同一处理。
+            expected = {k: v for k, v in ov.items()
+                        if k not in base
+                        or str(Path(str(v)).resolve()) != str(Path(str(base[k])).resolve())}
+            v = run_ablation.verify_single_variable(base, a, expected)
             flag = "（无，基线臂）" if arm == BASELINE_CFG else f"--graph-dir {Path(a['graph_dir']).name}"
             print(f"{t}:{s:<5d} {'单变量':6s} {arm:7s} {flag:34s} "
                   f"{'✅' if not v else '❌ ' + v[0]}")
@@ -216,12 +248,29 @@ def preflight(pairs: list[tuple[int, int]], artifact_check: bool = True) -> None
     print()
 
 
-# 正典种子间 std（micro@0.5，`results.md` §1）：用于把"重跑抖动"放在正确的尺度上看
-CANON_STD_MICRO05 = 0.0309
+def canon_std_micro05() -> float | None:
+    """当前正典 `runs/seed{0,1,2}` 的 test micro@0.5 **种子间标准差**（总体 std，n=3）。
+
+    🔴 原实现是写死的 `CANON_STD_MICRO05 = 0.0309`（2026-09-25 之前那一代正典的实测值）。
+    编码器换代后这个常数**语义即失效**——门槛会偏松或偏紧，而它决定"重跑抖动算不算异常"，
+    是个**判决阈值**。故改为现算；正典未跑齐或字段缺失时返回 `None`，
+    调用方降级为"不判噪声级"并**明说**，绝不静默套用一个过期门槛。
+    """
+    vals: list[float] = []
+    for s in (0, 1, 2):
+        p = REPO / "runs" / f"seed{s}" / "results.json"
+        if not p.exists():
+            return None
+        try:
+            vals.append(json.loads(p.read_text(encoding="utf-8"))["test"]["fixed_0.5"]["micro_f1"])
+        except (KeyError, json.JSONDecodeError):
+            return None
+    m = sum(vals) / len(vals)
+    return (sum((v - m) ** 2 for v in vals) / len(vals)) ** 0.5
 
 
 def check_repro() -> list[str]:
-    """复现性对拍：冻结臂 (s,s) ↔ 正典 `runs/seed{s}` —— 度量**重跑抖动**，不是判"是否逐位相同"。
+    """复现性对拍：`cbft` 臂对角 (s,s) ↔ 正典 `runs/seed{s}` —— 度量**重跑抖动**。
 
     🔴 **本函数的最初设计是错的，此处按实测更正（2026-09-19）**：
     原设想"(0,0)/(1,1)/(2,2) 与正典配置相同 ⇒ 应逐位相同"，实测**不成立**。原因不是代码改动，
@@ -232,24 +281,35 @@ def check_repro() -> list[str]:
 
     故本函数的正确用法是**量化**这层噪声（它对论文的局限陈述有独立价值），
     只在 |Δ| 远超正典种子间 std 时才判为"疑似真改了取值"而非噪声。
+
+    🔴 **2026-09-25 换了比较对象**：`cbft` 臂现在**直接取正典树**（见 `override_of`），
+    故 `cbft_ts{s}_ss{s}` 与 `runs/seed{s}` 是**同配置的两次运行** —— 这正是"重跑抖动"的定义。
+    （原实现比的是 `frozen` 臂；在那之前 frozen 因漂移而等于正典，故也能测抖动，
+    修好漂移后它变成"冻结 vs 微调"，拿它测抖动就没有意义了。）
     """
     bad: list[str] = []
     noise: list[float] = []
+    std = canon_std_micro05()
+    if std is None:
+        print("⚠ 正典 runs/seed{0,1,2} 未跑齐 ⇒ 无法现算种子间 std，本次**不判**噪声级\n")
     for s in (0, 1, 2):
-        a = ROOT / f"frozen_ts{s}_ss{s}" / f"seed{s}" / "results.json"
+        a = ROOT / f"cbft_ts{s}_ss{s}" / f"seed{s}" / "results.json"
         b = REPO / "runs" / f"seed{s}" / "results.json"
         if not a.exists() or not b.exists():
-            print(f"ts{s}_ss{s} ↔ runs/seed{s}  — 未跑（跳过）")
+            print(f"cbft_ts{s}_ss{s} ↔ runs/seed{s}  — 未跑（跳过）")
             continue
         da = json.loads(a.read_text(encoding="utf-8"))["test"]
         db = json.loads(b.read_text(encoding="utf-8"))["test"]
         d = abs(da["fixed_0.5"]["micro_f1"] - db["fixed_0.5"]["micro_f1"])
         noise.append(d)
-        verdict = "噪声级" if d < CANON_STD_MICRO05 else "⚠ 超过正典种子间 std，须查因"
-        print(f"ts{s}_ss{s} ↔ runs/seed{s}  Δmicro@0.5 = {d:.4f}"
-              f"（正典种子间 std {CANON_STD_MICRO05:.4f}）→ {verdict}")
-        if d >= 3 * CANON_STD_MICRO05:
-            bad.append(f"ts{s}_ss{s}: Δmicro@0.5={d:.4f}，远超种子间 std，疑似取值改动而非噪声")
+        if std is None:
+            print(f"cbft_ts{s}_ss{s} ↔ runs/seed{s}  Δmicro@0.5 = {d:.4f}（无现算门槛可比）")
+            continue
+        verdict = "噪声级" if d < std else "⚠ 超过正典种子间 std，须查因"
+        print(f"cbft_ts{s}_ss{s} ↔ runs/seed{s}  Δmicro@0.5 = {d:.4f}"
+              f"（正典种子间 std {std:.4f}，现算）→ {verdict}")
+        if d >= 3 * std:
+            bad.append(f"cbft_ts{s}_ss{s}: Δmicro@0.5={d:.4f}，远超种子间 std，疑似取值改动而非噪声")
     if noise:
         print(f"重跑抖动实测：n={len(noise)}，|Δmicro@0.5| = "
               f"{min(noise):.4f}–{max(noise):.4f}（均值 {sum(noise)/len(noise):.4f}）")

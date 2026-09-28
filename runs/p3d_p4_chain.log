@@ -1,0 +1,103 @@
+
+[dive] ===== 步骤 features =====
+  [M3(冻结编码器)] ✓ 188.0s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs
+[m3] cb cache reused for 890/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+[dive] features：结构 890 图；开始 ①② 微调编码器重编码
+  [M3(alldata ss0，force 重算)] ✓ 1725.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft/ss0
+[m3] cb cache reused for 0/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+  [alldata/ss0] 三通道逐位相同 890/890 ✓
+  [M3(alldata ss1，force 重算)] ✓ 1753.4s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft/ss1
+[m3] cb cache reused for 0/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+  [alldata/ss1] 三通道逐位相同 890/890 ✓
+  [M3(alldata ss2，force 重算)] ✓ 1905.3s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft/ss2
+[m3] cb cache reused for 0/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+  [alldata/ss2] 三通道逐位相同 890/890 ✓
+  [M3(augmentation ss0，编码器未变 ⇒ 复用缓存)] ✓ 196.4s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft_aug/ss0
+[m3] cb cache reused for 890/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+  [augmentation/ss0] 三通道逐位相同 890/890 ✓
+  [M3(augmentation ss1，编码器未变 ⇒ 复用缓存)] ✓ 203.0s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft_aug/ss1
+[m3] cb cache reused for 890/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+  [augmentation/ss1] 三通道逐位相同 890/890 ✓
+  [M3(augmentation ss2，编码器未变 ⇒ 复用缓存)] ✓ 196.5s  [m3] device=cuda (requested=cuda)
+[m3] processed 890 graph(s), 264822 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft_aug/ss2
+[m3] cb cache reused for 890/890 graphs (resume OK); wrote 890 _feat.pt channel dicts (no variant files)
+  [augmentation/ss2] 三通道逐位相同 890/890 ✓
+
+[dive] ===== 步骤 variants =====
+  [M2(cb_rev)] 已有 890 个 _feat.pt，跳过重建
+  [cb_rev] 三通道与正典：相同 890 / 不同 0
+  [M2(cb_unlimited)] 已有 890 个 _feat.pt，跳过重建
+  [cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [alldata/ss0 cb_rev] 三通道与正典：相同 890 / 不同 0
+  [alldata/ss0 cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [M3(cb_unlimited 子集 alldata ss0 55 图)] ✓ 182.1s  [m3] device=cuda (requested=cuda)
+[m3] processed 55 graph(s), 25138 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft/graph_variants/cb_unlimited_ss0
+[m3] cb cache reused for 0/55 graphs (resume OK); wrote 55 _feat.pt channel dicts (no variant files)
+  [alldata/ss0 cb_unlimited] must 子集三通道与边变体一致 55/55 ✓
+  [alldata/ss1 cb_rev] 三通道与正典：相同 890 / 不同 0
+  [alldata/ss1 cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [M3(cb_unlimited 子集 alldata ss1 55 图)] ✓ 186.2s  [m3] device=cuda (requested=cuda)
+[m3] processed 55 graph(s), 25138 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft/graph_variants/cb_unlimited_ss1
+[m3] cb cache reused for 0/55 graphs (resume OK); wrote 55 _feat.pt channel dicts (no variant files)
+  [alldata/ss1 cb_unlimited] must 子集三通道与边变体一致 55/55 ✓
+  [alldata/ss2 cb_rev] 三通道与正典：相同 890 / 不同 0
+  [alldata/ss2 cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [M3(cb_unlimited 子集 alldata ss2 55 图)] ✓ 201.7s  [m3] device=cuda (requested=cuda)
+[m3] processed 55 graph(s), 25138 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft/graph_variants/cb_unlimited_ss2
+[m3] cb cache reused for 0/55 graphs (resume OK); wrote 55 _feat.pt channel dicts (no variant files)
+  [alldata/ss2 cb_unlimited] must 子集三通道与边变体一致 55/55 ✓
+  [augmentation/ss0 cb_rev] 三通道与正典：相同 890 / 不同 0
+  [augmentation/ss0 cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [M3(cb_unlimited 子集 augmentation ss0 55 图)] ✓ 194.9s  [m3] device=cuda (requested=cuda)
+[m3] processed 55 graph(s), 25138 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft_aug/graph_variants/cb_unlimited_ss0
+[m3] cb cache reused for 0/55 graphs (resume OK); wrote 55 _feat.pt channel dicts (no variant files)
+  [augmentation/ss0 cb_unlimited] must 子集三通道与边变体一致 55/55 ✓
+  [augmentation/ss1 cb_rev] 三通道与正典：相同 890 / 不同 0
+  [augmentation/ss1 cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [M3(cb_unlimited 子集 augmentation ss1 55 图)] ✓ 179.3s  [m3] device=cuda (requested=cuda)
+[m3] processed 55 graph(s), 25138 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft_aug/graph_variants/cb_unlimited_ss1
+[m3] cb cache reused for 0/55 graphs (resume OK); wrote 55 _feat.pt channel dicts (no variant files)
+  [augmentation/ss1 cb_unlimited] must 子集三通道与边变体一致 55/55 ✓
+  [augmentation/ss2 cb_rev] 三通道与正典：相同 890 / 不同 0
+  [augmentation/ss2 cb_unlimited] 三通道与正典：相同 835 / 不同 55
+  [M3(cb_unlimited 子集 augmentation ss2 55 图)] ✓ 187.2s  [m3] device=cuda (requested=cuda)
+[m3] processed 55 graph(s), 25138 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/dive/graphs_ft_aug/graph_variants/cb_unlimited_ss2
+[m3] cb cache reused for 0/55 graphs (resume OK); wrote 55 _feat.pt channel dicts (no variant files)
+  [augmentation/ss2 cb_unlimited] must 子集三通道与边变体一致 55/55 ✓
+
+[dive] 完成：features,variants
+=== [14:05:03] P4 buggy 换代链启动 ===
+=== [14:05:03] 4.1 finetune_codebert ×3（--epochs 20 --patience 4，约 1.7 h） ===
+    ss0 完成 14:36:56
+    ss1 完成 15:17:21
+    ss2 完成 16:06:42
+=== [16:06:42] 4.1 完成：三个编码器齐备 ===
+=== [16:06:42] 4.2 run_buggy_canon --steps variant（M3 重编码 590 图） ===
+=== [16:38:47] 4.2 完成：三棵树各 590 图 ===
+=== [16:38:47] 4.3 build_ft_edge_variants --layout buggy_p2（约 10 min） ===
+=== [16:42:18] 4.3 完成 ===
+=== [16:42:18] 4.4 run_buggy_canon --steps train eval diagnose summarize ===
+=== [16:43:30] 4.4 完成 ===
+=== [16:43:30] 4.5 run_ablation --root runs/ablation_buggy（63 run，约 25 min） ===
+=== [17:03:05] 4.5 完成 ===
+=== [17:03:05] 4.6 run_arch_baselines --graph-root graphs_ft_buggy_p2（9 run） ===
+=== [17:05:08] 4.6 完成 ===
+=== [17:05:08] 4.7 按裁定跳过（三条论文基线均无需重跑，见脚本注释） ===
+=== [17:05:08] P4 产物统计 ===
+--- buggy 侧 run 数 ---
+  runs/buggy_canon            3
+  runs/ablation_buggy         63
+  runs/baseline_arch_buggy    9
+--- 编码器 best_val_macro_f1（应显著高于旧的 16 轮档）---
+  ss0: best_val_macro_f1=0.9430  epoch=7  epochs=20
+  ss1: best_val_macro_f1=0.9830  epoch=11  epochs=20
+  ss2: best_val_macro_f1=0.9671  epoch=14  epochs=20
+--- 磁盘 ---
+C:\             201G  171G   30G  86% /mnt/c
+=== P4 PIPELINE DONE [17:05:08] ===

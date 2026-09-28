@@ -447,6 +447,12 @@ def test_layout_tables_agree_across_modules():
     assert set(BC.LAYOUTS) == set(CB.LAYOUTS), "两处布局名集合不同"
     for k in BC.LAYOUTS:
         assert BC.LAYOUTS[k]["feature_suffix"] == CB.LAYOUTS[k]["suffix"], f"{k} 后缀不一致"
+    # 🔴 2026-09-24 新增：出表侧的表头要**标注输入来源与池**（§2 的「先看输入」表），
+    #    它直接引用 `split_dir`/`graph_dir` ⇒ 这两条也必须与跑批侧逐字相同，
+    #    否则表里写的来源与实际训练用的池不一致（**出表侧看不出来**，因为两边都能跑通）。
+    for k in BC.LAYOUTS:
+        assert BC.LAYOUTS[k]["split_dir"] == CB.LAYOUTS[k]["split_dir"], f"{k} 划分目录不一致"
+        assert BC.LAYOUTS[k]["graph_dir"] == CB.LAYOUTS[k]["graph_dir"], f"{k} 图目录不一致"
     # 出表侧的 `rel_of` 必须与跑批侧展开的 out_dir 逐字相同
     for k in BC.LAYOUTS:
         for arm in ("mvdhg", "egfl", "egfl_ownlr", "mando"):
@@ -457,12 +463,12 @@ def test_layout_tables_agree_across_modules():
     # 只加 `--feature-suffix`（最典型的"以为改一处就够"）
     ("canon37", {"feature_suffix": "_buggy"}),
     # 换了池与图（读的是 497 的图/划分），却把**特征根与产物根**留在正典
-    ("buggy", {"graph_dir": str(REPO / "products/alldata/graphs_ft_buggy/cb_ft_ss0"),
+    ("buggy", {"graph_dir": str(REPO / "products/alldata/graphs_ft_buggy_p2/cb_ft_ss0"),
                "split_dir": str(REPO / "products/alldata/splits/withbuggy_snapshot"),
                "feature_suffix": "",
                "out_dir": str(REPO / "eval_results/baseline/mvdhg")}),
     # 产物根换了、输入没换（最危险：新池的划分 + 正典的特征 + 正典的图）
-    ("buggy", {"graph_dir": str(REPO / "products/alldata/graphs_ft/ss0"),
+    ("buggy", {"graph_dir": str(REPO / "products/alldata/graphs_ft_p2/cb_ft_ss0"),
                "split_dir": str(REPO / "products/alldata/splits"),
                "feature_suffix": "_buggy"}),
 ])
@@ -486,13 +492,28 @@ def test_check_layout_accepts_consistent_canon(layout):
 
 
 def test_graph_dir_prefix_does_not_cross_match_canons():
-    """`graphs_ft/` 的前缀匹配不得把 `graphs_ft_buggy/...` 也算成 canon37。
+    """两条正典的 `graph_dir` 前缀**不得互为前缀**（否则一处图会被判成另一处正典）。
 
-    这是 `_match_graph` 唯一要注意的地方——少了尾斜杠，两个正典会同时命中。
+    2026-09-25 换代后前缀是 `…/graphs_ft_p2/cb_ft_ss` 与 `…/graphs_ft_buggy_p2/cb_ft_ss`。
+    ⚠ 历史上靠**尾斜杠**区分（`graphs_ft/` vs `graphs_ft_buggy/`），
+    这个坑对下一个新增的 layout 依旧成立 —— 故本用例保留。
     """
     import baseline_common as BC
-    assert BC._match_graph(REPO / "products/alldata/graphs_ft/ss0") == "canon37"
-    assert BC._match_graph(REPO / "products/alldata/graphs_ft_buggy/cb_ft_ss0") == "buggy"
+    assert BC._match_graph(REPO / "products/alldata/graphs_ft_p2/cb_ft_ss0") == "canon37"
+    assert BC._match_graph(REPO / "products/alldata/graphs_ft_buggy_p2/cb_ft_ss0") == "buggy"
+
+
+def test_deposed_trees_match_no_layout():
+    """换代前的旧树**不匹配任何 layout** —— 它们是**旧正典（5 轮档）**的输入树，不再是正典。
+
+    这条是换代安全性的机检：若哪天有人把旧树又写回某个 layout，
+    `_match_graph` 会把**旧正典（5 轮档）**的图判成正典图，`check_layout` 的跨段守卫随之失效。
+    """
+    import baseline_common as BC
+    for old in ("products/alldata/graphs_ft/ss0",
+                "products/alldata/graphs_ft_buggy/cb_ft_ss0",
+                "products/alldata/graphs"):
+        assert BC._match_graph(REPO / old) is None, f"{old} 不该匹配任何 layout"
 
 
 def test_feature_suffix_isolates_roots():
@@ -614,3 +635,71 @@ def test_mando_metadata_carries_both_fingerprints():
         assert "pool_sha256" in d, f"{p} 缺 pool_sha256"
         if suffix == "_buggy":
             assert "structure_sha256" in d, f"{p} 缺 structure_sha256（本次新写的应有）"
+
+
+# ------------------------------------------------- ⑧ 传统工具行的 `—`（2026-09-26 用户裁定）
+def test_trad_row_blanks_capability_missing_classes():
+    """🔴 **该工具不提供此检测项**的类 ⇒ 格子置 `None`（渲染成 `—`），**不是 0.0**。
+
+    Slither 无 `front_running` 检测器 ⇒ 下标 3 必须是 `None`；它有检测项的类必须保留数字。
+    这条守的是"看起来像成绩的 0"——它会被读成"工具测出来是 0"，而事实是"工具没有这项"。
+    """
+    import collect_baseline_tables as CB
+    if not (REPO / "eval_results/baseline/slither_alldata/seed0_eval.json").exists():
+        pytest.skip("Slither 尚无产物")
+    r = CB.trad_row("slither", None, "canon37")
+    f1, _ = r["cells"]["fixed_0.5"]["micro"][0]
+    assert f1[3] is None, "Slither 不提供 front_running 检测项，该格必须置 None（画 —）"
+    assert f1[0] is not None, "access_control 有检测项 ⇒ 不得被误置空"
+    # 逐个能力缺失类都要中：Smartcheck 的 reentrancy+front_running、Oyente 的 dos+uncheck
+    import collect_traditional_tools as C
+    for tool, want in (("smartcheck", {3, 4}), ("oyente", {2, 6}), ("mythril", set())):
+        if not (REPO / f"eval_results/baseline/{tool}_alldata/seed0_eval.json").exists():
+            continue
+        got = CB.trad_row(tool, None, "canon37")["cells"]["fixed_0.5"]["micro"][0][0]
+        # 🔴 置空有**两种**成因，测试必须都认（否则 裁定 A 一生效这条就红）：
+        #   ① 能力缺失（`no_detector_idx`）；② 该种子该类 support=0（0/0 未定义，裁定 A 剔除）。
+        sup0 = json.loads((C.BASE / f"{tool}_alldata" / "seed0_eval.json")
+                          .read_text(encoding="utf-8"))["test"]["per_class_support"]
+        expect = want | {i for i, s in enumerate(sup0) if s == 0}
+        assert {i for i, v in enumerate(got) if v is None} == expect, f"{tool} 置空的类不对"
+        assert C.no_detector_idx(tool, {}) == want
+
+
+def test_trad_row_blanks_degenerate_row_entirely():
+    """整行不可评估（可分析集里逐类 support 全 0，Securify 的真实情形）⇒ 该行所有格置空。
+
+    注意与上一条的区别：这里**不是**能力缺失（Securify 七类都有检测项），
+    而是分母里压根没有正样本 —— 两种都画 `—`，但行注必须分开说。
+    """
+    import collect_baseline_tables as CB
+    if not (REPO / "eval_results/baseline/securify_alldata/seed0_eval.json").exists():
+        pytest.skip("Securify 尚无产物")
+    r = CB.trad_row("securify", None, "canon37")
+    for cal in ("micro", "macro"):
+        pairs = r["cells"]["fixed_0.5"][cal]
+        assert pairs, f"退化行不应是空 pairs（那会让汇总格渲染成不加粗的 —）"
+        assert all(v is None for f1, agg in pairs for v in [*f1, agg]), \
+            f"退化行的 {cal} 口径应逐格置空（含汇总）"
+    # 分母与"跑了但没检出"必须仍可读：support 全 0 这件事留在 support 里
+    assert all(sum(s) == 0 for s in r["support"]["fixed_0.5"])
+
+
+def test_overview_block_survives_an_all_dash_row():
+    """🔴 整行皆 `—` 时**没有**任何一列配叫「本行最高」——`disp[best]` 曾在此 `KeyError: None`。
+
+    这是把 Securify 那行改成 `—` 之后才暴露出来的既有脆弱点（原先它有一堆 0.0，`best` 恒有值）。
+    """
+    import collect_baseline_tables as CB
+    if not (REPO / "eval_results/baseline/securify_alldata/seed0_eval.json").exists():
+        pytest.skip("Securify 尚无产物")
+    lines = CB.overview_block("runs", list(SEEDS))          # 不抛异常即通过
+    sec = next(ln for ln in lines if "Securify" in ln)
+    assert sec.rstrip().endswith("**—** |"), f"整行皆 — 时末列应写 —：{sec}"
+
+
+def test_main_table_declares_the_dash_readings():
+    """主表两段都必须写清 `—` 的两种成因（能力缺失 / 整行不可评估）——否则 `—` 会被读成 0。"""
+    import collect_baseline_tables as CB
+    assert "结构性拿不到值" in CB.TRAD_DASH_NOTE
+    assert "结构性拿不到值" in "\n".join(CB._canon_section0("runs", None))

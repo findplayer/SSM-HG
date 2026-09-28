@@ -1,0 +1,79 @@
+=== [17:07:40] P5 汇总链启动 ===
+=== 前置通过：三种子 + 任务2 三种子 test_probs.pt 齐备 ===
+=== [17:07:40] calibrate ① ===
+    ✅ calibrate ①
+=== [17:07:45] calibrate ② ===
+    ❌ calibrate ② rc=2
+=== [17:07:47] collect_per_class_f1 --check ===
+    ✅ collect_per_class_f1 --check
+=== [17:07:49] error_rates ① ===
+    ✅ error_rates ①
+=== [17:07:50] error_rates 消融 ===
+    ✅ error_rates 消融
+=== [17:07:54] error_rates 消融② ===
+    ✅ error_rates 消融②
+=== [17:07:55] collect_ablation_results main ===
+    ✅ collect_ablation_results main
+=== [17:07:56] collect_ablation_results aug ===
+    ✅ collect_ablation_results aug
+=== [17:07:56] collect_ablation_n9 ①（含剂量/架构/PM 臂） ===
+    ✅ collect_ablation_n9 ①（含剂量/架构/PM 臂）
+=== [17:07:57] collect_ablation_n9 ② ===
+    ✅ collect_ablation_n9 ②
+=== [17:07:59] collect_perclass_arm ===
+    ✅ collect_perclass_arm
+=== [17:08:01] collect_three_caliber_tables ① ===
+    ✅ collect_three_caliber_tables ①
+=== [17:08:04] collect_three_caliber_tables buggy ===
+    ✅ collect_three_caliber_tables buggy
+=== [17:08:06] collect_baseline_tables（含 buggy 段） ===
+    ✅ collect_baseline_tables（含 buggy 段）
+=== [17:08:09] collect_buggy_canon_summary ===
+    ✅ collect_buggy_canon_summary
+=== [17:08:10] check_encoder_promotion ===
+    ✅ check_encoder_promotion
+=== [17:08:10] aggregate_results overview ===
+    ✅ aggregate_results overview
+=== [17:08:10] aggregate_results perclass ===
+    ✅ aggregate_results perclass
+=== [17:08:11] collect_p1_gains（P1 三笔头寸） ===
+    ✅ collect_p1_gains（P1 三笔头寸）
+=== [17:08:11] audit_cb_unlimited_reach（cb_unlimited 触达审计，主库） ===
+    ❌ audit_cb_unlimited_reach（cb_unlimited 触达审计，主库） rc=1
+=== [17:08:12] oof_bootstrap ① ===
+    ✅ oof_bootstrap ①
+=== [17:08:31] ensemble_eval cbft_study ===
+    ✅ ensemble_eval cbft_study
+=== [17:08:33] collect_dive_comparison（从既有矩阵复算，不重跑推理） ===
+    ✅ collect_dive_comparison（从既有矩阵复算，不重跑推理）
+=== [17:08:33] collect_dive_comparison ===
+    ✅ collect_dive_comparison
+
+================ P5 汇总结果 ================
+成功 22 条：
+  ✅ calibrate ①
+  ✅ collect_per_class_f1 --check
+  ✅ error_rates ①
+  ✅ error_rates 消融
+  ✅ error_rates 消融②
+  ✅ collect_ablation_results main
+  ✅ collect_ablation_results aug
+  ✅ collect_ablation_n9 ①（含剂量/架构/PM 臂）
+  ✅ collect_ablation_n9 ②
+  ✅ collect_perclass_arm
+  ✅ collect_three_caliber_tables ①
+  ✅ collect_three_caliber_tables buggy
+  ✅ collect_baseline_tables（含 buggy 段）
+  ✅ collect_buggy_canon_summary
+  ✅ check_encoder_promotion
+  ✅ aggregate_results overview
+  ✅ aggregate_results perclass
+  ✅ collect_p1_gains（P1 三笔头寸）
+  ✅ oof_bootstrap ①
+  ✅ ensemble_eval cbft_study
+  ✅ collect_dive_comparison（从既有矩阵复算，不重跑推理）
+  ✅ collect_dive_comparison
+失败 2 条：
+  ❌ calibrate ② (rc=2)
+  ❌ audit_cb_unlimited_reach（cb_unlimited 触达审计，主库） (rc=1)
+=== P5 DONE [17:08:33] ===

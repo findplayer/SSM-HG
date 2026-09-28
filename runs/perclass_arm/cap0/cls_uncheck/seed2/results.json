@@ -3,107 +3,107 @@
   "split_seed": 2,
   "head": "binary",
   "select_metric": "val_binary_ap",
-  "val_threshold": 0.7,
+  "val_threshold": 0.2,
   "threshold_scan": {
     "metric": "binary_f1",
-    "best_threshold": 0.7,
-    "best_binary_f1": 0.9333333333333333,
+    "best_threshold": 0.2,
+    "best_binary_f1": 0.7999999999999999,
     "candidates": [
       {
         "threshold": 0.2,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.25,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.3,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.35,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.4,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.45,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.5,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.55,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.6,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.65,
-        "f1": 0.875
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.7,
-        "f1": 0.9333333333333333
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.75,
-        "f1": 0.9333333333333333
+        "f1": 0.7999999999999999
       },
       {
         "threshold": 0.8,
-        "f1": 0.9333333333333333
+        "f1": 0.7999999999999999
       }
     ],
     "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
   },
   "AP": {
-    "AP": 1.0,
+    "AP": 0.9617346938775508,
     "support": 7,
     "n": 46
   },
   "test": {
     "fixed_0.5": {
       "threshold": 0.5,
-      "micro_f1": 1.0,
-      "binary_f1": 1.0,
-      "binary_precision": 1.0,
+      "micro_f1": 0.875,
+      "binary_f1": 0.8750000000000001,
+      "binary_precision": 0.7777777777777778,
       "binary_recall": 1.0,
-      "binary_accuracy": 1.0,
-      "binary_FPR": 0.0,
+      "binary_accuracy": 0.9565217391304348,
+      "binary_FPR": 0.05128205128205128,
       "binary_FNR": 0.0,
       "TP": 7,
-      "FP": 0,
+      "FP": 2,
       "FN": 0,
-      "TN": 39,
+      "TN": 37,
       "support": 7
     },
     "val_threshold": {
-      "threshold": 0.7,
-      "micro_f1": 1.0,
-      "binary_f1": 1.0,
-      "binary_precision": 1.0,
+      "threshold": 0.2,
+      "micro_f1": 0.8235294117647058,
+      "binary_f1": 0.8235294117647058,
+      "binary_precision": 0.7,
       "binary_recall": 1.0,
-      "binary_accuracy": 1.0,
-      "binary_FPR": 0.0,
+      "binary_accuracy": 0.9347826086956522,
+      "binary_FPR": 0.07692307692307693,
       "binary_FNR": 0.0,
       "TP": 7,
-      "FP": 0,
+      "FP": 3,
       "FN": 0,
-      "TN": 39,
+      "TN": 36,
       "support": 7
     }
   },
   "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
   "timing": {
-    "infer_seconds": 0.1949
+    "infer_seconds": 0.2163
   },
   "environment": {
     "device": "cuda",

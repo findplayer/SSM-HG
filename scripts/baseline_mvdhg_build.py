@@ -456,7 +456,7 @@ TERMINAL = {"ok", "dfg_timeout", "dfg_degraded", "cfg_degraded", "compile_error"
 # --------------------------------------------------------------------------- 主流程
 def parse_args():
     p = argparse.ArgumentParser(description="MVD-HG 基线离线建图（驱动原仓库代码）。")
-    p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft/ss0"))
+    p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft_p2/cb_ft_ss0"))
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
     p.add_argument("--feature-suffix", default="",
                    help="离线特征根后缀：`\"\"`=§37 正典（池 453），`_buggy`=新正典（池 497）。"

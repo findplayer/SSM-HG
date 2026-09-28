@@ -2,7 +2,7 @@
   "seed": 2,
   "split_seed": 2,
   "head": "binary",
-  "val_threshold": 0.45,
+  "val_threshold": 0.5,
   "n_train": 362,
   "n_val": 45,
   "n_test": 46,
@@ -20,40 +20,40 @@
       "true_neg_pos_ratio": 89.5,
       "confusion_0.5": {
         "threshold": 0.5,
-        "TP": 0,
+        "TP": 1,
         "FP": 0,
-        "FN": 1,
+        "FN": 0,
         "TN": 45
       },
       "confusion_val_thr": {
-        "threshold": 0.45,
+        "threshold": 0.5,
         "TP": 1,
-        "FP": 4,
+        "FP": 0,
         "FN": 0,
-        "TN": 41
+        "TN": 45
       },
       "AP": 1.0,
       "ROC_AUC": 1.0,
       "oracle": {
         "best_f1": 1.0,
-        "best_threshold": 0.494911
+        "best_threshold": 0.502036
       },
       "prob_stats": {
         "pos_n": 1,
         "neg_n": 45,
-        "pos_mean": 0.494911,
-        "pos_median": 0.494911,
-        "pos_min": 0.494911,
-        "pos_max": 0.494911,
-        "neg_mean": 0.354019,
-        "neg_median": 0.35346,
-        "neg_max": 0.487516,
-        "frac_pos_ge_0.5": 0.0,
+        "pos_mean": 0.502036,
+        "pos_median": 0.502036,
+        "pos_min": 0.502036,
+        "pos_max": 0.502036,
+        "neg_mean": 0.343002,
+        "neg_median": 0.350094,
+        "neg_max": 0.476494,
+        "frac_pos_ge_0.5": 1.0,
         "frac_pos_ge_0.2": 1.0,
         "frac_neg_ge_0.5": 0.0,
         "frac_neg_ge_0.2": 1.0,
         "pos_probs_sorted": [
-          0.4949
+          0.502
         ]
       }
     }

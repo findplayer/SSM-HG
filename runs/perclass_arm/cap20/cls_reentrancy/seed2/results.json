@@ -3,10 +3,10 @@
   "split_seed": 2,
   "head": "binary",
   "select_metric": "val_binary_ap",
-  "val_threshold": 0.5,
+  "val_threshold": 0.55,
   "threshold_scan": {
     "metric": "binary_f1",
-    "best_threshold": 0.5,
+    "best_threshold": 0.55,
     "best_binary_f1": 1.0,
     "candidates": [
       {
@@ -19,11 +19,11 @@
       },
       {
         "threshold": 0.3,
-        "f1": 0.20408163265306123
+        "f1": 0.25641025641025644
       },
       {
         "threshold": 0.35,
-        "f1": 0.2857142857142857
+        "f1": 0.3571428571428571
       },
       {
         "threshold": 0.4,
@@ -35,7 +35,7 @@
       },
       {
         "threshold": 0.5,
-        "f1": 1.0
+        "f1": 0.9090909090909091
       },
       {
         "threshold": 0.55,
@@ -47,7 +47,7 @@
       },
       {
         "threshold": 0.65,
-        "f1": 0.888888888888889
+        "f1": 1.0
       },
       {
         "threshold": 0.7,
@@ -55,55 +55,55 @@
       },
       {
         "threshold": 0.75,
-        "f1": 0.7499999999999999
+        "f1": 0.888888888888889
       },
       {
         "threshold": 0.8,
-        "f1": 0.5714285714285715
+        "f1": 0.7499999999999999
       }
     ],
     "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
   },
   "AP": {
-    "AP": 0.8555555555555556,
+    "AP": 0.8833333333333333,
     "support": 5,
     "n": 46
   },
   "test": {
     "fixed_0.5": {
       "threshold": 0.5,
-      "micro_f1": 0.8,
-      "binary_f1": 0.8000000000000002,
-      "binary_precision": 0.8,
+      "micro_f1": 0.8888888888888888,
+      "binary_f1": 0.888888888888889,
+      "binary_precision": 1.0,
       "binary_recall": 0.8,
-      "binary_accuracy": 0.9565217391304348,
-      "binary_FPR": 0.024390243902439025,
+      "binary_accuracy": 0.9782608695652174,
+      "binary_FPR": 0.0,
       "binary_FNR": 0.2,
       "TP": 4,
-      "FP": 1,
+      "FP": 0,
       "FN": 1,
-      "TN": 40,
+      "TN": 41,
       "support": 5
     },
     "val_threshold": {
-      "threshold": 0.5,
-      "micro_f1": 0.8,
-      "binary_f1": 0.8000000000000002,
-      "binary_precision": 0.8,
+      "threshold": 0.55,
+      "micro_f1": 0.8888888888888888,
+      "binary_f1": 0.888888888888889,
+      "binary_precision": 1.0,
       "binary_recall": 0.8,
-      "binary_accuracy": 0.9565217391304348,
-      "binary_FPR": 0.024390243902439025,
+      "binary_accuracy": 0.9782608695652174,
+      "binary_FPR": 0.0,
       "binary_FNR": 0.2,
       "TP": 4,
-      "FP": 1,
+      "FP": 0,
       "FN": 1,
-      "TN": 40,
+      "TN": 41,
       "support": 5
     }
   },
   "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
   "timing": {
-    "infer_seconds": 0.1987
+    "infer_seconds": 0.2117
   },
   "environment": {
     "device": "cuda",

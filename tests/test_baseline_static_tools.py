@@ -151,5 +151,60 @@ def test_no_versions_installed(tmp_path):
     assert bst.pick_solc_candidates(p, []) == []
 
 
+# ------------------------------------------------------------------ 5. 只读源目录绝不被写（2026-09-25）
+
+
+def test_slither_json_never_lands_in_the_source_dir():
+    """🔴 **源码在 `alldata(readonly)/`（硬规则：只读、绝不写入或改名）**，
+    而 tools 会写临时文件 —— Slither 的 `--json` 原先就写在 `source.parent`（= 只读树）里，再 `finally` 删掉。
+    删是删干净了（无残留），但**瞬时也违规**。
+
+    **物证**：`alldata(readonly)/alldata_sol_source/` 下 **560 个目录**的 mtime 停在
+    **2026-09-21**（那次 Slither 基线运行的日子）、0 个文件 —— 建后即删会改目录 mtime。
+
+    ⚠ 第一版修法写成 `work: Path | None = None` 且回退 `source.parent`，**而 `analyze()` 根本没传**
+    ⇒ 等于没修。故本条同时钉住两件事：**签名里没有回退**、**调用点必须传**。
+    """
+    import inspect
+    sig = inspect.signature(bst.run_slither)
+    w = sig.parameters["work"]
+    assert w.default is inspect.Parameter.empty, "work 又有默认值了 ⇒ 回退会把 json 写回只读源目录"
+    src = (REPO / "scripts" / "baseline_static_tools.py").read_text(encoding="utf-8")
+    assert "run_slither(src, solc, timeout)" not in src, "有调用点没传 work"
+    assert "run_slither(src, solc, timeout, work)" in src, "analyze() 的调用点没传 work"
+
+
+def test_run_slither_writes_into_work_not_source(tmp_path, monkeypatch):
+    """行为级：`run_slither` 的 `--json` 必须落在 `work/`，且不留残留。
+
+    用假的 `slither` 可执行文件替换 PATH —— 它把 `--json` 后面的路径写出来，
+    于是"落点在哪"可以直接断言，不必真的跑 slither。
+    """
+    import stat
+    src_dir = tmp_path / "ro"
+    src_dir.mkdir()
+    src = src_dir / "a.sol"
+    src.write_text("contract A {}", encoding="utf-8")
+    fakebin = tmp_path / "bin"
+    fakebin.mkdir()
+    fake = fakebin / "slither"
+    fake.write_text("#!/usr/bin/env python3\n"
+                    "import json, sys\n"
+                    "argv = sys.argv[1:]\n"
+                    "p = argv[argv.index('--json') + 1]\n"
+                    "json.dump({'success': True, 'results': {'detectors': [{'check': 'reentrancy-eth'}]}},\n"
+                    "          open(p, 'w'))\n", encoding="utf-8")
+    fake.chmod(fake.stat().st_mode | stat.S_IEXEC)
+    monkeypatch.setenv("PATH", f"{fakebin}:{__import__('os').environ.get('PATH', '')}")
+    work = tmp_path / "w"
+    res = bst.run_slither(src, Path("/fake/solc-0.4.24/solc-0.4.24"), 60, work)
+    assert res["status"] == "ok", res
+    assert res["checks"] == ["reentrancy-eth"]
+    # 只读源目录：一个字节都没变（无新增文件、无 mtime 变化）
+    assert [p.name for p in src_dir.iterdir()] == ["a.sol"], "源目录里多了文件"
+    # 工作目录：临时 json 已被 finally 清掉
+    assert list(work.iterdir()) == [], "工作目录里留了临时件"
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__, "-q"]))

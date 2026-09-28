@@ -38,9 +38,12 @@ import run_guard  # noqa: E402
 CANON_RUN = REPO / "runs" / "seed0"          # 正典基线（重训后，现行口径）
 ABLATION_ROOT = REPO / "runs" / "ablation"
 
-# M2 变体目录（`ablation_plan.md` §6.1/§6.3/§6.4）：**只改边 / 只改 `_cb.pt`**，
-# 由 `scripts/build_graph_variant.py` 造，产物一律在 `products/<数据集>/graph_variants/<名>`。
-VARIANT_ROOT = REPO / "products" / "alldata" / "graph_variants"
+# M2 **边变体的「源」**目录（`ablation_plan.md` §6.1/§6.3/§6.4）：存放 `callback_rev/`、
+# `callback_unlimited/` 两组原始边变体，`build_ft_edge_variants.py` 从这里取结构侧。
+# 🔴 **它不是「臂变体根」**，两者同名不同物：
+#    臂变体根 = `variants_root_of(base)` = 基线 `graph_dir` 的兄弟 `graph_variants/`（下面 `:158`）。
+#    曾用名 `VARIANT_ROOT`，全文件无引用（死常量）却极易被误当成臂变体根 ⇒ 2026-09-25 改名。
+EDGE_SOURCE_ROOT = REPO / "products" / "alldata" / "graph_variants"
 
 # 与基线无关、每项都要改的键（不算"第二个变量"）
 BOOKKEEPING = frozenset({"seed", "split_seed", "out_dir", "overwrite"})
@@ -152,8 +155,12 @@ def canonical_args(base_config: Path) -> dict:
 def variants_root_of(base: dict) -> Path:
     """`{variants}` 的实际值 = 基线 `graph_dir` 的**兄弟目录** `graph_variants/`。
 
-    这样 ①② 各自指向自己的变体区（`products/alldata/graph_variants` /
-    `products/augmentation/graph_variants`），不必再传一个数据集开关。
+    这样 ①② 各自指向自己的变体区（`products/alldata/graphs_ft/graph_variants` /
+    `products/augmentation/graphs_ft/graph_variants`），不必再传一个数据集开关。
+
+    🔴 **本函数是纯路径推导，不做存在性检查**（有测试拿它跟 `build_ft_edge_variants`
+    的落点对拍，那些用例不需要目录真的在盘上）。
+    **存在性由 `require_layout_dirs()` 在 `main()` 里硬把关** —— 见该函数的说明。
     """
     return Path(base["graph_dir"]).resolve().parent / "graph_variants"
 
@@ -166,6 +173,70 @@ def frozen_graphs_of(base: dict) -> Path:
     派生而非写死，故 ①② 各自解析，不必再传语料开关。
     """
     return variants_root_of(base).parent.parent / "graphs"
+
+
+# ------------------------------------------------------- 被迫的第二变量（架构臂）
+# 🔴 **GAT 在 CUDA 上没有确定性的 `scatter_reduce` 实现**（2026-09-25 实测）：
+#    `--deterministic` 下 GAT 训练**硬失败** ——
+#    `RuntimeError: scatter_reduce_cuda does not have a deterministic implementation`。
+#    实测 `rgcn` / `gcn` / `sage` **三者均可用**（`--limit-graphs 12 --epochs 2` 冒烟验证）
+#    ⇒ 只有 **GAT 系的两个臂**（`conv_gat`、`gat_pm`）被迫关掉该开关。
+# ⚠ 为什么非处理不可：**现行正典带 `--deterministic`**（`_p2_chain.sh` 为 SWA 逐位对拍加的），
+#    而下游臂的参数由基线 `config.json::args` **继承** ⇒ 不显式关掉，GAT 臂根本跑不起来
+#    （2026-09-25 实测：`runs/arch_n9/conv_gat/0:0` rc=1 中止了整条 P3 链）。
+# ⚠ **代价（必须随表披露）**：这两个臂相对基线因此**多了一个变量**（确定性开关）。
+#    但**不是**可选的美化——是 PyTorch 的限制；且它是"噪声级"而非"偏差级"的差异
+#    （确定性开关不改变期望精度，只消除归约顺序抖动），故可接受。
+NONDET_CONVS = frozenset({"gat"})
+
+
+def forced_overrides(override: dict) -> dict:
+    """给「用不了确定性算子」的臂补 `deterministic: False`；其余臂返回空 dict。
+
+    与 `override` 合并后即为该臂相对基线的**全部**差异键 —— 调用方的单变量断言
+    必须把本函数返回的键一并计入 `expected`，否则会误报「预期覆盖的键未生效」。
+    """
+    return {"deterministic": False} if override.get("conv") in NONDET_CONVS else {}
+
+
+def require_layout_dirs(base: dict, seeds: list[int], items: list) -> None:
+    """🔴 开工前**硬失败**守卫：`{variants}` 与 `{frozen}` 必须真的在盘上。
+
+    **为什么必须有这一条**（`decisions.md` §54.5 记录的真实耦合）：
+    `variants_root_of` 是**推导**出来的，基线一换（例如正典从 `graphs_ft/` 换到
+    `graphs_ft_p2/`），推导出的变体根就变成**不存在的目录**，而 `cb_rev`/`cb_unlimited`
+    两臂只会拿到「空图目录」⇒ 报一个与真因无关的错，或者更糟：静默跑出一个空臂。
+    本仓已栽过三次同类静默错，故这里一律**响亮中止**而不是让它跑下去。
+
+    只检查**本次真的要跑的**那些臂用到的目录 —— `--only dfg_dep` 不该因为
+    `cb_rev` 的变体没造而中止（那是两件事）。变体臂由 override 里是否出现
+    `{variants}` 模板识别，与 `expand()` 的展开逻辑同源，不另立一份名单。
+    """
+    variants, frozen = variants_root_of(base), frozen_graphs_of(base)
+    need_variants = sorted({it[0] for it in items
+                            if any("{variants}" in str(v) for v in it[1].values())})
+    need_frozen = any("{frozen}" in str(v) for it in items for v in it[1].values())
+    if not need_variants and not need_frozen:
+        return                                   # 本次没有变体臂/冻结臂：无可检查
+    if need_variants and not variants.is_dir():
+        raise SystemExit(
+            f"[ablation] 🔴 变体根不存在：{variants}\n"
+            f"    它由基线 graph_dir 推导而来：{base['graph_dir']}\n"
+            f"    若刚换过正典，先跑对应 layout 的：\n"
+            f"      python scripts/build_ft_edge_variants.py --dataset <语料> --layout <canon_p2|buggy_p2>")
+    if need_frozen and not frozen.is_dir():
+        raise SystemExit(
+            f"[ablation] 🔴 冻结树不存在：{frozen}（`cb_frozen` 臂的 graph_dir）\n"
+            f"    同样由基线 graph_dir 推导而来：{base['graph_dir']}")
+    missing = [str(variants / f"{name}_ss{s}")
+               for s in seeds for name in need_variants
+               if not (variants / f"{name}_ss{s}").is_dir()]
+    if missing:
+        raise SystemExit(
+            f"[ablation] 🔴 结构变体臂的图目录缺失（{len(missing)} 个）：\n    "
+            + "\n    ".join(missing[:6])
+            + ("\n    …" if len(missing) > 6 else "")
+            + "\n    跑 `build_ft_edge_variants.py --layout <对应档>` 补齐后再开跑。")
 
 
 def expand(value, seed: int, variants: Path, frozen: Path | None = None):
@@ -327,6 +398,8 @@ def main() -> None:
                              f"{[it[0] for it in all_items]}")
     if not items:
         raise SystemExit("[ablation] 没有匹配的消融项")
+    # 🔴 变体臂/冻结臂的输入目录必须真的在盘上（否则静默拿到空图目录）
+    require_layout_dirs(base, seeds, items)
 
     print(f"[ablation] 基线 {args.base_config}；{len(items)} 项 × {len(seeds)} 种子 "
           f"= {len(items) * len(seeds)} 个 run；dry_run={args.dry_run}\n")

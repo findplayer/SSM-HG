@@ -1,0 +1,195 @@
+{
+  "args": {
+    "split_seed": 2,
+    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+    "split_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/splits",
+    "label_file": null,
+    "label_key_mode": null,
+    "out_root": "runs/codebert_ft_p2",
+    "codebert": "microsoft/codebert-base",
+    "epochs": 20,
+    "lr": 2e-05,
+    "head_lr": 0.001,
+    "weight_decay": 0.01,
+    "seq_batch": 6,
+    "grad_checkpoint": true,
+    "contracts_per_batch": 2,
+    "max_funcs_per_contract": 48,
+    "pos_weight_cap": 20.0,
+    "patience": 4,
+    "limit_contracts": 0,
+    "swa_start": 16,
+    "seed": 0
+  },
+  "device": "cuda",
+  "torch_version": "2.0.1+cu118",
+  "split_seed": 2,
+  "corpus": "alldata",
+  "split_counts": {
+    "train": 362,
+    "val": 45,
+    "test": 46
+  },
+  "leak_check": "train ∩ (val ∪ test) = ∅（未用 --limit-contracts 时强制断言）",
+  "text_spec": "函数源码 src_lines[fs-1:fe]，512 token 截断；与 m3_build_features 同源",
+  "selection_metric": "val macro-F1（大纲第 452 行）",
+  "swa": {
+    "swa_start": 16,
+    "n_averaged": 2,
+    "swa_val_macro_f1": 0.629025,
+    "selection": "best_epoch"
+  },
+  "best_epoch": 14,
+  "best_val_macro_f1": 0.716484,
+  "n_train_sequences": 8542,
+  "pos_weight": [
+    20.0,
+    20.0,
+    20.0,
+    20.0,
+    16.238094,
+    20.0,
+    9.342857
+  ],
+  "class_mask": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "epochs_log": [
+    {
+      "epoch": 1,
+      "train_loss": 1.426174,
+      "val_macro_f1": 0.237695,
+      "lr": 2e-05,
+      "seconds": 128.1
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.040203,
+      "val_macro_f1": 0.239233,
+      "lr": 2e-05,
+      "seconds": 256.3
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.840982,
+      "val_macro_f1": 0.305599,
+      "lr": 2e-05,
+      "seconds": 385.5
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.471729,
+      "val_macro_f1": 0.319728,
+      "lr": 2e-05,
+      "seconds": 514.7
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.343354,
+      "val_macro_f1": 0.421245,
+      "lr": 2e-05,
+      "seconds": 643.2
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.264851,
+      "val_macro_f1": 0.472039,
+      "lr": 2e-05,
+      "seconds": 771.6
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.200315,
+      "val_macro_f1": 0.486168,
+      "lr": 2e-05,
+      "seconds": 901.2
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.134248,
+      "val_macro_f1": 0.445055,
+      "lr": 2e-05,
+      "seconds": 1030.5
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.124666,
+      "val_macro_f1": 0.609977,
+      "lr": 2e-05,
+      "seconds": 1159.2
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.170191,
+      "val_macro_f1": 0.593651,
+      "lr": 2e-05,
+      "seconds": 1289.1
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.095805,
+      "val_macro_f1": 0.569841,
+      "lr": 1e-05,
+      "seconds": 1417.8
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.035102,
+      "val_macro_f1": 0.614896,
+      "lr": 1e-05,
+      "seconds": 1546.2
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.030938,
+      "val_macro_f1": 0.629025,
+      "lr": 1e-05,
+      "seconds": 1675.2
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.02308,
+      "val_macro_f1": 0.716484,
+      "lr": 1e-05,
+      "seconds": 1805.1
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.021118,
+      "val_macro_f1": 0.622222,
+      "lr": 1e-05,
+      "seconds": 1933.8
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.019356,
+      "val_macro_f1": 0.602198,
+      "lr": 5e-06,
+      "seconds": 2062.2
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.00227,
+      "val_macro_f1": 0.629025,
+      "lr": 5e-06,
+      "seconds": 2191.1
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.0107,
+      "val_macro_f1": 0.622222,
+      "lr": 2.5e-06,
+      "seconds": 2319.6
+    }
+  ],
+  "timing": {
+    "wall_seconds": 2322.7
+  },
+  "encoder_dir": "runs/codebert_ft_p2/ss2/encoder"
+}

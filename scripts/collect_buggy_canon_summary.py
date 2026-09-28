@@ -113,8 +113,16 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--runs-dir", default="runs/buggy_canon")
     ap.add_argument("--split-dir", default="products/alldata/splits/withbuggy_snapshot")
-    ap.add_argument("--encoder-root", default="runs/codebert_ft_buggy")
+    # 🔴 2026-09-25 换代落地：任务 2 的编码器 16 轮 → **20 轮**，新编码器在 `runs/codebert_ft_buggy_p2`。
+    #   本节读的是**现行**编码器（§1 的时间表与 §2 的轨迹「新」侧）⇒ 必须指向 `_p2`；
+    #   指向旧的 `runs/codebert_ft_buggy` 会把 16 轮档的数字贴到 20 轮档的 run 旁边，**不报错**。
+    ap.add_argument("--encoder-root", default="runs/codebert_ft_buggy_p2",
+                    help="现行（20 轮）编码器根；换代后是 runs/codebert_ft_buggy_p2")
     ap.add_argument("--old-encoder-root", default="runs/codebert_ft/alldata")
+    # 🔴 2026-09-25 换代落地：新一代替换到 `runs/seed{S}`，旧一代归档到 `runs/prior_canon37/`。
+    #   本节要的是**旧 5 轮正典**，故必须显式指向归档根（默认值不再是 `runs`）。
+    ap.add_argument("--old-runs-root", default="runs/prior_canon37",
+                    help="旧（5 轮）正典 GNN 产物根；换代后是 runs/prior_canon37")
     ap.add_argument("--slither", default="eval_results/baseline/slither_alldata")
     ap.add_argument("--out", default="experiments/buggy_canon_summary.md")
     args = ap.parse_args()
@@ -132,7 +140,12 @@ def main() -> int:
            "🔴 **本臂相对 §37 正典同时改了三件事**，读任何一个数字前必须先分清是哪一件：",
            "1. **数据**：池 453 → **497**（补回去重后的 `buggy_*`）；",
            "2. **划分**：8:1:1 重划 ⇒ **test 集换了**（46 → 49）⇒ **新旧数字不可直接相减**；",
-           "3. **编码器**：epoch 预算 5 → 16（依据 = epoch 探针，见 `improvement_round1_results.md` §1）。", "",
+           "3. **编码器**：epoch 预算 5 → **20**（2026-09-25 与 ① 同步换代；"
+           "初版曾取 16，依据 = epoch 探针，见 `improvement_round1_results.md` §1）。", "",
+           "⚠ **第 3 件事的口径限制（2026-09-25 换代时写死）**：换代前两侧的 epoch 预算是 **16 vs 5** ⇒ "
+           "本臂与 §37 正典之间实际是**双变量**（池 **+** 训练量），不可分离；两侧都对齐到 20 轮后才只剩「池」"
+           "一个变量。**本卷仍报「池 + 训练量」的合计增量**，要单看「池」的净效应须看 §3b 与 "
+           "`decisions.md` §55 的逐格对照。", "",
            "🔴 **`buggy_*` 的标签绝大多数是七类全 1**（`decisions.md` §18.4：上游按「每类各放一份」复制，"
            "文件夹归属被推成标签）⇒ 它们**会系统性抬高** macro/mAP **而不代表检测能力**。"
            "本文因此并列一个 **`clean_only` 诊断列**：把 test 里的 `buggy_*` 合约剔掉再算一遍。", ""]
@@ -164,10 +177,11 @@ def main() -> int:
         doc += ["", "## 2. 编码器逐 epoch val macro-F1 对照（**标签假象的直接证据**）", "",
                 "> 下表取自 **ss2**（两侧同划分种子，训练集不同 ⇒ **不可直接比**），看的是**轨迹形状**。",
                 "> ⚠ 数字随划分种子变动（ss0 的第 1 轮就是 0.86），故**不要**把某一轮的绝对值当结论。", "",
-                "> **旧正典的 epoch 预算是 5** —— 在第 5 轮处两者是 **0.437 vs 0.898**："
-                "同一个「5 轮」的预算，含 buggy 的划分下 val macro-F1 高出 0.46。"
+                "> **旧侧的 epoch 预算是 5、新侧是 20**（2026-09-25 换代）—— 在第 5 轮这个**两侧都跑到的**"
+                "位置上是 **0.437 vs 0.898**：同一个「5 轮」的预算，含 buggy 的划分下 val macro-F1 高出 0.46。"
                 "原因不是编码器突然变强，而是 val 里混进了 `buggy_*` 全 1 合约，"
-                "而编码器**正是用 val macro-F1 选 epoch / 调 lr / 早停**。", ""] + tr
+                "而编码器**正是用 val macro-F1 选 epoch / 调 lr / 早停**。"
+                "⚠ 新侧第 5 轮之后的行**没有旧侧对应值**（旧侧已早停），只可用于描述新侧自身的轨迹。", ""] + tr
 
     # ---- 3. 主指标：all vs clean_only ----
     doc += ["", "## 3. 主指标（3 种子）：全 test vs 剔 buggy（clean_only）", "",
@@ -189,16 +203,16 @@ def main() -> int:
                            f"{'—' if dM is None else f'{dM:+.4f}'} |")
         doc.append("")
 
-    # ---- 3b. 与旧正典的"同规模对照" ----
+    # ---- 3b. 与旧（5 轮）正典的"同规模对照" ----
     old = {}
     for s in SEEDS:
-        r = _read(REPO / "runs" / f"seed{s}" / "results.json")
+        r = _read(REPO / args.old_runs_root / f"seed{s}" / "results.json")
         if r:
             t = (r.get("test") or {}).get("val_threshold") or {}
             old[s] = {"micro": t.get("micro_f1"), "macro": t.get("macro_f1"),
                       "mAP": (r.get("mAP") or {}).get("mAP")}
     if old and got:
-        doc += ["", "## 3b. 与 §37 旧正典的对照（**同规模，但不同合约 ⇒ 仅供量级参考**）", "",
+        doc += ["", "## 3b. 与 §37 旧正典（**5 轮档**）的对照（**同规模，但不同合约 ⇒ 仅供量级参考**）", "",
                 "🔴 **两边的 test 集不是同一批合约**（旧 46 / 新 49，且划分重划过）⇒ "
                 "**严格说不可相减**。可相减的理由只有一条：两者的**正样本量级相当**"
                 "（旧 test 21 个正 / 新 test 干净子集 20 个正），故列出来看**方向**是合理的，"

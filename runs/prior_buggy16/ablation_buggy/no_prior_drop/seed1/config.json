@@ -1,0 +1,150 @@
+{
+  "args": {
+    "seed": 1,
+    "split_seed": 1,
+    "epochs": 200,
+    "batch_size": 32,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "lambda_var": 0.001,
+    "tau_var": 0.1,
+    "pos_weight_cap": 20.0,
+    "head": "multi",
+    "loss": "bce",
+    "focal_gamma": 2.0,
+    "asl_gamma_pos": 1.0,
+    "asl_gamma_neg": 4.0,
+    "asl_clip": 0.05,
+    "prior_dropout": 0.0,
+    "struct_dropout": 0.2,
+    "model_dropout": 0.3,
+    "scheduler_patience": 3,
+    "early_stop_patience": 5,
+    "drop_edge_prob": 0.0,
+    "limit_graphs": 0,
+    "drop_edges": "",
+    "drop_ast": false,
+    "conv": "rgcn",
+    "meanpool": false,
+    "num_bases": 5,
+    "layers": 2,
+    "hid": 128,
+    "ablate_sv": false,
+    "cb_channels": "cb_func,cb_node",
+    "feat_groups": "all",
+    "deterministic": false,
+    "graph_dir": "products/alldata/graphs_ft_buggy/cb_ft_ss1",
+    "split_dir": "products/alldata/splits/withbuggy_snapshot",
+    "out_dir": "runs/ablation_buggy/no_prior_drop",
+    "label_file": null,
+    "label_key_mode": null,
+    "verify_channel_hash": false,
+    "overwrite": false
+  },
+  "split_seed": 1,
+  "label_source": {
+    "file": "/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json",
+    "sha256": "556837fbc2496dfec358b9e5cec348148de6e248034113647b7ba7df272c0aa4",
+    "key_mode": "project",
+    "n_index": 590,
+    "n_unmatched": 0
+  },
+  "derived": {
+    "D_struct": 30,
+    "struct_layout": {
+      "visibility": 4,
+      "bool": 14,
+      "call_mode": 5,
+      "position": 1,
+      "ir": 6
+    },
+    "fuser_in_dim": 1631,
+    "fuser_hidden": 128,
+    "num_relations": 5,
+    "num_layers": 2,
+    "head": "multi",
+    "num_classes": 7,
+    "head_class_names": [
+      "access_control",
+      "arithmetic",
+      "dos",
+      "front_running",
+      "reentrancy",
+      "time_manipulation",
+      "uncheck"
+    ],
+    "label_aggregation": "identity",
+    "pos_weight": [
+      9.473684,
+      8.707317,
+      12.266666,
+      12.724138,
+      7.468085,
+      11.83871,
+      5.123077
+    ],
+    "class_mask": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "active_classes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "skipped_classes": [],
+    "train_pos": [
+      38,
+      41,
+      30,
+      29,
+      47,
+      31,
+      65
+    ],
+    "train_neg": [
+      360,
+      357,
+      368,
+      369,
+      351,
+      367,
+      333
+    ],
+    "train_graphs": 398,
+    "val_graphs": 50,
+    "parameter_report": {
+      "fuser_params": 209472,
+      "fuser_learnable_params": 209472,
+      "rgcn_params": 205754,
+      "rgcn_learnable_params": 205754,
+      "total_params": 415226,
+      "total_learnable_params": 415226
+    }
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3",
+    "torch_num_threads": 12
+  },
+  "timing": {
+    "run_wall_seconds": 16.4076,
+    "data_load_seconds": 4.0533,
+    "train_seconds": 10.2734,
+    "validation_seconds": 1.0841,
+    "epoch_seconds_mean": 0.5679,
+    "graphs_per_second": 774.818,
+    "train_graphs": 7960,
+    "epochs_completed": 20
+  }
+}

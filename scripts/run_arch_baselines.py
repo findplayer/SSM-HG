@@ -61,8 +61,9 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--convs", nargs="*", default=list(DEFAULT_CONVS))
     ap.add_argument("--seeds", type=int, nargs="*", default=list(SEEDS))
-    ap.add_argument("--graph-root", default="products/alldata/graphs_ft",
-                    help="编码器树根（默认 §37 正典；任务2 传 products/alldata/graphs_ft_buggy）")
+    ap.add_argument("--graph-root", default="products/alldata/graphs_ft_p2",
+                    help="编码器树根（默认 ① 现行正典 graphs_ft_p2；"
+                         "任务2 现行正典传 products/alldata/graphs_ft_buggy_p2）")
     ap.add_argument("--split-dir", default="products/alldata/splits")
     ap.add_argument("--base-config", default="runs/seed0/config.json",
                     help="基线 config（**唯一变量 = --conv** 的参照）")
@@ -79,15 +80,19 @@ def main() -> int:
             gdir = graph_dir_for(args.graph_root, seed)
             out_dir = f"{args.runs_root}/{conv}"
             train_args = dict(base)
+            # 🔴 GAT 被迫关确定性开关（PyTorch 无确定性 CUDA `scatter_reduce`，2026-09-25 实测）——
+            #    见 `run_ablation.forced_overrides`；rgcn/gcn/sage 实测均可用，故只影响本族 gat。
+            forced = RA.forced_overrides({"conv": conv})
             train_args.update({"conv": conv, "seed": seed, "split_seed": seed,
                                "graph_dir": gdir, "split_dir": args.split_dir,
                                "out_dir": out_dir, "overwrite": False})
+            train_args.update(forced)
             # 🔴 单变量断言：相对基线，差异**恰为**这些键。
             # ⚠ `split_dir` **不能**写进 expected：基线 config 里它已经等于本脚本要传的值
             #   （`diff_args` 按内容比，不是按"命令行有没有出现"），写进去会被判成
             #   "预期覆盖的键未生效"。`graph_dir` 也别写固定值——基线的 `graph_dir` 是
             #   **带 `{seed}` 占位符的模板**（`run_ablation` 的约定），逐种子代入后必然不同。
-            expected = {"conv": conv, "out_dir": out_dir}
+            expected = {"conv": conv, "out_dir": out_dir, **forced}
             if str(base.get("graph_dir")) != gdir:
                 expected["graph_dir"] = gdir          # seed0 的基线 graph_dir 恰等于本臂 ⇒ 不算变化
             if str(base.get("split_dir")) != args.split_dir:

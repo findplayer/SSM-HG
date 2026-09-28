@@ -18,7 +18,13 @@
 
 用法（从仓库根目录运行）：
   python scripts/ensemble_eval.py --group runs/cbft_study --prefix cbft
-  python scripts/ensemble_eval.py --group runs/seed --prefix seed --split-seeds 0 1 2
+
+⚠ **本脚本只认一种 run 布局**：`<group>/<prefix>_ts{T}_ss{S}/seed{T}`（见 `evaluate_group`）。
+  ⇒ 主实验正典的**扁平**布局 `runs/seed{T}/` **不在支持范围**，`--group runs --prefix seed`
+  会因「可用 run 只有 0 个」而静默 skip（2026-09-25 实测；旧文档曾写作
+  `--group runs/seed --prefix seed`，那条用法**从来跑不出东西**，已删）。
+  要集成主实验三种子，请用 `runs/cbft_study` 的 `cbft` 臂 —— 它的对角**就是**正典（同配置），
+  且三种子齐全、与正典逐位同源。
 
 产物：`eval_results/ensemble/<group名>.json` + 同名 `.md`
 """

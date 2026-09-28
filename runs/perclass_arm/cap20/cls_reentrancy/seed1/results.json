@@ -3,69 +3,69 @@
   "split_seed": 1,
   "head": "binary",
   "select_metric": "val_binary_ap",
-  "val_threshold": 0.5,
+  "val_threshold": 0.8,
   "threshold_scan": {
     "metric": "binary_f1",
-    "best_threshold": 0.5,
+    "best_threshold": 0.8,
     "best_binary_f1": 1.0,
     "candidates": [
       {
         "threshold": 0.2,
-        "f1": 0.6
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.25,
-        "f1": 0.6666666666666666
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.3,
-        "f1": 0.7499999999999999
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.35,
-        "f1": 0.8
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.4,
-        "f1": 0.8571428571428571
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.45,
-        "f1": 0.8571428571428571
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.5,
-        "f1": 1.0
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.55,
-        "f1": 0.9090909090909091
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.6,
-        "f1": 0.8
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.65,
-        "f1": 0.8
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.7,
-        "f1": 0.0
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.75,
-        "f1": 0.0
+        "f1": 0.923076923076923
       },
       {
         "threshold": 0.8,
-        "f1": 0.0
+        "f1": 1.0
       }
     ],
     "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
   },
   "AP": {
-    "AP": 0.7578502415458936,
+    "AP": 0.8293650793650794,
     "support": 6,
     "n": 46
   },
@@ -86,7 +86,7 @@
       "support": 6
     },
     "val_threshold": {
-      "threshold": 0.5,
+      "threshold": 0.8,
       "micro_f1": 0.8,
       "binary_f1": 0.8,
       "binary_precision": 1.0,
@@ -103,7 +103,7 @@
   },
   "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
   "timing": {
-    "infer_seconds": 0.2493
+    "infer_seconds": 0.2225
   },
   "environment": {
     "device": "cuda",

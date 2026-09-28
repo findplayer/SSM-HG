@@ -71,6 +71,13 @@ def dive_graph_dir_of(main: bool, src_graph_dir: str, split_seed: int = 0) -> Pa
       `products/<语料>/graphs_ft/ss{S}`               → `products/dive/graphs_ft{,_aug}/ss{S}`
       `products/<语料>/graphs_ft/graph_variants/<变体>_ss{S}` → 同名子树
 
+    🔴 **2026-09-25 编码器换代后新增第四种形态**（此前这里不认它 ⇒ 正典单臂重评**直接崩**，实测）：
+      `products/<语料>/graphs_ft_p2/cb_ft_ss{S}`      → `products/dive/graphs_ft{,_aug}/ss{S}`
+      ⚠ 目标侧的名字**不变**（DIVE 树仍是 `graphs_ft{,_aug}/ss{S}`，由阶段 3.8 就地重编码），
+        变的是**源侧**的目录名（`graphs_ft_p2` + `cb_ft_` 前缀）。
+      ⚠ 这是 `AGENTS.md` 那条「逐种子路径模板化必须**同时认 `ss{S}` 与 `cb_ft_ss{S}`**」的又一实例：
+        漏一处就是"改口径的单臂重评跑不起来"，且**只在自己那条路上报错**、主链无感。
+
     `split_seed` 只用于取"哪一棵微调树"——同一划分种子下，①② 的 DIVE 树各一份。
     """
     src = Path(src_graph_dir).resolve()
@@ -80,10 +87,13 @@ def dive_graph_dir_of(main: bool, src_graph_dir: str, split_seed: int = 0) -> Pa
         return FROZEN_TREE
     if re.fullmatch(r"ss\d+", name) and parent == "graphs_ft":
         return tree / name
-    if parent == "graph_variants" and src.parent.parent.name == "graphs_ft":
+    if re.fullmatch(r"cb_ft_ss\d+", name) and parent == "graphs_ft_p2":
+        return tree / name[len("cb_ft_"):]           # cb_ft_ss2 → ss2
+    if parent == "graph_variants" and src.parent.parent.name in ("graphs_ft", "graphs_ft_p2"):
         return tree / "graph_variants" / name
     raise SystemExit(f"[ext] 无法把源 graph_dir 映射到 DIVE：{src}\n"
-                     f"  （本脚本只认 graphs / graphs_ft/ss<S> / graph_variants/<变体>_ss<S> 三种形态）")
+                     f"  （本脚本认 graphs / graphs_ft/ss<S> / graphs_ft_p2/cb_ft_ss<S> /"
+                     f" graph_variants/<变体>_ss<S> 四种形态）")
 
 
 def per_class_fpr_on_normals(probs: torch.Tensor, labels: torch.Tensor, thr: float) -> dict:

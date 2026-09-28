@@ -1,0 +1,114 @@
+{
+  "args": {
+    "seed": 1,
+    "split_seed": 1,
+    "epochs": 200,
+    "batch_size": 32,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "lambda_var": 0.001,
+    "tau_var": 0.1,
+    "pos_weight_cap": 0.0,
+    "head": "binary",
+    "loss": "bce",
+    "focal_gamma": 2.0,
+    "asl_gamma_pos": 1.0,
+    "asl_gamma_neg": 4.0,
+    "asl_clip": 0.05,
+    "prior_dropout": 0.2,
+    "struct_dropout": 0.2,
+    "model_dropout": 0.3,
+    "scheduler_patience": 3,
+    "early_stop_patience": 5,
+    "drop_edge_prob": 0.0,
+    "limit_graphs": 0,
+    "drop_edges": "",
+    "drop_ast": false,
+    "conv": "rgcn",
+    "meanpool": false,
+    "num_bases": 5,
+    "layers": 2,
+    "hid": 128,
+    "ablate_sv": false,
+    "cb_channels": "cb_func,cb_node",
+    "feat_groups": "all",
+    "deterministic": false,
+    "graph_dir": "products/alldata/graphs_ft/ss1",
+    "split_dir": "products/alldata/splits",
+    "out_dir": "runs/perclass_arm/cap0/cls_front_running",
+    "label_file": "products/alldata/perclass_labels/cls_front_running.json",
+    "label_key_mode": "project",
+    "verify_channel_hash": false,
+    "overwrite": false
+  },
+  "split_seed": 1,
+  "label_source": {
+    "file": "products/alldata/perclass_labels/cls_front_running.json",
+    "sha256": "0824feaaa7bfc7a65257042da3b24e97744bf484bfa045f9881f27cfbf409a09",
+    "key_mode": "project",
+    "n_index": 590,
+    "n_unmatched": 0
+  },
+  "derived": {
+    "D_struct": 30,
+    "struct_layout": {
+      "visibility": 4,
+      "bool": 14,
+      "call_mode": 5,
+      "position": 1,
+      "ir": 6
+    },
+    "fuser_in_dim": 1631,
+    "fuser_hidden": 128,
+    "num_relations": 5,
+    "num_layers": 2,
+    "head": "binary",
+    "num_classes": 1,
+    "head_class_names": [
+      "vulnerable"
+    ],
+    "label_aggregation": "any(targets)",
+    "pos_weight": [
+      180.0
+    ],
+    "class_mask": [
+      1.0
+    ],
+    "active_classes": [
+      0
+    ],
+    "skipped_classes": [],
+    "train_pos": [
+      2
+    ],
+    "train_neg": [
+      360
+    ],
+    "train_graphs": 362,
+    "val_graphs": 45,
+    "parameter_report": {
+      "fuser_params": 209472,
+      "fuser_learnable_params": 209472,
+      "rgcn_params": 205364,
+      "rgcn_learnable_params": 205364,
+      "total_params": 414836,
+      "total_learnable_params": 414836
+    }
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3",
+    "torch_num_threads": 12
+  },
+  "timing": {
+    "run_wall_seconds": 9.4114,
+    "data_load_seconds": 0.8975,
+    "train_seconds": 7.5121,
+    "validation_seconds": 0.5685,
+    "epoch_seconds_mean": 0.3367,
+    "graphs_per_second": 1156.532,
+    "train_graphs": 8688,
+    "epochs_completed": 24
+  }
+}

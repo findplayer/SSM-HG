@@ -1,5 +1,12 @@
 # SSM-HG 开发 TODO（按真实代码依赖修正）
 
+> 🔴 **当前状态以 `log.md` 为准（本页顶部以下的日期块是历史记录，不是现状）** —— 2026-09-24 加此指引。
+> 逐阶段现状速查：**M1–M4 完成**；**M5 主实验 / 消融（n=3 与 n=9 两代）/ 5.3 对比（三条论文基线 +
+> **六个传统工具全部接入并跑完**，含 `_buggy` 新正典第二轮）/ DIVE 外部测试 / SolidiFI 层次二 全部完成**；
+> 本文方法的**编码器欠训（`--epochs 5`）已定位、探针已跑**（见 `improvement_proposals.md` §1.1）。
+> **仍未做**：DIVE 的 20–30 例 FN/FP 人工检查、
+> 编码器全量重微调（P2）。
+>
 > 版本：2026-09-11（按 `研究点一细化大纲改II.docx` 复核：术语改“节点可疑度”、日志改名 `score_mean/score_std`、外部测试集改 **DIVE**、划分改固定种子 8:1:1（门槛 2026-09-12 修订：验证+内部测试合计每类正样本 ≥ 该类正样本总数的30%，原“≥20”）、CALLBACK_RISK 4.2.2 重写、结构特征 18 项+四组分组消融、消融拆 5.4.1/5.4.2、新增推理输出 4.5.4）
 > 依据：论文开发手册修订版（2026-09-11 按 `改II` 复核）+ 当前仓库真实状态
 > **本轮改动状态**：**M1~M3 已按 `改II` 落地并全链重跑通过**（见三/四/六节：CALLBACK_RISK 6328→509 边、172→85 图（**2026-09-12 R5 后 511 边/86 图**）；M1 七类 flags 21567（**R5 后 21571**）；M3 18 项+分组/单通道消融开关就绪；build×2 确定性一致、M4 22 用例全绿）；**M1–M4 抽查审计（2026-09-12）已执行**（581 图 M1 复算 0 差异、M2 回调边不变量 0 违规、13 合约语义抽样全部符合、M4 22 用例+真实前向通过；发现并修复 2 处文档口径问题，零行为改动，见四/六节）；**仍未完成**：M5 数据集（DIVE）/划分协议/日志字段/消融清单/推理输出（见八/十二节）。
@@ -19,7 +26,7 @@
   - CFG: products/alldata/raw/CFG-raw
   - DFG: products/alldata/raw/DFG-raw
   - Hetero（全部**结构**图产物 _hetero.json/_m1.json/_pyg.pt）: products/alldata/graphs
-  - M3 特征正典（§37 微调 CodeBERT，**含划分种子**）: products/alldata/graphs_ft/ss{S}（**逐划分种子取：seed{S} 配 ss{S}**）
+  - M3 特征正典（**2026-09-25 编码器换代后**：20 轮微调 CodeBERT，**含划分种子**）: products/alldata/graphs_ft_p2/cb_ft_ss{S}（**逐划分种子取：seed{S} 配 ss{S}**）；旧档 products/alldata/graphs_ft/ss{S}（5 轮）保留为**旧正典的输入树**（其 run 归档于 runs/prior_canon37/seed{S}；**不另设名为 cb_ft5 的臂**）
     - `products/alldata/graphs` 下的 M3 特征是**冻结编码器**那套（现已降为消融臂 `cb_frozen`），仅该臂使用
   - 源码根（只读数据源）: alldata(readonly)/alldata_sol_source
   - 主标签: alldata(readonly)/contract_labels.json
@@ -264,7 +271,7 @@
 - [x] M5 v5 审阅结论（2026-09-08，可行性判定见 `experiments/decisions.md` 第 0、9 节）
   - [x] 已确认：dataset/model 契约与 M4 输出一致；class-masked BCE 分母、按图 population `L_var`、单图 DropEdge、zero-positive 类和 split API 校验升级为硬性验收项
   - [x] **先验 dropout 前置条件升级为必做**：~~训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）~~——**该方案已于 2026-09-12 前端化退役**：先验 dropout 改为 `model.NodeFuser` 内按图 Bernoulli(0.2) 置零（融合前），不再需要变体文件
-  - [ ] 补充项：**5.3 对比方法（2026-09-21 按大纲原文重列，旧的「CodeBERT 序列 + GCN/GAT 同构图」写法已作废）**——见下方「5.3 对比实验（现行）」小节。传统工具基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）的做法只适用于 **Slither**；其余五个工具须各自实跑（`scripts/baseline_static_tools.py` 已备好 `DETECTOR_TO_CLASS` 与 solc 版本选择）
+  - [x] 补充项：**5.3 对比方法（2026-09-21 按大纲原文重列，旧的「CodeBERT 序列 + GCN/GAT 同构图」写法已作废）**——见下方「5.3 对比实验（现行）」小节。传统工具基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）的做法只适用于 **Slither**；其余五个工具须各自实跑（`scripts/baseline_static_tools.py` 已备好 `DETECTOR_TO_CLASS` 与 solc 版本选择）。**✅ 2026-09-25 全部接入、2026-09-26 六个工具在正典池 214 合约上全部跑完**（Slither 全库 590）；报告 = `experiments/traditional_tools_results.md`，主表六行 = `experiments/baseline_three_caliber_tables.md`
   - [x] 风险记录：**DIVE/SolidiFI 数据已就位（2026-09-11）**；层次二与 5.5.1 需先建类别映射表（SolidiFI 前缀→七类；DIVE 已剔除 Bad Randomness，7 维可直接用）；验证集可能仅约 50 图、低正样本类（4~6 个）对 macro-F1 敏感，按手册记录训练/验证差距
 - [ ] 文件组织（2026-09-08 v5：metrics/train/evaluate 与 CI smoke 仍待实现）
   - [x] dataset.py：已完成（2026-09-07；数据层：_pyg.pt 结构 + _feat.pt(x) + 标签对齐加载断言 + 边级消融开关；不过 MLP，只组合与裁剪）
@@ -316,7 +323,7 @@
 
 ## 九、收尾与验收门槛
 - [ ] 全链路在 1 个样本上跑通
-- [ ] 关键中间产物齐全（**结构产物**均在 products/alldata/graphs/ 下；**M3 特征正典在 `products/alldata/graphs_ft/ss{S}`**（§37 微调，**逐划分种子取：seed{S} 配 ss{S}**））：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
+- [ ] 关键中间产物齐全（**结构产物**均在 products/alldata/graphs/ 下；**M3 特征正典在 `products/alldata/graphs_ft_p2/cb_ft_ss{S}`**（2026-09-25 换代后 20 轮档；旧档 `graphs_ft/ss{S}` 保留为**旧正典的输入树**（其 run 归档于 `runs/prior_canon37/seed{S}`；**不另设名为 `cb_ft5` 的臂**），**逐划分种子取：seed{S} 配 ss{S}**））：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
 - [ ] 图结构字段完整，后续模块可直接消费
 - [ ] M1 结果与 M2 图结构一致
 - [ ] 训练可启动，且 validation loss / macro-F1 可观察
@@ -443,10 +450,10 @@
 
 | 基线 | 实现位置 / 现状 | 待办 |
 | --- | --- | --- |
-| 传统工具 ×6 | `scripts/baseline_static_tools.py`（`DETECTOR_TO_CLASS` 29 条检测器含 SWC 引用、`installed_solc_versions`/`version_ok`/`pick_solc_candidates`；**只跑通了 Slither**，产物 `eval_results/baseline/slither_alldata`） | ✅ **六环境已落地（2026-09-23，`decisions.md` §47）**：`scripts/install_traditional_tools.sh` 一键复现，五个工具各开独立 conda env、base 零污染，六个均**真实跑通**（非仅安装）。**剩余工作 = 接入**：`baseline_static_tools.py` 现只有 `run_slither`，须为其余 5 个补 `run_*` + 检测项→七类映射（如 manticore 的 `reentrancy`/`overflow`/`suicidal`/`delegatecall`/`unused-return`/`env-instr`；oyente 的 6 项；securify 的 pattern 名；smartcheck 的 SOLIDITY_* ruleId），并按 §47.4 先统计各工具**可分析合约数** |
+| 传统工具 ×6 | `scripts/baseline_static_tools.py`（`--tool {slither,mythril,manticore,smartcheck,securify,oyente}`；Slither 的 `DETECTOR_TO_CLASS` 27 条含 SWC 引用、`installed_solc_versions`/`version_ok`/`pick_solc_candidates`）+ `scripts/static_tool_adapters.py`（其余五工具的**调用 / 解析 / 映射表**） | ✅ **接入完成（2026-09-25）**：六工具产物 `eval_results/baseline/<工具>_alldata{,.json}`；报告 = `experiments/traditional_tools_results.md`（程序生成：映射逐条带 SWC 依据 + 能力边界 + 覆盖率 + 成本）；主对比表 = `baseline_three_caliber_tables.md` 的**六行**（`collect_baseline_tables.py` 已改成出六行，缺产物**点名而不静默少行**）。<br>🔴 **六工具同一把尺**：检测项进七类 ⟺ 有唯一且明确的 SWC 锚点且落在七类语义内；无锚点一律不纳入（逐条理由在产物 `excluded` 与报告第二节）。<br>🔴 **五处「不报错」的解析陷阱已逐个踩到并修**（securify 的输出用**展示名**而非 pattern 类名 / manticore 的 `global.findings` 是**描述文本** / **oyente 把 8 个检查名全打印，只匹配名字 ⇒ 六个类全亮** / 结果走 **stderr** / 报错摘要取「最后一行」会丢掉 solc 版本线索 ⇒ 候选重试永不触发）⇒ 回归测试 `tests/test_static_tool_adapters.py`（23 例，每条对应一个坑） |
 | **EGFL** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_egfl_build.py` + `baseline_egfl.py`（原生字节码模态），产物 `eval_results/baseline/egfl/seed{0,1,2}/` | 🔴 两处口径损失必须随结果披露：① 图分支的 256 维是**重建件**（原 `cfg_graph` 作者未开源）；② **83.2% 的合约被截断到 seq_len=512**（8 GB 卡跑不动它的稠密 O(L²) 注意力；原论文 SEQ_LEN=8000） | 大纲列的是**具体方法**。⚠ 本仓此前的 `--conv {gcn,gat,sage}`（`runs/arch_n9*`）只**近似**了「验证边类型是否必要」这个**目的**，不是 EGFL 本身 |
 | **MVD-HG** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_mvdhg_build.py`（**驱动原仓库代码**建图） + `baseline_mvdhg.py`，产物 `eval_results/baseline/mvdhg/seed{0,1,2}/` | 覆盖率 448/453；5 个失败样本**全在 train**、test 一个没少 ⇒ 逐类 support 与本文方法可比 |
-| **MANDO-LLM** | 🟡 **代码已就绪、训练中（2026-09-22）**：`scripts/baseline_mando.py`（PyG `HGTConv` 替 dgl，无需新建 conda 环境），产物 `eval_results/baseline/mando/seed{0,1,2}/` |  ✅ 名称已裁定（2026-09-21）：以 **`MANDO-LLM`** 为准，大纲正文的 `MANDO-HGT` 须同步改（`.docx` 改动需作者授权）。基线代码已由作者安装在 `/home/saumarez/projects/deep-learning`（⚠ 在本仓读取硬边界之外，见 AGENTS.md） |
+| **MANDO-LLM** | ✅ **已跑完（2026-09-22/23，三种子 + `_buggy` 第二轮）**：`scripts/baseline_mando.py`（PyG `HGTConv` 替 dgl，无需新建 conda 环境），产物 `eval_results/baseline/{mando,mando_buggy}/seed{0,1,2}/` |  ✅ 名称已裁定（2026-09-21）：以 **`MANDO-LLM`** 为准，大纲正文的 `MANDO-HGT` 须同步改（`.docx` 改动需作者授权）。基线代码已由作者安装在 `/home/saumarez/projects/deep-learning`（⚠ 在本仓读取硬边界之外，见 AGENTS.md） |
 | 本文方法 | ✅ `runs/seed{0,1,2}` | 两设定评估（DIVE 见 `eval_results/dive/`） |
 
 ✅ **2026-09-22/23 状态收口**：四个基线（`slither_alldata` / `mvdhg` / `egfl`（+ 其论文 lr 臂 `egfl_ownlr`）/ `mando`）
@@ -464,7 +471,7 @@ MVD-HG 0.3224 / EGFL 0.1138 / MANDO-LLM 0.1091 / Slither 0.2937）、**表 2 = �
 `slither_buggy/`），驱动 = `python scripts/run_baselines.py --layout buggy`；
 交付物 = `experiments/baseline_three_caliber_tables.md` 的**「三、」段（表 15–28）**，**canon37 段（表 1–14）逐字节不变**。
 🔴 **读该段前必须知道的三条**：① 两段 test 集不同（46→49）**且**特征配对方式也不同
-（canon37 段三种子全用 `graphs_ft/ss0`，本段用配对的 `cb_ft_ss{S}`；`_cb.pt` 逐张量随 ss 变）⇒ **跨段不可比**；
+（✅ 2026-09-25 换代已消除该不对称：现两段都与 `--split-seed` 配对用 `cb_ft_ss{S}`；`_cb.pt` 逐张量随 ss 变）⇒ **跨段仍因池不同而不可比**；
 ② `buggy_*` 标签绝大多数是全 1 ⇒ 该段必须并列 `clean_only`（剔 buggy）诊断列，**不得**据此声称补数据提升了检测能力；
 ③ **MVD-HG 在 ss1 上 test 少 1 个**（48/49）⇒ 该行分母与其余行不同，表头已显式标注。
 🔴 **本次顺带修掉 5 个「只出错、不报错」的坑**（§52.4），其中第 1 个是实测踩到的：
@@ -509,7 +516,7 @@ MVD-HG 0.3224 / EGFL 0.1138 / MANDO-LLM 0.1091 / Slither 0.2937）、**表 2 = �
 
 **A. 统一口径与产物隔离**
 
-- 5.4 主消融统一使用主库现行正典池 **453**、`products/alldata/splits/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`（§37 起：**`products/alldata/graphs_ft/ss{S}`**，**逐划分种子取，seed{S} 配 ss{S}**；训练种子与划分种子分离）；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/` 的绝对值与现行 453 池混比。
+- 5.4 主消融统一使用主库现行正典池 **453**、`products/alldata/splits/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`（**2026-09-25 起：`products/alldata/graphs_ft_p2/cb_ft_ss{S}`**，**逐划分种子取，seed{S} 配 ss{S}**；训练种子与划分种子分离）；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/` 的绝对值与现行 453 池混比。
 - 每个变体只改变一个因素；训练/划分种子、batch=32、lr=1e-4、weight_decay=1e-4、200 epoch 上限、val micro-F1 早停、阈值候选 0.20–0.80、固定 0.5 与 val threshold 双报告均与主实验一致。每个变体至少先跑 seed0，进入论文主消融表必须跑 seed0/1/2，并报告 mean±std。
 - 主比较指标按优先级为 `micro-F1@0.5`、`micro-F1@val_thr`、mAP；macro-F1 仅参考。逐类 F1/AP 必须带 test support；support≤2 的类别只能描述，不能据此宣称变体优于另一变体。
 - 消融只写入 `eval_results/ablation/<variant>/`，不覆盖 `runs/seed*/`。每个目录保存 `manifest.json`（父实验摘要、唯一变量、命令、代码/数据指纹、seed 列表）、每 seed 的 config/results/diagnosis 和汇总表。运行前后都检查 split、标签文件、`ir_cat.json`、图目录和模型默认参数。
@@ -596,8 +603,9 @@ python scripts/evaluate.py --summarize --runs-dir eval_results/ablation/a1_drop_
 
 | 正典 | `graph_dir` | `split_dir` | 池 | 用在哪 |
 | --- | --- | --- | --- | --- |
-| §37 正典 | `products/alldata/graphs_ft/ss{S}` | `products/alldata/splits` | 453 | 主实验 `runs/seed{S}`、第二代消融 |
-| 任务2 新正典 | `products/alldata/graphs_ft_buggy/cb_ft_ss{S}` | `products/alldata/splits/withbuggy_snapshot` | 497 | `runs/buggy_canon`、**第三代消融** |
+| §37 谱系正典（**现行**，20 轮档） | `products/alldata/graphs_ft_p2/cb_ft_ss{S}` | `products/alldata/splits` | 453 | 主实验 `runs/seed{S}`、第二代消融 |
+| §37 旧档（5 轮，**已降为旧正典**） | `products/alldata/graphs_ft/ss{S}` | 同上 | 453 | **旧正典（5 轮档）**的输入树；run 归档于 `runs/prior_canon37/seed{S}`（三档阶梯的中档，**不另设同名臂**） |
+| 任务2 正典（**现行**，20 轮档） | `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}` | `products/alldata/splits/withbuggy_snapshot` | 497 | `runs/buggy_canon`、**第三代消融** |
 | ② 增强集 | `products/augmentation/graphs_ft/ss{S}` | `products/augmentation/splits` | 1774 | `runs/augmentation`、② 的消融 |
 
 ⚠ **注意 `cb_ft_ss{S}` 这个前缀**：它是**新正典专有**的命名，`graph_dir` 的逐种子模板化

@@ -1,0 +1,17 @@
+{
+ "tool": "manticore",
+ "pool": "含 buggy_* 的主库（池 497）",
+ "run_set": "三种子 val∪test ∪ (buggy 并集 − canon37 并集)，原始产物 306 条，本轮新跑 92 条",
+ "mem_cap": "4.5G",
+ "cgroup_oom_kills_syslog_total": 15,
+ "note_kills": "全机 syslog 累计，不是本工具单独的次数；本轮的逐工具增量见 tools_alldata_buggy.log。",
+ "tool_timeout_s": 180,
+ "flush_every": 1,
+ "why": "本机 WSL 总内存 7.8 GB（VSCode 服务进程 ≈2.3 GB）⇒ 六个工具统一加 cgroup 4.5 GB 上限；上限顶到时求解器被杀而合约仍记 ok，该降级在产物里看不出来，只能靠本文件披露。🔴 2026-09-27 20:23 那次中断**不是 OOM**：journalctl -b -1 末尾是完整 systemd poweroff 序列，今日 syslog 无任何 oom 行 ⇒ 是 WSL 整体关机带走了作业。",
+ "written_utc": "2026-09-27T19:31:22+00:00",
+ "scope_oom_kill": 11,
+ "scope_oom_kill_derivation": "逐 scope 精确值（`/sys/fs/cgroup/<scope>/memory.events` 的 `oom_kill` 字段），由 `runs/_tools_work/_manticore_memevent_watch.sh` 每 30 s 只读采样留存（scope 一销毁计数即消失，事后无法补读）。共 368 条采样，覆盖 00:08:21–03:30:57。",
+ "scope_oom_kill_by_contract": "8 次发生在起跑后 67 min 内（≈合约 1–26 区间，监视器启动前，**无法定位到具体合约**）；3 次发生在起跑后 214 min，当时进度 ≈73/92。",
+ "cgroup_oom_kills_syslog_total_note": "🔴 本文件原字段 `cgroup_oom_kills_syslog_total`=15 是**全机 syslog 累计差值**，**不是 manticore 单独的次数**（其中含 Securify 遗留 `dl-program` 进程在 20:37:15 的 1 次击杀）。逐 scope 的准确值是上面的 `scope_oom_kill`=11。",
+ "scope_memory_max_events": 292100
+}

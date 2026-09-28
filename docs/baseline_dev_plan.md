@@ -28,7 +28,7 @@ MVD-HG `Linear(8→1)`+`BCELoss` / MANDO-LLM `Linear(128→2)`+CE），
 
 | 项 | 值 |
 |---|---|
-| 正典 | `products/alldata/graphs_ft/ss{S}` + `products/alldata/splits/split_seed{S}.json` |
+| 正典（2026-09-25 换代后） | `products/alldata/graphs_ft_p2/cb_ft_ss{S}` + `products/alldata/splits/split_seed{S}.json` |
 | 池 | **453**（train 362 / val 45 / test 46） |
 | 「去除 `buggy_*`」 | 497（`withbuggy_snapshot`）删 44 个 `buggy_*` 后与 453 **集合级恒等**（双向差集 0），逐类正样本同为 `[17,15,6,4,31,5,50]` |
 

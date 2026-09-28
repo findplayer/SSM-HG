@@ -1,0 +1,692 @@
+[ftvar] 语料 alldata（layout=canon_p2）
+        微调基座 /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss{S}
+        边变体源 /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graph_variants
+        编码器   /home/saumarez/projects/deep-learning/SSM-HG/runs/codebert_ft_p2/ss{0,1,2}/encoder
+        产出     /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants
+
+[ftvar] cb_rev ← callback_rev：590 图，逐图分流中…
+     …已分流 500/590
+        ✅ 断言 1/2 通过：节点集一致、冻结 _cb.pt 逐位相同
+        分流：可软链 590 图  |  须重跑 M3 0 图
+        ✅ products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss0  （2950 软链 / 0 实文件）
+        ✅ products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss1  （2950 软链 / 0 实文件）
+        ✅ products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss2  （2950 软链 / 0 实文件）
+[ftvar] cb_unlimited ← callback_unlimited：590 图，逐图分流中…
+     …已分流 500/590
+        ✅ 断言 1/2 通过：节点集一致、冻结 _cb.pt 逐位相同
+        分流：可软链 570 图  |  须重跑 M3 20 图
+        ⚠ 这 20 张图的 `_feat.sv` 被边改动 —— 本臂的变量不止「边」，还含先验分数（已记入 variant.json）
+        [M3] cb_unlimited_ss0：对 20 张图用微调编码器重跑…
+        ✅ 断言 3 通过：重跑的 _cb.pt 与微调基座逐位相同
+        ✅ products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss0  （2910 软链 / 40 实文件）
+        [M3] cb_unlimited_ss1：对 20 张图用微调编码器重跑…
+        ✅ 断言 3 通过：重跑的 _cb.pt 与微调基座逐位相同
+        ✅ products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss1  （2910 软链 / 40 实文件）
+        [M3] cb_unlimited_ss2：对 20 张图用微调编码器重跑…
+        ✅ 断言 3 通过：重跑的 _cb.pt 与微调基座逐位相同
+        ✅ products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss2  （2910 软链 / 40 实文件）
+[cbft] 根目录 /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study；2 臂 × 9 对 = 18 个 run；dry_run=False
+
+pair    层      断言
+------------------------------------------------------------------------------
+0:0     单变量    frozen  （无，基线臂）                            ✅
+0:0     单变量    cbft    --graph-dir cb_ft_ss0              ✅
+0:0     同语料    frozen ↔ cbft                       ✅
+0:1     单变量    frozen  （无，基线臂）                            ✅
+0:1     单变量    cbft    --graph-dir cb_ft_ss1              ✅
+0:1     同语料    frozen ↔ cbft                       ✅
+0:2     单变量    frozen  （无，基线臂）                            ✅
+0:2     单变量    cbft    --graph-dir cb_ft_ss2              ✅
+0:2     同语料    frozen ↔ cbft                       ✅
+1:0     单变量    frozen  （无，基线臂）                            ✅
+1:0     单变量    cbft    --graph-dir cb_ft_ss0              ✅
+1:0     同语料    frozen ↔ cbft                       ✅
+1:1     单变量    frozen  （无，基线臂）                            ✅
+1:1     单变量    cbft    --graph-dir cb_ft_ss1              ✅
+1:1     同语料    frozen ↔ cbft                       ✅
+1:2     单变量    frozen  （无，基线臂）                            ✅
+1:2     单变量    cbft    --graph-dir cb_ft_ss2              ✅
+1:2     同语料    frozen ↔ cbft                       ✅
+2:0     单变量    frozen  （无，基线臂）                            ✅
+2:0     单变量    cbft    --graph-dir cb_ft_ss0              ✅
+2:0     同语料    frozen ↔ cbft                       ✅
+2:1     单变量    frozen  （无，基线臂）                            ✅
+2:1     单变量    cbft    --graph-dir cb_ft_ss1              ✅
+2:1     同语料    frozen ↔ cbft                       ✅
+2:2     单变量    frozen  （无，基线臂）                            ✅
+2:2     单变量    cbft    --graph-dir cb_ft_ss2              ✅
+2:2     同语料    frozen ↔ cbft                       ✅
+产物层            _feat 三通道相同 / _cb 全不同 / 结构软链 ✅
+
+[frozen/0:0] train ok  done seed0 (split_seed0): best val micro-F1=0.5652 @ epoch; wall=11.6s train=7.8s graphs/s=646.33 → /home/saum
+[frozen/0:0] eval ok  seed0 (split_seed0): test micro-F1 0.5=0.4262 / val_thr(0.6)=0.4167；macro 0.5=0.2425；mAP=0.3008 (classes used 
+[frozen/0:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts0_ss0/diagnosis_summary.json
+[frozen/0:1] train ok  done seed0 (split_seed1): best val micro-F1=0.6364 @ epoch; wall=21.9s train=17.7s graphs/s=715.01 → /home/sau
+[frozen/0:1] eval ok  seed0 (split_seed1): test micro-F1 0.5=0.5085 / val_thr(0.8)=0.4516；macro 0.5=0.3632；mAP=0.4525 (classes used 
+[frozen/0:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts0_ss1/diagnosis_summary.json
+[frozen/0:2] train ok  done seed0 (split_seed2): best val micro-F1=0.6667 @ epoch; wall=19.3s train=15.2s graphs/s=714.20 → /home/sau
+[frozen/0:2] eval ok  seed0 (split_seed2): test micro-F1 0.5=0.4179 / val_thr(0.8)=0.4444；macro 0.5=0.2514；mAP=0.3265 (classes used 
+[frozen/0:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts0_ss2/diagnosis_summary.json
+[frozen/1:0] train ok  done seed1 (split_seed0): best val micro-F1=0.5625 @ epoch; wall=10.2s train=7.7s graphs/s=704.90 → /home/saum
+[frozen/1:0] eval ok  seed1 (split_seed0): test micro-F1 0.5=0.4000 / val_thr(0.65)=0.3636；macro 0.5=0.2078；mAP=0.2598 (classes used
+[frozen/1:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts1_ss0/diagnosis_summary.json
+[frozen/1:1] train ok  done seed1 (split_seed1): best val micro-F1=0.5660 @ epoch; wall=11.5s train=8.8s graphs/s=699.40 → /home/saum
+[frozen/1:1] eval ok  seed1 (split_seed1): test micro-F1 0.5=0.4615 / val_thr(0.6)=0.5455；macro 0.5=0.2507；mAP=0.3651 (classes used 
+[frozen/1:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts1_ss1/diagnosis_summary.json
+[frozen/1:2] train ok  done seed1 (split_seed2): best val micro-F1=0.5806 @ epoch; wall=13.1s train=10.1s graphs/s=715.67 → /home/sau
+[frozen/1:2] eval ok  seed1 (split_seed2): test micro-F1 0.5=0.4375 / val_thr(0.7)=0.3429；macro 0.5=0.2235；mAP=0.2360 (classes used 
+[frozen/1:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts1_ss2/diagnosis_summary.json
+[frozen/2:0] train ok  done seed2 (split_seed0): best val micro-F1=0.6667 @ epoch; wall=6.3s train=4.2s graphs/s=681.79 → /home/sauma
+[frozen/2:0] eval ok  seed2 (split_seed0): test micro-F1 0.5=0.4762 / val_thr(0.5)=0.4762；macro 0.5=0.2648；mAP=0.3349 (classes used 
+[frozen/2:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts2_ss0/diagnosis_summary.json
+[frozen/2:1] train ok  done seed2 (split_seed1): best val micro-F1=0.6000 @ epoch; wall=9.2s train=6.9s graphs/s=729.27 → /home/sauma
+[frozen/2:1] eval ok  seed2 (split_seed1): test micro-F1 0.5=0.4889 / val_thr(0.5)=0.4889；macro 0.5=0.2585；mAP=0.3430 (classes used 
+[frozen/2:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts2_ss1/diagnosis_summary.json
+[frozen/2:2] train ok  done seed2 (split_seed2): best val micro-F1=0.5854 @ epoch; wall=14.3s train=11.1s graphs/s=749.39 → /home/sau
+[frozen/2:2] eval ok  seed2 (split_seed2): test micro-F1 0.5=0.3944 / val_thr(0.7)=0.4000；macro 0.5=0.2236；mAP=0.3174 (classes used 
+[frozen/2:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/frozen_ts2_ss2/diagnosis_summary.json
+[cbft/0:0] train ok  done seed0 (split_seed0): best val micro-F1=0.8780 @ epoch; wall=10.1s train=7.0s graphs/s=728.37 → /home/saum
+[cbft/0:0] eval ok  seed0 (split_seed0): test micro-F1 0.5=0.8095 / val_thr(0.6)=0.8205；macro 0.5=0.6727；mAP=0.8246 (classes used 
+[cbft/0:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts0_ss0/diagnosis_summary.json
+[cbft/0:1] train ok  done seed0 (split_seed1): best val micro-F1=0.9130 @ epoch; wall=9.6s train=6.5s graphs/s=666.59 → /home/sauma
+[cbft/0:1] eval ok  seed0 (split_seed1): test micro-F1 0.5=0.8000 / val_thr(0.4)=0.7619；macro 0.5=0.6319；mAP=0.8518 (classes used 
+[cbft/0:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts0_ss1/diagnosis_summary.json
+[cbft/0:2] train ok  done seed0 (split_seed2): best val micro-F1=0.9000 @ epoch; wall=13.5s train=9.6s graphs/s=716.64 → /home/saum
+[cbft/0:2] eval ok  seed0 (split_seed2): test micro-F1 0.5=0.8293 / val_thr(0.55)=0.8500；macro 0.5=0.6044；mAP=0.8639 (classes used
+[cbft/0:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts0_ss2/diagnosis_summary.json
+[cbft/1:0] train ok  done seed1 (split_seed0): best val micro-F1=0.9333 @ epoch; wall=12.0s train=9.4s graphs/s=693.35 → /home/saum
+[cbft/1:0] eval ok  seed1 (split_seed0): test micro-F1 0.5=0.7727 / val_thr(0.4)=0.7660；macro 0.5=0.7857；mAP=0.9211 (classes used 
+[cbft/1:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts1_ss0/diagnosis_summary.json
+[cbft/1:1] train ok  done seed1 (split_seed1): best val micro-F1=0.9565 @ epoch; wall=15.1s train=12.2s graphs/s=593.24 → /home/sau
+[cbft/1:1] eval ok  seed1 (split_seed1): test micro-F1 0.5=0.8293 / val_thr(0.3)=0.8372；macro 0.5=0.7748；mAP=0.9349 (classes used 
+[cbft/1:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts1_ss1/diagnosis_summary.json
+[cbft/1:2] train ok  done seed1 (split_seed2): best val micro-F1=0.8500 @ epoch; wall=13.0s train=9.7s graphs/s=635.42 → /home/saum
+[cbft/1:2] eval ok  seed1 (split_seed2): test micro-F1 0.5=0.7727 / val_thr(0.55)=0.8095；macro 0.5=0.5667；mAP=0.8722 (classes used
+[cbft/1:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts1_ss2/diagnosis_summary.json
+[cbft/2:0] train ok  done seed2 (split_seed0): best val micro-F1=0.8837 @ epoch; wall=13.6s train=10.7s graphs/s=679.78 → /home/sau
+[cbft/2:0] eval ok  seed2 (split_seed0): test micro-F1 0.5=0.8108 / val_thr(0.25)=0.8000；macro 0.5=0.5748；mAP=0.8374 (classes used
+[cbft/2:0] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts2_ss0/diagnosis_summary.json
+[cbft/2:1] train ok  done seed2 (split_seed1): best val micro-F1=0.9362 @ epoch; wall=12.8s train=9.8s graphs/s=482.26 → /home/saum
+[cbft/2:1] eval ok  seed2 (split_seed1): test micro-F1 0.5=0.8293 / val_thr(0.35)=0.7556；macro 0.5=0.7748；mAP=0.8501 (classes used
+[cbft/2:1] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts2_ss1/diagnosis_summary.json
+[cbft/2:2] train ok  done seed2 (split_seed2): best val micro-F1=0.8649 @ epoch; wall=11.4s train=8.5s graphs/s=639.13 → /home/saum
+[cbft/2:2] eval ok  seed2 (split_seed2): test micro-F1 0.5=0.8000 / val_thr(0.55)=0.8000；macro 0.5=0.5937；mAP=0.9260 (classes used
+[cbft/2:2] diagnose ok  跨种子聚合 → /home/saumarez/projects/deep-learning/SSM-HG/runs/cbft_study/cbft_ts2_ss2/diagnosis_summary.json
+
+[cbft] 结束：18 个 run，wall 384.7s，失败 0
+[ablation] 基线 /home/saumarez/projects/deep-learning/SSM-HG/runs/seed0/config.json；21 项 × 3 种子 = 63 个 run；dry_run=False
+
+项                唯一开关                               断言
+------------------------------------------------------------------------
+dfg_dep          --drop-edges 3                     ✅ 恰一个变量
+cfg_flow         --drop-edges 0                     ✅ 恰一个变量
+ast_parent       --drop-ast                         ✅ 恰一个变量
+callback_risk    --drop-edges 4                     ✅ 恰一个变量
+cb_node_only     --cb-channels cb_node              ✅ 恰一个变量
+cb_func_only     --cb-channels cb_func              ✅ 恰一个变量
+meanpool         --meanpool                         ✅ 恰一个变量
+no_lvar          --lambda-var 0.0                   ✅ 恰一个变量
+no_prior_drop    --prior-dropout 0.0                ✅ 恰一个变量
+feat_base        --feat-groups base                 ✅ 恰一个变量
+feat_base_sem    --feat-groups base+sem             ✅ 恰一个变量
+hid256           --hid 256                          ✅ 恰一个变量
+numbases1        --num-bases 1                      ✅ 恰一个变量
+numbases3        --num-bases 3                      ✅ 恰一个变量
+numbases4        --num-bases 4                      ✅ 恰一个变量
+dropedge02       --drop-edge-prob 0.2               ✅ 恰一个变量
+layers1          --layers 1                         ✅ 恰一个变量
+layers3          --layers 3                         ✅ 恰一个变量
+cb_unlimited     --graph-dir {variants}/cb_unlimited_ss{seed} ✅ 恰一个变量
+cb_rev           --graph-dir {variants}/cb_rev_ss{seed} ✅ 恰一个变量
+cb_frozen        --graph-dir {frozen}               ✅ 恰一个变量
+
+[dfg_dep/seed0] ✓  22.2s  去 DFG_DEP（物理关系 3）
+[dfg_dep/seed1] ✓  15.9s  去 DFG_DEP（物理关系 3）
+[dfg_dep/seed2] ✓  20.4s  去 DFG_DEP（物理关系 3）
+[dfg_dep] summarize ✓
+[cfg_flow/seed0] ✓  17.1s  去 CFG_FLOW（物理关系 0）
+[cfg_flow/seed1] ✓  16.6s  去 CFG_FLOW（物理关系 0）
+[cfg_flow/seed2] ✓  19.3s  去 CFG_FLOW（物理关系 0）
+[cfg_flow] summarize ✓
+[ast_parent/seed0] ✓  22.8s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent/seed1] ✓  19.7s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent/seed2] ✓  15.9s  去 AST_PARENT（关系 1+2，--drop-ast）
+[ast_parent] summarize ✓
+[callback_risk/seed0] ✓  17.5s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk/seed1] ✓  20.8s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk/seed2] ✓  18.1s  去 CALLBACK_RISK（物理关系 4）
+[callback_risk] summarize ✓
+[cb_node_only/seed0] ✓  18.1s  去函数级 CodeBERT（只留节点级）
+[cb_node_only/seed1] ✓  24.8s  去函数级 CodeBERT（只留节点级）
+[cb_node_only/seed2] ✓  20.0s  去函数级 CodeBERT（只留节点级）
+[cb_node_only] summarize ✓
+[cb_func_only/seed0] ✓  14.5s  去节点级 CodeBERT（只留函数级）
+[cb_func_only/seed1] ✓  22.2s  去节点级 CodeBERT（只留函数级）
+[cb_func_only/seed2] ✓  18.3s  去节点级 CodeBERT（只留函数级）
+[cb_func_only] summarize ✓
+[meanpool/seed0] ✓  28.5s  meanpool 替换 a_v 加权 readout
+[meanpool/seed1] ✓  24.4s  meanpool 替换 a_v 加权 readout
+[meanpool/seed2] ✓  16.9s  meanpool 替换 a_v 加权 readout
+[meanpool] summarize ✓
+[no_lvar/seed0] ✓  17.5s  关闭 L_var（方差正则项）
+[no_lvar/seed1] ✓  21.1s  关闭 L_var（方差正则项）
+[no_lvar/seed2] ✓  18.0s  关闭 L_var（方差正则项）
+[no_lvar] summarize ✓
+[no_prior_drop/seed0] ✓  17.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop/seed1] ✓  21.1s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop/seed2] ✓  19.4s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[no_prior_drop] summarize ✓
+[feat_base/seed0] ✓  17.7s  结构特征分组 (a) base
+[feat_base/seed1] ✓  21.1s  结构特征分组 (a) base
+[feat_base/seed2] ✓  18.7s  结构特征分组 (a) base
+[feat_base] summarize ✓
+[feat_base_sem/seed0] ✓  17.4s  结构特征分组 (b) base+sem
+[feat_base_sem/seed1] ✓  21.3s  结构特征分组 (b) base+sem
+[feat_base_sem/seed2] ✓  18.2s  结构特征分组 (b) base+sem
+[feat_base_sem] summarize ✓
+[hid256/seed0] ✓  15.2s  隐藏维度 256（基线 128）
+[hid256/seed1] ✓  19.6s  隐藏维度 256（基线 128）
+[hid256/seed2] ✓  21.8s  隐藏维度 256（基线 128）
+[hid256] summarize ✓
+[numbases1/seed0] ✓  16.4s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[numbases1/seed1] ✓  16.7s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[numbases1/seed2] ✓  18.7s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[numbases1] summarize ✓
+[numbases3/seed0] ✓  17.0s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3/seed1] ✓  18.6s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3/seed2] ✓  16.8s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[numbases3] summarize ✓
+[numbases4/seed0] ✓  19.9s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4/seed1] ✓  15.3s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4/seed2] ✓  20.3s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[numbases4] summarize ✓
+[dropedge02/seed0] ✓  28.6s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02/seed1] ✓  22.1s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02/seed2] ✓  19.1s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[dropedge02] summarize ✓
+[layers1/seed0] ✓  18.2s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed1] ✓  14.7s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1/seed2] ✓  15.9s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[layers1] summarize ✓
+[layers3/seed0] ✓  19.8s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed1] ✓  21.5s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3/seed2] ✓  22.2s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[layers3] summarize ✓
+[cb_unlimited/seed0] ✓  18.8s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited/seed1] ✓  22.1s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited/seed2] ✓  18.6s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[cb_unlimited] summarize ✓
+[cb_rev/seed0] ✓  20.8s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[cb_rev/seed1] ✓  21.9s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[cb_rev/seed2] ✓  17.5s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[cb_rev] summarize ✓
+[cb_frozen/seed0] ✓  20.3s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[cb_frozen/seed1] ✓  20.6s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[cb_frozen/seed2] ✓  26.0s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[cb_frozen] summarize ✓
+
+[ablation] 结束：用时 1276.3s；产物 /home/saumarez/projects/deep-learning/SSM-HG/runs/ablation
+[n9] 分组 ['main']；31 臂 × 9 对 + 基线 = 288 个条目；dry_run=False
+
+组     臂                配对      唯一开关                           复用判定
+----------------------------------------------------------------------------------------
+main  _base            0:0     （基线臂）                          ♻ 复用
+main  _base            0:1     （基线臂）                          ♻ 复用
+main  _base            0:2     （基线臂）                          ♻ 复用
+main  _base            1:0     （基线臂）                          ♻ 复用
+main  _base            1:1     （基线臂）                          ♻ 复用
+main  _base            1:2     （基线臂）                          ♻ 复用
+main  _base            2:0     （基线臂）                          ♻ 复用
+main  _base            2:1     （基线臂）                          ♻ 复用
+main  _base            2:2     （基线臂）                          ♻ 复用
+main  dfg_dep          0:0     --drop-edges 3                 ♻ 复用
+main  dfg_dep          0:1     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          0:2     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          1:0     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          1:1     --drop-edges 3                 ♻ 复用
+main  dfg_dep          1:2     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          2:0     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          2:1     --drop-edges 3                 ▶ 新跑
+main  dfg_dep          2:2     --drop-edges 3                 ♻ 复用
+main  cfg_flow         0:0     --drop-edges 0                 ♻ 复用
+main  cfg_flow         0:1     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         0:2     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         1:0     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         1:1     --drop-edges 0                 ♻ 复用
+main  cfg_flow         1:2     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         2:0     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         2:1     --drop-edges 0                 ▶ 新跑
+main  cfg_flow         2:2     --drop-edges 0                 ♻ 复用
+main  ast_parent       0:0     --drop-ast                     ♻ 复用
+main  ast_parent       0:1     --drop-ast                     ▶ 新跑
+main  ast_parent       0:2     --drop-ast                     ▶ 新跑
+main  ast_parent       1:0     --drop-ast                     ▶ 新跑
+main  ast_parent       1:1     --drop-ast                     ♻ 复用
+main  ast_parent       1:2     --drop-ast                     ▶ 新跑
+main  ast_parent       2:0     --drop-ast                     ▶ 新跑
+main  ast_parent       2:1     --drop-ast                     ▶ 新跑
+main  ast_parent       2:2     --drop-ast                     ♻ 复用
+main  callback_risk    0:0     --drop-edges 4                 ♻ 复用
+main  callback_risk    0:1     --drop-edges 4                 ▶ 新跑
+main  callback_risk    0:2     --drop-edges 4                 ▶ 新跑
+main  callback_risk    1:0     --drop-edges 4                 ▶ 新跑
+main  callback_risk    1:1     --drop-edges 4                 ♻ 复用
+main  callback_risk    1:2     --drop-edges 4                 ▶ 新跑
+main  callback_risk    2:0     --drop-edges 4                 ▶ 新跑
+main  callback_risk    2:1     --drop-edges 4                 ▶ 新跑
+main  callback_risk    2:2     --drop-edges 4                 ♻ 复用
+main  cb_node_only     0:0     --cb-channels cb_node          ♻ 复用
+main  cb_node_only     0:1     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     0:2     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     1:0     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     1:1     --cb-channels cb_node          ♻ 复用
+main  cb_node_only     1:2     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     2:0     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     2:1     --cb-channels cb_node          ▶ 新跑
+main  cb_node_only     2:2     --cb-channels cb_node          ♻ 复用
+main  cb_func_only     0:0     --cb-channels cb_func          ♻ 复用
+main  cb_func_only     0:1     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     0:2     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     1:0     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     1:1     --cb-channels cb_func          ♻ 复用
+main  cb_func_only     1:2     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     2:0     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     2:1     --cb-channels cb_func          ▶ 新跑
+main  cb_func_only     2:2     --cb-channels cb_func          ♻ 复用
+main  meanpool         0:0     --meanpool                     ♻ 复用
+main  meanpool         0:1     --meanpool                     ▶ 新跑
+main  meanpool         0:2     --meanpool                     ▶ 新跑
+main  meanpool         1:0     --meanpool                     ▶ 新跑
+main  meanpool         1:1     --meanpool                     ♻ 复用
+main  meanpool         1:2     --meanpool                     ▶ 新跑
+main  meanpool         2:0     --meanpool                     ▶ 新跑
+main  meanpool         2:1     --meanpool                     ▶ 新跑
+main  meanpool         2:2     --meanpool                     ♻ 复用
+main  no_lvar          0:0     --lambda-var 0.0               ♻ 复用
+main  no_lvar          0:1     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          0:2     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          1:0     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          1:1     --lambda-var 0.0               ♻ 复用
+main  no_lvar          1:2     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          2:0     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          2:1     --lambda-var 0.0               ▶ 新跑
+main  no_lvar          2:2     --lambda-var 0.0               ♻ 复用
+main  no_prior_drop    0:0     --prior-dropout 0.0            ♻ 复用
+main  no_prior_drop    0:1     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    0:2     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    1:0     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    1:1     --prior-dropout 0.0            ♻ 复用
+main  no_prior_drop    1:2     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    2:0     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    2:1     --prior-dropout 0.0            ▶ 新跑
+main  no_prior_drop    2:2     --prior-dropout 0.0            ♻ 复用
+main  feat_base        0:0     --feat-groups base             ♻ 复用
+main  feat_base        0:1     --feat-groups base             ▶ 新跑
+main  feat_base        0:2     --feat-groups base             ▶ 新跑
+main  feat_base        1:0     --feat-groups base             ▶ 新跑
+main  feat_base        1:1     --feat-groups base             ♻ 复用
+main  feat_base        1:2     --feat-groups base             ▶ 新跑
+main  feat_base        2:0     --feat-groups base             ▶ 新跑
+main  feat_base        2:1     --feat-groups base             ▶ 新跑
+main  feat_base        2:2     --feat-groups base             ♻ 复用
+main  feat_base_sem    0:0     --feat-groups base+sem         ♻ 复用
+main  feat_base_sem    0:1     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    0:2     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    1:0     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    1:1     --feat-groups base+sem         ♻ 复用
+main  feat_base_sem    1:2     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    2:0     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    2:1     --feat-groups base+sem         ▶ 新跑
+main  feat_base_sem    2:2     --feat-groups base+sem         ♻ 复用
+main  hid256           0:0     --hid 256                      ♻ 复用
+main  hid256           0:1     --hid 256                      ▶ 新跑
+main  hid256           0:2     --hid 256                      ▶ 新跑
+main  hid256           1:0     --hid 256                      ▶ 新跑
+main  hid256           1:1     --hid 256                      ♻ 复用
+main  hid256           1:2     --hid 256                      ▶ 新跑
+main  hid256           2:0     --hid 256                      ▶ 新跑
+main  hid256           2:1     --hid 256                      ▶ 新跑
+main  hid256           2:2     --hid 256                      ♻ 复用
+main  numbases1        0:0     --num-bases 1                  ♻ 复用
+main  numbases1        0:1     --num-bases 1                  ▶ 新跑
+main  numbases1        0:2     --num-bases 1                  ▶ 新跑
+main  numbases1        1:0     --num-bases 1                  ▶ 新跑
+main  numbases1        1:1     --num-bases 1                  ♻ 复用
+main  numbases1        1:2     --num-bases 1                  ▶ 新跑
+main  numbases1        2:0     --num-bases 1                  ▶ 新跑
+main  numbases1        2:1     --num-bases 1                  ▶ 新跑
+main  numbases1        2:2     --num-bases 1                  ♻ 复用
+main  numbases3        0:0     --num-bases 3                  ♻ 复用
+main  numbases3        0:1     --num-bases 3                  ▶ 新跑
+main  numbases3        0:2     --num-bases 3                  ▶ 新跑
+main  numbases3        1:0     --num-bases 3                  ▶ 新跑
+main  numbases3        1:1     --num-bases 3                  ♻ 复用
+main  numbases3        1:2     --num-bases 3                  ▶ 新跑
+main  numbases3        2:0     --num-bases 3                  ▶ 新跑
+main  numbases3        2:1     --num-bases 3                  ▶ 新跑
+main  numbases3        2:2     --num-bases 3                  ♻ 复用
+main  numbases4        0:0     --num-bases 4                  ♻ 复用
+main  numbases4        0:1     --num-bases 4                  ▶ 新跑
+main  numbases4        0:2     --num-bases 4                  ▶ 新跑
+main  numbases4        1:0     --num-bases 4                  ▶ 新跑
+main  numbases4        1:1     --num-bases 4                  ♻ 复用
+main  numbases4        1:2     --num-bases 4                  ▶ 新跑
+main  numbases4        2:0     --num-bases 4                  ▶ 新跑
+main  numbases4        2:1     --num-bases 4                  ▶ 新跑
+main  numbases4        2:2     --num-bases 4                  ♻ 复用
+main  dropedge02       0:0     --drop-edge-prob 0.2           ♻ 复用
+main  dropedge02       0:1     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       0:2     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       1:0     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       1:1     --drop-edge-prob 0.2           ♻ 复用
+main  dropedge02       1:2     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       2:0     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       2:1     --drop-edge-prob 0.2           ▶ 新跑
+main  dropedge02       2:2     --drop-edge-prob 0.2           ♻ 复用
+main  layers1          0:0     --layers 1                     ♻ 复用
+main  layers1          0:1     --layers 1                     ▶ 新跑
+main  layers1          0:2     --layers 1                     ▶ 新跑
+main  layers1          1:0     --layers 1                     ▶ 新跑
+main  layers1          1:1     --layers 1                     ♻ 复用
+main  layers1          1:2     --layers 1                     ▶ 新跑
+main  layers1          2:0     --layers 1                     ▶ 新跑
+main  layers1          2:1     --layers 1                     ▶ 新跑
+main  layers1          2:2     --layers 1                     ♻ 复用
+main  layers3          0:0     --layers 3                     ♻ 复用
+main  layers3          0:1     --layers 3                     ▶ 新跑
+main  layers3          0:2     --layers 3                     ▶ 新跑
+main  layers3          1:0     --layers 3                     ▶ 新跑
+main  layers3          1:1     --layers 3                     ♻ 复用
+main  layers3          1:2     --layers 3                     ▶ 新跑
+main  layers3          2:0     --layers 3                     ▶ 新跑
+main  layers3          2:1     --layers 3                     ▶ 新跑
+main  layers3          2:2     --layers 3                     ♻ 复用
+main  cb_unlimited     0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss0 ♻ 复用
+main  cb_unlimited     0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss1 ▶ 新跑
+main  cb_unlimited     0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss2 ▶ 新跑
+main  cb_unlimited     1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss0 ▶ 新跑
+main  cb_unlimited     1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss1 ♻ 复用
+main  cb_unlimited     1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss2 ▶ 新跑
+main  cb_unlimited     2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss0 ▶ 新跑
+main  cb_unlimited     2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss1 ▶ 新跑
+main  cb_unlimited     2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_unlimited_ss2 ♻ 复用
+main  cb_rev           0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss0 ♻ 复用
+main  cb_rev           0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss1 ▶ 新跑
+main  cb_rev           0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss2 ▶ 新跑
+main  cb_rev           1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss0 ▶ 新跑
+main  cb_rev           1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss1 ♻ 复用
+main  cb_rev           1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss2 ▶ 新跑
+main  cb_rev           2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss0 ▶ 新跑
+main  cb_rev           2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss1 ▶ 新跑
+main  cb_rev           2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/graph_variants/cb_rev_ss2 ♻ 复用
+main  cb_frozen        0:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ♻ 复用
+main  cb_frozen        0:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        0:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        1:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        1:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ♻ 复用
+main  cb_frozen        1:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        2:0     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        2:1     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ▶ 新跑
+main  cb_frozen        2:2     --graph-dir /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs ♻ 复用
+main  lvar_dose_0.01   0:0     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   0:1     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   0:2     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   1:0     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   1:1     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   1:2     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   2:0     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   2:1     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.01   2:2     --lambda-var 0.01              ▶ 新跑
+main  lvar_dose_0.1    0:0     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    0:1     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    0:2     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    1:0     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    1:1     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    1:2     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    2:0     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    2:1     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_0.1    2:2     --lambda-var 0.1               ▶ 新跑
+main  lvar_dose_1.0    0:0     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    0:1     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    0:2     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    1:0     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    1:1     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    1:2     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    2:0     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    2:1     --lambda-var 1.0               ▶ 新跑
+main  lvar_dose_1.0    2:2     --lambda-var 1.0               ▶ 新跑
+main  conv_gcn         0:0     --conv gcn                     ▶ 新跑
+main  conv_gcn         0:1     --conv gcn                     ▶ 新跑
+main  conv_gcn         0:2     --conv gcn                     ▶ 新跑
+main  conv_gcn         1:0     --conv gcn                     ▶ 新跑
+main  conv_gcn         1:1     --conv gcn                     ▶ 新跑
+main  conv_gcn         1:2     --conv gcn                     ▶ 新跑
+main  conv_gcn         2:0     --conv gcn                     ▶ 新跑
+main  conv_gcn         2:1     --conv gcn                     ▶ 新跑
+main  conv_gcn         2:2     --conv gcn                     ▶ 新跑
+main  conv_gat         0:0     --conv gat                     ▶ 新跑
+main  conv_gat         0:1     --conv gat                     ▶ 新跑
+main  conv_gat         0:2     --conv gat                     ▶ 新跑
+main  conv_gat         1:0     --conv gat                     ▶ 新跑
+main  conv_gat         1:1     --conv gat                     ▶ 新跑
+main  conv_gat         1:2     --conv gat                     ▶ 新跑
+main  conv_gat         2:0     --conv gat                     ▶ 新跑
+main  conv_gat         2:1     --conv gat                     ▶ 新跑
+main  conv_gat         2:2     --conv gat                     ▶ 新跑
+main  conv_sage        0:0     --conv sage                    ▶ 新跑
+main  conv_sage        0:1     --conv sage                    ▶ 新跑
+main  conv_sage        0:2     --conv sage                    ▶ 新跑
+main  conv_sage        1:0     --conv sage                    ▶ 新跑
+main  conv_sage        1:1     --conv sage                    ▶ 新跑
+main  conv_sage        1:2     --conv sage                    ▶ 新跑
+main  conv_sage        2:0     --conv sage                    ▶ 新跑
+main  conv_sage        2:1     --conv sage                    ▶ 新跑
+main  conv_sage        2:2     --conv sage                    ▶ 新跑
+main  hid256_pm        0:0     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        0:1     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        0:2     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        1:0     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        1:1     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        1:2     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        2:0     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        2:1     --hid 256 --num-bases 1        ▶ 新跑
+main  hid256_pm        2:2     --hid 256 --num-bases 1        ▶ 新跑
+main  gcn_pm           0:0     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           0:1     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           0:2     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           1:0     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           1:1     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           1:2     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           2:0     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           2:1     --conv gcn --hid 366           ▶ 新跑
+main  gcn_pm           2:2     --conv gcn --hid 366           ▶ 新跑
+main  gat_pm           0:0     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           0:1     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           0:2     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           1:0     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           1:1     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           1:2     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           2:0     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           2:1     --conv gat --hid 364           ▶ 新跑
+main  gat_pm           2:2     --conv gat --hid 364           ▶ 新跑
+main  sage_pm          0:0     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          0:1     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          0:2     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          1:0     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          1:1     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          1:2     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          2:0     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          2:1     --conv sage --hid 250          ▶ 新跑
+main  sage_pm          2:2     --conv sage --hid 250          ▶ 新跑
+
+[清点] 共 288 个条目：复用 72、新跑 216
+
+[main/dfg_dep/0:1] ✓   18.4s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/0:2] ✓   33.6s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/1:0] ✓   50.7s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/1:2] ✓   66.7s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/2:0] ✓   84.3s  去 DFG_DEP（物理关系 3）
+[main/dfg_dep/2:1] ✓  102.6s  去 DFG_DEP（物理关系 3）
+[main/cfg_flow/0:1] ✓  117.0s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/0:2] ✓  133.2s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/1:0] ✓  152.1s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/1:2] ✓  171.1s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/2:0] ✓  187.4s  去 CFG_FLOW（物理关系 0）
+[main/cfg_flow/2:1] ✓  205.7s  去 CFG_FLOW（物理关系 0）
+[main/ast_parent/0:1] ✓  222.9s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/0:2] ✓  241.3s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/1:0] ✓  256.7s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/1:2] ✓  272.2s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/2:0] ✓  290.4s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/ast_parent/2:1] ✓  313.0s  去 AST_PARENT（关系 1+2，--drop-ast）
+[main/callback_risk/0:1] ✓  331.4s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/0:2] ✓  354.0s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/1:0] ✓  375.1s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/1:2] ✓  393.1s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/2:0] ✓  413.7s  去 CALLBACK_RISK（物理关系 4）
+[main/callback_risk/2:1] ✓  433.8s  去 CALLBACK_RISK（物理关系 4）
+[main/cb_node_only/0:1] ✓  452.9s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/0:2] ✓  472.0s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/1:0] ✓  491.5s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/1:2] ✓  512.2s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/2:0] ✓  536.3s  去函数级 CodeBERT（只留节点级）
+[main/cb_node_only/2:1] ✓  559.2s  去函数级 CodeBERT（只留节点级）
+[main/cb_func_only/0:1] ✓  575.6s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/0:2] ✓  592.3s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/1:0] ✓  613.2s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/1:2] ✓  629.5s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/2:0] ✓  655.6s  去节点级 CodeBERT（只留函数级）
+[main/cb_func_only/2:1] ✓  672.1s  去节点级 CodeBERT（只留函数级）
+[main/meanpool/0:1] ✓  690.3s  meanpool 替换 a_v 加权 readout
+[main/meanpool/0:2] ✓  707.6s  meanpool 替换 a_v 加权 readout
+[main/meanpool/1:0] ✓  725.1s  meanpool 替换 a_v 加权 readout
+[main/meanpool/1:2] ✓  742.4s  meanpool 替换 a_v 加权 readout
+[main/meanpool/2:0] ✓  763.0s  meanpool 替换 a_v 加权 readout
+[main/meanpool/2:1] ✓  781.5s  meanpool 替换 a_v 加权 readout
+[main/no_lvar/0:1] ✓  797.6s  关闭 L_var（方差正则项）
+[main/no_lvar/0:2] ✓  817.6s  关闭 L_var（方差正则项）
+[main/no_lvar/1:0] ✓  836.9s  关闭 L_var（方差正则项）
+[main/no_lvar/1:2] ✓  856.1s  关闭 L_var（方差正则项）
+[main/no_lvar/2:0] ✓  880.8s  关闭 L_var（方差正则项）
+[main/no_lvar/2:1] ✓  897.5s  关闭 L_var（方差正则项）
+[main/no_prior_drop/0:1] ✓  913.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/0:2] ✓  932.9s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/1:0] ✓  952.2s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/1:2] ✓  972.6s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/2:0] ✓  992.8s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/no_prior_drop/2:1] ✓ 1010.6s  关闭先验 Dropout（丢弃率语义，见 decisions §26）
+[main/feat_base/0:1] ✓ 1026.7s  结构特征分组 (a) base
+[main/feat_base/0:2] ✓ 1043.9s  结构特征分组 (a) base
+[main/feat_base/1:0] ✓ 1063.8s  结构特征分组 (a) base
+[main/feat_base/1:2] ✓ 1082.5s  结构特征分组 (a) base
+[main/feat_base/2:0] ✓ 1105.4s  结构特征分组 (a) base
+[main/feat_base/2:1] ✓ 1122.1s  结构特征分组 (a) base
+[main/feat_base_sem/0:1] ✓ 1138.9s  结构特征分组 (b) base+sem
+[main/feat_base_sem/0:2] ✓ 1158.6s  结构特征分组 (b) base+sem
+[main/feat_base_sem/1:0] ✓ 1178.9s  结构特征分组 (b) base+sem
+[main/feat_base_sem/1:2] ✓ 1199.5s  结构特征分组 (b) base+sem
+[main/feat_base_sem/2:0] ✓ 1222.8s  结构特征分组 (b) base+sem
+[main/feat_base_sem/2:1] ✓ 1240.3s  结构特征分组 (b) base+sem
+[main/hid256/0:1] ✓ 1259.0s  隐藏维度 256（基线 128）
+[main/hid256/0:2] ✓ 1277.4s  隐藏维度 256（基线 128）
+[main/hid256/1:0] ✓ 1295.9s  隐藏维度 256（基线 128）
+[main/hid256/1:2] ✓ 1313.3s  隐藏维度 256（基线 128）
+[main/hid256/2:0] ✓ 1330.5s  隐藏维度 256（基线 128）
+[main/hid256/2:1] ✓ 1350.0s  隐藏维度 256（基线 128）
+[main/numbases1/0:1] ✓ 1369.7s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/0:2] ✓ 1387.4s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/1:0] ✓ 1410.6s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/1:2] ✓ 1425.3s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/2:0] ✓ 1447.8s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases1/2:1] ✓ 1466.5s  RGCN 基分解 num_bases=1（所有关系共享一组基，最低容量端）
+[main/numbases3/0:1] ✓ 1482.2s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/0:2] ✓ 1503.3s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/1:0] ✓ 1521.4s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/1:2] ✓ 1539.6s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/2:0] ✓ 1555.6s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases3/2:1] ✓ 1572.2s  RGCN 基分解 num_bases=3（合法非默认区间的中点）
+[main/numbases4/0:1] ✓ 1589.7s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/0:2] ✓ 1609.4s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/1:0] ✓ 1628.5s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/1:2] ✓ 1646.4s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/2:0] ✓ 1665.0s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/numbases4/2:1] ✓ 1680.4s  RGCN 基分解 num_bases=4（合法非默认区间的最高端；model.py:19 点名此值「仅作消融」）
+[main/dropedge02/0:1] ✓ 1699.3s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/0:2] ✓ 1721.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/1:0] ✓ 1744.9s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/1:2] ✓ 1766.2s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/2:0] ✓ 1787.5s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/dropedge02/2:1] ✓ 1808.6s  DropEdge 概率 0.2（基线 0.0=关闭；与 prior/struct dropout 默认同档）
+[main/layers1/0:1] ✓ 1825.0s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/0:2] ✓ 1840.1s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/1:0] ✓ 1855.7s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/1:2] ✓ 1870.8s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/2:0] ✓ 1890.9s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers1/2:1] ✓ 1904.8s  RGCN 层数 L=1（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/0:1] ✓ 1924.3s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/0:2] ✓ 1948.2s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/1:0] ✓ 1967.7s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/1:2] ✓ 1990.2s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/2:0] ✓ 2014.4s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/layers3/2:1] ✓ 2033.4s  RGCN 层数 L=3（基线 L=2；大纲 5.4.1 第 13 项）
+[main/cb_unlimited/0:1] ✓ 2051.3s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/0:2] ✓ 2072.9s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/1:0] ✓ 2096.4s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/1:2] ✓ 2116.7s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/2:0] ✓ 2141.8s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_unlimited/2:1] ✓ 2159.8s  CALLBACK_RISK 每源节点出边**不设上限**（基线 4；大纲 5.4.1 第 5 项）
+[main/cb_rev/0:1] ✓ 2182.4s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/0:2] ✓ 2202.6s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/1:0] ✓ 2224.3s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/1:2] ✓ 2244.1s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/2:0] ✓ 2266.4s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_rev/2:1] ✓ 2285.2s  额外反向关系 CALLBACK_RISK_REV（基线无；大纲 5.4.2 第 12 项，关系数 5→6）
+[main/cb_frozen/0:1] ✓ 2319.8s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/0:2] ✓ 2348.6s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/1:0] ✓ 2368.3s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/1:2] ✓ 2390.8s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/2:0] ✓ 2406.1s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/cb_frozen/2:1] ✓ 2425.2s  冻结 CodeBERT（正典=微调 CodeBERT；大纲 5.4.2 第 17 项，方向已反转）
+[main/lvar_dose_0.01/0:0] ✓ 2443.8s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/0:1] ✓ 2463.1s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/0:2] ✓ 2484.1s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/1:0] ✓ 2505.0s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/1:1] ✓ 2527.1s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/1:2] ✓ 2547.3s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/2:0] ✓ 2572.1s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/2:1] ✓ 2591.3s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.01/2:2] ✓ 2610.7s  L_var 剂量 λ=0.01（基线 0.001，×10）
+[main/lvar_dose_0.1/0:0] ✓ 2629.0s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/0:1] ✓ 2646.4s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/0:2] ✓ 2664.5s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/1:0] ✓ 2684.8s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/1:1] ✓ 2706.8s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/1:2] ✓ 2726.8s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/2:0] ✓ 2752.7s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/2:1] ✓ 2771.7s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_0.1/2:2] ✓ 2791.4s  L_var 剂量 λ=0.1（基线 0.001，×100）
+[main/lvar_dose_1.0/0:0] ✓ 2811.8s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/0:1] ✓ 2830.0s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/0:2] ✓ 2848.0s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/1:0] ✓ 2869.5s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/1:1] ✓ 2891.7s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/1:2] ✓ 2914.2s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/2:0] ✓ 2935.9s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/2:1] ✓ 2954.2s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/lvar_dose_1.0/2:2] ✓ 2972.2s  L_var 剂量 λ=1.0（基线 0.001，×1000）
+[main/conv_gcn/0:0] ✓ 2993.5s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/0:1] ✓ 3010.5s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/0:2] ✓ 3031.6s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/1:0] ✓ 3051.2s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/1:1] ✓ 3068.0s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/1:2] ✓ 3085.1s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/2:0] ✓ 3105.5s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/2:1] ✓ 3121.0s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gcn/2:2] ✓ 3137.9s  GCN（关系盲；大纲 5.3 的 EGFL 行）
+[main/conv_gat/0:0] ✗ train 退出码 1
+
+[n9] 结束：新跑 162 个 run，wall 52.4 min，失败 1
+  ✗ main/conv_gat/0:0/train: ew_zeros(size).scatter_reduce_(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: scatter_reduce_cuda does not have a deterministic implementation, but you set 'torch.use_deterministic_algorithms(True)'. You can turn off determinism just for this operation, or you can use the 'warn_only=True' option, if that's acceptable for your application. You can also file an issue at https://github.com/pytorch/pytorch/issues to help us prioritize adding deterministic support for this operation.
+

@@ -332,24 +332,35 @@ def main() -> None:
     if not rows:
         raise SystemExit("[tables] 没有取到任何行——产物缺失？")
 
+    # 🔴 **解释性文字一律放表后**（用户 2026-09-24 裁定）：抬头只留「这是什么 + 怎么读」两行，
+    #    口径声明 / 逐行声明 / 薄支撑警告全部搬到文末「附」，**不打断表的阅读**。
+    tail_note = [
+        (f"> 🔴 **表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；取 **seed{k_main}**，"
+         f"判据 = 该正典在 micro-F1@val_thr 上最高），**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"
+         if args.canon_only_runs else
+         f"> 🔴 **两组表并列**：**表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；"
+         f"① 取 **seed{k_main}**、② 取 **seed{k_aug}**，判据 = 该语料正典在 micro-F1@val_thr 上最高），"
+         f"**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"),
+        "",
+        "> ⚠ 最佳种子口径下**没有 ±**（单种子无方差），且本仓实测重跑抖动 ≈0.012"
+        "（约为种子间 std 的 40%，`decisions.md` §36.4）⇒ **不得**据它下「某干预有效」的结论；"
+        "那种结论仍须同配对 ≥9 点。",
+        "",
+        "> **三个口径的区别**：`micro` / `macro` 的逐类格是**全测试集**逐类 F1，"
+        "`buggy` 的逐类格是**仅 `y.any(axis=1)` 的合约**上的逐类 F1。",
+        "",
+        "> 🔴 **`macro` 表与 `micro` 表的逐类格逐位相同**——macro-F1 就是那 7 个数的"
+        "未加权平均，**差异只在汇总列**（这是恒等，不是重复计算）。",
+        "",
+        _thin_support_note(supports), ""]
+    tail_note += header_extra
     doc = ["# 七类逐类 F1：三口径 × 两工作点对比", "",
            "> 程序生成（`scripts/collect_three_caliber_tables.py`）：**只搬运产物、只调 `metrics`**，"
            "不手抄、不重实现指标。", "",
-           (f"> 🔴 **表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；取 **seed{k_main}**，"
-            f"判据 = 该正典在 micro-F1@val_thr 上最高），**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"
-            if args.canon_only_runs else
-            f"> 🔴 **两组表并列**：**表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；"
-            f"① 取 **seed{k_main}**、② 取 **seed{k_aug}**，判据 = 该语料正典在 micro-F1@val_thr 上最高），"
-            f"**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"), "",
-           "> ⚠ 最佳种子口径下**没有 ±**（单种子无方差），且本仓实测重跑抖动 ≈0.012"
-           "（约为种子间 std 的 40%，`decisions.md` §36.4）⇒ **不得**据它下「某干预有效」的结论；"
-           "那种结论仍须同配对 ≥9 点。", "",
-           "> **三个口径的区别**：`micro` / `macro` 的逐类格是**全测试集**逐类 F1，"
-           "`buggy` 的逐类格是**仅 `y.any(axis=1)` 的合约**上的逐类 F1。", "",
-           "> 🔴 **`macro` 表与 `micro` 表的逐类格逐位相同**——macro-F1 就是那 7 个数的"
-           "未加权平均，**差异只在汇总列**（这是恒等，不是重复计算）。", "",
-           _thin_support_note(supports), ""]
-    doc += header_extra
+           "> 🔴 **口径声明与逐行声明（引用本表前必读）在文末「附」**——移到文末是为了"
+           "**不打断表的阅读**（用户 2026-09-24 裁定）。"
+           "读表顺序：§0 逐类 support → 一、表 1–6（最佳种子）→ 二、表 7–12（3 种子 mean±std）。",
+           ""]
     doc += ["## 0. 逐类 support（先读）", ""]
     doc += support_block(supports)
     doc += ["---", ""]
@@ -377,6 +388,9 @@ def main() -> None:
             doc += [f"## 表 {n} —— {title_of[caliber]} @{disp}", ""]
             doc += render_table(rows, wp, caliber)
             doc += [""]
+
+    # 文末「附」= 原来的抬头声明（表已全部呈现完，声明放这里不打断阅读）
+    doc += ["", "---", "", "## 附：口径声明（引用本表前必读）", ""] + tail_note
 
     text = "\n".join(doc)
     if args.out:

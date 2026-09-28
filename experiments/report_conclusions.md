@@ -1,5 +1,15 @@
 # SSM-HG 实验结论与处置建议（结论卷）
 
+> 🔴 **滞移更正（2026-09-24）**：本文正文冻结在 **2026-09-20**，此后又跑完 4 件事，
+> 引用本文任何「未做 / 待做」措辞前**先查 `log.md` 与本注**：
+> ① **5.3 对比实验跑完**：三条论文基线 × 3 种子（含 `_buggy` 新正典第二轮）+ **六个传统工具**
+> —— 见 `experiments/baseline_three_caliber_tables.md`（28 张表）与
+> `experiments/traditional_tools_results.md`（六工具的映射/能力边界/覆盖率/成本）；
+> ② ✅ **六个传统工具已全部接入并跑完**（环境 = `decisions.md` §47，独立 conda env、base 零污染；
+> 接入 = §56，2026-09-25）——Slither 全库 590、其余五个跑三种子 val∪test 并集 214；
+> ③ **SolidiFI 层次二已完成**（`decisions.md` §40；本文 §2.2 原写「未开始」）；
+> ④ **消融两代并存**（n=3 与 n=9）、**7 个独立二分类器补充臂**已于 2026-09-23 跑完。
+>
 > **定位**：本文是**结论卷**——对截至 **2026-09-20** 全部已完成实验的**解读、各臂处置建议、指标优化方向与待裁定事项**。
 > 🔴 **2026-09-20 口径变更（§37：微调 CodeBERT 升为正典）已按节同步**；逐条影响清单见 **§0.5**。
 > **配套文档**：全部数字与出处见 **`experiments/report_data.md`（数据卷）**。两文**分开存储**：本文只下结论、不复制大表；需要引用数字时指向数据卷对应小节。
@@ -357,9 +367,9 @@
 |---|---|---|---|
 | ~~P0~~ | 阶段 F 消融（5.4.1×11 + 5.4.2×6） | ✅ **已完成**：①②各 21 臂 × 3 种子 = **126 run**（`decisions.md` §38），产物 `runs/ablation{,_aug}/` | — |
 | ~~P1~~ | 阶段 F 第 5 项（CALLBACK_RISK 上限 4 vs 不限） | ✅ **已完成**（正是 `cb_unlimited` 臂；⚠ 实测为**零功效臂**，翻转 0/322） | — |
-| ~~P1~~ | 阶段 F 基线（Slither / CodeBERT / GCN） | 🔶 **GCN 已完成**（2026-09-20，`runs/baseline_gcn{,_aug}/`，见 `decisions.md` §40）；**Slither / CodeBERT 文本基线仍未做** | 需开发 |
+| ~~P1~~ | 阶段 F 基线（Slither / CodeBERT / GCN） | ✅ **已按大纲 `改II` 5.3 重列并跑完**（2026-09-22/23 + 2026-09-26）：**六个传统工具全部接入并跑完**（`decisions.md` §47 环境 / §56 接入），**EGFL / MVD-HG / MANDO-LLM** 三条论文基线各 3 种子 —— 产物 `eval_results/baseline/`，表见 `experiments/baseline_three_caliber_tables.md`（六行）。⚠ **GCN/CodeBERT 文本基线已作废**（大纲 5.3 表里既无 CodeBERT 也无 GCN/GAT；`--conv{gcn,gat,sage}` 降为 §40.4 的内部证据） | — |
 | ~~P2~~ | 阶段 G DIVE 外部测试（n=900 已抽样，front_running=30） | ✅ **已完成**：891/900 图，`eval_results/dive/comparison.md` | — |
-| **P1（新）** | 阶段 G SolidiFI 层次二 | 未开始（唯一仍未做的外部语料） | 需开发 |
+| ~~P1（新）~~ | 阶段 G SolidiFI 层次二 | ✅ **已完成**（2026-09-20，`decisions.md` §40）：`eval_results/solidifi/node_localization_*.json` | — |
 | **P0（新）** | 新正典上重跑 `loss_study` + `prior_dropout_study` + `binary_arm` + 三条对照臂 | 现行结论全部出在冻结工作点（§0.5 B1–B4） | ≈99 run |
 | **P1（新）** | 消融 top-3 臂（`numbases4`/`layers1`/`dropedge02`）做 n≥9 同配对 | n=3 不得判方向（§26.7/§27.5）；这三臂 Δ 最大且互相矛盾 | 各 9 run |
 

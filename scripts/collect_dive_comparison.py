@@ -106,9 +106,35 @@ def main() -> None:
     arms = sorted(set().union(*[set(v["arms"]) for v in list(internal.values()) +
                                 list(external.values())]))
 
+    # 🔴 **各输入产物自己的 `created_utc`**（2026-09-25 加）：让「四列是不是同一代」这件事
+    #    **机器可查**，而不是只写在散文里。背景：编码器换代后内测两列已被重算，
+    #    而 DIVE 两列仍来自换代前的 `matrix_{main,aug}.json`（旧树）⇒ 本表**混代**。
+    #    没有这个字段时，读表人只能靠 markdown 里的散文才发现（本项目 2026-09-25 就是这么栽的）。
+    def _created(p: Path):
+        """产物的时间戳：优先自述的 `created_utc`，没有就退回**文件 mtime**并显式标注来源。
+
+        ⚠ 必须给 mtime 兜底：`collected.json` / `collected_aug.json` **没有** `created_utc`
+        字段，只认自述字段的话内测侧会渲染成「无此字段」⇒ **恰好把最该看见的那一半藏起来**
+        （内测侧才是换代后重算的那一半）。退回 mtime 后两侧都有时间，混代一眼可见。
+        """
+        try:
+            v = json.loads(p.read_text(encoding="utf-8")).get("created_utc")
+            if v:
+                return f"`{v}`（产物自述 `created_utc`）"
+        except Exception:                                            # noqa: BLE001
+            pass
+        try:
+            ts = datetime.fromtimestamp(p.stat().st_mtime, timezone.utc)
+            return f"`{ts.isoformat(timespec='seconds')}`（**文件 mtime**；该产物无 `created_utc`）"
+        except OSError:
+            return None
+    inputs_utc = {f"internal_{k}": _created(v) for k, v in INTERNAL.items() if v.exists()}
+    inputs_utc.update({f"external_{k}": _created(v) for k, v in EXTERNAL.items() if v.exists()})
+
     result = {"created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "inputs": {**{f"internal_{k}": str(v.relative_to(REPO)) for k, v in INTERNAL.items()},
                          **{f"external_{k}": str(v.relative_to(REPO)) for k, v in EXTERNAL.items()}},
+              "inputs_created_utc": inputs_utc,
               "canon": {g: v.get("canon") for g, v in {**internal, **external}.items()},
               "arms": {}}
 
@@ -118,6 +144,19 @@ def main() -> None:
     A("")
     A("> 🔴 **禁止跨列比较绝对值**（`decisions.md` §23）：三列是**三套不同的评测条件**"
       "（不同数据、不同划分、不同类别先验）。可比的只有**同列内的 Δ**（相对该列自己的正典）。")
+    A("")
+    # 🔴 **混代披露（2026-09-25 编码器换代后加）**：本表**左二列与右二列不同代**。
+    A("> 🔴🔴 **四列不同代（2026-09-25 编码器换代后必读）**——各输入产物的生成时间"
+      "（优先产物自述的 `created_utc`，缺则退回文件 mtime）：")
+    for k, v in inputs_utc.items():
+        A(f"> - `{k}` → {v or '（读不到）'}")
+    A(">")
+    A("> 判读：**内测两列**（`internal_*`）随正典换代已重算，**DIVE 两列**（`external_*`）"
+      "仍是换代前的旧树读数 ⇒ **跨「内测 / DIVE」比较 Δ 会把两代混在一起**。"
+      "每一列**内部**的 Δ 仍相对「该列自己的正典」、各自自洽。")
+    A("> ⚠ 旧代的 ① DIVE 特征树（`products/dive/graphs_ft/ss{S}`）已**原地覆盖、不可重建**，"
+      "旧读数只存在于 `matrix_main.json` / `matrix_aug.json`。")
+    A("> 统一到一代：重跑 `python scripts/evaluate_external.py --matrix {main,aug} --out …` 后再跑本脚本。")
     A("")
     # ---- 主口径：最佳种子（用户 2026-09-20 裁定）----
     # 🔴 **每个语料只选一个种子，内测列与 DIVE 列共用**：否则同一行里"① 模型"在内测列

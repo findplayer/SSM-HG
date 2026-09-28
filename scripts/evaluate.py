@@ -301,8 +301,13 @@ def _provenance(runs_dir: Path, seeds: list) -> dict:
     """**口径戳**：summary 描述的是哪一套正典（编码器树 / 划分种子 / 每种子阈值）。
 
     只读各 seed 的 `config.json`，**不加载权重**。取不到就记 null，**不猜**。
-    `graph_dir` 是判定的唯一依据：`…/graphs_ft/ss{S}` = 微调正典（§37 起）、
-    `…/graphs` = 冻结编码器树（现仅 `cb_frozen` 类消融臂）、其余按原样记录。
+    `graph_dir` 是判定的唯一依据。2026-09-25 编码器换代后共六种形态：
+      - `…/graphs_ft_buggy_p2/cb_ft_ss{S}` = 任务 2 **现行**正典（20 轮档）
+      - `…/graphs_ft_buggy/cb_ft_ss{S}`    = 任务 2 旧正典（16 轮档，池 497）
+      - `…/graphs_ft_p2/cb_ft_ss{S}`       = ① **现行**正典（20 轮档，§37 谱系）
+      - `…/graphs_ft/ss{S}`                = ① 旧正典（5 轮档；其 run 归档于 runs/prior_canon37）
+      - `…/graphs`                         = 冻结编码器树（现仅 `cb_frozen` 类消融臂）
+      - 其余按原样记录
     """
     graph_dirs, heads, n = set(), set(), 0
     for s in seeds:
@@ -318,15 +323,20 @@ def _provenance(runs_dir: Path, seeds: list) -> dict:
         gd = (c.get("args") or {}).get("graph_dir")
         if gd:
             graph_dirs.add(str(gd))
-    trees = sorted({Path(g).name for g in graph_dirs})          # ss0/ss1/ss2 或 graphs
+    trees = sorted({Path(g).name for g in graph_dirs})          # ss0/ss1/ss2 或 cb_ft_ss0 或 graphs
     if not graph_dirs:
         encoding = None
+    # ⚠ 判定顺序 = **从最具体到最泛**，四条都必须排在 `graphs_ft` 那条之前：
+    #   `graphs_ft_buggy_p2` ⊃ `graphs_ft_buggy` ⊃ `graphs_ft`，`graphs_ft_p2` ⊃ `graphs_ft`
+    #   —— 顺序写错会让新臂被口径戳写成旧档，那正是口径戳要防的事（自己认错自己）。
+    elif all("graphs_ft_buggy_p2" in g for g in graph_dirs):
+        encoding = "fine-tuned CodeBERT（**20 轮档**；含 buggy_* 的池 497 划分；任务2 现行正典）"
     elif all("graphs_ft_buggy" in g for g in graph_dirs):
-        # ⚠ **必须比下面那条泛匹配先判**：`graphs_ft_buggy` 是 `graphs_ft` 的超串，
-        #   否则新臂会被口径戳写成"§37 正典"——那正是口径戳要防的事（自己认错自己）。
-        encoding = "fine-tuned CodeBERT（**含 buggy_* 的池 497 划分**；任务2 臂，非 §37 正典）"
+        encoding = "fine-tuned CodeBERT（**16 轮档**；含 buggy_* 的池 497 划分；任务2 旧正典）"
+    elif all("graphs_ft_p2" in g for g in graph_dirs):
+        encoding = "fine-tuned CodeBERT（**20 轮档**；① 现行正典，§37 谱系）"
     elif all("graphs_ft" in g for g in graph_dirs):
-        encoding = "fine-tuned CodeBERT（§37 起正典）"
+        encoding = "fine-tuned CodeBERT（**5 轮档**；§37 旧正典，run 已归档于 runs/prior_canon37）"
     elif all(Path(g).name == "graphs" for g in graph_dirs):
         encoding = "frozen CodeBERT（§37 前正典；现仅消融臂 cb_frozen）"
     else:

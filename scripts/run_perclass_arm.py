@@ -46,7 +46,7 @@ LABEL_SRC = REPO / "alldata(readonly)/contract_labels.json"
 LABEL_DIR = REPO / "products/alldata/perclass_labels"
 OUT_ROOT = "runs/perclass_arm"
 # ⚠ 两条 ① 主库口径**逐字来自正典**，只改 `--head` 与 `--label-file`：
-GRAPH_TMPL = "products/alldata/graphs_ft/ss{S}"
+GRAPH_TMPL = "products/alldata/graphs_ft_p2/cb_ft_ss{S}"
 SPLIT_DIR = "products/alldata/splits"
 
 

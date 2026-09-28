@@ -1,0 +1,298 @@
+=== [21:16:42] P2 全链启动 ===
+=== [21:16:42] P2 encoder ss0 start ===
+[ft] 语料=alldata  输出=runs/codebert_ft_p2/ss0
+[ft] split_seed0  train=362 val=45 test=46（已断言 train ∩ val∪test = ∅）
+[ft] 训练序列 8540 条（合约均 23.6 个函数）
+[ft] epoch 1: loss=1.6544 val_macro_f1=0.2107 lr=2.00e-05 (127.9s)
+[ft] epoch 2: loss=0.9445 val_macro_f1=0.2738 lr=2.00e-05 (257.2s)
+[ft] epoch 3: loss=0.5273 val_macro_f1=0.5207 lr=2.00e-05 (387.1s)
+[ft] epoch 4: loss=0.3711 val_macro_f1=0.5058 lr=2.00e-05 (516.8s)
+[ft] epoch 5: loss=0.3663 val_macro_f1=0.5452 lr=2.00e-05 (645.8s)
+[ft] epoch 6: loss=0.2214 val_macro_f1=0.5661 lr=2.00e-05 (777.0s)
+[ft] epoch 7: loss=0.1477 val_macro_f1=0.6016 lr=2.00e-05 (908.7s)
+[ft] epoch 8: loss=0.1298 val_macro_f1=0.6214 lr=2.00e-05 (1041.5s)
+[ft] epoch 9: loss=0.0859 val_macro_f1=0.9154 lr=2.00e-05 (1175.3s)
+[ft] epoch 10: loss=0.0696 val_macro_f1=0.9544 lr=2.00e-05 (1306.8s)
+[ft] epoch 11: loss=0.0328 val_macro_f1=0.9154 lr=2.00e-05 (1437.0s)
+[ft] epoch 12: loss=0.0217 val_macro_f1=0.8005 lr=1.00e-05 (1567.1s)
+[ft] epoch 13: loss=0.0397 val_macro_f1=0.9344 lr=1.00e-05 (1696.4s)
+[ft] epoch 14: loss=0.0164 val_macro_f1=0.9344 lr=5.00e-06 (1825.8s)
+[ft] val macro-F1 连续 4 个 epoch 未提升，早停于 epoch 14
+[ft] SWA 启用但只累到 0 轮（需 ≥2）⇒ 不采用
+[ft] 完成：best epoch 10 val_macro_f1=0.9544 → runs/codebert_ft_p2/ss0/encoder
+=== [21:50:13] P2 encoder ss0 rc=0 ===
+=== [21:50:13] P2 encoder ss1 start ===
+[ft] 语料=alldata  输出=runs/codebert_ft_p2/ss1
+[ft] split_seed1  train=362 val=45 test=46（已断言 train ∩ val∪test = ∅）
+[ft] 训练序列 8665 条（合约均 23.9 个函数）
+[ft] epoch 1: loss=1.7619 val_macro_f1=0.1286 lr=2.00e-05 (130.5s)
+[ft] epoch 2: loss=1.0312 val_macro_f1=0.1945 lr=2.00e-05 (263.4s)
+[ft] epoch 3: loss=0.7536 val_macro_f1=0.2718 lr=2.00e-05 (394.8s)
+[ft] epoch 4: loss=0.6780 val_macro_f1=0.5816 lr=2.00e-05 (525.3s)
+[ft] epoch 5: loss=0.3629 val_macro_f1=0.5884 lr=2.00e-05 (655.4s)
+[ft] epoch 6: loss=0.2804 val_macro_f1=0.5190 lr=2.00e-05 (786.2s)
+[ft] epoch 7: loss=0.2040 val_macro_f1=0.6286 lr=2.00e-05 (915.4s)
+[ft] epoch 8: loss=0.1712 val_macro_f1=0.6651 lr=2.00e-05 (1045.3s)
+[ft] epoch 9: loss=0.0899 val_macro_f1=0.6745 lr=2.00e-05 (1176.3s)
+[ft] epoch 10: loss=0.0823 val_macro_f1=0.6462 lr=2.00e-05 (1307.0s)
+[ft] epoch 11: loss=0.0536 val_macro_f1=0.6747 lr=2.00e-05 (1436.6s)
+[ft] epoch 12: loss=0.0622 val_macro_f1=0.6653 lr=2.00e-05 (1566.1s)
+[ft] epoch 13: loss=0.0439 val_macro_f1=0.6462 lr=1.00e-05 (1695.4s)
+[ft] epoch 14: loss=0.0460 val_macro_f1=0.6557 lr=1.00e-05 (1825.2s)
+[ft] epoch 15: loss=0.0343 val_macro_f1=0.6557 lr=5.00e-06 (1954.4s)
+[ft] val macro-F1 连续 4 个 epoch 未提升，早停于 epoch 15
+[ft] SWA 启用但只累到 0 轮（需 ≥2）⇒ 不采用
+[ft] 完成：best epoch 11 val_macro_f1=0.6747 → runs/codebert_ft_p2/ss1/encoder
+=== [22:26:01] P2 encoder ss1 rc=0 ===
+=== [22:26:01] P2 encoder ss2 start ===
+[ft] 语料=alldata  输出=runs/codebert_ft_p2/ss2
+[ft] split_seed2  train=362 val=45 test=46（已断言 train ∩ val∪test = ∅）
+[ft] 训练序列 8542 条（合约均 23.6 个函数）
+[ft] epoch 1: loss=1.4262 val_macro_f1=0.2377 lr=2.00e-05 (128.1s)
+[ft] epoch 2: loss=1.0402 val_macro_f1=0.2392 lr=2.00e-05 (256.3s)
+[ft] epoch 3: loss=0.8410 val_macro_f1=0.3056 lr=2.00e-05 (385.5s)
+[ft] epoch 4: loss=0.4717 val_macro_f1=0.3197 lr=2.00e-05 (514.7s)
+[ft] epoch 5: loss=0.3434 val_macro_f1=0.4212 lr=2.00e-05 (643.2s)
+[ft] epoch 6: loss=0.2649 val_macro_f1=0.4720 lr=2.00e-05 (771.6s)
+[ft] epoch 7: loss=0.2003 val_macro_f1=0.4862 lr=2.00e-05 (901.2s)
+[ft] epoch 8: loss=0.1342 val_macro_f1=0.4451 lr=2.00e-05 (1030.5s)
+[ft] epoch 9: loss=0.1247 val_macro_f1=0.6100 lr=2.00e-05 (1159.2s)
+[ft] epoch 10: loss=0.1702 val_macro_f1=0.5937 lr=2.00e-05 (1289.1s)
+[ft] epoch 11: loss=0.0958 val_macro_f1=0.5698 lr=1.00e-05 (1417.8s)
+[ft] epoch 12: loss=0.0351 val_macro_f1=0.6149 lr=1.00e-05 (1546.2s)
+[ft] epoch 13: loss=0.0309 val_macro_f1=0.6290 lr=1.00e-05 (1675.2s)
+[ft] epoch 14: loss=0.0231 val_macro_f1=0.7165 lr=1.00e-05 (1805.1s)
+[ft] epoch 15: loss=0.0211 val_macro_f1=0.6222 lr=1.00e-05 (1933.8s)
+[ft] epoch 16: loss=0.0194 val_macro_f1=0.6022 lr=5.00e-06 (2062.2s)
+[ft] epoch 17: loss=0.0023 val_macro_f1=0.6290 lr=5.00e-06 (2191.1s)
+[ft] epoch 18: loss=0.0107 val_macro_f1=0.6222 lr=2.50e-06 (2319.6s)
+[ft] val macro-F1 连续 4 个 epoch 未提升，早停于 epoch 18
+[ft] SWA（epoch ≥ 16，2 轮平均）val=0.6290 vs best_epoch val=0.7165 ⇒ 采用 **best_epoch**
+[ft] 完成：best epoch 14 val_macro_f1=0.7165 → runs/codebert_ft_p2/ss2/encoder
+=== [23:08:24] P2 encoder ss2 rc=0 ===
+=== [23:08:24] P2 ENCODERS STAGE END ===
+=== [23:08:24] 三个编码器齐备 ===
+=== [23:08:24] ss0 M3 重编码 -> products/alldata/graphs_ft_p2/cb_ft_ss0 ===
+[variant] cb_ft_ss0 → /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss0（编码器 runs/codebert_ft_p2/ss0/encoder）
+  [M3(微调编码器)] ✓ 541.7s  [m3] device=cuda (requested=cuda)
+[m3] processed 590 graph(s), 95918 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss0
+[m3] cb cache reused for 0/590 graphs (resume OK); wrote 590 _feat.pt channel dicts (no variant files)
+  [cb_ft] _feat.pt vs 正典 逐位相同（逐图，全部）：590 同 / 0 异 ✓
+  [cb_ft] _cb.pt vs 正典（**全量** 590 图）：不同的有 590 个 ✓
+[variant] 完成：/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss0（用时 547.0s）
+=== [23:18:22] ss0 M3 rc=0 ===
+=== [23:18:22] ss0 GNN 重训（--deterministic）===
+epoch   0 loss 0.9448 clss 0.9448 var 0.0341 sc_mean 0.5495 sc_std 0.0665 val_micro 0.7222 val_macro 0.4464 lr 1.00e-04 1.3s
+epoch   1 loss 0.7471 clss 0.7471 var 0.0031 sc_mean 0.6528 sc_std 0.1201 val_micro 0.7429 val_macro 0.4512 lr 1.00e-04 0.4s
+epoch   2 loss 0.5332 clss 0.5332 var 0.0008 sc_mean 0.7675 sc_std 0.1573 val_micro 0.7568 val_macro 0.4750 lr 1.00e-04 0.4s
+epoch   3 loss 0.3531 clss 0.3531 var 0.0003 sc_mean 0.7911 sc_std 0.1945 val_micro 0.8205 val_macro 0.4984 lr 1.00e-04 0.5s
+epoch   4 loss 0.2565 clss 0.2565 var 0.0005 sc_mean 0.7219 sc_std 0.2541 val_micro 0.8205 val_macro 0.4984 lr 1.00e-04 0.4s
+epoch   5 loss 0.1847 clss 0.1847 var 0.0002 sc_mean 0.6052 sc_std 0.3120 val_micro 0.8718 val_macro 0.5270 lr 1.00e-04 0.4s
+epoch   6 loss 0.1558 clss 0.1558 var 0.0006 sc_mean 0.5262 sc_std 0.3448 val_micro 0.8718 val_macro 0.5270 lr 1.00e-04 0.4s
+epoch   7 loss 0.1305 clss 0.1305 var 0.0000 sc_mean 0.4483 sc_std 0.3618 val_micro 0.8718 val_macro 0.5270 lr 1.00e-04 0.5s
+epoch   8 loss 0.1029 clss 0.1029 var 0.0006 sc_mean 0.3764 sc_std 0.3638 val_micro 0.8780 val_macro 0.5472 lr 1.00e-04 0.4s
+epoch   9 loss 0.0885 clss 0.0885 var 0.0003 sc_mean 0.3365 sc_std 0.3662 val_micro 0.8780 val_macro 0.5472 lr 1.00e-04 0.5s
+epoch  10 loss 0.0745 clss 0.0745 var 0.0004 sc_mean 0.2785 sc_std 0.3596 val_micro 0.8780 val_macro 0.5472 lr 1.00e-04 0.4s
+epoch  11 loss 0.0682 clss 0.0682 var 0.0006 sc_mean 0.2689 sc_std 0.3607 val_micro 0.8780 val_macro 0.5472 lr 1.00e-04 0.4s
+epoch  12 loss 0.0599 clss 0.0599 var 0.0003 sc_mean 0.2553 sc_std 0.3558 val_micro 0.8780 val_macro 0.5472 lr 5.00e-05 0.4s
+epoch  13 loss 0.0503 clss 0.0503 var 0.0005 sc_mean 0.2269 sc_std 0.3499 val_micro 0.8780 val_macro 0.5472 lr 5.00e-05 0.5s
+early stop at epoch 13（连续 5 epoch val micro-F1 不提升）
+done seed0 (split_seed0): best val micro-F1=0.8780 @ epoch; wall=8.6s train=6.4s graphs/s=792.62 → runs/p2_canon/seed0/seed0
+=== [23:18:33] ss0 evaluate + diagnose ===
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 457, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 453, in main
+    eval_seed(args.seed, args)
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 190, in eval_seed
+    checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/p2_canon/seed0/best.pt'
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 316, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 304, in main
+    per_seed[s] = diagnose_seed(s, args)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 158, in diagnose_seed
+    checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/p2_canon/seed0/best.pt'
+=== [23:18:37] ss0 STAGE rc=0 ===
+=== [23:18:37] ss1 M3 重编码 -> products/alldata/graphs_ft_p2/cb_ft_ss1 ===
+[variant] cb_ft_ss1 → /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss1（编码器 runs/codebert_ft_p2/ss1/encoder）
+  [M3(微调编码器)] ✓ 543.7s  [m3] device=cuda (requested=cuda)
+[m3] processed 590 graph(s), 95918 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss1
+[m3] cb cache reused for 0/590 graphs (resume OK); wrote 590 _feat.pt channel dicts (no variant files)
+  [cb_ft] _feat.pt vs 正典 逐位相同（逐图，全部）：590 同 / 0 异 ✓
+  [cb_ft] _cb.pt vs 正典（**全量** 590 图）：不同的有 590 个 ✓
+[variant] 完成：/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss1（用时 547.6s）
+=== [23:28:36] ss1 M3 rc=0 ===
+=== [23:28:36] ss1 GNN 重训（--deterministic）===
+epoch   0 loss 0.8817 clss 0.8817 var 0.0143 sc_mean 0.4563 sc_std 0.0958 val_micro 0.6809 val_macro 0.4170 lr 1.00e-04 1.9s
+epoch   1 loss 0.6273 clss 0.6273 var 0.0028 sc_mean 0.6307 sc_std 0.1617 val_micro 0.7200 val_macro 0.4425 lr 1.00e-04 0.5s
+epoch   2 loss 0.4003 clss 0.4003 var 0.0014 sc_mean 0.6720 sc_std 0.2259 val_micro 0.7660 val_macro 0.5154 lr 1.00e-04 0.5s
+epoch   3 loss 0.2605 clss 0.2605 var 0.0006 sc_mean 0.5885 sc_std 0.2775 val_micro 0.8261 val_macro 0.5520 lr 1.00e-04 0.5s
+epoch   4 loss 0.1987 clss 0.1987 var 0.0008 sc_mean 0.4629 sc_std 0.3054 val_micro 0.8636 val_macro 0.6235 lr 1.00e-04 0.5s
+epoch   5 loss 0.1508 clss 0.1508 var 0.0009 sc_mean 0.3708 sc_std 0.3258 val_micro 0.8696 val_macro 0.6459 lr 1.00e-04 0.4s
+epoch   6 loss 0.1060 clss 0.1060 var 0.0008 sc_mean 0.3674 sc_std 0.3496 val_micro 0.8889 val_macro 0.6663 lr 1.00e-04 0.4s
+epoch   7 loss 0.0885 clss 0.0885 var 0.0004 sc_mean 0.3893 sc_std 0.3717 val_micro 0.8936 val_macro 0.6745 lr 1.00e-04 0.4s
+epoch   8 loss 0.0841 clss 0.0841 var 0.0012 sc_mean 0.4013 sc_std 0.3831 val_micro 0.8936 val_macro 0.6745 lr 1.00e-04 0.4s
+epoch   9 loss 0.0672 clss 0.0672 var 0.0010 sc_mean 0.4067 sc_std 0.3934 val_micro 0.9302 val_macro 0.6857 lr 1.00e-04 0.5s
+epoch  10 loss 0.0554 clss 0.0554 var 0.0007 sc_mean 0.3959 sc_std 0.3967 val_micro 0.9302 val_macro 0.6857 lr 1.00e-04 0.5s
+epoch  11 loss 0.0490 clss 0.0490 var 0.0011 sc_mean 0.3730 sc_std 0.3966 val_micro 0.9302 val_macro 0.6857 lr 1.00e-04 0.4s
+epoch  12 loss 0.0397 clss 0.0397 var 0.0007 sc_mean 0.3622 sc_std 0.3991 val_micro 0.9302 val_macro 0.6857 lr 1.00e-04 0.4s
+epoch  13 loss 0.0396 clss 0.0396 var 0.0008 sc_mean 0.3676 sc_std 0.3994 val_micro 0.9362 val_macro 0.8378 lr 1.00e-04 0.4s
+epoch  14 loss 0.0355 clss 0.0355 var 0.0004 sc_mean 0.3496 sc_std 0.3998 val_micro 0.9565 val_macro 0.8462 lr 1.00e-04 0.4s
+epoch  15 loss 0.0347 clss 0.0347 var 0.0006 sc_mean 0.3593 sc_std 0.4032 val_micro 0.9565 val_macro 0.8462 lr 1.00e-04 0.4s
+epoch  16 loss 0.0375 clss 0.0375 var 0.0009 sc_mean 0.3611 sc_std 0.4015 val_micro 0.9565 val_macro 0.8462 lr 1.00e-04 0.4s
+epoch  17 loss 0.0318 clss 0.0318 var 0.0009 sc_mean 0.3512 sc_std 0.4044 val_micro 0.9565 val_macro 0.8462 lr 1.00e-04 0.4s
+epoch  18 loss 0.0258 clss 0.0258 var 0.0004 sc_mean 0.3426 sc_std 0.4012 val_micro 0.9565 val_macro 0.8462 lr 5.00e-05 0.4s
+epoch  19 loss 0.0222 clss 0.0222 var 0.0004 sc_mean 0.3255 sc_std 0.3976 val_micro 0.9565 val_macro 0.8462 lr 5.00e-05 0.5s
+early stop at epoch 19（连续 5 epoch val micro-F1 不提升）
+done seed1 (split_seed1): best val micro-F1=0.9565 @ epoch; wall=12.0s train=9.6s graphs/s=757.37 → runs/p2_canon/seed1/seed1
+=== [23:28:50] ss1 evaluate + diagnose ===
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 457, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 453, in main
+    eval_seed(args.seed, args)
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 190, in eval_seed
+    checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/p2_canon/seed1/best.pt'
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 316, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 304, in main
+    per_seed[s] = diagnose_seed(s, args)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 158, in diagnose_seed
+    checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/p2_canon/seed1/best.pt'
+=== [23:28:54] ss1 STAGE rc=0 ===
+=== [23:28:54] ss2 M3 重编码 -> products/alldata/graphs_ft_p2/cb_ft_ss2 ===
+[variant] cb_ft_ss2 → /home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss2（编码器 runs/codebert_ft_p2/ss2/encoder）
+  [M3(微调编码器)] ✓ 534.9s  [m3] device=cuda (requested=cuda)
+[m3] processed 590 graph(s), 95918 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss2
+[m3] cb cache reused for 0/590 graphs (resume OK); wrote 590 _feat.pt channel dicts (no variant files)
+  [cb_ft] _feat.pt vs 正典 逐位相同（逐图，全部）：590 同 / 0 异 ✓
+  [cb_ft] _cb.pt vs 正典（**全量** 590 图）：不同的有 590 个 ✓
+[variant] 完成：/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss2（用时 537.8s）
+=== [23:38:43] ss2 M3 rc=0 ===
+=== [23:38:43] ss2 GNN 重训（--deterministic）===
+epoch   0 loss 0.9497 clss 0.9497 var 0.0156 sc_mean 0.4528 sc_std 0.0952 val_micro 0.2913 val_macro 0.3902 lr 1.00e-04 1.1s
+epoch   1 loss 0.6645 clss 0.6645 var 0.0017 sc_mean 0.5384 sc_std 0.2148 val_micro 0.6471 val_macro 0.4113 lr 1.00e-04 0.5s
+epoch   2 loss 0.3909 clss 0.3909 var 0.0012 sc_mean 0.4643 sc_std 0.3117 val_micro 0.7647 val_macro 0.4670 lr 1.00e-04 0.5s
+epoch   3 loss 0.2138 clss 0.2138 var 0.0010 sc_mean 0.3616 sc_std 0.3755 val_micro 0.8000 val_macro 0.4796 lr 1.00e-04 0.4s
+epoch   4 loss 0.1311 clss 0.1311 var 0.0010 sc_mean 0.3284 sc_std 0.4007 val_micro 0.8333 val_macro 0.5224 lr 1.00e-04 0.4s
+epoch   5 loss 0.0908 clss 0.0908 var 0.0009 sc_mean 0.3174 sc_std 0.4109 val_micro 0.8333 val_macro 0.5224 lr 1.00e-04 0.5s
+epoch   6 loss 0.0675 clss 0.0675 var 0.0005 sc_mean 0.3023 sc_std 0.4128 val_micro 0.8421 val_macro 0.6571 lr 1.00e-04 0.5s
+epoch   7 loss 0.0540 clss 0.0540 var 0.0005 sc_mean 0.3045 sc_std 0.4203 val_micro 0.8421 val_macro 0.6571 lr 1.00e-04 0.4s
+epoch   8 loss 0.0376 clss 0.0376 var 0.0003 sc_mean 0.3052 sc_std 0.4237 val_micro 0.8333 val_macro 0.5224 lr 1.00e-04 0.4s
+epoch   9 loss 0.0292 clss 0.0292 var 0.0001 sc_mean 0.3081 sc_std 0.4260 val_micro 0.8649 val_macro 0.6653 lr 1.00e-04 0.5s
+epoch  10 loss 0.0266 clss 0.0266 var 0.0005 sc_mean 0.2965 sc_std 0.4279 val_micro 0.8421 val_macro 0.6571 lr 1.00e-04 0.4s
+epoch  11 loss 0.0178 clss 0.0178 var 0.0001 sc_mean 0.2996 sc_std 0.4328 val_micro 0.8421 val_macro 0.6571 lr 1.00e-04 0.4s
+epoch  12 loss 0.0174 clss 0.0174 var 0.0007 sc_mean 0.2983 sc_std 0.4298 val_micro 0.8205 val_macro 0.6442 lr 1.00e-04 0.4s
+epoch  13 loss 0.0156 clss 0.0156 var 0.0003 sc_mean 0.3059 sc_std 0.4356 val_micro 0.8421 val_macro 0.6571 lr 5.00e-05 0.4s
+epoch  14 loss 0.0128 clss 0.0128 var 0.0003 sc_mean 0.3031 sc_std 0.4360 val_micro 0.8421 val_macro 0.6571 lr 5.00e-05 0.5s
+early stop at epoch 14（连续 5 epoch val micro-F1 不提升）
+done seed2 (split_seed2): best val micro-F1=0.8649 @ epoch; wall=8.7s train=6.6s graphs/s=826.26 → runs/p2_canon/seed2/seed2
+=== [23:38:54] ss2 evaluate + diagnose ===
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 457, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 453, in main
+    eval_seed(args.seed, args)
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 190, in eval_seed
+    checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/p2_canon/seed2/best.pt'
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 316, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 304, in main
+    per_seed[s] = diagnose_seed(s, args)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/diagnose.py", line 158, in diagnose_seed
+    checkpoint = torch.load(seed_dir / "best.pt", map_location="cpu")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 791, in load
+    with _open_file_like(f, 'rb') as opened_file:
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 271, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/saumarez/anaconda3/lib/python3.11/site-packages/torch/serialization.py", line 252, in __init__
+    super().__init__(open(name, mode))
+                     ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/p2_canon/seed2/best.pt'
+=== [23:38:58] ss2 STAGE rc=0 ===
+Traceback (most recent call last):
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 457, in <module>
+    main()
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 449, in main
+    summarize(args)
+  File "/home/saumarez/projects/deep-learning/SSM-HG/scripts/evaluate.py", line 345, in summarize
+    raise RuntimeError(f"{runs_dir} 下没有 seed*/results.json（先跑 train + evaluate）")
+RuntimeError: runs/p2_canon 下没有 seed*/results.json（先跑 train + evaluate）
+=== [23:39:00] 闸门 ===
+# 编码器换代闸门：旧 `--epochs 5` vs 新 `--epochs 20 --swa-start 16`
+
+旧 = `runs/seed{S}`（`graphs_ft/ss{S}`，§37 正典编码器）  
+新 = `runs/p2_canon/seed{S}`（`graphs_ft_p2/cb_ft_ss{S}`，P2 编码器）  
+同划分、同训练种子，**唯一变量 = 编码器**；两侧都读既有 `results.json`，本脚本不产新数字。
+
+> ⚠ **产物未齐，本表不下结论**。缺失：
+> - `runs/p2_canon/seed0/results.json`
+> - `runs/p2_canon/seed1/results.json`
+> - `runs/p2_canon/seed2/results.json`
+
+=== [23:39:00] 闸门 rc=0（0=三门前过 / 1=有门未过）===
+=== P2 PIPELINE DONE [23:39:00] ===

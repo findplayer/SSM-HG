@@ -35,6 +35,7 @@ SWC-114（Transaction Order Dependence）。故本工具在该类上只能恒输
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import re
 import subprocess
@@ -107,13 +108,22 @@ def class_index(name: str) -> int:
     return CLASS_NAMES.index(name)
 
 
-def detectors_to_vector(checks: list[str], *, strict: bool = False) -> list[int]:
-    """检测器名列表 → 七维 0/1 向量（`strict=True` 时用严格子集）。"""
+def detectors_to_vector(checks: list[str], *, strict: bool = False,
+                        mapping: dict[str, str] | None = None,
+                        strict_excluded: frozenset[str] | None = None) -> list[int]:
+    """检测器名列表 → 七维 0/1 向量（`strict=True` 时用严格子集）。
+
+    `mapping` / `strict_excluded` **默认 = Slither 的那一份**（13 个单测钉住这个默认值）。
+    其余五个工具走 `--tool`，由 `static_tool_adapters.TOOLS[...]` 传入各自的映射表 ——
+    映射表不同、**这十几行向量化逻辑同一份**，这正是六工具可比的前提。
+    """
+    table = DETECTOR_TO_CLASS if mapping is None else mapping
+    excl = STRICT_EXCLUDED if strict_excluded is None else strict_excluded
     vec = [0] * len(CLASS_NAMES)
     for check in checks:
-        if strict and check in STRICT_EXCLUDED:
+        if strict and check in excl:
             continue
-        cls = DETECTOR_TO_CLASS.get(check)
+        cls = table.get(check)
         if cls is not None:
             vec[class_index(cls)] = 1
     return vec
@@ -216,14 +226,27 @@ def pick_solc_candidates(source: Path, versions: list[tuple[tuple[int, int, int]
 # --------------------------------------------------------------------------- 单合约分析
 
 
-def run_slither(source: Path, solc: Path, timeout: int) -> dict:
+def run_slither(source: Path, solc: Path, timeout: int, work: Path) -> dict:
     """在**源码所在目录**里跑 slither（相对 import 靠 cwd 解析），返回解析结果。
 
     `--exclude-informational / --exclude-optimization` 只滤掉这两档 Impact；
     Low/Medium/High 全保留——本仓的映射表只用得上其中的一部分，
     原始检测器**全量落盘**，使得将来改映射**不必重跑工具**。
+
+    🔴 **`--json` 落点必须在 `work/`，且 `work` 是必填参数、没有回退**（2026-09-25 修）：
+    本仓全部源码都在 `alldata(readonly)/`（硬规则「只读、绝不写入或改名」），
+    而原先 `out_json = source.parent / …` 会**在只读树里创建再删掉一个文件**——
+    `finally` 删干净了（无残留），但**瞬时也违规**。**物证**：`alldata(readonly)/alldata_sol_source/`
+    下 **560 个目录**的 mtime 停在 **2026-09-21**（= 那次 Slither 基线运行的日子）、0 个文件
+    —— 建后即删会改目录 mtime。而 2026-09-25 新工具跑完后该目录 **0 个** mtime 变过。
+    ⚠ 第一版修法给了 `work: Path | None = None` 并回退到 `source.parent`，
+    **而 `analyze()` 根本没传** ⇒ 等于没修。现在 `work` 是**必填**，回退已删除。
+    `cwd` 保持 `source.parent` 不变（相对 import 要靠它解析；本轮 214 个样本实测 `import` 数为 0）。
     """
-    out_json = source.parent / f".slither_{source.stem}.json"
+    scope = Path(work).resolve()
+    scope.mkdir(parents=True, exist_ok=True)
+    out_json = scope / f".slither_{source.stem}.json"
+
     cmd = ["slither", source.name, "--solc", str(solc),
            "--exclude-informational", "--exclude-optimization",
            "--json", str(out_json), "--no-fail-pedantic"]
@@ -267,11 +290,18 @@ def bases_of(graph_dir: Path) -> list[str]:
 
 
 def analyze(graph_dir: Path, out_path: Path, limit: int | None, timeout: int,
-            only: list[str] | None) -> dict:
-    """逐合约跑 slither，**增量落盘**（每 25 个写一次；长跑被腰斩也能续）。"""
+            only: list[str] | None, work: Path, flush_every: int = 25) -> dict:
+    """逐合约跑 slither，**增量落盘**（默认每 25 个写一次；长跑被腰斩也能续）。
+
+    🔴 `flush_every` = **崩溃时最多损失几个合约的机时**（2026-09-26 加，见 `--flush-every`）：
+    本机 WSL 被整体重启过两次，而符号执行类单合约 160~180 s ⇒ 默认 10 意味着最坏丢 27 min，
+    与崩溃间隔同量级时**永远走不到第一个落盘点**（两次崩溃 = 零进度，实测如此）。
+    """
     versions = installed_solc_versions()
     if not versions:
         raise SystemExit("🔴 本机没有任何 solc-select 已装版本，无法运行 slither")
+    work = Path(work).resolve()
+    work.mkdir(parents=True, exist_ok=True)
     bases = only or bases_of(graph_dir)
     if limit:
         bases = bases[:limit]
@@ -299,7 +329,7 @@ def analyze(graph_dir: Path, out_path: Path, limit: int | None, timeout: int,
         res: dict = {}
         tried: list[str] = []
         for solc, tag in cands:                   # 逐个候选重试，第一个编过的即采用
-            res = run_slither(src, solc, timeout)
+            res = run_slither(src, solc, timeout, work)
             tried.append(f"{tag}:{res['status']}")
             if res["status"] == "ok":
                 res["solc"] = tag
@@ -311,7 +341,7 @@ def analyze(graph_dir: Path, out_path: Path, limit: int | None, timeout: int,
             res["classes_strict"] = detectors_to_vector(res["checks"], strict=True)
         results[base] = res
         done += 1
-        if done % 25 == 0 or i == len(bases) - 1:
+        if done % flush_every == 0 or i == len(bases) - 1:
             write_run(out_path, graph_dir, results)
             ok = sum(1 for r in results.values() if r.get("status") == "ok")
             print(f"  [{i + 1}/{len(bases)}] ok={ok} "
@@ -320,21 +350,133 @@ def analyze(graph_dir: Path, out_path: Path, limit: int | None, timeout: int,
     return results
 
 
-def write_run(out_path: Path, graph_dir: Path, results: dict) -> None:
+def write_run(out_path: Path, graph_dir: Path, results: dict, spec=None) -> None:
+    """落盘。`spec=None` ⇒ Slither（保持 2026-09-21 那份产物的字段逐字不变）。
+
+    🔴 非 Slither 时**必须**把三样东西写进产物：该工具的映射表、被排除的项与理由、
+    能力边界。否则读产物的人无从判断「某一类为 0」是**工具没这个检测项**
+    还是**模型/映射的问题**——这正是 §47.4 要求随结果披露的口径。
+    """
     status = Counter(r.get("status") for r in results.values())
-    payload = {
-        "tool": "slither", "graph_dir": str(graph_dir), "n_contracts": len(results),
-        "status_counts": dict(status),
-        "detector_to_class": DETECTOR_TO_CLASS,
-        "strict_excluded": sorted(STRICT_EXCLUDED),
-        "no_detector_classes": list(NO_DETECTOR_CLASSES),
-        "warning": ("classes 为七维规则命中向量；front_running 无对应检测器、恒为 0；"
-                    "status!=ok 的合约未分析，不得记作全零预测"),
-        "contracts": results,
-    }
+    if spec is None:
+        payload = {
+            "tool": "slither", "graph_dir": str(graph_dir), "n_contracts": len(results),
+            "status_counts": dict(status),
+            "detector_to_class": DETECTOR_TO_CLASS,
+            "strict_excluded": sorted(STRICT_EXCLUDED),
+            "no_detector_classes": list(NO_DETECTOR_CLASSES),
+            "warning": ("classes 为七维规则命中向量；front_running 无对应检测器、恒为 0；"
+                        "status!=ok 的合约未分析，不得记作全零预测"),
+            "contracts": results,
+        }
+    else:
+        payload = {
+            "tool": spec.key, "tool_label": spec.label, "graph_dir": str(graph_dir),
+            "n_contracts": len(results), "status_counts": dict(status),
+            "detector_to_class": spec.detector_to_class,
+            "no_detector_classes": list(spec.no_detector_classes),
+            # 🔴 这五个工具的严格子集**与全量相同**（空集）：严格子集是 Slither 那一轮
+            # 为"映射本身有争议的 4 条检测器"做的敏感性分析；这五个工具的映射
+            # 已经先过了"唯一 SWC 锚点"那道尺子，再切一次没有额外信息。
+            # 写进产物是为了让 `strict_*` 两列相等这件事**自述**，而不是让人以为是漏算了。
+            "strict_excluded": sorted(spec.strict_excluded_extra),
+            "excluded": spec.excluded,
+            "capability": list(spec.capability),
+            "tool_timeout_s": spec.timeout_default,
+            "mapping_rule": ("六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，"
+                             "且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）"),
+            "warning": ("classes 为七维规则命中向量；`no_detector_classes` 里的类是"
+                        "**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；"
+                        "status!=ok 的合约未分析，不得记作全零预测"),
+            "contracts": results,
+        }
     tmp = out_path.with_suffix(".tmp")
     tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
     tmp.replace(out_path)
+
+
+# --------------------------------------------------------------------------- 其余五个工具
+
+# 只在**看起来是 solc 版本问题**时才换候选重试。🔴 这不是优化而是必需：
+# `pick_solc_candidates` 会给 8 个候选，若对每个候选都完整跑一遍，
+# 一个真正编不过的合约就是 8 × 单合约预算（实测 mythril 最坏 8 × 180 s = 24 min）。
+# 版本类错误的判据来自本仓实测的报错原文（见 `pick_solc_candidates` 的 docstring）。
+SOLC_ERROR_HINTS = (
+    "requires different compiler version", "SolidityVersionMismatch", "Invalid solc compilation",
+    "ParserError", "Source file requires different compiler", "No solc version",
+    "does not exist", "CryticCompile",
+)
+
+
+def looks_like_solc_error(msg: str) -> bool:
+    return any(h.lower() in (msg or "").lower() for h in SOLC_ERROR_HINTS)
+
+
+def analyze_with_adapter(spec, graph_dir: Path, work_root: Path, out_path: Path,
+                         limit: int | None, timeout: int, only: list[str] | None,
+                         flush_every: int = 10) -> dict:
+    """非 Slither 工具的主循环：**与 `analyze()` 同构**（增量落盘、逐合约、候选重试），
+    只是把"跑工具"换成 `static_tool_adapters.run_tool`。
+
+    🔴 **源码先 `cp` 进 `work_root` 再跑**：源在 `alldata(readonly)/`，硬规则不许写。
+    Securify 还会**改写 pragma**，更必须在副本上跑。
+    """
+    import static_tool_adapters as STA
+
+    versions = installed_solc_versions()
+    bases = only or bases_of(graph_dir)
+    if limit:
+        bases = bases[:limit]
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    work_root.mkdir(parents=True, exist_ok=True)
+    prev: dict = {}
+    if out_path.exists():
+        prev = json.loads(out_path.read_text(encoding="utf-8")).get("contracts", {})
+    done = 0
+    results: dict[str, dict] = dict(prev)
+    t0 = time.time()
+    uses_solc = spec.solc_mode in (STA.SOLC_MODE_BINARY, STA.SOLC_MODE_VERSION)
+    for i, base in enumerate(bases):
+        if base in results and results[base].get("status") == "ok":
+            continue
+        try:
+            src = source_path_of(base, graph_dir)
+        except FileNotFoundError as exc:
+            results[base] = {"status": "no-source", "error": str(exc)[:300]}
+            continue
+        staged = STA.stage_source(src, work_root, base)
+        cands: list[tuple[Path, str]] = (pick_solc_candidates(src, versions)[:spec.max_attempts]
+                                        if uses_solc else [(None, "fixed")])  # type: ignore[list-item]
+        if uses_solc and not cands:
+            results[base] = {"status": "no-solc", "error": "no-solc-installed"}
+            continue
+        res: dict = {}
+        tried: list[str] = []
+        for solc, tag in cands:
+            res = STA.run_tool(spec, staged, work_root, base, solc)
+            tried.append(f"{tag}:{res['status']}")
+            if res["status"] == "ok" or not looks_like_solc_error(res.get("error", "")):
+                res["solc"] = tag
+                break
+        res["tried"] = tried
+        res["source"] = str(src.relative_to(REPO))
+        if res["status"] == "ok":
+            res["classes"] = detectors_to_vector(res["checks"], mapping=spec.detector_to_class,
+                                                 strict_excluded=spec.strict_excluded_extra)
+            res["classes_strict"] = detectors_to_vector(res["checks"], strict=True,
+                                                        mapping=spec.detector_to_class,
+                                                        strict_excluded=spec.strict_excluded_extra)
+        results[base] = res
+        done += 1
+        if done % flush_every == 0 or i == len(bases) - 1:
+            write_run(out_path, graph_dir, results, spec=spec)
+            ok = sum(1 for r in results.values() if r.get("status") == "ok")
+            el = time.time() - t0
+            print(f"  [{i + 1}/{len(bases)}] ok={ok} {dict(Counter(r.get('status') for r in results.values()))} "
+                  f"({el / max(done, 1):.1f} s/合约, 已用 {el / 60:.0f} min)", flush=True)
+    write_run(out_path, graph_dir, results, spec=spec)
+    return results
+
 
 
 # --------------------------------------------------------------------------- 评测
@@ -384,11 +526,28 @@ def evaluate(run_path: Path, splits: list[Path], graph_dir: Path, label_file: Pa
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--tool", default="slither",
+                    choices=["slither", "mythril", "manticore", "smartcheck", "securify", "oyente"],
+                    help="跑哪个工具（默认 slither，其行为与 2026-09-21 那份产物逐字相同）。"
+                         "其余五个走 `scripts/static_tool_adapters.py`，**评测部分是同一份实现**。")
+    ap.add_argument("--tools-work", default="runs/_tools_work",
+                    help="工具的工作目录（源码副本 + 工具的中间产物）。默认 `runs/_tools_work`。"
+                         "🔴 **必须落在 `runs/` 或 `eval_results/` 下**（硬规则：中间产物只能写这三处）；"
+                         "且**源码一律复制到这里再跑** —— 只读源目录一个字节都不许写。")
+    ap.add_argument("--tool-timeout", type=int, default=None,
+                    help="单合约墙钟预算（秒）；默认取该工具的 `timeout_default`。"
+                         "符号执行类工具靠它封顶，`status=timeout` 与 Slither 的 `error` 同口径。")
     ap.add_argument("--graph-dir", default="products/alldata/graphs")
     ap.add_argument("--out", default=None, help="原始检测器 JSON（默认 eval_results/baseline/slither_<语料>.json）")
     ap.add_argument("--limit", type=int, default=None, help="只跑前 N 个（冒烟）")
     ap.add_argument("--only", nargs="*", default=None, help="只跑指定 base")
     ap.add_argument("--timeout", type=int, default=300, help="单合约 slither 超时（秒）")
+    ap.add_argument("--flush-every", type=int, default=None,
+                    help="每 N 个合约增量落盘一次。默认 Slither=25、其余五工具=10"
+                         "（**不传时与 2026-09-25 的行为逐字相同**）。"
+                         "🔴 它等于「进程被腰斩时最多丢几个合约的机时」：符号执行类单合约 "
+                         "160~180 s，默认 10 ⇒ 最坏丢 27 min —— 与崩溃间隔同量级时"
+                         "**永远走不到第一个落盘点**（2026-09-26 实测踩到）。易崩环境下显式调小。")
     ap.add_argument("--eval-only", action="store_true", help="跳过工具运行，只出指标")
     ap.add_argument("--split-dir", default="products/alldata/splits")
     ap.add_argument("--split-seeds", type=int, nargs="*", default=[0, 1, 2])
@@ -403,22 +562,39 @@ def main() -> int:
                          "并配一个**新的** `--out`（`analyze()` 会把新结果并集进既有 JSON）。")
     args = ap.parse_args()
 
+    if args.flush_every is not None and args.flush_every < 1:
+        raise SystemExit(f"🔴 --flush-every 必须 ≥ 1（收到 {args.flush_every}；0 会让 `done % N` 除零）")
+
     graph_dir = REPO / args.graph_dir
     tag = args.tag or corpus_tag(graph_dir)
-    run_path = Path(args.out) if args.out else OUT_ROOT / f"slither_{tag}.json"
+    run_path = Path(args.out) if args.out else OUT_ROOT / f"{args.tool}_{tag}.json"
+    spec = None
+    if args.tool != "slither":
+        import static_tool_adapters as STA
+        spec = STA.TOOLS[args.tool]
+        if args.tool_timeout is not None:
+            spec = dataclasses.replace(spec, timeout_default=args.tool_timeout)
 
     if not args.eval_only:
-        print(f"[slither] 语料={tag}  图目录={graph_dir}")
-        results = analyze(graph_dir, run_path, args.limit, args.timeout, args.only)
+        print(f"[{args.tool}] 语料={tag}  图目录={graph_dir}")
+        if spec is None:
+            results = analyze(graph_dir, run_path, args.limit, args.timeout, args.only,
+                              REPO / args.tools_work,
+                              flush_every=args.flush_every or 25)
+        else:
+            print(f"[{args.tool}] 单合约预算={spec.timeout_default}s  工作目录={REPO / args.tools_work}")
+            results = analyze_with_adapter(spec, graph_dir, REPO / args.tools_work, run_path,
+                                           args.limit, spec.timeout_default, args.only,
+                                           flush_every=args.flush_every or 10)
         st = Counter(r.get("status") for r in results.values())
-        print(f"[slither] 完成：{dict(st)} → {run_path}")
+        print(f"[{args.tool}] 完成：{dict(st)} → {run_path}")
 
     if not run_path.exists():
         raise SystemExit(f"🔴 原始产物不存在：{run_path}（先不加 --eval-only 跑一遍）")
     splits = [Path(args.split_dir) / f"split_seed{s}.json" for s in args.split_seeds]
     splits = [s for s in splits if s.exists()]
     rows = evaluate(run_path, splits, graph_dir, args.label_file, args.label_key_mode,
-                    OUT_ROOT / f"slither_{tag}")
+                    OUT_ROOT / f"{args.tool}_{tag}")
     for row in rows:
         t = row["test"]
         print(f"[eval] seed{row['seed']} test: 覆盖 {t['n_analyzed']}/{t['n_in_split']}，"

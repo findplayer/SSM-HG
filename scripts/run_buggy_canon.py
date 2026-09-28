@@ -38,8 +38,12 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
 
 SPLIT_DIR = "products/alldata/splits/withbuggy_snapshot"
-VARIANT_ROOT = "products/alldata/graphs_ft_buggy"
-ENCODER_ROOT = "runs/codebert_ft_buggy"
+# 🔴 2026-09-25 换代：编码器 16 轮 → **20 轮**，与 ① 主库现行正典对齐。
+#    旧档（`graphs_ft_buggy` + `runs/codebert_ft_buggy`）**原地保留、未删**，
+#    16 轮的 `runs/buggy_canon` 与 `runs/ablation_buggy` 已归档到 `runs/prior_buggy16/`。
+#    换代理由见 `baseline_common.LAYOUTS` 上方注释（原设计是「池 vs 池」，实际混了 epoch 预算）。
+VARIANT_ROOT = "products/alldata/graphs_ft_buggy_p2"
+ENCODER_ROOT = "runs/codebert_ft_buggy_p2"
 RUNS_DIR = "runs/buggy_canon"
 SEEDS = (0, 1, 2)
 STEPS = ("variant", "train", "eval", "diagnose", "summarize")

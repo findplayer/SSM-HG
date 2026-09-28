@@ -2879,6 +2879,35 @@ oracle-F1 低、稀有类排序弱（ROC-AUC 近随机）、概率尺度塌缩�
    不是 ① 的 1–2，那句「单张图判对判错即可让 F1 跳 ±1.0」在 ② 上是错的）。
 6. `products/**/graphs_ft` 等新形态在 `runs/` 侧**从未做过**同类 `.gitignore` 排查（规则已补，习惯未补）。
 
+### 40.8 ✅ SolidiFI 层次二补齐 **6/6 组合**（2026-09-25）
+
+**原状**：只有 `main_seed2` / `aug_seed1` **两个**组合（2026-09-20 跑的单种子）。
+**现**：`main` / `aug` × 3 种子 全部 350/350 评到，6 组合合计 ≈75 s
+（`evaluate_node_localization.py --corpus {main,aug} --all-seeds`）。
+
+**P@5（三种子 mean±std）**：
+
+| 语料 | $s_v$（M1 先验，**不含学习**） | $a_v$（模型可疑度） | $g_v$（梯度显著性） |
+| --- | --- | --- | --- |
+| `main` | **0.0983 ± 0.0000** | 0.0030 ± 0.0029 | 0.0743 ± 0.0436 |
+| `aug` | **0.0983 ± 0.0000** | 0.1263 ± 0.0154 | 0.0371 ± 0.0124 |
+
+🔴 **本节 §40 已有的第 ① 条结论被三种子确认并加强**：
+「图传播未带来额外节点定位收益」——现在可以说得更硬：**训练得到的 $g_v$ 在两语料上都低于
+不含学习的 $s_v$**（main 0.0743 < 0.0983、aug 0.0371 < 0.0983），
+且 **没有任何一个信号在两个语料上都赢过先验**（① 的 main 上 $g_v$ 最强、② 的 aug 上 $a_v$ 最强）。
+⚠ $s_v$ **三种子恒为 0.0983、两语料也相同** —— 它是**输入先验、不随模型变动**，
+是那张表里唯一的参照线；把它读成"某个模型的成绩"是误读。
+
+🔴 **另一条必须一起报**：① 模型在 SolidiFI 上**预测正确的合约只有 1–3/350**（逐种子 3 / 1 / 1，
+2026-09-25 三种子齐；**旧文档的单种子值「1/350」是 seed2**），② 为 **300/350**（三种子恒定）。
+⇒ §4.6 那张排序表**主要是在 347–349 个"分类就错了"的合约上算的** ——
+**排序能力与分类能力必须分开报**（脚本已按大纲要求分 `pred_correct_subset` / `pred_wrong_subset` 两个子集）。
+
+⚠ **不得据此声称真实漏洞根因定位能力**（脚本 docstring 里的大纲原文声明）：
+SolidiFI 是**语法级注入**，$s_v$ 多数情况下**直接命中注入位置**，故本评估主要反映**静态先验的准确性**。
+落点：`dive_external_results.md` §4.6（新）+ §0 + §6 第 12–14 条；`results.md` §5（重写）。
+
 ---
 
 ## §41 七类逐类 F1 的三口径对比表 + DIVE 的 mAP 不可复现（2026-09-20）
@@ -4306,3 +4335,494 @@ MVD-HG 167→278 s、EGFL 238→467 s、MANDO-LLM 2273→2840 s ⇒ **本段普�
 与 `patience=20` 逐位吻合）⇒ 要跑到 200 轮需**每 ≤20 轮就出现一次新高**。
 497 池的 val 含全 1 注入合约、val micro-F1 轨迹非单调，故存在"噪声持续刷新高"的可能。
 `baseline_common.write_bundle` 是**唯一写盘点且原子替换** ⇒ 中途 kill 不留半截产物、可安全重跑。
+
+---
+
+## §53 交付物排版裁定 + 编码器 SWA 选点 + P1 三笔头寸落成（2026-09-24）
+
+### 53.1 裁定：**表格与解释性文字分离——表在前、声明在后**（用户 2026-09-24）
+
+**问题**：`experiments/baseline_three_caliber_tables.md` 的抬头是一大段「口径声明（§0，5 条）+
+逐行声明（三条基线的实现性质）」，读者要滚过约 40 行说明才看到第一张表；表 1/表 2 的定义文字也
+夹在两表之间。**解释性文字与表格交错，读表被打断。**
+
+**裁定**：**同一个交付物里，表一律在前，解释性文字一律放到对应表的下方或文末附录。**
+- 落点：`experiments/baseline_three_caliber_tables.md`、
+  `experiments/per_class_three_caliber_tables.md`、`experiments/per_class_three_caliber_tables_buggy.md`
+  （三者都是**程序生成**——故改的是 `scripts/collect_baseline_tables.py` 与
+  `scripts/collect_three_caliber_tables.py` 的**拼装顺序**，不是 `.md`：改 `.md` 会被下次运行覆盖）。
+- 🔴 **段号「§0」这个标题名刻意不改**（只是位置移到文末），因为全仓有大量「见本表 §0 第 N 条」的引用，
+  而 **Markdown 里的段号引用不会被任何测试发现失效**（改了会静默指向空气）。
+- **表号一个都没动**（表 1–28 仍在原编号、原顺序）⇒ 全仓既有的「表 N」引用全部继续有效。
+- 验证：`git diff` 显示三份交付物的**数据行逐字节未变**（只有抬头/文末的移动与 §2 的新增内容）。
+
+### 53.2 §2「训练时间与规模」新增**本文方法**行 + 表前标注输入来源与项目数量
+
+用户要求：成本表里只有三条基线、没有本文方法；且表前应标明数据集来源与各项目数量。
+
+- `timing_block()` 现在**先出本文方法 3 行**（从 `runs/<正典>/seed{S}/config.json::timing` +
+  `derived.parameter_report` 读），再出三条基线；表头 `| 基线 |` → `| 方法 |`。
+- 🔴 **`best_epoch` 不在 config.json 里**（`train.py` 只写 `timing` 的汇总量）⇒ 从 `log.txt` 的
+  逐 epoch JSONL **复算**，判据与 `train.py::best_monitor` **逐字相同**（严格 `>` ⇒ 并列取**第一个**最大值）；
+  multi 臂看 `val_micro_f1`、binary 臂看 `val_binary_ap`。取不到就出 `—`，**不猜**。
+- 新增 `_inputs_block()`：表前一张 3 列小表 = 行 / 图·特征来源 / **逐种子** train-val-test 数量。
+  数量**逐种子从产物读**（`results.json::n_*_graphs`、`split_seed{S}.json`）——两段的池不同（453/497），
+  且基线会因编译失败**逐种子掉样本**（MVD-HG 实测 train 357/357/358、val 45/45/44），**写死必错**。
+- 🔴 **实测对照（本文 vs 基线，同一张表）**：本文方法 **0.415 M 参数 / 训练 4.6–6.6 s / 每 epoch 0.33 s
+  / 总 wall 6.5–9.7 s**；MVD-HG 0.088 M / 137–213 s；EGFL 2.787 M / 214–281 s；
+  MANDO-LLM 3.075 M / 1905–2916 s。⚠ **口径声明（写进表下注）**：本文方法的表内成本**只是 GNN 段**，
+  其上游的 CodeBERT 微调（≈848 s/种子）与 M3 重编码（≈10 min/种子）是**一次性成本、不计在表内**——
+  三条基线同样把特征工程放在离线步。**不得**用这张表宣称「本文方法快 200 倍」。
+- 新增守卫：`tests/test_baseline_tables.py::test_layout_tables_agree_across_modules` 增两条断言
+  （出表侧的 `split_dir`/`graph_dir` 必须与跑批侧 `baseline_common.LAYOUTS` 逐字相同）——
+  表头标注的来源若与训练实际用的池不一致，**出表侧看不出来**（两边都能跑通）。
+
+### 53.3 `finetune_codebert.py` 新增 `--swa-start N`（编码器选点改后缀权重平均）
+
+**动机**（`improvement_proposals.md` §1.2）：编码器的「最好 epoch」是在 **45 个 val 合约**
+（多类只有 1 个正样本）上挑出来的，**本身是又一次最大值选择**。
+
+**实现**（三条设计约束，都在 docstring/help 里写明）：
+1. **默认关（N=0）⇒ 本次改动前后本脚本行为逐字节不变**（累加器不建、末尾分支不进）；
+2. **只存一份 fp32 累加器**（≈440 MB），**不存 K 份快照**——本机可用内存仅约 4 GB，
+   K=3 的 1.3 GB 会把 35 min 的训练推到 OOM 边缘；平均**原地**做（`swa_suffix_average`）；
+3. 🔴 **平均权重先在 val 上打分，只有不劣于 best-epoch 才采用** ⇒ **在 val 上不可能变差**；
+   两个读数（`swa_val_macro_f1` / `best_val_macro_f1`）与 `selection` 都写进 `config.json::swa`
+   ——**这一项的效果是可审计的数字，不是一句声明**。
+- 累加点在**早停判定之后**（早停那一轮不进平均，与 `best.pt` 口径对称）。
+- 守卫：`tests/test_finetune_swa.py`（3 例：后缀平均是精确算术平均且原地、n=0 硬报错、
+  **`--swa-start` 默认必须为 0**——盯"新增开关悄悄改了默认路径"，同 §31.3）。
+- 冒烟实测：`--limit-contracts 40 --epochs 4 --swa-start 2` 走通，`config.json::swa`
+  = `{swa_start: 2, n_averaged: 3, swa_val_macro_f1: 0.0136, selection: "best_epoch"}`
+  （该冒烟里 SWA 劣于 best-epoch ⇒ 正确地**回退**）。
+
+### 53.4 P1 三笔零重训头寸落成交付物（`experiments/p1_gains.md`）
+
+**背景**：`improvement_proposals.md` §7 的 P1 三项此前只有「实测记录」散在
+`improvement_round1_results.md`，**不是可引用的交付物**。
+
+**新增 `scripts/collect_p1_gains.py`**：**只读** `eval_results/{calibration,ensemble,bootstrap}`
+三个既有 JSON，**不产生任何新数字、不重训**，落成一张三表交付物 + 三条使用规则：
+
+| 表 | 实测（① 主库，3 种子） |
+|---|---|
+| 1 工作点对比 | 固定 0.5 = micro 0.7110 / macro 0.6091；val_thr（现行）= 0.7297 / 0.4986；**逐类阈值 = 0.6851 / 0.6363**（Δmacro **+0.1378**、Δmicro −0.0446） |
+| 2 同划分多种子集成 | Δ vs 单模型均值 **+0.0330**（ss0/1/2 = +0.0527/+0.0274/+0.0187）；Δ vs 最好单模型 −0.0157 |
+| 3 分辨率 | micro 95% CI 宽 **0.34–0.40**（B=2000，重采样单位=合约、阈值不重搜）；按 support 加权 macro 0.4841→**0.7593**、剔薄类 →**0.8472** |
+
+🔴 **三条使用规则（写进交付物 §0）**：① **集成不得与 best-of-3 并列比较**（后者含选择膨胀，
+是在用 test 挑种子）；② **逐类阈值是并列口径、不是"更好的主口径"**（过拟合已量化：`dos` 阈值
+三种子极差 0.55）；③ **三笔只进报告口径、不进训练控制流**（早停/调度/选点/阈值搜索目标一律不动）。
+- ⚠ 用户 2026-09-24 指示「**不用管 §30.5 裁定**」⇒ 本节的 ②③ 是**按用户指示**把上述口径
+  放进并列报告位；§30.5 的"训练控制流不动"这一半**仍然保留**（理由与用户指示不冲突：
+  改控制流 = 全部结果作废，见 §28）。
+
+### 53.5 文档滞移修复（2026-09-24）
+
+| 文件 | 原（错） | 改 |
+|---|---|---|
+| `experiments/results.md` §5 | 「SolidiFI 层次二（阶段 G，**待执行**）…未开始」 | **2026-09-20 已完成**（§40），补产物路径与两条硬结论，并标注此为滞移更正 |
+| `experiments/results.md` §3 | 「其余五个传统工具**未实跑**」 | 补「是**未接入**、不是装不上」+ §47 环境已落地 |
+| `experiments/report_conclusions.md` §2.2 | 「SolidiFI 未开始」/「Slither·CodeBERT 基线未做」 | 改为已完成；GCN/CodeBERT **已作废**（大纲 5.3 无它们）；并在**抬头加滞移横幅**（本文冻结在 2026-09-20，此后 4 件事已完成） |
+| `Todo_List.md` §12.7.1 | MANDO-LLM「🟡 代码已就绪、训练中（2026-09-22）」 | ✅ 已跑完（含 `_buggy` 第二轮） |
+| `Todo_List.md` 抬头 | 无当前状态指引（读者会把 2026-09-13 的历史块当现状） | 新增「当前状态以 `log.md` 为准」指引 + 逐阶段现状速查 |
+
+> 🔴 **滞移的根因是"状态写在两处、只更新一处"**：产物在跑（`log.md` 记），但交付物的措辞不改。
+> 故本次的处置不只是改字，而是**在每一处都写明「以谁为准」**（`log.md` / `decisions.md` / 产物路径）。
+
+---
+
+## §54 编码器换代闸门**通过**：20 轮预算升为正典，5 轮下沉为消融档（2026-09-24）
+
+**用户裁定（原话）**：「如果确实上升就提升为正典，旧的作为消融实验，并同步修改大纲设计。」
+
+### 54.1 闸门结果：三道门全过
+
+产物 `experiments/encoder_promotion_gate.md`（由 `scripts/check_encoder_promotion.py` 生成，
+**本脚本不产新数字**，只读两侧既有 `results.json` 做配对判闸）。
+
+比较口径：旧 = `runs/seed{S}`（`graphs_ft/ss{S}`，`--epochs 5 --patience 2`）；
+新 = `runs/p2_canon/seed{S}`（`graphs_ft_p2/cb_ft_ss{S}`，`--epochs 20 --patience 4 --swa-start 16`）。
+**同划分、同训练种子，唯一变量 = 编码器。**
+
+> ⚠ **路径后续变动（2026-09-25 换代落地时补记，不改本节任何数字）**：本节写作时新侧还在
+> `runs/p2_canon/seed{S}`。当日执行**混合换位**后，新一代码已**就位到 `runs/seed{S}`**
+> （`config.json` 与产物**逐字节未动**），旧一代改名为 `runs/prior_canon37/seed{S}`。
+> ⇒ **`runs/p2_canon/` 这个路径现在已不存在**；复跑本节判闸用
+> `python scripts/check_encoder_promotion.py`（默认值已指向 `--old-runs-root runs/prior_canon37`、
+> `--new-runs-root runs`）。另：表中 `--swa-start 16` **实际一次都没触发**
+> （实测三种子 `n_averaged = 0/0/2`、`selection` 全为 `best_epoch`）
+> ⇒ **此处增益来自 epoch 预算，不是 SWA**；`_buggy` 换代据此**不加** `--swa-start`（§55）。
+
+| 种子 | mAP 旧→新 | macro@val_thr | micro@val_thr | macro@0.5 |
+|---|---|---|---|---|
+| 0 | 0.7642 → 0.8246 | +0.0188 | +0.0650 | **−0.0229** |
+| 1 | 0.7574 → 0.9349 | **+0.4487** | +0.1841 | +0.2029 |
+| 2 | 0.7531 → 0.9260 | +0.1095 | +0.0195 | +0.0338 |
+| **均值 Δ** | **+0.1369** | **+0.1923** | +0.0895 | +0.0712 |
+
+- **G1 方向**：mAP 3/3 不劣、macro@val_thr 3/3 不劣 ⇒ ✅
+- **G2 幅度**：两主判据 mean Δ 均 > 0，且 mAP +0.1369 远超阈值 0.02 ⇒ ✅
+- **G3 上游**：编码器 3/3 提升（0.5258/0.6067/0.4365 → 0.9544/0.6747/0.7165，mean **+0.2589**）⇒ ✅
+
+⚠ **一处非主判据的负向**：`test macro@0.5` 为 **2/3**（seed0 −0.0229）。主判据（mAP、macro@val_thr）
+3/3 不劣，故不构成否决；但论文若报 @0.5 工作点须如实列出该格。
+
+### 54.2 🔴🔴 本次提升的实质是 **epoch 预算**，不是 SWA（必须如实写）
+
+`runs/codebert_ft_p2/ss{S}/config.json::swa` 实测：
+
+| 种子 | 最佳轮 | `n_averaged` | `swa_val_macro_f1` | `selection` |
+|---|---|---|---|---|
+| 0 | 10 | **0** | null | best_epoch |
+| 1 | 11 | **0** | null | best_epoch |
+| 2 | 14 | 2 | 0.6290（< best 0.7165） | best_epoch |
+
+- ss0/ss1 最佳轮是第 10/11 轮，**早停在第 16 轮之前触发 ⇒ SWA 的平均窗口从未打开**；
+- ss2 累到 2 轮，但其验证集 macro-F1 低于最佳单轮，**被正确拒绝**。
+
+⇒ **SWA 在本配置下属「已实现、已运行、无增益」，三种子一次都没被选中。**
+`--swa-start 16` 这个取值是**按 patience 4 推的、事后证明太晚**（编码器在第 10–14 轮就收敛了）。
+**任何文档都不得写成「本次换代 = 20 轮 + SWA」**——SWA 不是增益来源。
+若日后要让 SWA 真正参与，须把 `--swa-start` 提到约 8（成本 ≈ 1.7 h/3 种子，需另开目录）；
+**但既有证据不看好它**：ss2 是唯一让 SWA 生效的种子，而它生效后输了 0.0875。
+
+### 54.3 成本（用户要求「记得记录训练成本」）
+
+| 阶段 | seed0 | seed1 | seed2 |
+|---|---|---|---|
+| CodeBERT 微调（**新正典**，20 轮） | 1825.8 s | 1954.4 s | 2322.7 s |
+| CodeBERT 微调（消融档，5 轮） | 933.5 s | 931.2 s | 680.9 s |
+| M3 重编码（590 图 / 95918 节点） | 631.9 s | 578.5 s | 574.4 s |
+| GNN 端到端 wall（新正典） | 8.6 s | 6.5 s | 8.6 s |
+| **端到端合计（从零，单种子）** | **≈2470 s** | **≈2540 s** | **≈2910 s** |
+
+🔴 **换代的代价是上游成本涨约 2.3 倍**（~850 s → ~2000 s，编码器段），而 GNN 段只有 ~8 s。
+⇒ 「本文方法训练很快」只对 GNN 段成立；端到端必须把上游两段计入。
+M1/M2 主构建**在本仓无任何机器可读计时记录**，不得引用为耗时。
+
+### 54.4 已落地的改动（本轮）
+
+- **大纲 `研究点一细化大纲改II.docx`**（经 `scripts/edit_outline.py` + `scripts/outline_spec.py`，
+  幂等、逐条带依据、落盘前自动备份）：
+  - §4.3.2 两处 → 「微调至收敛（20 轮 / patience 4）+ SWA 对照」+ 三档阶梯；
+  - §4.5.1 → epoch 预算 20 / patience 4 / SWA 实测未被选中（正面写「增益来自 epoch 预算」）；
+  - 表 T16 末行 → 「CodeBERT 三档阶梯（冻结 / 5 轮 / 20 轮）」并附两侧实测值；
+  - **新增 §4.7 实现细节整节**（7 小节 + 8 表）：路径总表、26 行实际超参表、结构特征 30 位逐位构成、
+    数据漏斗与逐种子 support、成本表、评测口径、对照臂清单。
+- **口径滞移修正 3 处**（均以产物实测为准）：`448/323` → `453/326`（§5.5.1 与 §6.2）、
+  T7 的 DropEdge `0.1` → `0（默认关闭）`、T13 补「2002 是合约名级 / **590 才是项目级**」。
+  **`448` 的根因**：`products/alldata/raw/data_funnel.json` 步骤 25/26 的**标签写「581」「448」、
+  而数值字段是 590 / 453**（标签与数值自相矛盾），大纲此前沿用了错的那半。
+- **交付物排版**：`baseline_three_caliber_tables.md` 全部口径声明下沉到文末单一「## 附（原「§0」）」，
+  表号 1–28 与数据行逐字节未变（`600` 行级校验 + 369 测试通过）。
+- **`.gitignore`**：新增 `runs/_snap/` 草稿区规则；三步自检实测（a）被忽略且 `runs/seed0/best.pt` 未受影响、
+  （b）`git add -A --dry-run` 28 → 21 个文件、最大 3.8 KB、无 >100 MB。
+
+### 54.5 ⚠ 代码层「升正典」尚未执行 —— 已发现一处会静默出错的耦合
+
+**已确认的耦合（这是不能直接改一行常量的原因）**：
+`scripts/run_ablation.py::variants_root_of(base)` 把两个结构变体臂的根**推导**为
+`Path(base["graph_dir"]).resolve().parent / "graph_variants"`。
+旧正典的 parent 是 `products/alldata/graphs_ft`（变体区确实在那里）；
+换到 `graphs_ft_p2/` 后，推导出的变体根 **不存在** ⇒ `cb_rev` / `cb_unlimited` 两臂
+会**静默指向空目录**（本仓已栽过三次的同一类错）。
+
+**故换正典的完整清单（按依赖顺序）**：
+
+| # | 动作 | 影响面 | 成本 |
+|---|---|---|---|
+| 1 | `baseline_common.LAYOUTS["canon37"].graph_dir` → 新树 | 5.3 基线表三段 | 一行 |
+| 2 | `run_perclass_arm.GRAPH_TMPL`、`run_arch_baselines --graph-root` 默认值、`baseline_common:557` 默认 `--graph-dir` | 逐类臂、架构族 | 三处 |
+| 3 | **重建** `graph_variants/{cb_rev,cb_unlimited}_ss{S}` 到新根下（新编码器） | 2 臂 × 3 种子 | ≈1.1 h |
+| 4 | ~~`run_ablation.py` 新增 **`cb_ft5`** 臂（`graph_dir = products/alldata/graphs_ft/ss{S}`）~~ **← 已裁定不采纳，见下注** | 消融表 21 → 22 臂 | 一行 + 3 run |
+| 5 | 归档 + 重放 **303 个**下游 run（`rerun_from_config.py`） | n=9 消融 135、架构 63、n=3 消融 54、逐类臂 45、其余 6 | ≈2.5 h |
+| 6 | 重收全部交付表 + DIVE/SolidiFI 重编码 | 所有 `experiments/*.md` | ≈1 h |
+|  | **合计** | | **≈5 h（串行）** |
+
+> 🔴 **第 4 项（`cb_ft5` 臂）已于 2026-09-25 裁定不采纳（用户裁定 (A)「改口径、零重跑」）**。
+> 该项是**计划过但从未执行**的一条，而 AGENTS.md / 论文开发手册 / 项目组织架构 / Todo_List /
+> **大纲** 都据此把 `cb_ft5` 当成既成事实写了出去 —— 实测三条证据表明**这个臂不存在**：
+> ① `git --no-pager log -S "cb_ft5" -- scripts/` **为空**（脚本里从未出现）；
+> ② `runs/ablation` 的 21 个臂里**没有**它（编码器臂只有 `cb_frozen`）；
+> ③ 中档（5 轮）的**真实产物是归档的旧正典** `runs/prior_canon37/seed{S}`
+> （其 `config.json::args.graph_dir = …/graphs_ft/ss{S}`，三种子逐条实测）。
+> **不造臂的理由**：加臂会打破「21 臂」的硬引用（`tests/test_collect_ablation.py` 与多张表的行数、
+> `n/21` 计数断言）。**改口径后的正确读法**：三档阶梯 = 冻结（`cb_frozen` 臂）/
+> 5 轮（**旧正典，跨代对照**，`check_encoder_promotion.py`）/ 20 轮（现行正典），
+> **不是**同一张消融表里的三行。全仓文案已于同日逐处改写（23 处，逐条断言命中数 == 1）。
+
+**待用户裁定的两点**：
+1. **n=9 两代怎么处理**：`runs/ablation_n9/`（135）+ `runs/arch_n9/`（63）= 198 个 run
+   是**成对的 n=9 研究**，换正典后其配对全部作废。方案 A = 全部重跑（+3 h，结论可在新正典下重述）；
+   方案 B = **原地保留为「旧正典下的 n=9」对照臂**（符合本仓「两代并存、旧的一律不删」的既有裁定），
+   只重跑 n=3 的 54 个 + 逐类 45 个（≈1 h），并在报告里显式标注两代口径。
+2. **② 增强集与 `_buggy` 正典是否同步换代**（各自 +1.5 h / +0.6 h）：三者口径独立，
+   本次只换 ① 主库也能自洽；若要三者一致则成本再涨。
+
+---
+
+## §56 六个传统工具的接入（2026-09-25）
+
+**背景**：`decisions.md` §47（2026-09-23）已把六个工具的环境全部落地并**真实跑通**，但代码层
+**只接了 Slither**。大纲 `改II` 5.3 的对比表点名六个工具，缺五个就等于那一半的参照系是空的。
+本节记录接入的范围、口径与**本轮实测踩到的坑**。
+
+### 56.1 范围与产物
+
+| 项 | 值 |
+| --- | --- |
+| 驱动 | `python scripts/baseline_static_tools.py --tool {slither,mythril,manticore,smartcheck,securify,oyente}` |
+| 其余五工具的调用/解析/映射 | `scripts/static_tool_adapters.py`（**评测部分不改**：六个工具共用 `baseline_static_tools.evaluate`） |
+| 原始产物 | `eval_results/baseline/<工具>_alldata.json`（逐合约原始检测项 + 七维向量 + 状态） |
+| 指标产物 | `eval_results/baseline/<工具>_alldata/seed{0,1,2}_eval.json` |
+| 报告 | `experiments/traditional_tools_results.md`（`scripts/collect_traditional_tools.py` 生成） |
+| 主对比表 | `experiments/baseline_three_caliber_tables.md` 的**六行**（`collect_baseline_tables.py` 已改） |
+| 工作目录 | `runs/_tools_work/`（🔴 硬规则：中间产物只能写 `products/`、`runs/`、`eval_results/`） |
+
+🔴 **跑动范围不一致，必须披露**：Slither 是 2026-09-21 跑的（**全 590 图**）；
+其余五个只跑**三种子 val∪test 并集 = 214 个合约**（成本决策）。覆盖率一栏因此不可直接横比。
+
+🔴 **两个 `--force` 级别的东西**：`baseline_static_tools.evaluate()` 是**六工具同一份实现**，
+所以「同一张表里的六个数字」在指标定义上可比；任何"为某个工具单独调指标"的改动都是表的硬伤。
+
+### 56.2 映射的尺子（六工具同一把，**不是六张各写各的表**）
+
+> **一个检测项进入七类，当且仅当它有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内。**
+> 无锚点者一律不纳入（**宁可漏，不可编**），并逐条记下理由。
+
+Slither 那张 27 条的 `DETECTOR_TO_CLASS` 是同一把尺的第一份。本轮**两个跨工具一致性的收获**：
+- securify 的 `arbitrary-send`（"Arbitrary Send"）与 SmartCheck 的 `SOLIDITY_GAS_LIMIT_IN_LOOPS`
+  原先都没进我的草表，是**对照 Slither 的 `arbitrary-send-eth` / `calls-loop` 才发现漏了** ——
+  同一概念在不同工具里必须落在同一类，否则跨工具比较本身就不成立；
+- 反之，`SOLIDITY_BALANCE_EQUALITY`（SmartCheck）与 `lockdrop`（Manticore）是**同一概念、都无锚点**，
+  于是**两个一起排除** —— 排除也要一致。
+
+🔴 `no_detector_classes`（该工具**压根没有**这项、恒为 0 的类）**从映射表派生、不手写**：
+
+| 工具 | 不提供检测项的类 |
+| --- | --- |
+| Slither | `front_running` |
+| Mythril | **（无——覆盖七类中全部有检测项的类）** |
+| Manticore | `dos`、`time_manipulation` |
+| Smartcheck | **`reentrancy`**、`front_running` |
+| Securify | （无） |
+| Oyente | `dos`、`uncheck` |
+
+⚠ **原先这是手写字段，我给 SmartCheck 写了空元组** —— 退化检查（看"工具预测为 1 的比例"）
+才发现 **SmartCheck 的 40 条规则里根本没有 reentrancy 规则**，而 `reentrancy` 是本池最大的漏洞类
+（24 个正例）。手写会漏、会漂移；派生永远自洽（机检 `test_no_detector_classes_are_derived`
++ `test_smartcheck_lacks_reentrancy_and_front_running` + 与 Slither 手写常量的交叉核对）。
+
+### 56.3 🔴 五个「不报错」的解析陷阱（本轮逐个踩到；**每一个都会让整行数字变成假的**）
+
+写错这里**不会崩、不会抛异常**，只会让某个工具的七维向量悄悄变成全零或全一，
+然后进论文的对比表。这是本仓最贵的一类错（与 §28 / §29.4 / §35 / §52 同族）。
+
+| # | 陷阱 | 症状 | 真因 |
+| --- | --- | --- | --- |
+| 1 | securify 结果用**展示名** | 恒空集 | `--list-patterns` 打的是 pattern **类名**（`ExternalFunction`），结果里印的是**展示名**（`External Calls of Functions`）；两套毫无字面关系。展示名唯一真源 = `souffle_analysis/patterns/*.dl` 的 `NAME("…")` |
+| 2 | manticore 的 `global.findings` 是**描述文本** | 恒空集 | 每条形如 `- Reachable SELFDESTRUCT -`，与 ARGUMENT 名（`suicidal`）无关。⚠ `--list-detectors` 在本机**直接崩**（上游 `DetectorClassification` 排序 bug）⇒ ARGUMENT 名只能读源码 |
+| 3 | **oyente 把 8 个检查名全打印** | **恒全集（六个类全亮）** | 它先打印全部名字、后面才跟 `True`/`False`。只匹配名字 ⇒ 每个合约六类全置 1。**比全零更危险**：micro-F1 看着还不低（正例多），但那一行全是假的 |
+| 4 | 结果走 **stderr** | 恒空集 | Oyente/Manticore 用 Python `logging`（默认 handler 走 stderr）。只解析 stdout ⇒ 什么都没读到 |
+| 5 | 报错摘要取「最后一行」 | 候选重试**永不触发** | securify 遇 solc 失败抛未捕获异常，traceback 最后一行是 `> stdout:`，版本线索（`ParserError`）在**倒数第二行**的 `SolcError` 文本里 ⇒ `looks_like_solc_error` 永假 ⇒ 样本被记成"工具跑不了"（系统性压低覆盖率且不报错） |
+
+**验证方法（唯一能证明解析器没错的方法）**：拿 **Slither 在同一批合约上报过命中的**做阳性对照，
+看四个工具是否**逐项吻合**（实测：smartcheck `SOLIDITY_UNCHECKED_CALL` / mythril `SWC-104+107` /
+oyente `Integer Underflow`+`Re-Entrancy` / manticore `Reachable SELFDESTRUCT`）。
+securify 在本池无合格样本，改用**它自带的 `testContract.sol`** 做对照。
+⇒ 回归测试 `tests/test_static_tool_adapters.py`（26 例，**每条对应上表的一个坑**）。
+
+### 56.4 能力边界（不是安装问题，是 5.3 表**必须**随结果披露的口径）
+
+1. 🔴 **Securify2 真的分析不了 Solidity 0.4.x** —— 它的 pragma 改写**只改 pragma 行、不升级语法**：
+   `a.call()`（0 参）与「函数无可见性」在 0.5.0+ 是**编译错误**。实测报错原文：
+   `SyntaxError: No visibility specified` + `TypeError: Wrong argument count for function call`。
+   ⚠ **本节更正 §47.4 第 1 条的措辞**：那条写"只吃 ≥0.5.8 且扁平"，方向对，但没说清**机制**
+   （不是"读 README 的保守声明"，而是"pragma 改写救不了语法差异"）。本池 **75% 是 0.4.x**
+   ⇒ Securify 的覆盖率**结构性偏低**（实测值见报告第三节）。
+2. 🔴 **Oyente 的 solc 钉死 0.4.19**（源码内 tested 版本，env 内 shim）⇒ 0.5+/0.8 的源码
+   **一律编译失败**。与 Securify 恰好相反：它的可分析面**偏向老合约**。
+3. 🔴 **Manticore 必须逐合约跑**：多合约文件要显式 `--contract`（本池**单文件最多 19 个**
+   contract/library/interface，全池 719 个定义）。Slither 是按文件整体分析 ⇒ **两者口径不同**。
+   成本靠 `--core.timeout`（manticore **自带**的优雅停止）封顶，文件级总预算在适配层再封一层。
+4. **SmartCheck 不用 solc**（JVM 自己解析源码）⇒ 无 pragma 版本限制，是本轮覆盖面最广的工具；
+   代价是它**没有 reentrancy / front_running 规则**（见 56.2 表）。
+5. ⚠ **符号执行类（Mythril / Manticore）的召回受时间预算限制**：超时记 `timeout`
+   （与 Slither 的 `error` 同口径：**不计入分母、不记全零**）。预算值随结果一起报。
+6. ⚠ **候选 solc 重试上限**：Slither 是 8，其余五个是 **3**（成本账：单合约预算 120–300 s × 8
+   候选 = 24–40 min/合约 × 214 合约 = 85–142 h，不可行）。代价：更边缘的版本组合救不回来，
+   记 `error`。**这条口径差异必须写进行注。**
+
+### 56.5 结果
+
+见 `experiments/traditional_tools_results.md`（程序生成，含映射表 / 覆盖率 / 逐类 F1 / 成本）
+与 `experiments/baseline_three_caliber_tables.md` 的六行对比表。
+
+### 56.6 已知未做
+
+- **`_buggy` 池（497）上五个新工具未跑**：那一段目前只有 Slither（`slither_buggy`）。
+  成本与 ① 同量级；大纲没有对应的表格位，故未做。
+- **DIVE 跨数据集上的传统工具未跑**：5.3 要求"全部对比方法在两种设定下评估"，
+  这条**未完成**——DIVE 侧目前只有本文方法与三条论文基线。
+- 五工具的 `strict_*` 两列**与全量相同**（严格子集只对 Slither 的 4 条争议检测器做过）。
+  已写进产物 `strict_excluded: []` 自述，避免被读成漏算。
+
+## §56.7 六工具跑完这一轮的**口径裁定**与**工程结论**（2026-09-26）
+
+§56 记的是"接入"。本节记 2026-09-26 把**其余五个工具真正跑完**这一轮里发生的四件事：
+三条**口径裁定**（都会改表里怎么读）+ 一条**工程结论**（换机器/换工具时直接复用）。
+
+### 56.7.1 裁定一：**没有该项检测能力的类，表里直接画 `—`**
+
+用户 2026-09-26 原话：「所有传统工具，对某种漏洞没有检测能力的，直接在结果表中画 `-`，
+而不是强行适配。」
+
+- **判据**：`no_detector_classes` —— **从映射表派生的差集**（`static_tool_adapters.ToolSpec`
+  的 property），不手写清单。Slither 是唯一不在活代码里的，退回产物快照。
+- **落点**：`experiments/traditional_tools_results.md` §四逐类格 + 主对比表的**六行**
+  （`collect_baseline_tables._blank_unsupported()` 把该下标置 `None` ⇒ `_ms` 渲成 `—`）。
+- 🔴 **只改渲染，不改指标**：产物 JSON 的原始数字一个字节不动；`micro`/`macro` 汇总列
+  **也不置空**（它们仍按七类全量聚合，那是"作为七类检测器"的真实读数，**跨行可比的只有它**）。
+- 🔴 **但 `—` 有三种成因，表里必须分开说**（否则又变成"静默"）：
+
+  | 成因 | 例 | 判据在哪 |
+  | --- | --- | --- |
+  | ① **工具不提供此检测项** | Slither 无 `front_running`；Smartcheck 无 `reentrancy`/`front_running`；Oyente 无 `dos`/`uncheck`；Manticore 无 `dos`/`time_manipulation` | 交叉表 `✗` |
+  | ② **整行不可评估**（可分析集里逐类 support 全 0） | Securify（只吃 pragma 0.5.x，而真实池 0.5.x **一个漏洞都没有**） | 支持度表 + warning |
+  | ③ **尚未评测**（有原始产物、无 `seed{S}_eval.json`） | Manticore 续跑期间 | `no_eval_tools()` 点名 |
+
+  ②③ **成因相反**（一个是"评不了"、一个是"还没评"），长得一模一样 ⇒ 必须各有一句。
+- ⚠ **"跑了但没检出来"的真实 0 一律保留**（如 Slither 的 `arithmetic`/`dos`：有检测项、
+  support>0、一个都没报对）。把它也画成 `—` 会**抹掉"该工具在此类上全军覆没"这个结论**，
+  并让 micro/macro 虚高。
+
+### 56.7.2 裁定二：新增 **† 两列 = 「仅该工具有检测项的类」的 micro/macro**
+
+用户 2026-09-26：「表中的 0.0000 改为 —，然后计算它们的 micro 和 macro 分数。」
+
+- **算法**：从**标签与原始预测切列重算**（`collect_traditional_tools.covered_metrics()`），
+  不解析产物里的 P/R 快照——`precision=0` 时反推不出 FP 计数。
+- 🔴 **自检**：切列**前**的重算值必须与产物 `seed{S}_eval.json` 的 `micro_f1` 逐位相等
+  （容差 1e-6，因为存档是 `round(...,6)`），**不符即拒绝出数**，不是静默给个数。
+- 🔴 **两条口径不可互相替代**，已写进表注：
+  - 不带 † 的是**对比用**（与本文方法、三条基线同尺，**唯一能横比的那个**）；
+  - 带 † 的只描述工具自身的覆盖范围，**分母小了 ⇒ 系统性偏高**，**不得**横比到本文方法那行。
+- 实测（正典池 214，test 三种子）：Slither 6/7 类 `micro 0.4547→0.4617`；Smartcheck 5/7
+  `0.3287→0.3780`；Oyente 5/7 `0.3853→0.4495`；Mythril 7/7 **两列逐位相同**（自检点）。
+
+### 56.7.3 裁定三：**0/0 的 F1 不计成 0**（"裁定 A"）
+
+用户 2026-09-26 裁定选 A。某种子上某类的 **support=0 ⇒ F1 是 0/0 未定义**，而
+`zero_division=0` 把它记成 `0.0`；把它当"报错了"计入均值，是把**"没有样本可评"**
+当成**"预测失败"**——两者含义相反。
+
+- **做法**：该种子在**该格**置 `None`、不进均值，并**标 `‡` 逐格列出**（`0.5000 ± 0.7071`
+  与 3 种子均值长得一样，读者无从分辨 ⇒ 必须标）。
+- 实测受影响格：**只有 Oyente 的 `time_manipulation`**（seed0 support=0）：
+  `0.3333 ± 0.5774` → **`0.5000 ± 0.7071‡`**。
+- ⚠ `micro`/`macro` 两列**仍按全量口径**（含零支撑类）——那是全仓统一实现
+  （`metrics.macro_f1`，本文方法与三条基线同理），**改它会动到所有已报告数字**，故不动。
+- ⚠ 该规则目前只实施在**传统工具的行**上（受影响格仅此一个）；换池后若其他行出现零支撑类，
+  同一判据适用，但**要同步改那批行的渲染**（`_ms_col` 的输入）。
+
+### 56.7.4 工程结论：本机内存不够跑 manticore 全并行 —— 三条硬教训
+
+**背景**：本机 WSL 总内存 **7.8 GB**；VSCode 服务进程实测占 **~1.36 GB**；而 manticore 默认
+`--core.procs` = **CPU 核数（24）**，实测单个子合约起 **16 个 z3 进程**，
+cgroup 用量 **90 秒内 0.53 → 3.08 → 4.11 GB**，会顶穿 5 GB。
+
+1. 🔴 **事实（内核日志坐实，不是推测）**：2026-09-26 16:59 因**两路并行 + 并发的 pytest**
+   触发**全局 OOM**（`constraint=CONSTRAINT_NONE, global_oom`），内核杀掉了
+   **`systemd`（pid 669）**与 **VSCode 的 `MainThread`（pid 831）** ⇒ VSCode 崩溃、
+   WSL 于 17:02 **整体重启**。⇒ **符号执行类工具在本机只能单路**，且不得与其他重活并发。
+2. 🔴 **落盘间隔必须 ≤ 崩溃间隔**：驱动原本每 10 个合约落盘一次 ≈ **27 min**，与崩溃间隔
+   同量级 ⇒ **两次崩溃 = 零进度**（永远走不到第一个落盘点）。已加 `--flush-every`
+   （**默认值与旧行为逐字相同**：Slither 25、其余五个 10），长跑显式用 **1**。
+3. 🔴 **cgroup 上限会被 systemd 连带执行**：默认 `KillMode=control-group` 下，cgroup 一 OOM，
+   systemd 把**整个 scope** 判失败并 SIGTERM ⇒ **驱动 `rc=143`、在飞合约白跑**（实测三次
+   尝试全部死在 z3 被杀的**同一秒**，`ok` 几乎不动 = **活锁**）。
+   修法是给 scope 加 **`-p KillMode=process -p OOMPolicy=continue`**：吃内存的进程照旧被杀，
+   **同 scope 的驱动存活**（用 `sleep 300` 旁观进程实测验证）。
+4. ⚠ **代价（知情且已披露）**：5 GB 上限**必然会被顶到**，届时求解器被杀、而合约**仍记 `ok`**
+   ——这是**不报错的降级**（搜索完整性低于无上限运行），产物里看不出来。⇒ 已做成
+   **程序生成的披露**：脚本写 `eval_results/baseline/manticore_alldata/run_env.json`
+   （上限/击杀数/`--core.procs`/flush 间隔/原因），报告 §六 读它自动印出**击杀数与受影响合约
+   百分比**（`collect_traditional_tools._run_env_notes`）。
+   🔴 **不得为省内存而中途调小 `--core.procs`**：并行度直接决定"180 s 预算内能搜到多少"，
+   前 50 个合约已用默认值跑完，**改了前后两半就不同尺**。若要干净口径，只能**降 procs 后
+   214 个全部重跑**（成本 ≈12 h，且召回可能整体下降）。
+
+**可复用的一句话**：在一台内存 <3×单合约峰值的机器上跑符号执行类工具，
+**必须同时**给进程加 cgroup 上限（防全局 OOM）、给 scope 加 `KillMode=process`（防连带 SIGTERM）、
+把落盘间隔压到远小于崩溃间隔（防零进度），并把上限造成的降级写进产物自述。
+
+### 56.7.5 最终结果（六工具跑完，2026-09-27 01:02 收工）
+
+**主对比表现出六行**（`experiments/baseline_three_caliber_tables.md`；六工具逐类 F1 见
+`experiments/traditional_tools_results.md` §四）。跑动与覆盖：
+
+| 工具 | 跑动合约 | status 分布 | test 覆盖（seed0/1/2） | test micro-F1（seed0/1/2） |
+| --- | --- | --- | --- | --- |
+| Slither | 590（全库） | ok 560 / error 30 | 45/46、45/46、45/46 | 0.4776 / 0.4348 / 0.4516 |
+| Mythril | 214 | ok 184 / timeout 21 / error 9 | 40/46、38/46、39/46 | 0.4737 / 0.3590 / 0.3846 |
+| Manticore | 214 | ok 177 / timeout 31 / error 6 | 38/46、39/46、35/46 | 0.4286 / 0.3333 / 0.4545 |
+| Smartcheck | 214 | **ok 214（全覆盖）** | 46/46 ×3 | 0.3529 / 0.3077 / 0.3256 |
+| Securify | 214 | ok 47 / error 167 | 8/46、11/46、7/46 | 0.0000 ×3（**结构性不可评估**，见 56.7.1） |
+| Oyente | 214 | ok 45 / error 169 | 10/46、14/46、12/46 | 0.4444 / 0.3243 / 0.3871 |
+
+**内存上限的实际代价（可核查的实测值，替换 56.7.4 的估算）**：
+- manticore 相关 cgroup 击杀 **45 次**（`manticore` 主进程 36 + `z3` 求解器 9），按时间聚类
+  （相邻间隔 >180 s 视为换合约）⇒ **受影响合约 = 8 个 / 214 = 3.7%**。
+- ⚠ **引用时必须用"受影响合约数"而不是击杀次数**：一个超重合约会在几十秒内被连杀 9~10 次
+  （19:37 与 19:41 两次爆发各 9、10 次都只对应 1 个合约）。
+- 受影响合约在产物里表现为 `error`/`timeout`（**不计入分母**，已含在 status 分布里）。
+- 🔴 **数据来源的一处坑（已修）**：`/var/log/syslog` 于 **2026-09-27 00:00 被 logrotate 轮转**，
+  脚本收尾时只数到轮转后的 3 次 ⇒ 边车里的原始计数**被截断**。已由 `syslog.1 + syslog` 两份合并
+  重算并回填 `run_env.json`（含 `affected_contracts` 与 `affected_contracts_derivation` 两个字段，
+  自述"该字段不是跑动时写的"）。**教训**：依赖 `/var/log` 的计数必须先确认轮转边界。
+- 三个工具（Slither / Mythril / Manticore）本身也有天然失败（`error`/`timeout`，如无 pragma 可匹配
+  的合约编译失败 0.3 s 即返回）；那是**工具跑不了**，与内存上限无关，口径同为"不计入分母"。
+
+
+---
+
+## §57 五工具在含 `buggy_*` 主库（池 497）上的补跑（2026-09-28）
+
+起因：`baseline_three_caliber_tables.md` 的「三、」段此前**只有 Slither 一行**（其余五工具未跑）。
+本轮补齐后该段六工具齐全，报告已用 `collect_baseline_tables.py --with-buggy` **重新生成**
+（canon37 段逐字节不变，已 diff 实测 0 差异）。
+
+**四条口径与决定**：
+
+| # | 决定 | 依据 |
+|---|---|---|
+| 1 | **只跑差集 92 个**（buggy 并集 236 − canon37 并集 214），其余 144 个逐位复用 | 工具的逐合约输出**与划分无关**（模块 docstring：换划分只需 `--eval-only`）⇒ 成本由 ~15 h 降到 ~7 h |
+| 2 | **预算逐工具显式传**，对齐 canon37 产物记录：`smartcheck 120 / securify 120 / oyente 120 / mythril 180 / manticore 180` | 🔴 适配器默认值与产物记录**对不上三个**：securify `180≠120`、oyente `180≠120`、manticore `300≠180`。漏传即"同一工具在两池不同尺"，且不报错——本轮 v1 已踩到（securify 用了 180），已删污染副本重跑 |
+| 3 | **内存上限覆盖全部六个工具**（`systemd-run --user --scope -p MemoryMax=4.5G -p KillMode=process -p OOMPolicy=continue`），此前只有 manticore 有 | 实测代价：Securify 的 Soufflé 遗留进程 `dl-program` 峰值 **4.47 GB**、20:37:15 被上限击杀——正是 09-26 全局 OOM 的同类进程 |
+| 4 | **符号执行类严格串行**；作业用 `setsid` 脱离会话 + 监护进程自愈（可续跑） | 20:23 那次中断**经查不是 OOM**：`journalctl -b -1` 末尾是完整 `systemd-poweroff` 序列、当日 syslog 无任何 oom 行 ⇒ 是 WSL 整体关机带走了作业 |
+
+**Manticore 在池 497 上的降级（必须随行披露）**：逐 scope 精确击杀 **11 次**
+（8 次在起跑后 67 min 内、≈合约 1–26；3 次在起跑后 214 min、进度 ≈73/92），上限顶到 **292100 次**。
+已回填 `eval_results/baseline/manticore_alldata_buggy/run_env.json`（`scope_oom_kill` 等字段 + 来源自述）。
+⚠ 归属口径**必须用逐 scope 的 `memory.events::oom_kill`**，不能用 syslog 全局差值
+（后者把 Securify 遗留进程的那次击杀算到了 Oyente 头上，实测已更正）。
+
+**🔴 读表前提：逐工具正样本来源分解**（不看这栏，Securify / Oyente 两行会读反）：
+
+| 工具 | 可分析 test (s0/s1/s2) | 真实合约 → 含漏洞 | 合成 `buggy_*` → 含漏洞 |
+|---|---|---|---|
+| Slither | 46/46/47 | 42→20、40→12、41→17 | 4→4、6→6、6→6 |
+| Mythril | 41/34/44 | 37→20、29→11、38→18 | 4→4、5→5、6→6 |
+| Manticore | 39/41/33 | 35→14、35→8、28→7 | 4→4、6→6、5→5 |
+| Smartcheck | 49/49/49 | 42→20、41→12、42→18 | 7→7、8→8、7→7 |
+| **Securify** | 12/16/13 | 8→**0**、11→**0**、7→**0** | 4→4、5→5、6→6 |
+| **Oyente** | 8/8/13 | 8→**8**、8→**7**、13→**13** | 0→0、0→0、0→0 |
+
+⇒ **Securify** 的分子**全部**来自人工注入的 0.5.x `buggy_*`（真实正例 0 个）；**Oyente** 的可分析集
+≈100% 是漏洞合约（钉 solc 0.4.19，而真实池「有漏洞 ⟺ 0.4.x」完美分离）⇒ 它 `reentrancy` = 1.0000
+是"看到的几乎每份都有漏洞"，不是"擅长 reentrancy"。**这两行不得与本文方法/三基线横比**。
+
+**还有一处 `—` 的成因要分清**：Oyente 的 `front_running` / `time_manipulation` 在池 497 上
+support = 0/0/0 ⇒ 画 `—` 是**零支撑剔除**，**不是**"工具不提供该检测项"（canon37 上它的
+`front_running` 是有数的 0.4889±0.1540）。同一行里两种成因并存，报告已分别标注。

@@ -11,67 +11,67 @@
     "0": {
       "split_seed": 0,
       "val_threshold": 0.8,
-      "micro_f1_fixed_0.5": 0.868217054263566,
-      "macro_f1_fixed_0.5": 0.8533357202530135,
-      "micro_f1_val_threshold": 0.9322033898305084,
-      "macro_f1_val_threshold": 0.9244366744366744,
-      "mAP": 0.9404149201768249
+      "micro_f1_fixed_0.5": 0.8484848484848485,
+      "macro_f1_fixed_0.5": 0.834126984126984,
+      "micro_f1_val_threshold": 0.9152542372881356,
+      "macro_f1_val_threshold": 0.9083231583231582,
+      "mAP": 0.945437660597961
     },
     "1": {
       "split_seed": 1,
-      "val_threshold": 0.8,
-      "micro_f1_fixed_0.5": 0.9323308270676692,
-      "macro_f1_fixed_0.5": 0.9341651812240048,
-      "micro_f1_val_threshold": 0.9448818897637795,
-      "macro_f1_val_threshold": 0.9440134674559479,
-      "mAP": 0.979172221076983
+      "val_threshold": 0.7,
+      "micro_f1_fixed_0.5": 0.9538461538461539,
+      "macro_f1_fixed_0.5": 0.9544709837958172,
+      "micro_f1_val_threshold": 0.96875,
+      "macro_f1_val_threshold": 0.9678004535147392,
+      "mAP": 0.9811608144941478
     },
     "2": {
       "split_seed": 2,
-      "val_threshold": 0.75,
-      "micro_f1_fixed_0.5": 0.9523809523809523,
-      "macro_f1_fixed_0.5": 0.9479356699944935,
-      "micro_f1_val_threshold": 0.9421487603305785,
-      "macro_f1_val_threshold": 0.9357561828150063,
-      "mAP": 0.9683519241029745
+      "val_threshold": 0.6,
+      "micro_f1_fixed_0.5": 0.909090909090909,
+      "macro_f1_fixed_0.5": 0.8954873903584424,
+      "micro_f1_val_threshold": 0.9677419354838709,
+      "macro_f1_val_threshold": 0.9600948071536306,
+      "mAP": 0.9747732426303856
     }
   },
   "head": "multi",
   "test": {
     "fixed_0.5": {
       "micro_f1": {
-        "mean": 0.917643,
-        "std": 0.043962,
+        "mean": 0.903807,
+        "std": 0.052879,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.911812,
-        "std": 0.051108,
+        "mean": 0.894695,
+        "std": 0.060176,
         "n": 3
       }
     },
     "val_threshold": {
       "micro_f1": {
-        "mean": 0.939745,
-        "std": 0.006672,
+        "mean": 0.950582,
+        "std": 0.030599,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.934735,
-        "std": 0.009828,
+        "mean": 0.945406,
+        "std": 0.032345,
         "n": 3
       }
     }
   },
   "mAP": {
-    "mean": 0.962646,
-    "std": 0.019999,
+    "mean": 0.967124,
+    "std": 0.01905,
     "n": 3
   },
   "note": "主指标 micro-F1（标签对级）；macro-F1 为参考，注释须与其计算划分的支撑同口径；support≤2 的类仅描述性呈现（decisions §13）。",
   "provenance": {
     "n_configs": 3,
-    "encoder": "fine-tuned CodeBERT（**含 buggy_* 的池 497 划分**；任务2 臂，非 §37 正典）",
+    "encoder": "fine-tuned CodeBERT（**20 轮档**；含 buggy_* 的池 497 划分；任务2 现行正典）",
     "graph_dir_leaf": [
       "cb_ft_ss0",
       "cb_ft_ss1",

@@ -1,0 +1,1343 @@
+{
+  "dataset": "DIVE",
+  "label_file": "/home/saumarez/projects/deep-learning/SSM-HG/DIVE/contract_labels.json",
+  "label_key_mode": "stem",
+  "created_utc": "2026-09-25T09:37:38+00:00",
+  "arms": {
+    "runs": {
+      "arm": "runs",
+      "run_dir": "runs",
+      "graph_dirs": {
+        "0": "products/dive/graphs_ft/ss0",
+        "1": "products/dive/graphs_ft/ss1",
+        "2": "products/dive/graphs_ft/ss2"
+      },
+      "per_seed": [
+        {
+          "seed": 0,
+          "source_run": "runs/seed0",
+          "source_val_threshold": 0.6,
+          "n_contracts": 890,
+          "test": {
+            "fixed_0.5": {
+              "threshold": 0.5,
+              "micro_f1": 0.0027726432532347504,
+              "macro_f1": 0.0016410520756920625,
+              "per_class": {
+                "names": [
+                  "access_control",
+                  "arithmetic",
+                  "dos",
+                  "front_running",
+                  "reentrancy",
+                  "time_manipulation",
+                  "uncheck"
+                ],
+                "precision": [
+                  1.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "recall": [
+                  0.0014814814814814814,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.004282655246252677,
+                  0.0,
+                  0.0
+                ],
+                "f1": [
+                  0.0029585798816568047,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.008528784648187633,
+                  0.0,
+                  0.0
+                ],
+                "support": [
+                  675,
+                  375,
+                  135,
+                  30,
+                  467,
+                  231,
+                  244
+                ]
+              },
+              "subset_accuracy": 0.11685393258426967
+            },
+            "source_val_threshold": {
+              "threshold": 0.6,
+              "micro_f1": 0.0018501387604070304,
+              "macro_f1": 0.0012183978068839476,
+              "per_class": {
+                "names": [
+                  "access_control",
+                  "arithmetic",
+                  "dos",
+                  "front_running",
+                  "reentrancy",
+                  "time_manipulation",
+                  "uncheck"
+                ],
+                "precision": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.0
+                ],
+                "recall": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.004282655246252677,
+                  0.0,
+                  0.0
+                ],
+                "f1": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.008528784648187633,
+                  0.0,
+                  0.0
+                ],
+                "support": [
+                  675,
+                  375,
+                  135,
+                  30,
+                  467,
+                  231,
+                  244
+                ]
+              },
+              "subset_accuracy": 0.11573033707865168
+            }
+          },
+          "mAP": {
+            "mAP": 0.38647587484764123,
+            "ap": [
+              0.8059313790728424,
+              0.3793937462326022,
+              0.22127561884127978,
+              0.09281546161490481,
+              0.518011023920612,
+              0.31348987493956276,
+              0.3744140193116847
+            ],
+            "ap_classes_used": 7,
+            "skipped": []
+          },
+          "normal_subset_0.5": {
+            "n": 103,
+            "per_class_FPR": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "contract_level_FPR": 0.0,
+            "note": "分母是 DIVE 全零标签合约数；多标签下这是**条件** FPR（真值全 0 时误报该类的概率）"
+          },
+          "normal_subset_val_thr": {
+            "n": 103,
+            "per_class_FPR": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "contract_level_FPR": 0.0,
+            "note": "分母是 DIVE 全零标签合约数；多标签下这是**条件** FPR（真值全 0 时误报该类的概率）"
+          },
+          "buggy_subset_0.5": {
+            "n": 787,
+            "buggy_f1": 0.0027726432532347504,
+            "per_class": {
+              "names": [
+                "access_control",
+                "arithmetic",
+                "dos",
+                "front_running",
+                "reentrancy",
+                "time_manipulation",
+                "uncheck"
+              ],
+              "precision": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              "recall": [
+                0.0014814814814814814,
+                0.0,
+                0.0,
+                0.0,
+                0.004282655246252677,
+                0.0,
+                0.0
+              ],
+              "f1": [
+                0.0029585798816568047,
+                0.0,
+                0.0,
+                0.0,
+                0.008528784648187633,
+                0.0,
+                0.0
+              ],
+              "support": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "note": "子集 = labels.any(axis=1)；干净合约上的误报被整段摘掉"
+          },
+          "buggy_subset_val_thr": {
+            "n": 787,
+            "buggy_f1": 0.0018501387604070304,
+            "per_class": {
+              "names": [
+                "access_control",
+                "arithmetic",
+                "dos",
+                "front_running",
+                "reentrancy",
+                "time_manipulation",
+                "uncheck"
+              ],
+              "precision": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0
+              ],
+              "recall": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.004282655246252677,
+                0.0,
+                0.0
+              ],
+              "f1": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.008528784648187633,
+                0.0,
+                0.0
+              ],
+              "support": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "note": "子集 = labels.any(axis=1)；干净合约上的误报被整段摘掉"
+          },
+          "prior": {
+            "dive_test_pos_rate": [
+              0.7584269642829895,
+              0.42134830355644226,
+              0.15168538689613342,
+              0.033707864582538605,
+              0.5247191190719604,
+              0.2595505714416504,
+              0.27415731549263
+            ],
+            "dive_test_support": [
+              675,
+              375,
+              135,
+              30,
+              467,
+              231,
+              244
+            ],
+            "source_train_pos_rate": [
+              0.0304,
+              0.0276,
+              0.011,
+              0.0055,
+              0.058,
+              0.0055,
+              0.0967
+            ],
+            "delta": [
+              0.728,
+              0.3937,
+              0.1407,
+              0.0282,
+              0.4667,
+              0.2541,
+              0.1775
+            ]
+          },
+          "timing": {
+            "infer_seconds": 17.3762,
+            "device": "cuda"
+          }
+        },
+        {
+          "seed": 1,
+          "source_run": "runs/seed1",
+          "source_val_threshold": 0.3,
+          "n_contracts": 890,
+          "test": {
+            "fixed_0.5": {
+              "threshold": 0.5,
+              "micro_f1": 0.0036900369003690036,
+              "macro_f1": 0.0034770087611470757,
+              "per_class": {
+                "names": [
+                  "access_control",
+                  "arithmetic",
+                  "dos",
+                  "front_running",
+                  "reentrancy",
+                  "time_manipulation",
+                  "uncheck"
+                ],
+                "precision": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.2222222222222222
+                ],
+                "recall": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.004282655246252677,
+                  0.0,
+                  0.00819672131147541
+                ],
+                "f1": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.008528784648187633,
+                  0.0,
+                  0.015810276679841896
+                ],
+                "support": [
+                  675,
+                  375,
+                  135,
+                  30,
+                  467,
+                  231,
+                  244
+                ]
+              },
+              "subset_accuracy": 0.11573033707865168
+            },
+            "source_val_threshold": {
+              "threshold": 0.3,
+              "micro_f1": 0.0036815462494247577,
+              "macro_f1": 0.003441855283259712,
+              "per_class": {
+                "names": [
+                  "access_control",
+                  "arithmetic",
+                  "dos",
+                  "front_running",
+                  "reentrancy",
+                  "time_manipulation",
+                  "uncheck"
+                ],
+                "precision": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.15384615384615385
+                ],
+                "recall": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.004282655246252677,
+                  0.0,
+                  0.00819672131147541
+                ],
+                "f1": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.008528784648187633,
+                  0.0,
+                  0.01556420233463035
+                ],
+                "support": [
+                  675,
+                  375,
+                  135,
+                  30,
+                  467,
+                  231,
+                  244
+                ]
+              },
+              "subset_accuracy": 0.1146067415730337
+            }
+          },
+          "mAP": {
+            "mAP": 0.3987383462813573,
+            "ap": [
+              0.7640995661617624,
+              0.42301438029131133,
+              0.24965112590872277,
+              0.0762076230803627,
+              0.5634525617233375,
+              0.37157598057066576,
+              0.3431671862333383
+            ],
+            "ap_classes_used": 7,
+            "skipped": []
+          },
+          "normal_subset_0.5": {
+            "n": 103,
+            "per_class_FPR": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "contract_level_FPR": 0.0,
+            "note": "分母是 DIVE 全零标签合约数；多标签下这是**条件** FPR（真值全 0 时误报该类的概率）"
+          },
+          "normal_subset_val_thr": {
+            "n": 103,
+            "per_class_FPR": [
+              0.0,
+              0.009708737864077669,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "contract_level_FPR": 0.009708737864077669,
+            "note": "分母是 DIVE 全零标签合约数；多标签下这是**条件** FPR（真值全 0 时误报该类的概率）"
+          },
+          "buggy_subset_0.5": {
+            "n": 787,
+            "buggy_f1": 0.0036900369003690036,
+            "per_class": {
+              "names": [
+                "access_control",
+                "arithmetic",
+                "dos",
+                "front_running",
+                "reentrancy",
+                "time_manipulation",
+                "uncheck"
+              ],
+              "precision": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.2222222222222222
+              ],
+              "recall": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.004282655246252677,
+                0.0,
+                0.00819672131147541
+              ],
+              "f1": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.008528784648187633,
+                0.0,
+                0.015810276679841896
+              ],
+              "support": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "note": "子集 = labels.any(axis=1)；干净合约上的误报被整段摘掉"
+          },
+          "buggy_subset_val_thr": {
+            "n": 787,
+            "buggy_f1": 0.003683241252302025,
+            "per_class": {
+              "names": [
+                "access_control",
+                "arithmetic",
+                "dos",
+                "front_running",
+                "reentrancy",
+                "time_manipulation",
+                "uncheck"
+              ],
+              "precision": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.15384615384615385
+              ],
+              "recall": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.004282655246252677,
+                0.0,
+                0.00819672131147541
+              ],
+              "f1": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.008528784648187633,
+                0.0,
+                0.01556420233463035
+              ],
+              "support": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "note": "子集 = labels.any(axis=1)；干净合约上的误报被整段摘掉"
+          },
+          "prior": {
+            "dive_test_pos_rate": [
+              0.7584269642829895,
+              0.42134830355644226,
+              0.15168538689613342,
+              0.033707864582538605,
+              0.5247191190719604,
+              0.2595505714416504,
+              0.27415731549263
+            ],
+            "dive_test_support": [
+              675,
+              375,
+              135,
+              30,
+              467,
+              231,
+              244
+            ],
+            "source_train_pos_rate": [
+              0.0304,
+              0.0276,
+              0.011,
+              0.0055,
+              0.058,
+              0.0055,
+              0.0967
+            ],
+            "delta": [
+              0.728,
+              0.3937,
+              0.1407,
+              0.0282,
+              0.4667,
+              0.2541,
+              0.1775
+            ]
+          },
+          "timing": {
+            "infer_seconds": 10.6752,
+            "device": "cuda"
+          }
+        },
+        {
+          "seed": 2,
+          "source_run": "runs/seed2",
+          "source_val_threshold": 0.55,
+          "n_contracts": 890,
+          "test": {
+            "fixed_0.5": {
+              "threshold": 0.5,
+              "micro_f1": 0.005512172714745062,
+              "macro_f1": 0.003423854749000192,
+              "per_class": {
+                "names": [
+                  "access_control",
+                  "arithmetic",
+                  "dos",
+                  "front_running",
+                  "reentrancy",
+                  "time_manipulation",
+                  "uncheck"
+                ],
+                "precision": [
+                  1.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.5555555555555556,
+                  0.0,
+                  0.0
+                ],
+                "recall": [
+                  0.0014814814814814814,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.010706638115631691,
+                  0.0,
+                  0.0
+                ],
+                "f1": [
+                  0.0029585798816568047,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.02100840336134454,
+                  0.0,
+                  0.0
+                ],
+                "support": [
+                  675,
+                  375,
+                  135,
+                  30,
+                  467,
+                  231,
+                  244
+                ]
+              },
+              "subset_accuracy": 0.11685393258426967
+            },
+            "source_val_threshold": {
+              "threshold": 0.55,
+              "micro_f1": 0.004597701149425288,
+              "macro_f1": 0.0028286693064021005,
+              "per_class": {
+                "names": [
+                  "access_control",
+                  "arithmetic",
+                  "dos",
+                  "front_running",
+                  "reentrancy",
+                  "time_manipulation",
+                  "uncheck"
+                ],
+                "precision": [
+                  1.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.5,
+                  0.0,
+                  0.0
+                ],
+                "recall": [
+                  0.0014814814814814814,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.008565310492505354,
+                  0.0,
+                  0.0
+                ],
+                "f1": [
+                  0.0029585798816568047,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.016842105263157898,
+                  0.0,
+                  0.0
+                ],
+                "support": [
+                  675,
+                  375,
+                  135,
+                  30,
+                  467,
+                  231,
+                  244
+                ]
+              },
+              "subset_accuracy": 0.11685393258426967
+            }
+          },
+          "mAP": {
+            "mAP": 0.39100781354354364,
+            "ap": [
+              0.7714145255326055,
+              0.425036772695793,
+              0.22338248020778617,
+              0.03673820771910756,
+              0.5783230353554376,
+              0.3696253715032068,
+              0.3325343017908684
+            ],
+            "ap_classes_used": 7,
+            "skipped": []
+          },
+          "normal_subset_0.5": {
+            "n": 103,
+            "per_class_FPR": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "contract_level_FPR": 0.0,
+            "note": "分母是 DIVE 全零标签合约数；多标签下这是**条件** FPR（真值全 0 时误报该类的概率）"
+          },
+          "normal_subset_val_thr": {
+            "n": 103,
+            "per_class_FPR": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "contract_level_FPR": 0.0,
+            "note": "分母是 DIVE 全零标签合约数；多标签下这是**条件** FPR（真值全 0 时误报该类的概率）"
+          },
+          "buggy_subset_0.5": {
+            "n": 787,
+            "buggy_f1": 0.005512172714745062,
+            "per_class": {
+              "names": [
+                "access_control",
+                "arithmetic",
+                "dos",
+                "front_running",
+                "reentrancy",
+                "time_manipulation",
+                "uncheck"
+              ],
+              "precision": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5555555555555556,
+                0.0,
+                0.0
+              ],
+              "recall": [
+                0.0014814814814814814,
+                0.0,
+                0.0,
+                0.0,
+                0.010706638115631691,
+                0.0,
+                0.0
+              ],
+              "f1": [
+                0.0029585798816568047,
+                0.0,
+                0.0,
+                0.0,
+                0.02100840336134454,
+                0.0,
+                0.0
+              ],
+              "support": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "note": "子集 = labels.any(axis=1)；干净合约上的误报被整段摘掉"
+          },
+          "buggy_subset_val_thr": {
+            "n": 787,
+            "buggy_f1": 0.004597701149425288,
+            "per_class": {
+              "names": [
+                "access_control",
+                "arithmetic",
+                "dos",
+                "front_running",
+                "reentrancy",
+                "time_manipulation",
+                "uncheck"
+              ],
+              "precision": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.5,
+                0.0,
+                0.0
+              ],
+              "recall": [
+                0.0014814814814814814,
+                0.0,
+                0.0,
+                0.0,
+                0.008565310492505354,
+                0.0,
+                0.0
+              ],
+              "f1": [
+                0.0029585798816568047,
+                0.0,
+                0.0,
+                0.0,
+                0.016842105263157898,
+                0.0,
+                0.0
+              ],
+              "support": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "note": "子集 = labels.any(axis=1)；干净合约上的误报被整段摘掉"
+          },
+          "prior": {
+            "dive_test_pos_rate": [
+              0.7584269642829895,
+              0.42134830355644226,
+              0.15168538689613342,
+              0.033707864582538605,
+              0.5247191190719604,
+              0.2595505714416504,
+              0.27415731549263
+            ],
+            "dive_test_support": [
+              675,
+              375,
+              135,
+              30,
+              467,
+              231,
+              244
+            ],
+            "source_train_pos_rate": [
+              0.0304,
+              0.0276,
+              0.011,
+              0.0055,
+              0.058,
+              0.0055,
+              0.0967
+            ],
+            "delta": [
+              0.728,
+              0.3937,
+              0.1407,
+              0.0282,
+              0.4667,
+              0.2541,
+              0.1775
+            ]
+          },
+          "timing": {
+            "infer_seconds": 10.6558,
+            "device": "cuda"
+          }
+        }
+      ],
+      "summary": {
+        "micro_f1@0.5": {
+          "mean": 0.003992,
+          "std": 0.001394,
+          "n": 3
+        },
+        "micro_f1@val_thr": {
+          "mean": 0.003376,
+          "std": 0.001399,
+          "n": 3
+        },
+        "macro_f1@0.5": {
+          "mean": 0.002847,
+          "std": 0.001045,
+          "n": 3
+        },
+        "macro_f1@val_thr": {
+          "mean": 0.002496,
+          "std": 0.001148,
+          "n": 3
+        },
+        "mAP": {
+          "mean": 0.392074,
+          "std": 0.0062,
+          "n": 3
+        },
+        "contract_FPR@0.5": {
+          "mean": 0.0,
+          "std": 0.0,
+          "n": 3
+        },
+        "contract_FPR@val_thr": {
+          "mean": 0.003236,
+          "std": 0.005605,
+          "n": 3
+        },
+        "buggy_f1@0.5": {
+          "mean": 0.003992,
+          "std": 0.001394,
+          "n": 3
+        },
+        "buggy_f1@val_thr": {
+          "mean": 0.003377,
+          "std": 0.001399,
+          "n": 3
+        },
+        "per_class": {
+          "fixed_0.5": {
+            "names": [
+              "access_control",
+              "arithmetic",
+              "dos",
+              "front_running",
+              "reentrancy",
+              "time_manipulation",
+              "uncheck"
+            ],
+            "per_seed_support": {
+              "0": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ],
+              "1": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ],
+              "2": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "f1": {
+              "access_control": {
+                "mean": 0.001972,
+                "std": 0.001708
+              },
+              "arithmetic": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "dos": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "front_running": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "reentrancy": {
+                "mean": 0.012689,
+                "std": 0.007205
+              },
+              "time_manipulation": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "uncheck": {
+                "mean": 0.00527,
+                "std": 0.009128
+              }
+            },
+            "precision": {
+              "access_control": {
+                "mean": 0.666667,
+                "std": 0.57735
+              },
+              "arithmetic": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "dos": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "front_running": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "reentrancy": {
+                "mean": 0.851852,
+                "std": 0.2566
+              },
+              "time_manipulation": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "uncheck": {
+                "mean": 0.074074,
+                "std": 0.1283
+              }
+            },
+            "recall": {
+              "access_control": {
+                "mean": 0.000988,
+                "std": 0.000855
+              },
+              "arithmetic": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "dos": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "front_running": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "reentrancy": {
+                "mean": 0.006424,
+                "std": 0.003709
+              },
+              "time_manipulation": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "uncheck": {
+                "mean": 0.002732,
+                "std": 0.004732
+              }
+            }
+          },
+          "source_val_threshold": {
+            "names": [
+              "access_control",
+              "arithmetic",
+              "dos",
+              "front_running",
+              "reentrancy",
+              "time_manipulation",
+              "uncheck"
+            ],
+            "per_seed_support": {
+              "0": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ],
+              "1": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ],
+              "2": [
+                675,
+                375,
+                135,
+                30,
+                467,
+                231,
+                244
+              ]
+            },
+            "f1": {
+              "access_control": {
+                "mean": 0.000986,
+                "std": 0.001708
+              },
+              "arithmetic": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "dos": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "front_running": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "reentrancy": {
+                "mean": 0.0113,
+                "std": 0.0048
+              },
+              "time_manipulation": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "uncheck": {
+                "mean": 0.005188,
+                "std": 0.008986
+              }
+            },
+            "precision": {
+              "access_control": {
+                "mean": 0.333333,
+                "std": 0.57735
+              },
+              "arithmetic": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "dos": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "front_running": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "reentrancy": {
+                "mean": 0.833333,
+                "std": 0.288675
+              },
+              "time_manipulation": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "uncheck": {
+                "mean": 0.051282,
+                "std": 0.088823
+              }
+            },
+            "recall": {
+              "access_control": {
+                "mean": 0.000494,
+                "std": 0.000855
+              },
+              "arithmetic": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "dos": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "front_running": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "reentrancy": {
+                "mean": 0.00571,
+                "std": 0.002473
+              },
+              "time_manipulation": {
+                "mean": 0.0,
+                "std": 0.0
+              },
+              "uncheck": {
+                "mean": 0.002732,
+                "std": 0.004732
+              }
+            }
+          }
+        },
+        "per_class_AP": {
+          "access_control": {
+            "mean": 0.780482,
+            "std": 0.022341,
+            "n": 3
+          },
+          "arithmetic": {
+            "mean": 0.409148,
+            "std": 0.025788,
+            "n": 3
+          },
+          "dos": {
+            "mean": 0.231436,
+            "std": 0.01581,
+            "n": 3
+          },
+          "front_running": {
+            "mean": 0.068587,
+            "std": 0.028805,
+            "n": 3
+          },
+          "reentrancy": {
+            "mean": 0.553262,
+            "std": 0.031421,
+            "n": 3
+          },
+          "time_manipulation": {
+            "mean": 0.351564,
+            "std": 0.032987,
+            "n": 3
+          },
+          "uncheck": {
+            "mean": 0.350039,
+            "std": 0.021769,
+            "n": 3
+          }
+        },
+        "ap_classes_used": [
+          7,
+          7,
+          7
+        ],
+        "ap_skipped": [
+          [],
+          [],
+          []
+        ],
+        "per_class_support": [
+          675,
+          375,
+          135,
+          30,
+          467,
+          231,
+          244
+        ],
+        "names": [
+          "access_control",
+          "arithmetic",
+          "dos",
+          "front_running",
+          "reentrancy",
+          "time_manipulation",
+          "uncheck"
+        ],
+        "normal_subset_n": 103,
+        "normal_subset_per_class_FPR@val_thr": [
+          {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          {
+            "mean": 0.003236,
+            "std": 0.005605,
+            "n": 3
+          },
+          {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          },
+          {
+            "mean": 0.0,
+            "std": 0.0,
+            "n": 3
+          }
+        ]
+      }
+    }
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3"
+  },
+  "wall_seconds": 39.6
+}

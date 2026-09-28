@@ -12,7 +12,8 @@
 
 **测什么**（全程只读，不重训、不写任何产物区）：
 
-  1. **触达集**：逐图比对正典 `graphs_ft/ss{S}` 与变体 `graph_variants/cb_unlimited_ss{S}` 的
+  1. **触达集**：逐图比对正典（① `graphs_ft_p2/cb_ft_ss{S}` / ② `graphs_ft/ss{S}`，
+     逐语料不同，见 `CORPORA` 第 6 元）与变体 `graph_variants/cb_unlimited_ss{S}` 的
      **边集**（`_pyg.pt` 的 `edge_index` + `edge_type`）。
      🔴 **必须读内容、不能只看是不是软链**：变体的 `_pyg.pt` 是**指向旧变体的软链**
      （`products/alldata/graph_variants/callback_unlimited/`），
@@ -43,12 +44,16 @@ sys.path.insert(0, str(REPO / "scripts"))
 
 import metrics                                                    # noqa: E402
 
-# 语料 → （图树根, 划分目录, 消融产物根, 正典产物根, 显示名）
+# 语料 → （图树根, 划分目录, 消融产物根, 正典产物根, 显示名, **正典叶子名模板**）
+# 🔴 **第 6 元是 2026-09-25 换代后补的**：① 的新正典树叶子是 `cb_ft_ss{S}`（**不是** `ss{S}`），
+#    而 ② 未换代、叶子仍是 `ss{S}`。此前这里写死 `graph_root / f"ss{S}"` ⇒ ① 侧拼出
+#    `graphs_ft_p2/ss0/...`（不存在）⇒ `FileNotFoundError` 直接崩，**而不是**给出旧数字。
+#    ⚠ 这正是 `AGENTS.md` 警告过的那条：「逐种子路径模板化必须**同时认 `ss{S}` 与 `cb_ft_ss{S}`**」。
 CORPORA = {
-    "main": ("products/alldata/graphs_ft", "products/alldata/splits",
-             "runs/ablation", "runs", "① 主库"),
+    "main": ("products/alldata/graphs_ft_p2", "products/alldata/splits",
+             "runs/ablation", "runs", "① 主库", "cb_ft_ss{seed}"),
     "aug": ("products/augmentation/graphs_ft", "products/augmentation/splits",
-            "runs/ablation_aug", "runs/augmentation", "② 增强集"),
+            "runs/ablation_aug", "runs/augmentation", "② 增强集", "ss{seed}"),
 }
 VARIANT = "graph_variants/cb_unlimited_ss{seed}"
 SEEDS = (0, 1, 2)
@@ -180,11 +185,11 @@ def main() -> int:
     recs: list[dict] = []          # 逐 (语料, 划分种子) 的原始读数：文档的一切结论由它推导
 
     for gk in gkeys:
-        graph_root, split_dir, runs_root, canon_root, title = CORPORA[gk]
+        graph_root, split_dir, runs_root, canon_root, title, canon_leaf = CORPORA[gk]
         graph_root, split_dir = REPO / graph_root, REPO / split_dir
         runs_root, canon_root = REPO / runs_root, REPO / canon_root
         for S in SEEDS:
-            canon = graph_root / f"ss{S}"
+            canon = graph_root / canon_leaf.format(seed=S)
             var = graph_root / VARIANT.format(seed=S)
             r = {"gk": gk, "title": title, "seed": S, "var": var,
                  "exists": var.is_dir(), "hit": set(), "counts": {}, "sv": 0,

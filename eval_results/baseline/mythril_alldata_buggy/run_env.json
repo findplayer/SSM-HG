@@ -1,0 +1,12 @@
+{
+ "tool": "mythril",
+ "pool": "含 buggy_* 的主库（池 497）",
+ "run_set": "三种子 val∪test ∪ (buggy 并集 − canon37 并集)，原始产物 306 条，本轮新跑 92 条",
+ "mem_cap": "4.5G",
+ "cgroup_oom_kills_syslog_total": 15,
+ "note_kills": "全机 syslog 累计，不是本工具单独的次数；本轮的逐工具增量见 tools_alldata_buggy.log。",
+ "tool_timeout_s": 180,
+ "flush_every": 2,
+ "why": "本机 WSL 总内存 7.8 GB（VSCode 服务进程 ≈2.3 GB）⇒ 六个工具统一加 cgroup 4.5 GB 上限；上限顶到时求解器被杀而合约仍记 ok，该降级在产物里看不出来，只能靠本文件披露。🔴 2026-09-27 20:23 那次中断**不是 OOM**：journalctl -b -1 末尾是完整 systemd poweroff 序列，今日 syslog 无任何 oom 行 ⇒ 是 WSL 整体关机带走了作业。",
+ "written_utc": "2026-09-27T19:31:22+00:00"
+}

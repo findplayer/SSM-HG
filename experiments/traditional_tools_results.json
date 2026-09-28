@@ -1,0 +1,307 @@
+{
+ "created_utc": "2026-09-26T17:03:35+00:00",
+ "scope": {
+  "slither": "全量 590 图（`products/alldata/graphs`）",
+  "others": "三种子 val∪test 并集 214 个合约"
+ },
+ "tools": {
+  "slither": {
+   "tool": "slither",
+   "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+   "n_contracts": 590,
+   "status_counts": {
+    "ok": 560,
+    "error": 30
+   },
+   "detector_to_class": {
+    "reentrancy-eth": "reentrancy",
+    "reentrancy-no-eth": "reentrancy",
+    "reentrancy-benign": "reentrancy",
+    "reentrancy-events": "reentrancy",
+    "reentrancy-unlimited-gas": "reentrancy",
+    "reentrancy-balance": "reentrancy",
+    "suicidal": "access_control",
+    "unprotected-upgrade": "access_control",
+    "arbitrary-send-eth": "access_control",
+    "arbitrary-send-erc20": "access_control",
+    "arbitrary-send-erc20-permit": "access_control",
+    "controlled-delegatecall": "access_control",
+    "tx-origin": "access_control",
+    "controlled-array-length": "access_control",
+    "divide-before-multiply": "arithmetic",
+    "incorrect-exp": "arithmetic",
+    "tautology": "arithmetic",
+    "tautological-compare": "arithmetic",
+    "calls-loop": "dos",
+    "msg-value-loop": "dos",
+    "delegatecall-loop": "dos",
+    "unchecked-transfer": "uncheck",
+    "unchecked-lowlevel": "uncheck",
+    "unchecked-send": "uncheck",
+    "unused-return": "uncheck",
+    "timestamp": "time_manipulation",
+    "weak-prng": "time_manipulation"
+   },
+   "strict_excluded": [
+    "delegatecall-loop",
+    "tautological-compare",
+    "tautology",
+    "weak-prng"
+   ],
+   "no_detector_classes": [
+    "front_running"
+   ],
+   "warning": "classes 为七维规则命中向量；front_running 无对应检测器、恒为 0；status!=ok 的合约未分析，不得记作全零预测",
+   "capability_live": []
+  },
+  "mythril": {
+   "tool": "mythril",
+   "tool_label": "Mythril",
+   "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+   "n_contracts": 214,
+   "status_counts": {
+    "ok": 184,
+    "timeout": 21,
+    "error": 9
+   },
+   "detector_to_class": {
+    "107": "reentrancy",
+    "106": "access_control",
+    "105": "access_control",
+    "112": "access_control",
+    "115": "access_control",
+    "124": "access_control",
+    "101": "arithmetic",
+    "104": "uncheck",
+    "113": "dos",
+    "116": "time_manipulation",
+    "120": "time_manipulation",
+    "114": "front_running"
+   },
+   "no_detector_classes": [],
+   "strict_excluded": [],
+   "excluded": {
+    "SWC-100/108/109/110/111/117/118/119/121/122/123/125/126/127/128/129/130/131/132": "落在七类语义之外的 SWC，无对应类目"
+   },
+   "capability": [
+    "符号执行工具，逐合约**按时间预算**跑；超时记 `timeout`，与 Slither 的 `error` 同口径（不计入分母、不记全零）。",
+    "solc 由 py-solc-x 按 `--solv` 选择；本机已把 solc-select 的 101 个版本软链进 `~/.solcx`（`solc-bin.ethereum.org` 直连被 SSL 拦，**离线**是硬前提）。"
+   ],
+   "tool_timeout_s": 180,
+   "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
+   "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
+   "capability_live": [
+    "符号执行工具，逐合约**按时间预算**跑；超时记 `timeout`，与 Slither 的 `error` 同口径（不计入分母、不记全零）。",
+    "solc 由 py-solc-x 按 `--solv` 选择；本机已把 solc-select 的 101 个版本软链进 `~/.solcx`（`solc-bin.ethereum.org` 直连被 SSL 拦，**离线**是硬前提）。"
+   ]
+  },
+  "manticore": {
+   "tool": "manticore",
+   "tool_label": "Manticore",
+   "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+   "n_contracts": 214,
+   "status_counts": {
+    "ok": 177,
+    "timeout": 31,
+    "error": 6
+   },
+   "detector_to_class": {
+    "Reachable SELFDESTRUCT": "access_control",
+    "Reachable selfdestruct instructions": "access_control",
+    "Potential reentrancy vulnerability": "reentrancy",
+    "Reentrancy bug (different method)": "reentrancy",
+    "Reentrancy multi-million ether bug": "reentrancy",
+    "Reentrancy bug": "reentrancy",
+    "Reachable external call or ether leak to sender or arbitrary address": "access_control",
+    "Reachable ether leak to user controlled address via argument": "access_control",
+    "Reachable external call to user controlled address via argument": "access_control",
+    "Reachable ether leak to sender via argument": "access_control",
+    "Reachable external call to sender via argument": "access_control",
+    "Reachable ether leak to sender": "access_control",
+    "Reachable external call to sender": "access_control",
+    "Delegatecall to user controlled address": "access_control",
+    "Delegatecall to user controlled function": "access_control",
+    "Signed integer overflow at": "arithmetic",
+    "Unsigned integer overflow at": "arithmetic",
+    "Integer underflow at": "arithmetic",
+    "Returned value at": "uncheck",
+    "Unused internal transaction return values": "uncheck",
+    "Potential race condition (transaction order dependency)": "front_running",
+    "Possible transaction race conditions": "front_running"
+   },
+   "no_detector_classes": [
+    "dos",
+    "time_manipulation"
+   ],
+   "strict_excluded": [],
+   "excluded": {
+    "Potentially reading uninitialized storage": "SWC-109，七类无此语义",
+    "Potentially reading uninitialized memory": "SWC-109 同上",
+    "INVALID instruction": "执行到 INVALID 指令，无 SWC 锚点",
+    "Manipulable balance used in a strict comparison": "无 SWC 锚点（与 SmartCheck `SOLIDITY_BALANCE_EQUALITY` 同概念，一起排除）",
+    "instruction used": "env-instr：环境指令可操纵，无 SWC 锚点"
+   },
+   "capability": [
+    "🔴 **必须 `--thorough-mode`**：非该模式下 CLI 强制 `exclude_all=True`，一个检测器都不跑（且会撞 finalize() 的判空缺失 bug）。",
+    "🔴 **多合约文件必须显式 `--contract`**：实测单文件最多含 19 个 contract/library/interface，本适配层**逐个合约跑并取并集**（Slither 是按文件整体分析，两者口径在此不同，须披露）。",
+    "符号执行，逐合约按时间预算；超时记 `timeout`。"
+   ],
+   "tool_timeout_s": 180,
+   "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
+   "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
+   "capability_live": [
+    "🔴 **必须 `--thorough-mode`**：非该模式下 CLI 强制 `exclude_all=True`，一个检测器都不跑（且会撞 finalize() 的判空缺失 bug）。",
+    "🔴 **多合约文件必须显式 `--contract`**：实测单文件最多含 19 个 contract/library/interface，本适配层**逐个合约跑并取并集**（Slither 是按文件整体分析，两者口径在此不同，须披露）。",
+    "符号执行，逐合约按时间预算；超时记 `timeout`。"
+   ]
+  },
+  "smartcheck": {
+   "tool": "smartcheck",
+   "tool_label": "Smartcheck",
+   "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+   "n_contracts": 214,
+   "status_counts": {
+    "ok": 214
+   },
+   "detector_to_class": {
+    "SOLIDITY_TX_ORIGIN": "access_control",
+    "SOLIDITY_ARRAY_LENGTH_MANIPULATION": "access_control",
+    "SOLIDITY_UNCHECKED_CALL": "uncheck",
+    "SOLIDITY_SEND": "uncheck",
+    "SOLIDITY_DIV_MUL": "arithmetic",
+    "SOLIDITY_SAFEMATH": "arithmetic",
+    "SOLIDITY_EXACT_TIME": "time_manipulation",
+    "SOLIDITY_INCORRECT_BLOCKHASH": "time_manipulation",
+    "SOLIDITY_DOS_WITH_THROW": "dos",
+    "SOLIDITY_TRANSFER_IN_LOOP": "dos",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS": "dos"
+   },
+   "no_detector_classes": [
+    "front_running",
+    "reentrancy"
+   ],
+   "strict_excluded": [],
+   "excluded": {
+    "SOLIDITY_BALANCE_EQUALITY": "`.balance ==` 无 SWC 锚点（与 manticore `lockdrop` 同概念，一起排除）",
+    "SOLIDITY_LOCKED_MONEY": "锁定资金，无 SWC 锚点（Slither 的 `locked-ether` / Securify 的 `LockedEther` 同样未纳入 ⇒ 三个工具一致）",
+    "SOLIDITY_OVERPOWERED_ROLE": "角色权限过大，无 SWC 锚点",
+    "SOLIDITY_VISIBILITY": "默认可见性（SWC-100）——⚠ **本项是边界情形**：SWC-100 真实存在，但 7 类 `access_control` 的原生语义是「授权/权限控制」而非「可见性声明」，且 Slither/Securify 均无对应项 ⇒ 为跨工具一致而不纳入",
+    "其余 27 条": "风格/兼容性/ERC 接口/气体优化类规则，无 SWC 锚点或落在七类之外"
+   },
+   "capability": [
+    "🔴 **走 JVM 自己解析源码，不调用 solc** ⇒ **无 pragma 版本限制**（本轮覆盖面最广的工具）。",
+    "`--help` 不是合法参数（会抛 IllegalArgumentException）；用法是 `smartcheck -p <路径>`。",
+    "规则表 = 包内 `solidity-rules.xml` 的 40 条 `RuleId`（映射只取其中 11 条，见 `excluded`）。"
+   ],
+   "tool_timeout_s": 120,
+   "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
+   "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
+   "capability_live": [
+    "🔴 **走 JVM 自己解析源码，不调用 solc** ⇒ **无 pragma 版本限制**（本轮覆盖面最广的工具）。",
+    "`--help` 不是合法参数（会抛 IllegalArgumentException）；用法是 `smartcheck -p <路径>`。",
+    "规则表 = 包内 `solidity-rules.xml` 的 40 条 `RuleId`（映射只取其中 11 条，见 `excluded`）。"
+   ]
+  },
+  "securify": {
+   "tool": "securify",
+   "tool_label": "Securify",
+   "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+   "n_contracts": 214,
+   "status_counts": {
+    "ok": 47,
+    "error": 167
+   },
+   "detector_to_class": {
+    "Gas-dependent Reentrancy": "reentrancy",
+    "Reentrancy with constant gas": "reentrancy",
+    "Benign Reentrancy": "reentrancy",
+    "No-Ether-Involved Reentrancy": "reentrancy",
+    "Unrestricted call to selfdestruct": "access_control",
+    "Unrestricted Ether Flow": "access_control",
+    "Arbitrary Send": "access_control",
+    "Unrestricted write to storage": "access_control",
+    "Delegatecall or callcode to unrestricted address": "access_control",
+    "Possibly unsafe usage of tx-origin": "access_control",
+    "Unused Return Pattern": "uncheck",
+    "Unhandled Exception": "uncheck",
+    "Low Level Calls": "uncheck",
+    "Usage of block timestamp": "time_manipulation",
+    "Transaction Order Affects Ether Receiver": "front_running",
+    "Transaction Order Affects Execution of Ether Transfer": "front_running",
+    "Transaction Order Affects Ether Amount": "front_running",
+    "Multiplication after division": "arithmetic",
+    "External call in loop": "dos",
+    "Dos gas limit pattern": "dos"
+   },
+   "no_detector_classes": [],
+   "strict_excluded": [],
+   "excluded": {
+    "Locked Ether": "锁定资金，无 SWC 锚点（与 Slither `locked-ether`、SmartCheck `SOLIDITY_LOCKED_MONEY` 一致排除）",
+    "Repeated Call to Untrusted Contract": "「重复调用可能返回不同值」无单一 SWC 锚点",
+    "Missing Input Validation": "无 SWC 锚点（Slither 的 `missing-zero-check` 亦未纳入）",
+    "Dangerous Strict Equalities": "严格相等比较，无 SWC 锚点（Slither `incorrect-equality` 亦未纳入）",
+    "Constable State Variables": "可声明为 constant，纯风格问题",
+    "External Calls of Functions": "「可标为 external」，纯风格问题",
+    "Uninitialized State Variable": "SWC-109 未初始化存储，七类无此语义",
+    "Unused State Variable": "无 SWC 锚点",
+    "State Variable Shadowing": "无 SWC 锚点",
+    "Taint Analysis for PASS Project": "特定项目的污点分析，非本文语料"
+   },
+   "capability": [
+    "🔴 **`--ignore-pragma` 不要传**：securify2 **默认会把 pragma ≤ 0.5.8 的源码改写成它支持的版本**再分析 —— 所以它**不是**只吃 ≥0.5.8（`decisions.md` §47.4 第 1 条的旧表述过严，本轮实测更正）。",
+    "需 `SOUFFLE_BINARY=souffle162` 与 `libfunctors` 的 `LD_LIBRARY_PATH`（见 `install_traditional_tools.sh`；souffle 2.5 会被 2019 年的 `.dl` 拒收）。",
+    "⚠ 它**会改写源码副本**（pragma 替换）⇒ 必须在 `work/` 的副本上跑，绝不能碰只读源。"
+   ],
+   "tool_timeout_s": 120,
+   "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
+   "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
+   "capability_live": [
+    "🔴 **实测边界（2026-09-25，本池 214 个合约逐条验过；最终跑数）**：**47 个成功里 45 个是 0.5.x、2 个是 0.4.x**（后者语法恰好 0.5 兼容）。按 pragma 分：**0.5.x 成功 45/46（98%）**、**0.4.x 成功 2/161（1.2%）**、**无 pragma 成功 0/7** ⇒ 总覆盖 **47/214 = 22.0%**。⚠ 措辞取「只能吃 0.5.x 的老合约」而非「只吃 ≥0.5.8」——实测成功的 0.5.x 里含 `^0.5.0`/`^0.5.4` 这类 <0.5.8 的。",
+    "🔴 **两条失败路径都实测到了**（这是「真的不行」而非「参数没调对」的证据）：① 给 pragma 匹配的 0.4.x solc ⇒ `Solc version X not supported by CFG compiler`（`ast_dict[_solc_version]` KeyError —— 它的 CFG 语法表里没有 0.4）；② 给 0.5.12 ⇒ `SyntaxError: No visibility specified` + `TypeError: Wrong argument count for function call: 0 arguments given but expected 1`（0.4 语法在 0.5.0+ 非法）。**pragma 改写只改 pragma 行、不升级语法**，故两条路都堵死。",
+    "⚠ **`--ignore-pragma` 不要传**：默认的 pragma 改写正是它能吃 0.5.x 老合约的原因（改写后按它支持的 solc 编译，0.5.x 语法恰好兼容）。",
+    "需 `SOUFFLE_BINARY=souffle162` 与 `libfunctors` 的 `LD_LIBRARY_PATH`（见 `install_traditional_tools.sh`；souffle 2.5 会被 2019 年的 `.dl` 拒收）。",
+    "⚠ 它**会改写源码副本**（pragma 替换）⇒ 必须在 `work/` 的副本上跑，绝不能碰只读源。"
+   ]
+  },
+  "oyente": {
+   "tool": "oyente",
+   "tool_label": "Oyente",
+   "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+   "n_contracts": 214,
+   "status_counts": {
+    "error": 169,
+    "ok": 45
+   },
+   "detector_to_class": {
+    "Re-Entrancy Vulnerability": "reentrancy",
+    "Integer Overflow": "arithmetic",
+    "Integer Underflow": "arithmetic",
+    "Timestamp Dependency": "time_manipulation",
+    "Transaction-Ordering Dependence (TOD)": "front_running",
+    "Parity Multisig Bug 2": "access_control"
+   },
+   "no_detector_classes": [
+    "dos",
+    "uncheck"
+   ],
+   "strict_excluded": [],
+   "excluded": {
+    "Callstack Depth Attack Vulnerability": "调用深度攻击，**EIP-150 后已不可行**，且无 SWC 锚点"
+   },
+   "capability": [
+    "🔴 **solc 钉死 0.4.19**（源码内 tested 版本，env 内的 `solc` shim 保证）⇒ **0.5.x/0.8.x 的合约一律编译失败**；本轮池里 214 个合约有 161 个是 0.4.x，故 Oyente 的可分析面**结构性偏向老合约**，这个偏差必须写进行注。",
+    "必须在 `~/tools/oyente/oyente` 目录内跑（源码用顶层 import）；`-s` **必须是绝对路径**（相对路径在 cd 后会解析失败）；`eval` 二进制由 `PATH` 提供。",
+    "⚠ 启动时硬检查 `z3.z3util`，故 z3 钉 4.8.17。"
+   ],
+   "tool_timeout_s": 120,
+   "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
+   "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
+   "capability_live": [
+    "🔴 **solc 钉死 0.4.19**（源码内 tested 版本，env 内的 `solc` shim 保证）⇒ **0.5.x/0.8.x 的合约一律编译失败**；本轮池里 214 个合约有 161 个是 0.4.x，故 Oyente 的可分析面**结构性偏向老合约**，这个偏差必须写进行注。",
+    "必须在 `~/tools/oyente/oyente` 目录内跑（源码用顶层 import）；`-s` **必须是绝对路径**（相对路径在 cd 后会解析失败）；`eval` 二进制由 `PATH` 提供。",
+    "⚠ 启动时硬检查 `z3.z3util`，故 z3 钉 4.8.17。"
+   ]
+  }
+ },
+ "missing": []
+}

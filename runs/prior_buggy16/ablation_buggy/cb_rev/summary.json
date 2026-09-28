@@ -1,0 +1,85 @@
+{
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_seeds": 3,
+  "main_seed": 0,
+  "std_ddof": 1,
+  "per_seed": {
+    "0": {
+      "split_seed": 0,
+      "val_threshold": 0.65,
+      "micro_f1_fixed_0.5": 0.8888888888888888,
+      "macro_f1_fixed_0.5": 0.8741138560687434,
+      "micro_f1_val_threshold": 0.9256198347107439,
+      "macro_f1_val_threshold": 0.9147950003213161,
+      "mAP": 0.9492033209295114
+    },
+    "1": {
+      "split_seed": 1,
+      "val_threshold": 0.75,
+      "micro_f1_fixed_0.5": 0.9763779527559054,
+      "macro_f1_fixed_0.5": 0.9798678091926426,
+      "micro_f1_val_threshold": 0.9763779527559054,
+      "macro_f1_val_threshold": 0.9798678091926426,
+      "mAP": 0.9790999683256587
+    },
+    "2": {
+      "split_seed": 2,
+      "val_threshold": 0.75,
+      "micro_f1_fixed_0.5": 0.9523809523809523,
+      "macro_f1_fixed_0.5": 0.9468498510515316,
+      "micro_f1_val_threshold": 0.9586776859504132,
+      "macro_f1_val_threshold": 0.9563390313390314,
+      "mAP": 0.9726131832043162
+    }
+  },
+  "head": "multi",
+  "test": {
+    "fixed_0.5": {
+      "micro_f1": {
+        "mean": 0.939216,
+        "std": 0.045206,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.933611,
+        "std": 0.054106,
+        "n": 3
+      }
+    },
+    "val_threshold": {
+      "micro_f1": {
+        "mean": 0.953558,
+        "std": 0.025763,
+        "n": 3
+      },
+      "macro_f1": {
+        "mean": 0.950334,
+        "std": 0.032949,
+        "n": 3
+      }
+    }
+  },
+  "mAP": {
+    "mean": 0.966972,
+    "std": 0.015726,
+    "n": 3
+  },
+  "note": "主指标 micro-F1（标签对级）；macro-F1 为参考，注释须与其计算划分的支撑同口径；support≤2 的类仅描述性呈现（decisions §13）。",
+  "provenance": {
+    "n_configs": 3,
+    "encoder": "fine-tuned CodeBERT（**含 buggy_* 的池 497 划分**；任务2 臂，非 §37 正典）",
+    "graph_dir_leaf": [
+      "cb_rev_ss0",
+      "cb_rev_ss1",
+      "cb_rev_ss2"
+    ],
+    "head": [
+      "multi"
+    ],
+    "note": "由各 seed 的 config.json::args 只读推导；不加载权重。"
+  }
+}

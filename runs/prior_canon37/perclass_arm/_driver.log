@@ -1,0 +1,965 @@
+epoch   0 loss 0.6178 clss 0.6178 var 0.0182 sc_mean 0.5564 sc_std 0.0901 val_AP 0.1667 val_binF1 0.2222 lr 1.00e-04 1.1s
+epoch   1 loss 0.3503 clss 0.3503 var 0.0022 sc_mean 0.6185 sc_std 0.1628 val_AP 0.1667 val_binF1 0.2500 lr 1.00e-04 0.4s
+epoch   2 loss 0.3421 clss 0.3421 var 0.0013 sc_mean 0.6463 sc_std 0.2222 val_AP 0.1667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.3584 clss 0.3584 var 0.0007 sc_mean 0.6780 sc_std 0.2605 val_AP 0.1429 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.4236 clss 0.4236 var 0.0003 sc_mean 0.6964 sc_std 0.2717 val_AP 0.1667 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.4548 clss 0.4548 var 0.0005 sc_mean 0.6991 sc_std 0.2756 val_AP 0.1667 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.1667 @ epoch; wall=5.9s train=2.6s graphs/s=841.05 → runs/perclass_arm/cap20/cls_front_running/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_front_running --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.4)=0.3333；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.3333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_front_running/seed0/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 1.0517 clss 1.0517 var 0.0224 sc_mean 0.5461 sc_std 0.0812 val_AP 0.4444 val_binF1 0.4286 lr 1.00e-04 0.7s
+epoch   1 loss 0.8423 clss 0.8423 var 0.0035 sc_mean 0.6099 sc_std 0.1426 val_AP 0.4333 val_binF1 0.5714 lr 1.00e-04 0.4s
+epoch   2 loss 0.6743 clss 0.6743 var 0.0016 sc_mean 0.6108 sc_std 0.2000 val_AP 0.4333 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   3 loss 0.5925 clss 0.5925 var 0.0016 sc_mean 0.5513 sc_std 0.2435 val_AP 0.5139 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   4 loss 0.5265 clss 0.5265 var 0.0008 sc_mean 0.4875 sc_std 0.2709 val_AP 0.6984 val_binF1 0.6000 lr 1.00e-04 0.3s
+epoch   5 loss 0.4583 clss 0.4583 var 0.0009 sc_mean 0.4534 sc_std 0.2863 val_AP 0.7222 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   6 loss 0.4360 clss 0.4360 var 0.0007 sc_mean 0.4715 sc_std 0.3048 val_AP 0.7222 val_binF1 0.6667 lr 1.00e-04 0.4s
+epoch   7 loss 0.3359 clss 0.3359 var 0.0009 sc_mean 0.4902 sc_std 0.3136 val_AP 0.7556 val_binF1 0.6667 lr 1.00e-04 0.4s
+epoch   8 loss 0.2672 clss 0.2672 var 0.0010 sc_mean 0.4887 sc_std 0.3221 val_AP 0.9167 val_binF1 0.7500 lr 1.00e-04 0.3s
+epoch   9 loss 0.3952 clss 0.3952 var 0.0011 sc_mean 0.5052 sc_std 0.3336 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  10 loss 0.1934 clss 0.1934 var 0.0011 sc_mean 0.5276 sc_std 0.3444 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  11 loss 0.1840 clss 0.1840 var 0.0009 sc_mean 0.5374 sc_std 0.3554 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.4s
+epoch  12 loss 0.1465 clss 0.1465 var 0.0008 sc_mean 0.5544 sc_std 0.3629 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.4s
+epoch  13 loss 0.1227 clss 0.1227 var 0.0007 sc_mean 0.5599 sc_std 0.3769 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.4s
+epoch  14 loss 0.1157 clss 0.1157 var 0.0003 sc_mean 0.5815 sc_std 0.3849 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch  15 loss 0.1126 clss 0.1126 var 0.0005 sc_mean 0.5947 sc_std 0.3882 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch  16 loss 0.1133 clss 0.1133 var 0.0005 sc_mean 0.5889 sc_std 0.3935 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 16（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=7.7s train=5.7s graphs/s=1083.03 → runs/perclass_arm/cap20/cls_access_control/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_access_control --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.2500 / val_thr(0.75)=0.3333；FPR 0.5=0.0930 FNR 0.5=0.6667；AP=0.4150
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_access_control --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_access_control/seed0/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap20/cls_access_control/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_access_control --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+epoch   0 loss 0.8659 clss 0.8659 var 0.0278 sc_mean 0.5780 sc_std 0.0751 val_AP 0.8333 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.9231 clss 0.9231 var 0.0045 sc_mean 0.7467 sc_std 0.1324 val_AP 0.6667 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   2 loss 0.8774 clss 0.8774 var 0.0025 sc_mean 0.7831 sc_std 0.1600 val_AP 0.8667 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   3 loss 0.7262 clss 0.7262 var 0.0019 sc_mean 0.7668 sc_std 0.1738 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.6642 clss 0.6642 var 0.0016 sc_mean 0.7420 sc_std 0.1900 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.5146 clss 0.5146 var 0.0007 sc_mean 0.6922 sc_std 0.2127 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.3602 clss 0.3602 var 0.0003 sc_mean 0.6255 sc_std 0.2321 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.2625 clss 0.2625 var 0.0001 sc_mean 0.6034 sc_std 0.2583 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   8 loss 0.2039 clss 0.2039 var 0.0002 sc_mean 0.5721 sc_std 0.2721 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 8（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=5.9s train=2.9s graphs/s=1111.38 → runs/perclass_arm/cap20/cls_access_control/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_access_control --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.5000 / val_thr(0.3)=0.2857；FPR 0.5=0.0000 FNR 0.5=0.6667；AP=0.5778
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_access_control --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_access_control/seed1/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap20/cls_access_control/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_access_control --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+epoch   0 loss 0.9390 clss 0.9389 var 0.0157 sc_mean 0.4173 sc_std 0.1001 val_AP 0.4201 val_binF1 0.5000 lr 1.00e-04 0.6s
+epoch   1 loss 0.7237 clss 0.7237 var 0.0018 sc_mean 0.4616 sc_std 0.2125 val_AP 0.5900 val_binF1 0.6667 lr 1.00e-04 0.4s
+epoch   2 loss 0.5358 clss 0.5358 var 0.0008 sc_mean 0.4460 sc_std 0.2755 val_AP 0.7051 val_binF1 0.6667 lr 1.00e-04 0.4s
+epoch   3 loss 0.3634 clss 0.3634 var 0.0010 sc_mean 0.4320 sc_std 0.3164 val_AP 0.7051 val_binF1 0.8000 lr 1.00e-04 0.4s
+epoch   4 loss 0.2496 clss 0.2496 var 0.0012 sc_mean 0.4195 sc_std 0.3362 val_AP 0.7067 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1600 clss 0.1600 var 0.0010 sc_mean 0.4138 sc_std 0.3480 val_AP 0.7067 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   6 loss 0.1461 clss 0.1461 var 0.0008 sc_mean 0.4013 sc_std 0.3587 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   7 loss 0.1133 clss 0.1133 var 0.0006 sc_mean 0.3966 sc_std 0.3702 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.4s
+epoch   8 loss 0.0985 clss 0.0985 var 0.0004 sc_mean 0.3725 sc_std 0.3841 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.4s
+epoch   9 loss 0.0869 clss 0.0869 var 0.0004 sc_mean 0.3729 sc_std 0.3906 val_AP 0.7101 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  10 loss 0.0817 clss 0.0817 var 0.0007 sc_mean 0.3436 sc_std 0.3910 val_AP 0.7101 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  11 loss 0.0465 clss 0.0465 var 0.0006 sc_mean 0.3321 sc_std 0.3961 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  12 loss 0.0426 clss 0.0426 var 0.0012 sc_mean 0.3207 sc_std 0.3984 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  13 loss 0.0236 clss 0.0236 var 0.0015 sc_mean 0.3261 sc_std 0.4001 val_AP 0.7083 val_binF1 0.8000 lr 5.00e-05 0.3s
+epoch  14 loss 0.0204 clss 0.0204 var 0.0007 sc_mean 0.3336 sc_std 0.4101 val_AP 0.7083 val_binF1 0.8000 lr 5.00e-05 0.4s
+early stop at epoch 14（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.7101 @ epoch; wall=8.6s train=4.9s graphs/s=1109.56 → runs/perclass_arm/cap20/cls_access_control/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_access_control --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.5000 / val_thr(0.55)=0.5000；FPR 0.5=0.0698 FNR 0.5=0.3333；AP=0.6222
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_access_control --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_access_control/seed2/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap20/cls_access_control/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_access_control --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+epoch   0 loss 0.9321 clss 0.9321 var 0.0211 sc_mean 0.5465 sc_std 0.0824 val_AP 0.6389 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.7205 clss 0.7205 var 0.0020 sc_mean 0.6332 sc_std 0.1413 val_AP 0.7500 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   2 loss 0.5973 clss 0.5973 var 0.0009 sc_mean 0.6910 sc_std 0.1794 val_AP 0.8333 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   3 loss 0.4322 clss 0.4322 var 0.0003 sc_mean 0.7120 sc_std 0.2057 val_AP 0.8667 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   4 loss 0.3953 clss 0.3953 var 0.0003 sc_mean 0.6764 sc_std 0.2376 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   5 loss 0.3274 clss 0.3274 var 0.0003 sc_mean 0.6353 sc_std 0.2668 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.3338 clss 0.3338 var 0.0002 sc_mean 0.6130 sc_std 0.2923 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.3105 clss 0.3105 var 0.0000 sc_mean 0.5693 sc_std 0.3175 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.2824 clss 0.2824 var 0.0003 sc_mean 0.5316 sc_std 0.3318 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.2923 clss 0.2923 var 0.0001 sc_mean 0.4996 sc_std 0.3431 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch  10 loss 0.2675 clss 0.2675 var 0.0000 sc_mean 0.4608 sc_std 0.3488 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 10（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=5.0s train=3.5s graphs/s=1139.96 → runs/perclass_arm/cap20/cls_arithmetic/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_arithmetic --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.6667 / val_thr(0.6)=0.8000；FPR 0.5=0.0455 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_arithmetic --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_arithmetic/seed0/diagnosis.json （test pos 2）
+跨种子聚合 → runs/perclass_arm/cap20/cls_arithmetic/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_arithmetic --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+epoch   0 loss 0.8053 clss 0.8053 var 0.0238 sc_mean 0.5890 sc_std 0.0777 val_AP 0.8667 val_binF1 0.8000 lr 1.00e-04 0.6s
+epoch   1 loss 0.6386 clss 0.6386 var 0.0042 sc_mean 0.6928 sc_std 0.1253 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   2 loss 0.7344 clss 0.7344 var 0.0026 sc_mean 0.7165 sc_std 0.1619 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   3 loss 0.7141 clss 0.7141 var 0.0014 sc_mean 0.7022 sc_std 0.1821 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   4 loss 0.7653 clss 0.7653 var 0.0011 sc_mean 0.6589 sc_std 0.1927 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   5 loss 0.7242 clss 0.7242 var 0.0017 sc_mean 0.6096 sc_std 0.2032 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.5058 clss 0.5058 var 0.0012 sc_mean 0.5695 sc_std 0.2136 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.4197 clss 0.4197 var 0.0006 sc_mean 0.5546 sc_std 0.2381 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.4160 clss 0.4160 var 0.0003 sc_mean 0.5606 sc_std 0.2624 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   9 loss 0.3961 clss 0.3961 var 0.0003 sc_mean 0.5561 sc_std 0.2733 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 9（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=4.5s train=3.1s graphs/s=1159.91 → runs/perclass_arm/cap20/cls_arithmetic/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_arithmetic --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=1.0000 / val_thr(0.25)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_arithmetic --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_arithmetic/seed1/diagnosis.json （test pos 2）
+跨种子聚合 → runs/perclass_arm/cap20/cls_arithmetic/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_arithmetic --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+epoch   0 loss 0.9894 clss 0.9894 var 0.0183 sc_mean 0.4102 sc_std 0.0895 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.5774 clss 0.5774 var 0.0023 sc_mean 0.4498 sc_std 0.1859 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   2 loss 0.4051 clss 0.4051 var 0.0007 sc_mean 0.4648 sc_std 0.2754 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.4119 clss 0.4119 var 0.0010 sc_mean 0.4396 sc_std 0.3294 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.3619 clss 0.3619 var 0.0008 sc_mean 0.4248 sc_std 0.3490 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.3095 clss 0.3095 var 0.0008 sc_mean 0.4316 sc_std 0.3515 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=1.0000 @ epoch; wall=3.6s train=2.1s graphs/s=1027.82 → runs/perclass_arm/cap20/cls_arithmetic/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_arithmetic --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.0000 FNR 0.5=0.3333；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_arithmetic --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_arithmetic/seed2/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap20/cls_arithmetic/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_arithmetic --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+epoch   0 loss 0.6715 clss 0.6715 var 0.0182 sc_mean 0.5580 sc_std 0.0915 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.3636 clss 0.3636 var 0.0021 sc_mean 0.6385 sc_std 0.1718 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.2290 clss 0.2290 var 0.0017 sc_mean 0.6518 sc_std 0.2331 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1921 clss 0.1921 var 0.0009 sc_mean 0.6301 sc_std 0.2797 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1626 clss 0.1626 var 0.0006 sc_mean 0.5978 sc_std 0.3078 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.1261 clss 0.1261 var 0.0006 sc_mean 0.5814 sc_std 0.3213 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=3.3s train=2.0s graphs/s=1067.28 → runs/perclass_arm/cap20/cls_dos/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_dos --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.5)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.2000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_dos --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_dos/seed0/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_dos/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_dos --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+epoch   0 loss 0.4950 clss 0.4950 var 0.0237 sc_mean 0.6029 sc_std 0.0807 val_AP 0.5000 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.3269 clss 0.3269 var 0.0034 sc_mean 0.7580 sc_std 0.1431 val_AP 1.0000 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   2 loss 0.2833 clss 0.2833 var 0.0016 sc_mean 0.7837 sc_std 0.1715 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.2131 clss 0.2131 var 0.0010 sc_mean 0.7718 sc_std 0.1858 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1723 clss 0.1722 var 0.0007 sc_mean 0.7406 sc_std 0.1964 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1421 clss 0.1421 var 0.0004 sc_mean 0.7225 sc_std 0.2112 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   6 loss 0.1081 clss 0.1081 var 0.0002 sc_mean 0.7140 sc_std 0.2217 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 6（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=3.5s train=2.3s graphs/s=1117.66 → runs/perclass_arm/cap20/cls_dos/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_dos --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.0000 / val_thr(0.25)=1.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_dos --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_dos/seed1/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_dos/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_dos --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+epoch   0 loss 0.6850 clss 0.6850 var 0.0152 sc_mean 0.4067 sc_std 0.1000 val_AP 0.5000 val_binF1 0.5000 lr 1.00e-04 0.6s
+epoch   1 loss 0.3073 clss 0.3073 var 0.0017 sc_mean 0.4604 sc_std 0.2224 val_AP 0.2000 val_binF1 0.3333 lr 1.00e-04 0.3s
+epoch   2 loss 0.1979 clss 0.1979 var 0.0008 sc_mean 0.4727 sc_std 0.3029 val_AP 0.2000 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1618 clss 0.1618 var 0.0015 sc_mean 0.4684 sc_std 0.3346 val_AP 0.2000 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1099 clss 0.1099 var 0.0010 sc_mean 0.4751 sc_std 0.3415 val_AP 0.3333 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.0752 clss 0.0752 var 0.0007 sc_mean 0.4923 sc_std 0.3392 val_AP 0.3333 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.5000 @ epoch; wall=3.3s train=1.9s graphs/s=1121.81 → runs/perclass_arm/cap20/cls_dos/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_dos --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.0000 / val_thr(0.45)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_dos --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_dos/seed2/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_dos/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_dos --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+epoch   0 loss 0.6178 clss 0.6178 var 0.0182 sc_mean 0.5564 sc_std 0.0901 val_AP 0.1667 val_binF1 0.2222 lr 1.00e-04 0.6s
+epoch   1 loss 0.3503 clss 0.3503 var 0.0022 sc_mean 0.6185 sc_std 0.1628 val_AP 0.1667 val_binF1 0.2500 lr 1.00e-04 0.3s
+epoch   2 loss 0.3421 clss 0.3421 var 0.0013 sc_mean 0.6463 sc_std 0.2222 val_AP 0.1667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.3584 clss 0.3584 var 0.0007 sc_mean 0.6780 sc_std 0.2605 val_AP 0.1429 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.4236 clss 0.4236 var 0.0003 sc_mean 0.6964 sc_std 0.2717 val_AP 0.1667 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.4548 clss 0.4548 var 0.0005 sc_mean 0.6991 sc_std 0.2756 val_AP 0.1667 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.1667 @ epoch; wall=3.2s train=2.0s graphs/s=1074.09 → runs/perclass_arm/cap20/cls_front_running/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_front_running --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.4)=0.3333；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.3333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_front_running/seed0/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 0.3693 clss 0.3692 var 0.0201 sc_mean 0.6111 sc_std 0.0874 val_AP 0.0270 val_binF1 0.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.1712 clss 0.1712 var 0.0026 sc_mean 0.7602 sc_std 0.1496 val_AP 0.0278 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.3700 clss 0.3700 var 0.0011 sc_mean 0.8132 sc_std 0.1691 val_AP 0.0286 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1532 clss 0.1532 var 0.0008 sc_mean 0.8218 sc_std 0.1800 val_AP 0.0294 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1350 clss 0.1350 var 0.0008 sc_mean 0.8092 sc_std 0.1860 val_AP 0.0303 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1180 clss 0.1180 var 0.0009 sc_mean 0.7940 sc_std 0.1931 val_AP 0.0303 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.1042 clss 0.1042 var 0.0004 sc_mean 0.7773 sc_std 0.2050 val_AP 0.0303 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.0930 clss 0.0930 var 0.0007 sc_mean 0.7705 sc_std 0.2168 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.0872 clss 0.0872 var 0.0004 sc_mean 0.7599 sc_std 0.2271 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.0864 clss 0.0864 var 0.0006 sc_mean 0.7523 sc_std 0.2359 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  10 loss 0.0749 clss 0.0749 var 0.0001 sc_mean 0.7441 sc_std 0.2454 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  11 loss 0.0738 clss 0.0738 var 0.0005 sc_mean 0.7314 sc_std 0.2537 val_AP 0.0323 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  12 loss 0.0655 clss 0.0655 var 0.0002 sc_mean 0.7256 sc_std 0.2614 val_AP 0.0323 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  13 loss 0.0602 clss 0.0602 var 0.0003 sc_mean 0.7177 sc_std 0.2711 val_AP 0.0333 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  14 loss 0.0494 clss 0.0494 var 0.0001 sc_mean 0.7157 sc_std 0.2768 val_AP 0.0345 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  15 loss 0.0412 clss 0.0412 var 0.0001 sc_mean 0.7059 sc_std 0.2894 val_AP 0.0357 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  16 loss 0.0337 clss 0.0337 var 0.0002 sc_mean 0.6897 sc_std 0.3020 val_AP 0.0357 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  17 loss 0.0222 clss 0.0222 var 0.0005 sc_mean 0.6752 sc_std 0.3129 val_AP 0.0357 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  18 loss 0.0203 clss 0.0203 var 0.0002 sc_mean 0.6706 sc_std 0.3192 val_AP 0.0370 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  19 loss 0.0114 clss 0.0114 var 0.0001 sc_mean 0.6530 sc_std 0.3315 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  20 loss 0.0096 clss 0.0096 var 0.0001 sc_mean 0.6276 sc_std 0.3440 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  21 loss 0.0047 clss 0.0047 var 0.0000 sc_mean 0.6123 sc_std 0.3535 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  22 loss 0.0026 clss 0.0026 var 0.0000 sc_mean 0.6000 sc_std 0.3583 val_AP 0.0385 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  23 loss 0.0021 clss 0.0021 var 0.0006 sc_mean 0.5961 sc_std 0.3617 val_AP 0.0385 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch  24 loss 0.0015 clss 0.0015 var 0.0002 sc_mean 0.5894 sc_std 0.3639 val_AP 0.0385 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 24（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=0.0400 @ epoch; wall=9.2s train=7.3s graphs/s=1232.44 → runs/perclass_arm/cap20/cls_front_running/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_front_running --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.0000 / val_thr(0.2)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.1429
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_front_running/seed1/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 0.6143 clss 0.6143 var 0.0158 sc_mean 0.4171 sc_std 0.1002 val_AP 0.0278 val_binF1 0.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.2349 clss 0.2349 var 0.0015 sc_mean 0.4703 sc_std 0.2293 val_AP 0.0256 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.1544 clss 0.1544 var 0.0012 sc_mean 0.4874 sc_std 0.3024 val_AP 0.0263 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1533 clss 0.1533 var 0.0012 sc_mean 0.5078 sc_std 0.3262 val_AP 0.0263 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1483 clss 0.1483 var 0.0006 sc_mean 0.5385 sc_std 0.3280 val_AP 0.0263 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.1432 clss 0.1432 var 0.0002 sc_mean 0.5627 sc_std 0.3234 val_AP 0.0263 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.0278 @ epoch; wall=3.2s train=1.9s graphs/s=1122.14 → runs/perclass_arm/cap20/cls_front_running/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_front_running --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.0000 / val_thr(0.2)=0.0571；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.3333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_front_running/seed2/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_front_running --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 1.1625 clss 1.1625 var 0.0233 sc_mean 0.5317 sc_std 0.0795 val_AP 0.8833 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.7575 clss 0.7575 var 0.0028 sc_mean 0.5732 sc_std 0.1443 val_AP 0.8833 val_binF1 0.8889 lr 1.00e-04 0.3s
+epoch   2 loss 0.4008 clss 0.4008 var 0.0010 sc_mean 0.5787 sc_std 0.2094 val_AP 0.8833 val_binF1 0.8889 lr 1.00e-04 0.4s
+epoch   3 loss 0.2808 clss 0.2808 var 0.0010 sc_mean 0.5272 sc_std 0.2680 val_AP 0.8769 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   4 loss 0.2894 clss 0.2894 var 0.0005 sc_mean 0.5155 sc_std 0.3060 val_AP 0.8369 val_binF1 0.8000 lr 5.00e-05 0.3s
+epoch   5 loss 0.3182 clss 0.3182 var 0.0008 sc_mean 0.5242 sc_std 0.3204 val_AP 0.8267 val_binF1 0.8000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.8833 @ epoch; wall=3.2s train=2.1s graphs/s=1052.84 → runs/perclass_arm/cap20/cls_reentrancy/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_reentrancy --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.5882 / val_thr(0.55)=0.9091；FPR 0.5=0.1707 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_reentrancy --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_reentrancy/seed0/diagnosis.json （test pos 5）
+跨种子聚合 → runs/perclass_arm/cap20/cls_reentrancy/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_reentrancy --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+epoch   0 loss 1.1138 clss 1.1138 var 0.0274 sc_mean 0.5951 sc_std 0.0739 val_AP 0.9583 val_binF1 0.8571 lr 1.00e-04 0.6s
+epoch   1 loss 0.7048 clss 0.7048 var 0.0049 sc_mean 0.7143 sc_std 0.1281 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.5386 clss 0.5386 var 0.0019 sc_mean 0.7372 sc_std 0.1688 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1603 clss 0.1603 var 0.0012 sc_mean 0.7061 sc_std 0.2029 val_AP 1.0000 val_binF1 0.9231 lr 1.00e-04 0.3s
+epoch   4 loss 0.1000 clss 0.1000 var 0.0005 sc_mean 0.6322 sc_std 0.2342 val_AP 1.0000 val_binF1 0.9231 lr 1.00e-04 0.3s
+epoch   5 loss 0.0932 clss 0.0932 var 0.0005 sc_mean 0.6078 sc_std 0.2630 val_AP 1.0000 val_binF1 0.9231 lr 5.00e-05 0.3s
+epoch   6 loss 0.0790 clss 0.0790 var 0.0007 sc_mean 0.5900 sc_std 0.2747 val_AP 1.0000 val_binF1 0.9231 lr 5.00e-05 0.3s
+early stop at epoch 6（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=3.5s train=2.3s graphs/s=1116.11 → runs/perclass_arm/cap20/cls_reentrancy/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_reentrancy --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.0000 FNR 0.5=0.3333；AP=0.7579
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_reentrancy --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_reentrancy/seed1/diagnosis.json （test pos 6）
+跨种子聚合 → runs/perclass_arm/cap20/cls_reentrancy/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_reentrancy --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+epoch   0 loss 1.0118 clss 1.0118 var 0.0184 sc_mean 0.4279 sc_std 0.0915 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.4536 clss 0.4536 var 0.0020 sc_mean 0.4355 sc_std 0.1978 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.1569 clss 0.1568 var 0.0004 sc_mean 0.3979 sc_std 0.3061 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1101 clss 0.1101 var 0.0008 sc_mean 0.3594 sc_std 0.3605 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.0773 clss 0.0773 var 0.0008 sc_mean 0.3605 sc_std 0.3830 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.0581 clss 0.0581 var 0.0012 sc_mean 0.3747 sc_std 0.3873 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=1.0000 @ epoch; wall=3.2s train=1.9s graphs/s=1125.10 → runs/perclass_arm/cap20/cls_reentrancy/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_reentrancy --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.0244 FNR 0.5=0.2000；AP=0.8556
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_reentrancy --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_reentrancy/seed2/diagnosis.json （test pos 5）
+跨种子聚合 → runs/perclass_arm/cap20/cls_reentrancy/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_reentrancy --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+epoch   0 loss 0.5990 clss 0.5990 var 0.0184 sc_mean 0.5581 sc_std 0.0908 val_AP 0.3333 val_binF1 0.2222 lr 1.00e-04 0.6s
+epoch   1 loss 0.2769 clss 0.2769 var 0.0021 sc_mean 0.6461 sc_std 0.1733 val_AP 0.3333 val_binF1 0.5000 lr 1.00e-04 0.4s
+epoch   2 loss 0.1491 clss 0.1491 var 0.0007 sc_mean 0.6618 sc_std 0.2380 val_AP 0.5000 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   3 loss 0.1539 clss 0.1539 var 0.0006 sc_mean 0.6570 sc_std 0.2814 val_AP 0.5000 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   4 loss 0.1560 clss 0.1560 var 0.0003 sc_mean 0.6385 sc_std 0.3028 val_AP 0.5000 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1600 clss 0.1600 var 0.0003 sc_mean 0.6089 sc_std 0.3149 val_AP 0.5000 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.1460 clss 0.1460 var 0.0002 sc_mean 0.5883 sc_std 0.3256 val_AP 0.5000 val_binF1 0.0000 lr 5.00e-05 0.4s
+epoch   7 loss 0.1474 clss 0.1474 var 0.0000 sc_mean 0.5489 sc_std 0.3329 val_AP 0.5000 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 7（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.5000 @ epoch; wall=4.3s train=2.8s graphs/s=1016.88 → runs/perclass_arm/cap20/cls_time_manipulation/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_time_manipulation --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.25)=0.5000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.8333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_time_manipulation --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_time_manipulation/seed0/diagnosis.json （test pos 2）
+跨种子聚合 → runs/perclass_arm/cap20/cls_time_manipulation/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_time_manipulation --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+epoch   0 loss 0.3845 clss 0.3845 var 0.0212 sc_mean 0.6054 sc_std 0.0855 val_AP 0.0588 val_binF1 0.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.2670 clss 0.2670 var 0.0026 sc_mean 0.7627 sc_std 0.1502 val_AP 0.0625 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.1719 clss 0.1719 var 0.0010 sc_mean 0.8071 sc_std 0.1730 val_AP 0.0625 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1406 clss 0.1406 var 0.0008 sc_mean 0.8109 sc_std 0.1838 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1361 clss 0.1361 var 0.0007 sc_mean 0.7984 sc_std 0.1902 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1128 clss 0.1128 var 0.0007 sc_mean 0.7947 sc_std 0.1972 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.1019 clss 0.1019 var 0.0005 sc_mean 0.7913 sc_std 0.2053 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.0926 clss 0.0926 var 0.0005 sc_mean 0.7855 sc_std 0.2146 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.0786 clss 0.0786 var 0.0001 sc_mean 0.7907 sc_std 0.2187 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.0596 clss 0.0596 var 0.0005 sc_mean 0.8009 sc_std 0.2228 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  10 loss 0.0435 clss 0.0435 var 0.0002 sc_mean 0.8183 sc_std 0.2239 val_AP 0.0833 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch  11 loss 0.0247 clss 0.0247 var 0.0000 sc_mean 0.8241 sc_std 0.2271 val_AP 0.0833 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 11（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=0.0833 @ epoch; wall=5.2s train=3.7s graphs/s=1160.28 → runs/perclass_arm/cap20/cls_time_manipulation/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_time_manipulation --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.0000 / val_thr(0.2)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.3333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_time_manipulation --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_time_manipulation/seed1/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_time_manipulation/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_time_manipulation --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+epoch   0 loss 0.7334 clss 0.7334 var 0.0154 sc_mean 0.4232 sc_std 0.1019 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.2636 clss 0.2636 var 0.0017 sc_mean 0.4777 sc_std 0.2230 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.1624 clss 0.1624 var 0.0012 sc_mean 0.4814 sc_std 0.2979 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1740 clss 0.1740 var 0.0010 sc_mean 0.5000 sc_std 0.3286 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1348 clss 0.1348 var 0.0010 sc_mean 0.5320 sc_std 0.3301 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.1196 clss 0.1196 var 0.0003 sc_mean 0.5515 sc_std 0.3283 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=1.0000 @ epoch; wall=3.3s train=2.0s graphs/s=1067.73 → runs/perclass_arm/cap20/cls_time_manipulation/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_time_manipulation --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.0000 / val_thr(0.45)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.0625
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_time_manipulation --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_time_manipulation/seed2/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap20/cls_time_manipulation/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_time_manipulation --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+epoch   0 loss 1.1204 clss 1.1204 var 0.0276 sc_mean 0.5382 sc_std 0.0732 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.6s
+epoch   1 loss 0.7314 clss 0.7314 var 0.0038 sc_mean 0.6087 sc_std 0.1272 val_AP 0.9861 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch   2 loss 0.4729 clss 0.4729 var 0.0020 sc_mean 0.6079 sc_std 0.1799 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.2675 clss 0.2675 var 0.0020 sc_mean 0.4705 sc_std 0.2243 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1560 clss 0.1560 var 0.0014 sc_mean 0.2802 sc_std 0.2393 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1278 clss 0.1278 var 0.0018 sc_mean 0.1881 sc_std 0.2350 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.0857 clss 0.0857 var 0.0021 sc_mean 0.1220 sc_std 0.2139 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   7 loss 0.0621 clss 0.0621 var 0.0012 sc_mean 0.0952 sc_std 0.2114 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 7（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=3.9s train=2.6s graphs/s=1122.86 → runs/perclass_arm/cap20/cls_uncheck/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_uncheck --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=1.0000 / val_thr(0.55)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_uncheck --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap20/cls_uncheck/seed0/diagnosis.json （test pos 7）
+跨种子聚合 → runs/perclass_arm/cap20/cls_uncheck/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_uncheck --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+epoch   0 loss 1.0841 clss 1.0841 var 0.0268 sc_mean 0.5537 sc_std 0.0776 val_AP 0.9139 val_binF1 0.8571 lr 1.00e-04 0.6s
+epoch   1 loss 0.8127 clss 0.8127 var 0.0054 sc_mean 0.6236 sc_std 0.1387 val_AP 0.9705 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   2 loss 0.5277 clss 0.5277 var 0.0022 sc_mean 0.5934 sc_std 0.1792 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.4212 clss 0.4212 var 0.0013 sc_mean 0.5886 sc_std 0.2243 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.2176 clss 0.2176 var 0.0010 sc_mean 0.4937 sc_std 0.2465 val_AP 1.0000 val_binF1 0.9412 lr 1.00e-04 0.3s
+epoch   5 loss 0.1240 clss 0.1240 var 0.0012 sc_mean 0.3811 sc_std 0.2636 val_AP 1.0000 val_binF1 0.9412 lr 1.00e-04 0.3s
+epoch   6 loss 0.1272 clss 0.1272 var 0.0017 sc_mean 0.2493 sc_std 0.2317 val_AP 1.0000 val_binF1 0.9412 lr 5.00e-05 0.3s
+epoch   7 loss 0.0679 clss 0.0679 var 0.0054 sc_mean 0.1087 sc_std 0.1391 val_AP 1.0000 val_binF1 0.9412 lr 5.00e-05 0.3s
+early stop at epoch 7（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=4.0s train=2.7s graphs/s=1092.16 → runs/perclass_arm/cap20/cls_uncheck/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_uncheck --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.7368 / val_thr(0.7)=0.9231；FPR 0.5=0.1282 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_uncheck --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap20/cls_uncheck/seed1/diagnosis.json （test pos 7）
+跨种子聚合 → runs/perclass_arm/cap20/cls_uncheck/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_uncheck --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+epoch   0 loss 1.0859 clss 1.0859 var 0.0207 sc_mean 0.4229 sc_std 0.0857 val_AP 0.8312 val_binF1 0.7692 lr 1.00e-04 0.6s
+epoch   1 loss 0.5253 clss 0.5253 var 0.0025 sc_mean 0.4462 sc_std 0.1856 val_AP 0.8822 val_binF1 0.7692 lr 1.00e-04 0.4s
+epoch   2 loss 0.2300 clss 0.2300 var 0.0007 sc_mean 0.3910 sc_std 0.2738 val_AP 0.9149 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   3 loss 0.1332 clss 0.1332 var 0.0006 sc_mean 0.3258 sc_std 0.3251 val_AP 0.9120 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   4 loss 0.1114 clss 0.1114 var 0.0006 sc_mean 0.3161 sc_std 0.3513 val_AP 0.9219 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   5 loss 0.0772 clss 0.0772 var 0.0015 sc_mean 0.3214 sc_std 0.3591 val_AP 0.9260 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   6 loss 0.0674 clss 0.0674 var 0.0012 sc_mean 0.3197 sc_std 0.3684 val_AP 0.9417 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch   7 loss 0.0600 clss 0.0600 var 0.0010 sc_mean 0.3245 sc_std 0.3753 val_AP 0.9519 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch   8 loss 0.0263 clss 0.0263 var 0.0002 sc_mean 0.3064 sc_std 0.3768 val_AP 0.9659 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch   9 loss 0.0122 clss 0.0122 var 0.0007 sc_mean 0.2395 sc_std 0.3452 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  10 loss 0.0046 clss 0.0046 var 0.0016 sc_mean 0.1417 sc_std 0.2810 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  11 loss 0.0030 clss 0.0030 var 0.0014 sc_mean 0.1094 sc_std 0.2552 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  12 loss 0.0017 clss 0.0017 var 0.0019 sc_mean 0.0857 sc_std 0.2350 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  13 loss 0.0013 clss 0.0013 var 0.0015 sc_mean 0.0902 sc_std 0.2431 val_AP 0.9750 val_binF1 0.9333 lr 5.00e-05 0.3s
+epoch  14 loss 0.0015 clss 0.0015 var 0.0012 sc_mean 0.0830 sc_std 0.2443 val_AP 0.9750 val_binF1 0.9333 lr 5.00e-05 0.3s
+early stop at epoch 14（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.9750 @ epoch; wall=6.4s train=4.6s graphs/s=1173.14 → runs/perclass_arm/cap20/cls_uncheck/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 20.0 --out-dir runs/perclass_arm/cap20/cls_uncheck --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=1.0000 / val_thr(0.7)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap20/cls_uncheck --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap20/cls_uncheck/seed2/diagnosis.json （test pos 7）
+跨种子聚合 → runs/perclass_arm/cap20/cls_uncheck/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap20/cls_uncheck --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+epoch   0 loss 1.3481 clss 1.3481 var 0.0270 sc_mean 0.5417 sc_std 0.0741 val_AP 0.4583 val_binF1 0.4444 lr 1.00e-04 0.6s
+epoch   1 loss 1.1374 clss 1.1374 var 0.0049 sc_mean 0.5846 sc_std 0.1244 val_AP 0.5139 val_binF1 0.4444 lr 1.00e-04 0.3s
+epoch   2 loss 0.8992 clss 0.8992 var 0.0021 sc_mean 0.6037 sc_std 0.1838 val_AP 0.5000 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   3 loss 0.7705 clss 0.7705 var 0.0018 sc_mean 0.5662 sc_std 0.2298 val_AP 0.6806 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   4 loss 0.6634 clss 0.6634 var 0.0010 sc_mean 0.5103 sc_std 0.2622 val_AP 0.6984 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   5 loss 0.5648 clss 0.5648 var 0.0008 sc_mean 0.4838 sc_std 0.2849 val_AP 0.7222 val_binF1 0.6000 lr 1.00e-04 0.3s
+epoch   6 loss 0.5417 clss 0.5417 var 0.0006 sc_mean 0.5087 sc_std 0.3049 val_AP 0.7222 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   7 loss 0.4138 clss 0.4138 var 0.0006 sc_mean 0.5368 sc_std 0.3162 val_AP 0.7556 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   8 loss 0.3188 clss 0.3188 var 0.0003 sc_mean 0.5560 sc_std 0.3248 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   9 loss 0.5028 clss 0.5028 var 0.0009 sc_mean 0.5699 sc_std 0.3374 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  10 loss 0.2496 clss 0.2496 var 0.0006 sc_mean 0.5796 sc_std 0.3490 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  11 loss 0.2276 clss 0.2276 var 0.0006 sc_mean 0.5913 sc_std 0.3586 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  12 loss 0.1825 clss 0.1825 var 0.0008 sc_mean 0.6102 sc_std 0.3656 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  13 loss 0.1583 clss 0.1583 var 0.0009 sc_mean 0.6079 sc_std 0.3778 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  14 loss 0.1630 clss 0.1630 var 0.0006 sc_mean 0.6332 sc_std 0.3818 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch  15 loss 0.1602 clss 0.1602 var 0.0004 sc_mean 0.6501 sc_std 0.3830 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch  16 loss 0.1654 clss 0.1654 var 0.0005 sc_mean 0.6343 sc_std 0.3889 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 16（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=6.8s train=5.2s graphs/s=1189.66 → runs/perclass_arm/cap0/cls_access_control/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_access_control --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.2222 / val_thr(0.8)=0.3333；FPR 0.5=0.1163 FNR 0.5=0.6667；AP=0.4110
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_access_control --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_access_control/seed0/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap0/cls_access_control/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_access_control --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+epoch   0 loss 1.1826 clss 1.1825 var 0.0312 sc_mean 0.5586 sc_std 0.0702 val_AP 0.8667 val_binF1 0.5714 lr 1.00e-04 0.6s
+epoch   1 loss 1.2840 clss 1.2840 var 0.0050 sc_mean 0.7330 sc_std 0.1265 val_AP 0.7222 val_binF1 0.5714 lr 1.00e-04 0.4s
+epoch   2 loss 1.2675 clss 1.2675 var 0.0026 sc_mean 0.7897 sc_std 0.1539 val_AP 0.8667 val_binF1 0.8000 lr 1.00e-04 0.4s
+epoch   3 loss 1.1077 clss 1.1077 var 0.0018 sc_mean 0.7810 sc_std 0.1677 val_AP 1.0000 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   4 loss 0.9959 clss 0.9959 var 0.0015 sc_mean 0.7589 sc_std 0.1843 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.7452 clss 0.7452 var 0.0007 sc_mean 0.7136 sc_std 0.2081 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.4901 clss 0.4901 var 0.0004 sc_mean 0.6530 sc_std 0.2318 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.3570 clss 0.3570 var 0.0001 sc_mean 0.6367 sc_std 0.2596 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   8 loss 0.2679 clss 0.2679 var 0.0002 sc_mean 0.6066 sc_std 0.2754 val_AP 1.0000 val_binF1 0.8571 lr 5.00e-05 0.3s
+early stop at epoch 8（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=4.3s train=3.0s graphs/s=1100.38 → runs/perclass_arm/cap0/cls_access_control/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_access_control --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.4000 / val_thr(0.3)=0.2857；FPR 0.5=0.0233 FNR 0.5=0.6667；AP=0.5667
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_access_control --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_access_control/seed1/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap0/cls_access_control/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_access_control --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+epoch   0 loss 1.1803 clss 1.1803 var 0.0165 sc_mean 0.4159 sc_std 0.0961 val_AP 0.5868 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.9807 clss 0.9807 var 0.0019 sc_mean 0.4563 sc_std 0.1992 val_AP 0.7011 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   2 loss 0.7201 clss 0.7201 var 0.0006 sc_mean 0.4426 sc_std 0.2686 val_AP 0.7051 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   3 loss 0.4705 clss 0.4705 var 0.0010 sc_mean 0.4228 sc_std 0.3195 val_AP 0.7051 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   4 loss 0.3085 clss 0.3085 var 0.0012 sc_mean 0.4079 sc_std 0.3438 val_AP 0.7067 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   5 loss 0.1882 clss 0.1882 var 0.0009 sc_mean 0.4037 sc_std 0.3557 val_AP 0.7083 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   6 loss 0.1720 clss 0.1720 var 0.0009 sc_mean 0.3948 sc_std 0.3649 val_AP 0.7083 val_binF1 0.5714 lr 1.00e-04 0.3s
+epoch   7 loss 0.1365 clss 0.1365 var 0.0007 sc_mean 0.3922 sc_std 0.3739 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   8 loss 0.1166 clss 0.1166 var 0.0004 sc_mean 0.3727 sc_std 0.3854 val_AP 0.7083 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   9 loss 0.1051 clss 0.1051 var 0.0005 sc_mean 0.3751 sc_std 0.3901 val_AP 0.7101 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  10 loss 0.1082 clss 0.1082 var 0.0010 sc_mean 0.3403 sc_std 0.3874 val_AP 0.7101 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  11 loss 0.0577 clss 0.0577 var 0.0007 sc_mean 0.3311 sc_std 0.3935 val_AP 0.7101 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  12 loss 0.0520 clss 0.0520 var 0.0013 sc_mean 0.3223 sc_std 0.3983 val_AP 0.7101 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch  13 loss 0.0272 clss 0.0272 var 0.0016 sc_mean 0.3239 sc_std 0.3993 val_AP 0.7083 val_binF1 0.8000 lr 5.00e-05 0.3s
+epoch  14 loss 0.0209 clss 0.0209 var 0.0009 sc_mean 0.3302 sc_std 0.4091 val_AP 0.7101 val_binF1 0.8000 lr 5.00e-05 0.3s
+early stop at epoch 14（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.7101 @ epoch; wall=6.2s train=4.5s graphs/s=1215.44 → runs/perclass_arm/cap0/cls_access_control/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_access_control --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.5000 / val_thr(0.6)=0.5000；FPR 0.5=0.0698 FNR 0.5=0.3333；AP=0.6181
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_access_control --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_access_control.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_access_control/seed2/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap0/cls_access_control/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_access_control --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_access_control.json --label-key-mode project
+epoch   0 loss 1.2384 clss 1.2384 var 0.0288 sc_mean 0.5428 sc_std 0.0719 val_AP 0.7556 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.9967 clss 0.9967 var 0.0058 sc_mean 0.5781 sc_std 0.1090 val_AP 0.8095 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   2 loss 0.8119 clss 0.8119 var 0.0009 sc_mean 0.6552 sc_std 0.1521 val_AP 0.8333 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   3 loss 0.5637 clss 0.5637 var 0.0004 sc_mean 0.7042 sc_std 0.1815 val_AP 0.9167 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   4 loss 0.5773 clss 0.5773 var 0.0004 sc_mean 0.6913 sc_std 0.2118 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   5 loss 0.4903 clss 0.4903 var 0.0003 sc_mean 0.6622 sc_std 0.2433 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.5402 clss 0.5402 var 0.0003 sc_mean 0.6363 sc_std 0.2737 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   7 loss 0.5086 clss 0.5086 var 0.0000 sc_mean 0.5902 sc_std 0.3006 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.4738 clss 0.4738 var 0.0003 sc_mean 0.5469 sc_std 0.3145 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.4923 clss 0.4923 var 0.0001 sc_mean 0.5080 sc_std 0.3262 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.4s
+epoch  10 loss 0.4534 clss 0.4534 var 0.0001 sc_mean 0.4630 sc_std 0.3333 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 10（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=5.4s train=3.8s graphs/s=1048.12 → runs/perclass_arm/cap0/cls_arithmetic/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_arithmetic --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.6667 / val_thr(0.65)=0.8000；FPR 0.5=0.0455 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_arithmetic --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_arithmetic/seed0/diagnosis.json （test pos 2）
+跨种子聚合 → runs/perclass_arm/cap0/cls_arithmetic/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_arithmetic --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+epoch   0 loss 1.1962 clss 1.1961 var 0.0257 sc_mean 0.5829 sc_std 0.0751 val_AP 0.8667 val_binF1 0.8000 lr 1.00e-04 0.7s
+epoch   1 loss 1.0149 clss 1.0149 var 0.0049 sc_mean 0.6759 sc_std 0.1170 val_AP 0.9167 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   2 loss 1.1614 clss 1.1614 var 0.0026 sc_mean 0.7120 sc_std 0.1560 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   3 loss 1.1736 clss 1.1736 var 0.0014 sc_mean 0.7083 sc_std 0.1804 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   4 loss 1.2976 clss 1.2976 var 0.0011 sc_mean 0.6712 sc_std 0.1937 val_AP 0.9167 val_binF1 0.8571 lr 1.00e-04 0.3s
+epoch   5 loss 1.1970 clss 1.1970 var 0.0016 sc_mean 0.6243 sc_std 0.2066 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.8087 clss 0.8087 var 0.0008 sc_mean 0.5855 sc_std 0.2187 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.6445 clss 0.6445 var 0.0005 sc_mean 0.5668 sc_std 0.2428 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.6869 clss 0.6869 var 0.0002 sc_mean 0.5759 sc_std 0.2682 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.6688 clss 0.6688 var 0.0003 sc_mean 0.5770 sc_std 0.2834 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch  10 loss 0.6174 clss 0.6174 var 0.0003 sc_mean 0.5663 sc_std 0.2943 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 10（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=5.3s train=3.8s graphs/s=1061.50 → runs/perclass_arm/cap0/cls_arithmetic/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_arithmetic --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=1.0000 / val_thr(0.55)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_arithmetic --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_arithmetic/seed1/diagnosis.json （test pos 2）
+跨种子聚合 → runs/perclass_arm/cap0/cls_arithmetic/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_arithmetic --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+epoch   0 loss 1.3019 clss 1.3019 var 0.0205 sc_mean 0.4073 sc_std 0.0842 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.9s
+epoch   1 loss 0.8327 clss 0.8327 var 0.0029 sc_mean 0.4307 sc_std 0.1626 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   2 loss 0.5752 clss 0.5752 var 0.0008 sc_mean 0.4549 sc_std 0.2578 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.6292 clss 0.6292 var 0.0011 sc_mean 0.4282 sc_std 0.3229 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.5956 clss 0.5956 var 0.0007 sc_mean 0.4048 sc_std 0.3486 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.5352 clss 0.5352 var 0.0011 sc_mean 0.4097 sc_std 0.3533 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=1.0000 @ epoch; wall=3.8s train=2.3s graphs/s=926.32 → runs/perclass_arm/cap0/cls_arithmetic/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_arithmetic --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=1.0000 / val_thr(0.5)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_arithmetic --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_arithmetic.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_arithmetic/seed2/diagnosis.json （test pos 3）
+跨种子聚合 → runs/perclass_arm/cap0/cls_arithmetic/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_arithmetic --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_arithmetic.json --label-key-mode project
+epoch   0 loss 1.2047 clss 1.2047 var 0.0186 sc_mean 0.5542 sc_std 0.0886 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.9203 clss 0.9203 var 0.0027 sc_mean 0.6213 sc_std 0.1558 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.7256 clss 0.7256 var 0.0014 sc_mean 0.6450 sc_std 0.2157 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.6446 clss 0.6446 var 0.0009 sc_mean 0.6349 sc_std 0.2646 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.5557 clss 0.5557 var 0.0007 sc_mean 0.6149 sc_std 0.2971 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.4255 clss 0.4255 var 0.0006 sc_mean 0.6052 sc_std 0.3128 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=3.4s train=2.1s graphs/s=1017.48 → runs/perclass_arm/cap0/cls_dos/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_dos --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.5)=0.0000；FPR 0.5=0.0222 FNR 0.5=1.0000；AP=0.2500
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_dos --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_dos/seed0/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_dos/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_dos --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+epoch   0 loss 1.2268 clss 1.2268 var 0.0274 sc_mean 0.5920 sc_std 0.0747 val_AP 0.5000 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 1.1273 clss 1.1273 var 0.0041 sc_mean 0.7565 sc_std 0.1335 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 1.0600 clss 1.0600 var 0.0018 sc_mean 0.7961 sc_std 0.1634 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.8387 clss 0.8387 var 0.0011 sc_mean 0.7892 sc_std 0.1794 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.6670 clss 0.6670 var 0.0008 sc_mean 0.7595 sc_std 0.1917 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   5 loss 0.5327 clss 0.5327 var 0.0006 sc_mean 0.7387 sc_std 0.2065 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   6 loss 0.3695 clss 0.3695 var 0.0005 sc_mean 0.7292 sc_std 0.2160 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 6（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=3.7s train=2.5s graphs/s=1027.24 → runs/perclass_arm/cap0/cls_dos/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_dos --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.0000 / val_thr(0.45)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_dos --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_dos/seed1/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_dos/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_dos --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+epoch   0 loss 1.1746 clss 1.1746 var 0.0176 sc_mean 0.4006 sc_std 0.0909 val_AP 0.5000 val_binF1 0.2500 lr 1.00e-04 0.7s
+epoch   1 loss 0.8010 clss 0.8010 var 0.0021 sc_mean 0.4320 sc_std 0.1921 val_AP 0.5000 val_binF1 0.4000 lr 1.00e-04 0.4s
+epoch   2 loss 0.5589 clss 0.5589 var 0.0006 sc_mean 0.4496 sc_std 0.2910 val_AP 0.2000 val_binF1 0.3333 lr 1.00e-04 0.3s
+epoch   3 loss 0.4655 clss 0.4655 var 0.0013 sc_mean 0.4309 sc_std 0.3398 val_AP 0.2000 val_binF1 0.3333 lr 1.00e-04 0.3s
+epoch   4 loss 0.2917 clss 0.2917 var 0.0009 sc_mean 0.4274 sc_std 0.3541 val_AP 0.3333 val_binF1 0.5000 lr 5.00e-05 0.3s
+epoch   5 loss 0.1718 clss 0.1718 var 0.0008 sc_mean 0.4497 sc_std 0.3524 val_AP 0.2500 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.5000 @ epoch; wall=3.4s train=2.2s graphs/s=1009.22 → runs/perclass_arm/cap0/cls_dos/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_dos --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.0000 / val_thr(0.45)=0.3333；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_dos --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_dos.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_dos/seed2/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_dos/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_dos --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_dos.json --label-key-mode project
+epoch   0 loss 1.3374 clss 1.3374 var 0.0193 sc_mean 0.5520 sc_std 0.0862 val_AP 0.1667 val_binF1 0.1429 lr 1.00e-04 0.6s
+epoch   1 loss 1.2995 clss 1.2995 var 0.0027 sc_mean 0.6167 sc_std 0.1514 val_AP 0.1667 val_binF1 0.1818 lr 1.00e-04 0.3s
+epoch   2 loss 2.2784 clss 2.2784 var 0.0016 sc_mean 0.6531 sc_std 0.2095 val_AP 0.1667 val_binF1 0.2857 lr 1.00e-04 0.3s
+epoch   3 loss 2.7404 clss 2.7404 var 0.0008 sc_mean 0.6834 sc_std 0.2524 val_AP 0.1429 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 3.5278 clss 3.5278 var 0.0003 sc_mean 0.6999 sc_std 0.2690 val_AP 0.1429 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch   5 loss 3.9489 clss 3.9489 var 0.0004 sc_mean 0.7024 sc_std 0.2754 val_AP 0.1667 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.1667 @ epoch; wall=3.3s train=2.1s graphs/s=1055.04 → runs/perclass_arm/cap0/cls_front_running/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_front_running --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.4)=0.2000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.3333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_front_running --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_front_running/seed0/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_front_running --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 1.4284 clss 1.4284 var 0.0202 sc_mean 0.6108 sc_std 0.0873 val_AP 0.0270 val_binF1 0.0000 lr 1.00e-04 0.6s
+epoch   1 loss 1.3118 clss 1.3118 var 0.0026 sc_mean 0.7564 sc_std 0.1482 val_AP 0.0278 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   2 loss 3.1823 clss 3.1823 var 0.0012 sc_mean 0.8102 sc_std 0.1680 val_AP 0.0286 val_binF1 0.0000 lr 1.00e-04 0.4s
+epoch   3 loss 1.2912 clss 1.2912 var 0.0008 sc_mean 0.8198 sc_std 0.1791 val_AP 0.0294 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 1.1202 clss 1.1202 var 0.0009 sc_mean 0.8070 sc_std 0.1849 val_AP 0.0303 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.9634 clss 0.9634 var 0.0009 sc_mean 0.7906 sc_std 0.1924 val_AP 0.0303 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.8391 clss 0.8391 var 0.0004 sc_mean 0.7733 sc_std 0.2043 val_AP 0.0303 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.7553 clss 0.7553 var 0.0007 sc_mean 0.7665 sc_std 0.2158 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.7075 clss 0.7075 var 0.0003 sc_mean 0.7582 sc_std 0.2255 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.7254 clss 0.7254 var 0.0005 sc_mean 0.7545 sc_std 0.2330 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  10 loss 0.6379 clss 0.6379 var 0.0001 sc_mean 0.7467 sc_std 0.2425 val_AP 0.0312 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  11 loss 0.6000 clss 0.6000 var 0.0004 sc_mean 0.7305 sc_std 0.2516 val_AP 0.0333 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  12 loss 0.5269 clss 0.5269 var 0.0002 sc_mean 0.7260 sc_std 0.2595 val_AP 0.0333 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  13 loss 0.5052 clss 0.5052 var 0.0003 sc_mean 0.7250 sc_std 0.2693 val_AP 0.0333 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  14 loss 0.3984 clss 0.3984 var 0.0000 sc_mean 0.7257 sc_std 0.2750 val_AP 0.0345 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  15 loss 0.3388 clss 0.3388 var 0.0001 sc_mean 0.7150 sc_std 0.2878 val_AP 0.0345 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  16 loss 0.2853 clss 0.2853 var 0.0001 sc_mean 0.6974 sc_std 0.3015 val_AP 0.0385 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  17 loss 0.1866 clss 0.1866 var 0.0004 sc_mean 0.6806 sc_std 0.3133 val_AP 0.0385 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  18 loss 0.1607 clss 0.1607 var 0.0001 sc_mean 0.6749 sc_std 0.3189 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  19 loss 0.0918 clss 0.0918 var 0.0001 sc_mean 0.6576 sc_std 0.3309 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.4s
+epoch  20 loss 0.0803 clss 0.0803 var 0.0001 sc_mean 0.6291 sc_std 0.3437 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  21 loss 0.0280 clss 0.0280 var 0.0000 sc_mean 0.6033 sc_std 0.3540 val_AP 0.0400 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  22 loss 0.0124 clss 0.0124 var 0.0001 sc_mean 0.5748 sc_std 0.3606 val_AP 0.0400 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch  23 loss 0.0079 clss 0.0079 var 0.0005 sc_mean 0.5724 sc_std 0.3652 val_AP 0.0385 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 23（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=0.0400 @ epoch; wall=9.4s train=7.5s graphs/s=1156.53 → runs/perclass_arm/cap0/cls_front_running/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_front_running --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.0000 / val_thr(0.2)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.1429
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_front_running --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_front_running/seed1/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_front_running --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 1.2380 clss 1.2380 var 0.0207 sc_mean 0.4186 sc_std 0.0858 val_AP 0.0278 val_binF1 0.0444 lr 1.00e-04 0.6s
+epoch   1 loss 0.9355 clss 0.9355 var 0.0017 sc_mean 0.4717 sc_std 0.2000 val_AP 0.0233 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.9034 clss 0.9034 var 0.0011 sc_mean 0.5074 sc_std 0.2893 val_AP 0.0244 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 1.0591 clss 1.0591 var 0.0008 sc_mean 0.5191 sc_std 0.3239 val_AP 0.0250 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 1.1685 clss 1.1685 var 0.0008 sc_mean 0.5379 sc_std 0.3310 val_AP 0.0250 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch   5 loss 1.0829 clss 1.0829 var 0.0002 sc_mean 0.5535 sc_std 0.3308 val_AP 0.0250 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.0278 @ epoch; wall=3.4s train=2.1s graphs/s=1050.95 → runs/perclass_arm/cap0/cls_front_running/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_front_running --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.0000 / val_thr(0.25)=0.0435；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.3333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_front_running --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_front_running.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_front_running/seed2/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_front_running/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_front_running --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_front_running.json --label-key-mode project
+epoch   0 loss 1.1625 clss 1.1625 var 0.0233 sc_mean 0.5317 sc_std 0.0795 val_AP 0.8833 val_binF1 0.6667 lr 1.00e-04 0.6s
+epoch   1 loss 0.7575 clss 0.7575 var 0.0028 sc_mean 0.5732 sc_std 0.1443 val_AP 0.8833 val_binF1 0.8889 lr 1.00e-04 0.3s
+epoch   2 loss 0.4008 clss 0.4008 var 0.0010 sc_mean 0.5787 sc_std 0.2094 val_AP 0.8833 val_binF1 0.8889 lr 1.00e-04 0.3s
+epoch   3 loss 0.2808 clss 0.2808 var 0.0010 sc_mean 0.5272 sc_std 0.2680 val_AP 0.8769 val_binF1 0.8000 lr 1.00e-04 0.3s
+epoch   4 loss 0.2894 clss 0.2894 var 0.0005 sc_mean 0.5155 sc_std 0.3060 val_AP 0.8369 val_binF1 0.8000 lr 5.00e-05 0.3s
+epoch   5 loss 0.3182 clss 0.3182 var 0.0008 sc_mean 0.5242 sc_std 0.3204 val_AP 0.8267 val_binF1 0.8000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.8833 @ epoch; wall=3.3s train=2.1s graphs/s=1058.65 → runs/perclass_arm/cap0/cls_reentrancy/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_reentrancy --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.5882 / val_thr(0.55)=0.9091；FPR 0.5=0.1707 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_reentrancy --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_reentrancy/seed0/diagnosis.json （test pos 5）
+跨种子聚合 → runs/perclass_arm/cap0/cls_reentrancy/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_reentrancy --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+epoch   0 loss 1.1138 clss 1.1138 var 0.0274 sc_mean 0.5951 sc_std 0.0739 val_AP 0.9583 val_binF1 0.8571 lr 1.00e-04 0.6s
+epoch   1 loss 0.7048 clss 0.7048 var 0.0049 sc_mean 0.7143 sc_std 0.1281 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.5386 clss 0.5386 var 0.0019 sc_mean 0.7372 sc_std 0.1688 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1603 clss 0.1603 var 0.0012 sc_mean 0.7061 sc_std 0.2029 val_AP 1.0000 val_binF1 0.9231 lr 1.00e-04 0.3s
+epoch   4 loss 0.1000 clss 0.1000 var 0.0005 sc_mean 0.6322 sc_std 0.2342 val_AP 1.0000 val_binF1 0.9231 lr 1.00e-04 0.3s
+epoch   5 loss 0.0932 clss 0.0932 var 0.0005 sc_mean 0.6078 sc_std 0.2630 val_AP 1.0000 val_binF1 0.9231 lr 5.00e-05 0.3s
+epoch   6 loss 0.0790 clss 0.0790 var 0.0007 sc_mean 0.5900 sc_std 0.2747 val_AP 1.0000 val_binF1 0.9231 lr 5.00e-05 0.3s
+early stop at epoch 6（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=3.5s train=2.3s graphs/s=1105.51 → runs/perclass_arm/cap0/cls_reentrancy/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_reentrancy --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.0000 FNR 0.5=0.3333；AP=0.7579
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_reentrancy --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_reentrancy/seed1/diagnosis.json （test pos 6）
+跨种子聚合 → runs/perclass_arm/cap0/cls_reentrancy/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_reentrancy --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+epoch   0 loss 1.0118 clss 1.0118 var 0.0184 sc_mean 0.4279 sc_std 0.0915 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.6s
+epoch   1 loss 0.4536 clss 0.4536 var 0.0020 sc_mean 0.4355 sc_std 0.1978 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.1569 clss 0.1568 var 0.0004 sc_mean 0.3979 sc_std 0.3061 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.1101 clss 0.1101 var 0.0008 sc_mean 0.3594 sc_std 0.3605 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.0773 clss 0.0773 var 0.0008 sc_mean 0.3605 sc_std 0.3830 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.0581 clss 0.0581 var 0.0012 sc_mean 0.3747 sc_std 0.3873 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=1.0000 @ epoch; wall=3.5s train=2.1s graphs/s=1050.03 → runs/perclass_arm/cap0/cls_reentrancy/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_reentrancy --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.8000 / val_thr(0.5)=0.8000；FPR 0.5=0.0244 FNR 0.5=0.2000；AP=0.8556
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_reentrancy --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_reentrancy.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_reentrancy/seed2/diagnosis.json （test pos 5）
+跨种子聚合 → runs/perclass_arm/cap0/cls_reentrancy/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_reentrancy --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_reentrancy.json --label-key-mode project
+epoch   0 loss 1.2080 clss 1.2080 var 0.0188 sc_mean 0.5556 sc_std 0.0892 val_AP 0.3333 val_binF1 0.5000 lr 1.00e-04 0.7s
+epoch   1 loss 0.9635 clss 0.9635 var 0.0022 sc_mean 0.6425 sc_std 0.1692 val_AP 0.3333 val_binF1 0.5000 lr 1.00e-04 0.3s
+epoch   2 loss 0.9435 clss 0.9435 var 0.0007 sc_mean 0.6611 sc_std 0.2323 val_AP 0.5000 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   3 loss 1.1936 clss 1.1936 var 0.0006 sc_mean 0.6557 sc_std 0.2775 val_AP 0.5000 val_binF1 0.6667 lr 1.00e-04 0.3s
+epoch   4 loss 1.2863 clss 1.2863 var 0.0003 sc_mean 0.6361 sc_std 0.3013 val_AP 0.5000 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   5 loss 1.3373 clss 1.3373 var 0.0004 sc_mean 0.6059 sc_std 0.3147 val_AP 0.5000 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   6 loss 1.2060 clss 1.2060 var 0.0002 sc_mean 0.5857 sc_std 0.3260 val_AP 0.5000 val_binF1 0.0000 lr 5.00e-05 0.4s
+epoch   7 loss 1.2240 clss 1.2240 var 0.0000 sc_mean 0.5478 sc_std 0.3332 val_AP 0.5000 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 7（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=0.5000 @ epoch; wall=4.0s train=2.7s graphs/s=1072.19 → runs/perclass_arm/cap0/cls_time_manipulation/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_time_manipulation --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=0.0000 / val_thr(0.3)=0.6667；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.8333
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_time_manipulation --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_time_manipulation/seed0/diagnosis.json （test pos 2）
+跨种子聚合 → runs/perclass_arm/cap0/cls_time_manipulation/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_time_manipulation --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+epoch   0 loss 1.0691 clss 1.0691 var 0.0226 sc_mean 0.5966 sc_std 0.0821 val_AP 0.0588 val_binF1 0.0000 lr 1.00e-04 0.6s
+epoch   1 loss 1.3891 clss 1.3891 var 0.0028 sc_mean 0.7469 sc_std 0.1458 val_AP 0.0625 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   2 loss 0.9114 clss 0.9114 var 0.0012 sc_mean 0.7976 sc_std 0.1717 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.7642 clss 0.7642 var 0.0009 sc_mean 0.8045 sc_std 0.1838 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.7454 clss 0.7454 var 0.0008 sc_mean 0.7943 sc_std 0.1910 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.6287 clss 0.6287 var 0.0007 sc_mean 0.7931 sc_std 0.1975 val_AP 0.0667 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.5666 clss 0.5666 var 0.0006 sc_mean 0.7929 sc_std 0.2044 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   7 loss 0.5143 clss 0.5143 var 0.0006 sc_mean 0.7905 sc_std 0.2128 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   8 loss 0.4365 clss 0.4365 var 0.0001 sc_mean 0.7950 sc_std 0.2181 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch   9 loss 0.3363 clss 0.3363 var 0.0005 sc_mean 0.8051 sc_std 0.2226 val_AP 0.0833 val_binF1 0.0000 lr 1.00e-04 0.3s
+epoch  10 loss 0.2455 clss 0.2455 var 0.0002 sc_mean 0.8199 sc_std 0.2248 val_AP 0.0833 val_binF1 0.0000 lr 5.00e-05 0.3s
+epoch  11 loss 0.1293 clss 0.1293 var 0.0000 sc_mean 0.8221 sc_std 0.2297 val_AP 0.0833 val_binF1 0.0000 lr 5.00e-05 0.3s
+early stop at epoch 11（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=0.0833 @ epoch; wall=5.2s train=3.7s graphs/s=1173.84 → runs/perclass_arm/cap0/cls_time_manipulation/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_time_manipulation --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.0000 / val_thr(0.2)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.5000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_time_manipulation --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_time_manipulation/seed1/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_time_manipulation/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_time_manipulation --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+epoch   0 loss 1.7017 clss 1.7017 var 0.0174 sc_mean 0.4336 sc_std 0.0953 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.8s
+epoch   1 loss 0.8387 clss 0.8387 var 0.0017 sc_mean 0.4954 sc_std 0.2079 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   2 loss 0.6705 clss 0.6705 var 0.0012 sc_mean 0.5032 sc_std 0.2834 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   3 loss 0.8583 clss 0.8583 var 0.0014 sc_mean 0.5057 sc_std 0.3223 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.6761 clss 0.6761 var 0.0009 sc_mean 0.5302 sc_std 0.3266 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+epoch   5 loss 0.5519 clss 0.5519 var 0.0007 sc_mean 0.5516 sc_std 0.3249 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.3s
+early stop at epoch 5（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=1.0000 @ epoch; wall=3.7s train=2.3s graphs/s=954.57 → runs/perclass_arm/cap0/cls_time_manipulation/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_time_manipulation --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=0.0000 / val_thr(0.5)=0.0000；FPR 0.5=0.0000 FNR 0.5=1.0000；AP=0.0625
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_time_manipulation --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_time_manipulation.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_time_manipulation/seed2/diagnosis.json （test pos 1）
+跨种子聚合 → runs/perclass_arm/cap0/cls_time_manipulation/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_time_manipulation --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_time_manipulation.json --label-key-mode project
+epoch   0 loss 1.1204 clss 1.1204 var 0.0276 sc_mean 0.5382 sc_std 0.0732 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.7s
+epoch   1 loss 0.7314 clss 0.7314 var 0.0038 sc_mean 0.6087 sc_std 0.1272 val_AP 0.9861 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch   2 loss 0.4729 clss 0.4729 var 0.0020 sc_mean 0.6079 sc_std 0.1799 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   3 loss 0.2675 clss 0.2675 var 0.0020 sc_mean 0.4705 sc_std 0.2243 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.1560 clss 0.1560 var 0.0014 sc_mean 0.2802 sc_std 0.2393 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   5 loss 0.1278 clss 0.1278 var 0.0018 sc_mean 0.1882 sc_std 0.2350 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   6 loss 0.0857 clss 0.0857 var 0.0021 sc_mean 0.1221 sc_std 0.2139 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.4s
+epoch   7 loss 0.0621 clss 0.0621 var 0.0012 sc_mean 0.0952 sc_std 0.2114 val_AP 1.0000 val_binF1 1.0000 lr 5.00e-05 0.4s
+early stop at epoch 7（连续 5 epoch val binary AP 不提升）
+done seed0 (split_seed0): best val binary AP=1.0000 @ epoch; wall=4.7s train=2.8s graphs/s=1016.38 → runs/perclass_arm/cap0/cls_uncheck/seed0
+
+$ python scripts/train.py --seed 0 --split-seed 0 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_uncheck --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed0 (split_seed0) [head=binary]: test F1 0.5=1.0000 / val_thr(0.55)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_uncheck --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed0: 逐类诊断完成 → runs/perclass_arm/cap0/cls_uncheck/seed0/diagnosis.json （test pos 7）
+跨种子聚合 → runs/perclass_arm/cap0/cls_uncheck/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_uncheck --seed 0 --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+epoch   0 loss 1.0841 clss 1.0841 var 0.0268 sc_mean 0.5537 sc_std 0.0776 val_AP 0.9139 val_binF1 0.8571 lr 1.00e-04 0.9s
+epoch   1 loss 0.8127 clss 0.8127 var 0.0054 sc_mean 0.6236 sc_std 0.1387 val_AP 0.9705 val_binF1 0.8750 lr 1.00e-04 0.4s
+epoch   2 loss 0.5277 clss 0.5277 var 0.0022 sc_mean 0.5934 sc_std 0.1792 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.4s
+epoch   3 loss 0.4212 clss 0.4212 var 0.0013 sc_mean 0.5886 sc_std 0.2243 val_AP 1.0000 val_binF1 1.0000 lr 1.00e-04 0.3s
+epoch   4 loss 0.2176 clss 0.2176 var 0.0010 sc_mean 0.4937 sc_std 0.2465 val_AP 1.0000 val_binF1 0.9412 lr 1.00e-04 0.3s
+epoch   5 loss 0.1240 clss 0.1240 var 0.0012 sc_mean 0.3811 sc_std 0.2636 val_AP 1.0000 val_binF1 0.9412 lr 1.00e-04 0.3s
+epoch   6 loss 0.1272 clss 0.1272 var 0.0017 sc_mean 0.2493 sc_std 0.2317 val_AP 1.0000 val_binF1 0.9412 lr 5.00e-05 0.3s
+epoch   7 loss 0.0679 clss 0.0679 var 0.0054 sc_mean 0.1087 sc_std 0.1391 val_AP 1.0000 val_binF1 0.9412 lr 5.00e-05 0.3s
+early stop at epoch 7（连续 5 epoch val binary AP 不提升）
+done seed1 (split_seed1): best val binary AP=1.0000 @ epoch; wall=4.6s train=3.1s graphs/s=920.34 → runs/perclass_arm/cap0/cls_uncheck/seed1
+
+$ python scripts/train.py --seed 1 --split-seed 1 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_uncheck --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed1 (split_seed1) [head=binary]: test F1 0.5=0.7368 / val_thr(0.7)=0.9231；FPR 0.5=0.1282 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_uncheck --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed1: 逐类诊断完成 → runs/perclass_arm/cap0/cls_uncheck/seed1/diagnosis.json （test pos 7）
+跨种子聚合 → runs/perclass_arm/cap0/cls_uncheck/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_uncheck --seed 1 --graph-dir products/alldata/graphs_ft/ss1 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+epoch   0 loss 1.0859 clss 1.0859 var 0.0207 sc_mean 0.4229 sc_std 0.0857 val_AP 0.8312 val_binF1 0.7692 lr 1.00e-04 0.7s
+epoch   1 loss 0.5253 clss 0.5253 var 0.0025 sc_mean 0.4462 sc_std 0.1856 val_AP 0.8822 val_binF1 0.7692 lr 1.00e-04 0.4s
+epoch   2 loss 0.2300 clss 0.2300 var 0.0007 sc_mean 0.3910 sc_std 0.2738 val_AP 0.9149 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   3 loss 0.1332 clss 0.1332 var 0.0006 sc_mean 0.3258 sc_std 0.3251 val_AP 0.9120 val_binF1 0.8750 lr 1.00e-04 0.3s
+epoch   4 loss 0.1114 clss 0.1114 var 0.0006 sc_mean 0.3161 sc_std 0.3513 val_AP 0.9219 val_binF1 0.8750 lr 1.00e-04 0.4s
+epoch   5 loss 0.0772 clss 0.0772 var 0.0015 sc_mean 0.3214 sc_std 0.3591 val_AP 0.9260 val_binF1 0.8750 lr 1.00e-04 0.4s
+epoch   6 loss 0.0674 clss 0.0674 var 0.0012 sc_mean 0.3197 sc_std 0.3684 val_AP 0.9417 val_binF1 0.9333 lr 1.00e-04 0.4s
+epoch   7 loss 0.0600 clss 0.0600 var 0.0010 sc_mean 0.3245 sc_std 0.3753 val_AP 0.9519 val_binF1 0.9333 lr 1.00e-04 0.4s
+epoch   8 loss 0.0263 clss 0.0263 var 0.0002 sc_mean 0.3064 sc_std 0.3768 val_AP 0.9659 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch   9 loss 0.0122 clss 0.0122 var 0.0007 sc_mean 0.2395 sc_std 0.3452 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  10 loss 0.0046 clss 0.0046 var 0.0016 sc_mean 0.1417 sc_std 0.2810 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  11 loss 0.0030 clss 0.0030 var 0.0014 sc_mean 0.1094 sc_std 0.2552 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  12 loss 0.0017 clss 0.0017 var 0.0019 sc_mean 0.0857 sc_std 0.2350 val_AP 0.9750 val_binF1 0.9333 lr 1.00e-04 0.3s
+epoch  13 loss 0.0013 clss 0.0013 var 0.0015 sc_mean 0.0902 sc_std 0.2431 val_AP 0.9750 val_binF1 0.9333 lr 5.00e-05 0.3s
+epoch  14 loss 0.0015 clss 0.0015 var 0.0012 sc_mean 0.0830 sc_std 0.2443 val_AP 0.9750 val_binF1 0.9333 lr 5.00e-05 0.3s
+early stop at epoch 14（连续 5 epoch val binary AP 不提升）
+done seed2 (split_seed2): best val binary AP=0.9750 @ epoch; wall=6.8s train=5.0s graphs/s=1090.92 → runs/perclass_arm/cap0/cls_uncheck/seed2
+
+$ python scripts/train.py --seed 2 --split-seed 2 --head binary --pos-weight-cap 0.0 --out-dir runs/perclass_arm/cap0/cls_uncheck --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[evaluate] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed2 (split_seed2) [head=binary]: test F1 0.5=1.0000 / val_thr(0.7)=1.0000；FPR 0.5=0.0000 FNR 0.5=0.0000；AP=1.0000
+
+$ python scripts/evaluate.py --runs-dir runs/perclass_arm/cap0/cls_uncheck --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project
+[diagnose] 标签来源：file=products/alldata/perclass_labels/cls_uncheck.json key_mode=project
+seed2: 逐类诊断完成 → runs/perclass_arm/cap0/cls_uncheck/seed2/diagnosis.json （test pos 7）
+跨种子聚合 → runs/perclass_arm/cap0/cls_uncheck/diagnosis_summary.json
+
+$ python scripts/diagnose.py --runs-dir runs/perclass_arm/cap0/cls_uncheck --seed 2 --graph-dir products/alldata/graphs_ft/ss2 --split-dir products/alldata/splits --label-file products/alldata/perclass_labels/cls_uncheck.json --label-key-mode project

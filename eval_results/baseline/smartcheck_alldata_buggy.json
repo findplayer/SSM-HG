@@ -1,0 +1,10172 @@
+{
+ "tool": "smartcheck",
+ "tool_label": "Smartcheck",
+ "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
+ "n_contracts": 306,
+ "status_counts": {
+  "ok": 306
+ },
+ "detector_to_class": {
+  "SOLIDITY_TX_ORIGIN": "access_control",
+  "SOLIDITY_ARRAY_LENGTH_MANIPULATION": "access_control",
+  "SOLIDITY_UNCHECKED_CALL": "uncheck",
+  "SOLIDITY_SEND": "uncheck",
+  "SOLIDITY_DIV_MUL": "arithmetic",
+  "SOLIDITY_SAFEMATH": "arithmetic",
+  "SOLIDITY_EXACT_TIME": "time_manipulation",
+  "SOLIDITY_INCORRECT_BLOCKHASH": "time_manipulation",
+  "SOLIDITY_DOS_WITH_THROW": "dos",
+  "SOLIDITY_TRANSFER_IN_LOOP": "dos",
+  "SOLIDITY_GAS_LIMIT_IN_LOOPS": "dos"
+ },
+ "no_detector_classes": [
+  "front_running",
+  "reentrancy"
+ ],
+ "strict_excluded": [],
+ "excluded": {
+  "SOLIDITY_BALANCE_EQUALITY": "`.balance ==` 无 SWC 锚点（与 manticore `lockdrop` 同概念，一起排除）",
+  "SOLIDITY_LOCKED_MONEY": "锁定资金，无 SWC 锚点（Slither 的 `locked-ether` / Securify 的 `LockedEther` 同样未纳入 ⇒ 三个工具一致）",
+  "SOLIDITY_OVERPOWERED_ROLE": "角色权限过大，无 SWC 锚点",
+  "SOLIDITY_VISIBILITY": "默认可见性（SWC-100）——⚠ **本项是边界情形**：SWC-100 真实存在，但 7 类 `access_control` 的原生语义是「授权/权限控制」而非「可见性声明」，且 Slither/Securify 均无对应项 ⇒ 为跨工具一致而不纳入",
+  "其余 27 条": "风格/兼容性/ERC 接口/气体优化类规则，无 SWC 锚点或落在七类之外"
+ },
+ "capability": [
+  "🔴 **走 JVM 自己解析源码，不调用 solc** ⇒ **无 pragma 版本限制**（本轮覆盖面最广的工具）。",
+  "`--help` 不是合法参数（会抛 IllegalArgumentException）；用法是 `smartcheck -p <路径>`。",
+  "规则表 = 包内 `solidity-rules.xml` 的 40 条 `RuleId`（映射只取其中 11 条，见 `excluded`）。"
+ ],
+ "tool_timeout_s": 120,
+ "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
+ "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
+ "contracts": {
+  "asd_0x000adad69101420129a64715a1a52b7348c5e633__0x000adad69101420129a64715a1a52b7348c5e633": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x000adad69101420129a64715a1a52b7348c5e633/0x000adad69101420129a64715a1a52b7348c5e633.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x00cab00609e70f14e755524bd07e1c639665e796__0x00cab00609e70f14e755524bd07e1c639665e796": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x00cab00609e70f14e755524bd07e1c639665e796/0x00cab00609e70f14e755524bd07e1c639665e796.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0597edbd535f2c76780818cd55cae87d7e035f5b__0x0597edbd535f2c76780818cd55cae87d7e035f5b": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0597edbd535f2c76780818cd55cae87d7e035f5b/0x0597edbd535f2c76780818cd55cae87d7e035f5b.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0622d8ec245f14d6ac137989fb842fb68ab6d837__0x0622d8ec245f14d6ac137989fb842fb68ab6d837": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_NOT_BE_VIEW"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0622d8ec245f14d6ac137989fb842fb68ab6d837/0x0622d8ec245f14d6ac137989fb842fb68ab6d837.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0695a5d83639c4ec38244768e0e93bde775488dc__0x0695a5d83639c4ec38244768e0e93bde775488dc": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0695a5d83639c4ec38244768e0e93bde775488dc/0x0695a5d83639c4ec38244768e0e93bde775488dc.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc__0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc/0x0785d6edc7c7a19cbcc5fb56a406b1351fc907dc.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0a123a23ade571c7a716c596fb8ac4e6bc642e05__0x0a123a23ade571c7a716c596fb8ac4e6bc642e05": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0a123a23ade571c7a716c596fb8ac4e6bc642e05/0x0a123a23ade571c7a716c596fb8ac4e6bc642e05.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0a5dc2204dfc6082ef3bbcfc3a468f16318c4168__0x0a5dc2204dfc6082ef3bbcfc3a468f16318c4168": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0a5dc2204dfc6082ef3bbcfc3a468f16318c4168/0x0a5dc2204dfc6082ef3bbcfc3a468f16318c4168.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0a7073207bac23865e0e3b204615364b5a9d3783__0x0a7073207bac23865e0e3b204615364b5a9d3783": {
+   "status": "ok",
+   "elapsed": 4.7,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0a7073207bac23865e0e3b204615364b5a9d3783/0x0a7073207bac23865e0e3b204615364b5a9d3783.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0cbe050f75bc8f8c2d6c0d249fea125fd6e1acc9__0x0cbe050f75bc8f8c2d6c0d249fea125fd6e1acc9": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0cbe050f75bc8f8c2d6c0d249fea125fd6e1acc9/0x0cbe050f75bc8f8c2d6c0d249fea125fd6e1acc9.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x0ce80662769f22fd161e5e92cfc82121c835e097__0x0ce80662769f22fd161e5e92cfc82121c835e097": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0ce80662769f22fd161e5e92cfc82121c835e097/0x0ce80662769f22fd161e5e92cfc82121c835e097.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0de059aa5dd17427b58145782143c4e3d2dda6ab__0x0de059aa5dd17427b58145782143c4e3d2dda6ab": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0de059aa5dd17427b58145782143c4e3d2dda6ab/0x0de059aa5dd17427b58145782143c4e3d2dda6ab.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0e5d3380806f947b151fc3c9ba8946453fada97a__0x0e5d3380806f947b151fc3c9ba8946453fada97a": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_RETURN_STRUCT"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0e5d3380806f947b151fc3c9ba8946453fada97a/0x0e5d3380806f947b151fc3c9ba8946453fada97a.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0ef23ae0a27130999bf9d886e9598ff355ecf323__0x0ef23ae0a27130999bf9d886e9598ff355ecf323": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0ef23ae0a27130999bf9d886e9598ff355ecf323/0x0ef23ae0a27130999bf9d886e9598ff355ecf323.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0f02e27745e3b6e9e1310d19469e2b5d7b5ec99a__0x0f02e27745e3b6e9e1310d19469e2b5d7b5ec99a": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0f02e27745e3b6e9e1310d19469e2b5d7b5ec99a/0x0f02e27745e3b6e9e1310d19469e2b5d7b5ec99a.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0f35d82007119dc339af57b29dc8ae794b92926c__0x0f35d82007119dc339af57b29dc8ae794b92926c": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0f35d82007119dc339af57b29dc8ae794b92926c/0x0f35d82007119dc339af57b29dc8ae794b92926c.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0f437f4bf7f41ff57ae5fee81bbec921ba0371b1__0x0f437f4bf7f41ff57ae5fee81bbec921ba0371b1": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0f437f4bf7f41ff57ae5fee81bbec921ba0371b1/0x0f437f4bf7f41ff57ae5fee81bbec921ba0371b1.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0f7feaeeb7872bfeb39da593f60c2a3b65d16e93__0x0f7feaeeb7872bfeb39da593f60c2a3b65d16e93": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0f7feaeeb7872bfeb39da593f60c2a3b65d16e93/0x0f7feaeeb7872bfeb39da593f60c2a3b65d16e93.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x1a09bfbec6487fd11c75a60aa4d39ebf47da6eff__0x1a09bfbec6487fd11c75a60aa4d39ebf47da6eff": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x1a09bfbec6487fd11c75a60aa4d39ebf47da6eff/0x1a09bfbec6487fd11c75a60aa4d39ebf47da6eff.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x1a9ecb05376bf8bb32f7f038a845dbafb22041cd__0x1a9ecb05376bf8bb32f7f038a845dbafb22041cd": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x1a9ecb05376bf8bb32f7f038a845dbafb22041cd/0x1a9ecb05376bf8bb32f7f038a845dbafb22041cd.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x1b5d56bfe749e492ae226cf9aa23c1426f828b7b__0x1b5d56bfe749e492ae226cf9aa23c1426f828b7b": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x1b5d56bfe749e492ae226cf9aa23c1426f828b7b/0x1b5d56bfe749e492ae226cf9aa23c1426f828b7b.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x322bfda9f9ab156d12bd107b1c84ba0e06e46278__0x322bfda9f9ab156d12bd107b1c84ba0e06e46278": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x322bfda9f9ab156d12bd107b1c84ba0e06e46278/0x322bfda9f9ab156d12bd107b1c84ba0e06e46278.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x325c96fa60eeb3a9f88bab75278b5ff18398c919__0x325c96fa60eeb3a9f88bab75278b5ff18398c919": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x325c96fa60eeb3a9f88bab75278b5ff18398c919/0x325c96fa60eeb3a9f88bab75278b5ff18398c919.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x341e790174e3a4d35b65fdc067b6b5634a61caea__0x341e790174e3a4d35b65fdc067b6b5634a61caea": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x341e790174e3a4d35b65fdc067b6b5634a61caea/0x341e790174e3a4d35b65fdc067b6b5634a61caea.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x361adf7ac4dff1ef44a240050136ba3d2805ef1c__0x361adf7ac4dff1ef44a240050136ba3d2805ef1c": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x361adf7ac4dff1ef44a240050136ba3d2805ef1c/0x361adf7ac4dff1ef44a240050136ba3d2805ef1c.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x364aa6b380cb4f9cee6711326d6b33a81ce1998c__0x364aa6b380cb4f9cee6711326d6b33a81ce1998c": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x364aa6b380cb4f9cee6711326d6b33a81ce1998c/0x364aa6b380cb4f9cee6711326d6b33a81ce1998c.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x376c128eb3d734912de09f6ad9a8609e3f87e13f__0x376c128eb3d734912de09f6ad9a8609e3f87e13f": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x376c128eb3d734912de09f6ad9a8609e3f87e13f/0x376c128eb3d734912de09f6ad9a8609e3f87e13f.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x395dc9a82e3eef962b0355a3d4e6819e9af776d2__0x395dc9a82e3eef962b0355a3d4e6819e9af776d2": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x395dc9a82e3eef962b0355a3d4e6819e9af776d2/0x395dc9a82e3eef962b0355a3d4e6819e9af776d2.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x39cfd754c85023648bf003bea2dd498c5612abfa__0x39cfd754c85023648bf003bea2dd498c5612abfa": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x39cfd754c85023648bf003bea2dd498c5612abfa/0x39cfd754c85023648bf003bea2dd498c5612abfa.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x3e013fc32a54c4c5b6991ba539dcd0ec4355c859__0x3e013fc32a54c4c5b6991ba539dcd0ec4355c859": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x3e013fc32a54c4c5b6991ba539dcd0ec4355c859/0x3e013fc32a54c4c5b6991ba539dcd0ec4355c859.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x401ce0d7b7ddbb6507165b0adab7dd33fef5d16d__0x401ce0d7b7ddbb6507165b0adab7dd33fef5d16d": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_RETURN_STRUCT"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x401ce0d7b7ddbb6507165b0adab7dd33fef5d16d/0x401ce0d7b7ddbb6507165b0adab7dd33fef5d16d.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x4051334adc52057aca763453820cb0e045076ef3__0x4051334adc52057aca763453820cb0e045076ef3": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x4051334adc52057aca763453820cb0e045076ef3/0x4051334adc52057aca763453820cb0e045076ef3.sol",
+   "classes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x469b35e513c2e6e8cd14acbeb6d15609c5964138__0x469b35e513c2e6e8cd14acbeb6d15609c5964138": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x469b35e513c2e6e8cd14acbeb6d15609c5964138/0x469b35e513c2e6e8cd14acbeb6d15609c5964138.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x489cbb70668f5c6e0160ef57fb10c97ddff3548e__0x489cbb70668f5c6e0160ef57fb10c97ddff3548e": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x489cbb70668f5c6e0160ef57fb10c97ddff3548e/0x489cbb70668f5c6e0160ef57fb10c97ddff3548e.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x494a0cece54896b2b5308773a0ebff47eb55e1c3__0x494a0cece54896b2b5308773a0ebff47eb55e1c3": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x494a0cece54896b2b5308773a0ebff47eb55e1c3/0x494a0cece54896b2b5308773a0ebff47eb55e1c3.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x4a66ad0bca2d700f11e1f2fc2c106f7d3264504c__0x4a66ad0bca2d700f11e1f2fc2c106f7d3264504c": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x4a66ad0bca2d700f11e1f2fc2c106f7d3264504c/0x4a66ad0bca2d700f11e1f2fc2c106f7d3264504c.sol",
+   "classes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x4b71ad9c1a84b9b643aa54fdd66e2dec96e8b152__0x4b71ad9c1a84b9b643aa54fdd66e2dec96e8b152": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x4b71ad9c1a84b9b643aa54fdd66e2dec96e8b152/0x4b71ad9c1a84b9b643aa54fdd66e2dec96e8b152.sol",
+   "classes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x517c62136a2d0ba66d0590644c9763992253e90b__0x517c62136a2d0ba66d0590644c9763992253e90b": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x517c62136a2d0ba66d0590644c9763992253e90b/0x517c62136a2d0ba66d0590644c9763992253e90b.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x524960d55174d912768678d8c606b4d50b79d7b1__0x524960d55174d912768678d8c606b4d50b79d7b1": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x524960d55174d912768678d8c606b4d50b79d7b1/0x524960d55174d912768678d8c606b4d50b79d7b1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x52d2e0f9b01101a59b38a3d05c80b7618aeed984__0x52d2e0f9b01101a59b38a3d05c80b7618aeed984": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x52d2e0f9b01101a59b38a3d05c80b7618aeed984/0x52d2e0f9b01101a59b38a3d05c80b7618aeed984.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x532d85bd4bd0233dfa0eed5b3fe8bcfbba0420a4__0x532d85bd4bd0233dfa0eed5b3fe8bcfbba0420a4": {
+   "status": "ok",
+   "elapsed": 4.6,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x532d85bd4bd0233dfa0eed5b3fe8bcfbba0420a4/0x532d85bd4bd0233dfa0eed5b3fe8bcfbba0420a4.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x536c2622748118a82bc9fb15a450d828966d9761__0x536c2622748118a82bc9fb15a450d828966d9761": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x536c2622748118a82bc9fb15a450d828966d9761/0x536c2622748118a82bc9fb15a450d828966d9761.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x543a5514c5cd08dd08228f54fbc79ba9b5a47187__0x543a5514c5cd08dd08228f54fbc79ba9b5a47187": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x543a5514c5cd08dd08228f54fbc79ba9b5a47187/0x543a5514c5cd08dd08228f54fbc79ba9b5a47187.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x549fbdff350c728e71280482721e805cc0916ff9__0x549fbdff350c728e71280482721e805cc0916ff9": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x549fbdff350c728e71280482721e805cc0916ff9/0x549fbdff350c728e71280482721e805cc0916ff9.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x598c9a4f069dc076984868873c01e78a905d50e6__0x598c9a4f069dc076984868873c01e78a905d50e6": {
+   "status": "ok",
+   "elapsed": 2.6,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x598c9a4f069dc076984868873c01e78a905d50e6/0x598c9a4f069dc076984868873c01e78a905d50e6.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x5aa88d2901c68fda244f1d0584400368d2c8e739__0x5aa88d2901c68fda244f1d0584400368d2c8e739": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x5aa88d2901c68fda244f1d0584400368d2c8e739/0x5aa88d2901c68fda244f1d0584400368d2c8e739.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x610495793564aed0f9c7fc48dc4c7c9151d34fd6__0x610495793564aed0f9c7fc48dc4c7c9151d34fd6": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x610495793564aed0f9c7fc48dc4c7c9151d34fd6/0x610495793564aed0f9c7fc48dc4c7c9151d34fd6.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839__0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839/0x627fa62ccbb1c1b04ffaecd72a53e37fc0e17839.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x634ca6a844a172c053b3fdee8827c449f849fb16__0x634ca6a844a172c053b3fdee8827c449f849fb16": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x634ca6a844a172c053b3fdee8827c449f849fb16/0x634ca6a844a172c053b3fdee8827c449f849fb16.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x646b41183bb0d18c01f75f630688d613a5774dc7__0x646b41183bb0d18c01f75f630688d613a5774dc7": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x646b41183bb0d18c01f75f630688d613a5774dc7/0x646b41183bb0d18c01f75f630688d613a5774dc7.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x663e4229142a27f00bafb5d087e1e730648314c3__0x663e4229142a27f00bafb5d087e1e730648314c3": {
+   "status": "ok",
+   "elapsed": 1.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_FUNCTIONS_RETURNS_TYPE_AND_NO_RETURN",
+    "SOLIDITY_INCORRECT_BLOCKHASH",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SHOULD_NOT_BE_VIEW",
+    "SOLIDITY_SHOULD_RETURN_STRUCT",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_USING_INLINE_ASSEMBLY",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x663e4229142a27f00bafb5d087e1e730648314c3/0x663e4229142a27f00bafb5d087e1e730648314c3.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+   ]
+  },
+  "asd_0x664e6db4044f23c95de63ec299aaa9b39c59328d__0x664e6db4044f23c95de63ec299aaa9b39c59328d": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x664e6db4044f23c95de63ec299aaa9b39c59328d/0x664e6db4044f23c95de63ec299aaa9b39c59328d.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x673a5fb0639d35ab6e157c1e6377d0096ab74128__0x673a5fb0639d35ab6e157c1e6377d0096ab74128": {
+   "status": "ok",
+   "elapsed": 1.5,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x673a5fb0639d35ab6e157c1e6377d0096ab74128/0x673a5fb0639d35ab6e157c1e6377d0096ab74128.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x675f070e80f89ddcc3f2457d9fe571814741e904__0x675f070e80f89ddcc3f2457d9fe571814741e904": {
+   "status": "ok",
+   "elapsed": 1.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x675f070e80f89ddcc3f2457d9fe571814741e904/0x675f070e80f89ddcc3f2457d9fe571814741e904.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x684ae11a577080ec13877c6d28ac4f45b7c00966__0x684ae11a577080ec13877c6d28ac4f45b7c00966": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_SHOULD_NOT_BE_PURE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_USING_INLINE_ASSEMBLY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x684ae11a577080ec13877c6d28ac4f45b7c00966/0x684ae11a577080ec13877c6d28ac4f45b7c00966.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x688dde13bd594a9030feefe6fa39cb353b7351c7__0x688dde13bd594a9030feefe6fa39cb353b7351c7": {
+   "status": "ok",
+   "elapsed": 1.5,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x688dde13bd594a9030feefe6fa39cb353b7351c7/0x688dde13bd594a9030feefe6fa39cb353b7351c7.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x70f9eddb3931491aab1aeafbc1e7f1ca2a012db4__0x70f9eddb3931491aab1aeafbc1e7f1ca2a012db4": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x70f9eddb3931491aab1aeafbc1e7f1ca2a012db4/0x70f9eddb3931491aab1aeafbc1e7f1ca2a012db4.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x719ca90842a9f4d4fb52251db88703e4bc4a07ca__0x719ca90842a9f4d4fb52251db88703e4bc4a07ca": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x719ca90842a9f4d4fb52251db88703e4bc4a07ca/0x719ca90842a9f4d4fb52251db88703e4bc4a07ca.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x735af341f2d9ce3663616cd84ff522dbf62fbc1f__0x735af341f2d9ce3663616cd84ff522dbf62fbc1f": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x735af341f2d9ce3663616cd84ff522dbf62fbc1f/0x735af341f2d9ce3663616cd84ff522dbf62fbc1f.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x736f7961adfc0f303eb65f889f3670aef81d85ef__0x736f7961adfc0f303eb65f889f3670aef81d85ef": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x736f7961adfc0f303eb65f889f3670aef81d85ef/0x736f7961adfc0f303eb65f889f3670aef81d85ef.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x748d84c273334af1349ebee96bb48c2a17b3b416__0x748d84c273334af1349ebee96bb48c2a17b3b416": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x748d84c273334af1349ebee96bb48c2a17b3b416/0x748d84c273334af1349ebee96bb48c2a17b3b416.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x755cdba6ae4f479f7164792b318b2a06c759833b__0x755cdba6ae4f479f7164792b318b2a06c759833b": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x755cdba6ae4f479f7164792b318b2a06c759833b/0x755cdba6ae4f479f7164792b318b2a06c759833b.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72__0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72/0x755e52bea0f7ea8c7dad02b11cdf48f1a9cdaa72.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x773dcefa15b47e77c7955e5d0383bafecd672734__0x773dcefa15b47e77c7955e5d0383bafecd672734": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x773dcefa15b47e77c7955e5d0383bafecd672734/0x773dcefa15b47e77c7955e5d0383bafecd672734.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x794d1d86685d45f9297c2fe80f295aa7f8285bb4__0x794d1d86685d45f9297c2fe80f295aa7f8285bb4": {
+   "status": "ok",
+   "elapsed": 4.8,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x794d1d86685d45f9297c2fe80f295aa7f8285bb4/0x794d1d86685d45f9297c2fe80f295aa7f8285bb4.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x7a4349a749e59a5736efb7826ee3496a2dfd5489__0x7a4349a749e59a5736efb7826ee3496a2dfd5489": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x7a4349a749e59a5736efb7826ee3496a2dfd5489/0x7a4349a749e59a5736efb7826ee3496a2dfd5489.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x806a6bd219f162442d992bdc4ee6eba1f2c5a707__0x806a6bd219f162442d992bdc4ee6eba1f2c5a707": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x806a6bd219f162442d992bdc4ee6eba1f2c5a707/0x806a6bd219f162442d992bdc4ee6eba1f2c5a707.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x9d06cbafa865037a01d322d3f4222fa3e04e5488__0x9d06cbafa865037a01d322d3f4222fa3e04e5488": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x9d06cbafa865037a01d322d3f4222fa3e04e5488/0x9d06cbafa865037a01d322d3f4222fa3e04e5488.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xb0510d68f210b7db66e8c7c814f22680f2b8d1d6__0xb0510d68f210b7db66e8c7c814f22680f2b8d1d6": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xb0510d68f210b7db66e8c7c814f22680f2b8d1d6/0xb0510d68f210b7db66e8c7c814f22680f2b8d1d6.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xb11b2fed6c9354f7aa2f658d3b4d7b31d8a13b77__0xb11b2fed6c9354f7aa2f658d3b4d7b31d8a13b77": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xb11b2fed6c9354f7aa2f658d3b4d7b31d8a13b77/0xb11b2fed6c9354f7aa2f658d3b4d7b31d8a13b77.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xb37f18af15bafb869a065b61fc83cfc44ed9cc27__0xb37f18af15bafb869a065b61fc83cfc44ed9cc27": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xb37f18af15bafb869a065b61fc83cfc44ed9cc27/0xb37f18af15bafb869a065b61fc83cfc44ed9cc27.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xb7c5c5aa4d42967efe906e1b66cb8df9cebf04f7__0xb7c5c5aa4d42967efe906e1b66cb8df9cebf04f7": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xb7c5c5aa4d42967efe906e1b66cb8df9cebf04f7/0xb7c5c5aa4d42967efe906e1b66cb8df9cebf04f7.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xbaa3de6504690efb064420d89e871c27065cdd52__0xbaa3de6504690efb064420d89e871c27065cdd52": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xbaa3de6504690efb064420d89e871c27065cdd52/0xbaa3de6504690efb064420d89e871c27065cdd52.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xbebbfe5b549f5db6e6c78ca97cac19d1fb03082c__0xbebbfe5b549f5db6e6c78ca97cac19d1fb03082c": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xbebbfe5b549f5db6e6c78ca97cac19d1fb03082c/0xbebbfe5b549f5db6e6c78ca97cac19d1fb03082c.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xd2018bfaa266a9ec0a1a84b061640faa009def76__0xd2018bfaa266a9ec0a1a84b061640faa009def76": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xd2018bfaa266a9ec0a1a84b061640faa009def76/0xd2018bfaa266a9ec0a1a84b061640faa009def76.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xe4eabdca81e31d9acbc4af76b30f532b6ed7f3bf__0xe4eabdca81e31d9acbc4af76b30f532b6ed7f3bf": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xe4eabdca81e31d9acbc4af76b30f532b6ed7f3bf/0xe4eabdca81e31d9acbc4af76b30f532b6ed7f3bf.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xe894d54dca59cb53fe9cbc5155093605c7068220__0xe894d54dca59cb53fe9cbc5155093605c7068220": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xe894d54dca59cb53fe9cbc5155093605c7068220/0xe894d54dca59cb53fe9cbc5155093605c7068220.sol",
+   "classes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xec329ffc97d75fe03428ae155fc7793431487f63__0xec329ffc97d75fe03428ae155fc7793431487f63": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ARRAY_LENGTH_MANIPULATION",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_FUNCTIONS_RETURNS_TYPE_AND_NO_RETURN",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_USING_INLINE_ASSEMBLY",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xec329ffc97d75fe03428ae155fc7793431487f63/0xec329ffc97d75fe03428ae155fc7793431487f63.sol",
+   "classes": [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xf2570186500a46986f3139f65afedc2afe4f445d__0xf2570186500a46986f3139f65afedc2afe4f445d": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xf2570186500a46986f3139f65afedc2afe4f445d/0xf2570186500a46986f3139f65afedc2afe4f445d.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0xf29ebe930a539a60279ace72c707cba851a57707__0xf29ebe930a539a60279ace72c707cba851a57707": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0xf29ebe930a539a60279ace72c707cba851a57707/0xf29ebe930a539a60279ace72c707cba851a57707.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_FibonacciBalance__FibonacciBalance": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_FibonacciBalance/FibonacciBalance.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_ether_lotto__ether_lotto": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VAR",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_ether_lotto/ether_lotto.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_etherpot_lotto__etherpot_lotto": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ARRAY_LENGTH_MANIPULATION",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VAR",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_etherpot_lotto/etherpot_lotto.sol",
+   "classes": [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_governmental_survey__governmental_survey": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_governmental_survey/governmental_survey.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_incorrect_constructor_name1__incorrect_constructor_name1": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_incorrect_constructor_name1/incorrect_constructor_name1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_incorrect_constructor_name3__incorrect_constructor_name3": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_incorrect_constructor_name3/incorrect_constructor_name3.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_lotto__lotto": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_lotto/lotto.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_lottopollo__lottopollo": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_lottopollo/lottopollo.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_mapping_write__mapping_write": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ARRAY_LENGTH_MANIPULATION",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_mapping_write/mapping_write.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_mishandled__mishandled": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_mishandled/mishandled.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_mycontract__mycontract": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_mycontract/mycontract.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_parity_wallet_bug_2__parity_wallet_bug_2": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ARRAY_LENGTH_MANIPULATION",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_FUNCTIONS_RETURNS_TYPE_AND_NO_RETURN",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_parity_wallet_bug_2/parity_wallet_bug_2.sol",
+   "classes": [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_phishable__phishable": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_phishable/phishable.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_roulette__roulette": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_EXACT_TIME",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_roulette/roulette.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ]
+  },
+  "asd_rubixi__rubixi": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_DIV_MUL",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_rubixi/rubixi.sol",
+   "classes": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_simple_suicide__simple_suicide": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_simple_suicide/simple_suicide.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_unprotected0__unprotected0": {
+   "status": "ok",
+   "elapsed": 4.5,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_unprotected0/unprotected0.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_wallet_02_refund_nosub__wallet_02_refund_nosub": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_wallet_02_refund_nosub/wallet_02_refund_nosub.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_wallet_03_wrong_constructor__wallet_03_wrong_constructor": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_wallet_03_wrong_constructor/wallet_03_wrong_constructor.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_wallet_04_confused_sign__wallet_04_confused_sign": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_wallet_04_confused_sign/wallet_04_confused_sign.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x01f8c4e3fa3edeb29e514cba738d87ce8c091d3f__0x01f8c4e3fa3edeb29e514cba738d87ce8c091d3f": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x01f8c4e3fa3edeb29e514cba738d87ce8c091d3f/0x01f8c4e3fa3edeb29e514cba738d87ce8c091d3f.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x0821d33c50d2d2d1381b5dfca34900bacad909a7__0x0821d33c50d2d2d1381b5dfca34900bacad909a7": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x0821d33c50d2d2d1381b5dfca34900bacad909a7/0x0821d33c50d2d2d1381b5dfca34900bacad909a7.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x12345678979f29ebc99e00bdc5693ddea564ca80__0x12345678979f29ebc99e00bdc5693ddea564ca80": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x12345678979f29ebc99e00bdc5693ddea564ca80/0x12345678979f29ebc99e00bdc5693ddea564ca80.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x12345678982cb986dd291b50239295e3cb10cdf6__0x12345678982cb986dd291b50239295e3cb10cdf6": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x12345678982cb986dd291b50239295e3cb10cdf6/0x12345678982cb986dd291b50239295e3cb10cdf6.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x173566176a1deebb47569c8366e84ba7b10b3b8b__0x173566176a1deebb47569c8366e84ba7b10b3b8b": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x173566176a1deebb47569c8366e84ba7b10b3b8b/0x173566176a1deebb47569c8366e84ba7b10b3b8b.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x198482924b5ed2c8dd5a0c824fcd618c6b49e6e8__0x198482924b5ed2c8dd5a0c824fcd618c6b49e6e8": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x198482924b5ed2c8dd5a0c824fcd618c6b49e6e8/0x198482924b5ed2c8dd5a0c824fcd618c6b49e6e8.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x20b1bc618f79d9977b7cce3f0523128178ea6a7b__0x20b1bc618f79d9977b7cce3f0523128178ea6a7b": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_RETURN_STRUCT"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x20b1bc618f79d9977b7cce3f0523128178ea6a7b/0x20b1bc618f79d9977b7cce3f0523128178ea6a7b.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x21b28d89aa81e4543fb700f8bbee909cd9e9d5db__0x21b28d89aa81e4543fb700f8bbee909cd9e9d5db": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x21b28d89aa81e4543fb700f8bbee909cd9e9d5db/0x21b28d89aa81e4543fb700f8bbee909cd9e9d5db.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x22aae864a5b1f8e3d41bba0050e0b0027cd793ce__0x22aae864a5b1f8e3d41bba0050e0b0027cd793ce": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x22aae864a5b1f8e3d41bba0050e0b0027cd793ce/0x22aae864a5b1f8e3d41bba0050e0b0027cd793ce.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x23a91059fdc9579a9fbd0edc5f2ea0bfdb70deb4__0x23a91059fdc9579a9fbd0edc5f2ea0bfdb70deb4": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x23a91059fdc9579a9fbd0edc5f2ea0bfdb70deb4/0x23a91059fdc9579a9fbd0edc5f2ea0bfdb70deb4.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x25a1de1c3ee658fe034b8914a1d8d34110423af8__0x25a1de1c3ee658fe034b8914a1d8d34110423af8": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x25a1de1c3ee658fe034b8914a1d8d34110423af8/0x25a1de1c3ee658fe034b8914a1d8d34110423af8.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x25aae80249d114087944a903c12010b558772745__0x25aae80249d114087944a903c12010b558772745": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x25aae80249d114087944a903c12010b558772745/0x25aae80249d114087944a903c12010b558772745.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x26a572eeb6036ae1af510d561f59520f626857b9__0x26a572eeb6036ae1af510d561f59520f626857b9": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_OVERPOWERED_ROLE"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x26a572eeb6036ae1af510d561f59520f626857b9/0x26a572eeb6036ae1af510d561f59520f626857b9.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x26a96677aa1a4bcb7229f4825dad4835a1268d7c__0x26a96677aa1a4bcb7229f4825dad4835a1268d7c": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x26a96677aa1a4bcb7229f4825dad4835a1268d7c/0x26a96677aa1a4bcb7229f4825dad4835a1268d7c.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x27a1ad307808acf4a0b70935a082456a3c12ec6d__0x27a1ad307808acf4a0b70935a082456a3c12ec6d": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x27a1ad307808acf4a0b70935a082456a3c12ec6d/0x27a1ad307808acf4a0b70935a082456a3c12ec6d.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x27eba2a67b906eb4341dfe54ce78083a611a0222__0x27eba2a67b906eb4341dfe54ce78083a611a0222": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x27eba2a67b906eb4341dfe54ce78083a611a0222/0x27eba2a67b906eb4341dfe54ce78083a611a0222.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x2860685847546b39f8c75a6dfb7d8d40d34b75f6__0x2860685847546b39f8c75a6dfb7d8d40d34b75f6": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x2860685847546b39f8c75a6dfb7d8d40d34b75f6/0x2860685847546b39f8c75a6dfb7d8d40d34b75f6.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x29c188b27b6b2134385f1eda2d1d8eff5446e0cf__0x29c188b27b6b2134385f1eda2d1d8eff5446e0cf": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x29c188b27b6b2134385f1eda2d1d8eff5446e0cf/0x29c188b27b6b2134385f1eda2d1d8eff5446e0cf.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x29c7ea0f01fc69e3acd3f5a31478a6cb9e901b17__0x29c7ea0f01fc69e3acd3f5a31478a6cb9e901b17": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x29c7ea0f01fc69e3acd3f5a31478a6cb9e901b17/0x29c7ea0f01fc69e3acd3f5a31478a6cb9e901b17.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x29cf5c78268225d4c2b7cbb85b02dcf697ae920a__0x29cf5c78268225d4c2b7cbb85b02dcf697ae920a": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x29cf5c78268225d4c2b7cbb85b02dcf697ae920a/0x29cf5c78268225d4c2b7cbb85b02dcf697ae920a.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x29fb4cee43155baab885897f0e96b1f0572a1e86__0x29fb4cee43155baab885897f0e96b1f0572a1e86": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x29fb4cee43155baab885897f0e96b1f0572a1e86/0x29fb4cee43155baab885897f0e96b1f0572a1e86.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x30a632c76193c4829a1129c0a80990bdafe4b5eb__0x30a632c76193c4829a1129c0a80990bdafe4b5eb": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x30a632c76193c4829a1129c0a80990bdafe4b5eb/0x30a632c76193c4829a1129c0a80990bdafe4b5eb.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x34e78cd7e701df27382961030543df75162c3528__0x34e78cd7e701df27382961030543df75162c3528": {
+   "status": "ok",
+   "elapsed": 1.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x34e78cd7e701df27382961030543df75162c3528/0x34e78cd7e701df27382961030543df75162c3528.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x35b26197ba05fca755e7ff44253bbfa036fee5b4__0x35b26197ba05fca755e7ff44253bbfa036fee5b4": {
+   "status": "ok",
+   "elapsed": 1.5,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x35b26197ba05fca755e7ff44253bbfa036fee5b4/0x35b26197ba05fca755e7ff44253bbfa036fee5b4.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x35d6b399f2effb30a81ca9d204f90e5cc31b228a__0x35d6b399f2effb30a81ca9d204f90e5cc31b228a": {
+   "status": "ok",
+   "elapsed": 4.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x35d6b399f2effb30a81ca9d204f90e5cc31b228a/0x35d6b399f2effb30a81ca9d204f90e5cc31b228a.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x37abeac8c47c2e806ff98d9ffef9e945f96699e7__0x37abeac8c47c2e806ff98d9ffef9e945f96699e7": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x37abeac8c47c2e806ff98d9ffef9e945f96699e7/0x37abeac8c47c2e806ff98d9ffef9e945f96699e7.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x37d66ec1271cdc2e247ca580cee751abc4c962b4__0x37d66ec1271cdc2e247ca580cee751abc4c962b4": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x37d66ec1271cdc2e247ca580cee751abc4c962b4/0x37d66ec1271cdc2e247ca580cee751abc4c962b4.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x37e5fdcbbfc038d754f84fdc3cb9c0b11535d179__0x37e5fdcbbfc038d754f84fdc3cb9c0b11535d179": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x37e5fdcbbfc038d754f84fdc3cb9c0b11535d179/0x37e5fdcbbfc038d754f84fdc3cb9c0b11535d179.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x4320e6f8c05b27ab4707cd1f6d5ce6f3e4b3a5a1__0x4320e6f8c05b27ab4707cd1f6d5ce6f3e4b3a5a1": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x4320e6f8c05b27ab4707cd1f6d5ce6f3e4b3a5a1/0x4320e6f8c05b27ab4707cd1f6d5ce6f3e4b3a5a1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x445897386fdd9f76f4c1b339a583d00ff215d6c2__0x445897386fdd9f76f4c1b339a583d00ff215d6c2": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x445897386fdd9f76f4c1b339a583d00ff215d6c2/0x445897386fdd9f76f4c1b339a583d00ff215d6c2.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x488690160a80702e6b8e47c7d62ec2779eb5f240__0x488690160a80702e6b8e47c7d62ec2779eb5f240": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x488690160a80702e6b8e47c7d62ec2779eb5f240/0x488690160a80702e6b8e47c7d62ec2779eb5f240.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x4927643162fe6d18c7f046b3d155d8da0eee80e8__0x4927643162fe6d18c7f046b3d155d8da0eee80e8": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_RETURN_STRUCT",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x4927643162fe6d18c7f046b3d155d8da0eee80e8/0x4927643162fe6d18c7f046b3d155d8da0eee80e8.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x53402193b152e08223a21e4dfc1768fbefee1c2f__0x53402193b152e08223a21e4dfc1768fbefee1c2f": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x53402193b152e08223a21e4dfc1768fbefee1c2f/0x53402193b152e08223a21e4dfc1768fbefee1c2f.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x561eac93c92360949ab1f1403323e6db345cbf31__0x561eac93c92360949ab1f1403323e6db345cbf31": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x561eac93c92360949ab1f1403323e6db345cbf31/0x561eac93c92360949ab1f1403323e6db345cbf31.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x66322181534ff227904daf5ea692a2f2ba62d582__0x66322181534ff227904daf5ea692a2f2ba62d582": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x66322181534ff227904daf5ea692a2f2ba62d582/0x66322181534ff227904daf5ea692a2f2ba62d582.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x67793426747f8c79332520c1291c4fc6443c8407__0x67793426747f8c79332520c1291c4fc6443c8407": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x67793426747f8c79332520c1291c4fc6443c8407/0x67793426747f8c79332520c1291c4fc6443c8407.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x6805661283c64a79323d187f9d6b2ca4dae59fd0__0x6805661283c64a79323d187f9d6b2ca4dae59fd0": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x6805661283c64a79323d187f9d6b2ca4dae59fd0/0x6805661283c64a79323d187f9d6b2ca4dae59fd0.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x6817178368e30a0cd92662442a966b428e8f2d49__0x6817178368e30a0cd92662442a966b428e8f2d49": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x6817178368e30a0cd92662442a966b428e8f2d49/0x6817178368e30a0cd92662442a966b428e8f2d49.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x7541b76cb60f4c60af330c208b0623b7f54bf615__0x7541b76cb60f4c60af330c208b0623b7f54bf615": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x7541b76cb60f4c60af330c208b0623b7f54bf615/0x7541b76cb60f4c60af330c208b0623b7f54bf615.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x759685437c6d4658b00b5cebdf907dfdeba52357__0x759685437c6d4658b00b5cebdf907dfdeba52357": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x759685437c6d4658b00b5cebdf907dfdeba52357/0x759685437c6d4658b00b5cebdf907dfdeba52357.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x7b368c4e805c3870b6c49a3f1f49f69af8662cf3__0x7b368c4e805c3870b6c49a3f1f49f69af8662cf3": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x7b368c4e805c3870b6c49a3f1f49f69af8662cf3/0x7b368c4e805c3870b6c49a3f1f49f69af8662cf3.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x818ebd30145c9d7c697978bf24c905d9e8a194ec__0x818ebd30145c9d7c697978bf24c905d9e8a194ec": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x818ebd30145c9d7c697978bf24c905d9e8a194ec/0x818ebd30145c9d7c697978bf24c905d9e8a194ec.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x822ac26c84eb99f5238746fd3adf8f7697c01341__0x822ac26c84eb99f5238746fd3adf8f7697c01341": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_NOT_BE_VIEW"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x822ac26c84eb99f5238746fd3adf8f7697c01341/0x822ac26c84eb99f5238746fd3adf8f7697c01341.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x831b1cf1387c388ed8eae955e895d90b2adb2244__0x831b1cf1387c388ed8eae955e895d90b2adb2244": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x831b1cf1387c388ed8eae955e895d90b2adb2244/0x831b1cf1387c388ed8eae955e895d90b2adb2244.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x862ba4ae01bdb9dd69877976eefccc267b5b7b82__0x862ba4ae01bdb9dd69877976eefccc267b5b7b82": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x862ba4ae01bdb9dd69877976eefccc267b5b7b82/0x862ba4ae01bdb9dd69877976eefccc267b5b7b82.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x892697720ad461f019fd1f4bc4d52447a59c0687__0x892697720ad461f019fd1f4bc4d52447a59c0687": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x892697720ad461f019fd1f4bc4d52447a59c0687/0x892697720ad461f019fd1f4bc4d52447a59c0687.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x941d225236464a25eb18076df7da6a91d0f95e9e__0x941d225236464a25eb18076df7da6a91d0f95e9e": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x941d225236464a25eb18076df7da6a91d0f95e9e/0x941d225236464a25eb18076df7da6a91d0f95e9e.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x945192524c6605d20be6c529dd318666b74078bc__0x945192524c6605d20be6c529dd318666b74078bc": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x945192524c6605d20be6c529dd318666b74078bc/0x945192524c6605d20be6c529dd318666b74078bc.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x9652847049867929260c9e16b31dfbb3b011817f__0x9652847049867929260c9e16b31dfbb3b011817f": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x9652847049867929260c9e16b31dfbb3b011817f/0x9652847049867929260c9e16b31dfbb3b011817f.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x980358360409b1cc913a916bc0bf6f52f775242a__0x980358360409b1cc913a916bc0bf6f52f775242a": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x980358360409b1cc913a916bc0bf6f52f775242a/0x980358360409b1cc913a916bc0bf6f52f775242a.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa0008f510fe9ee696e7e320c9e5cbf61e27791ee__0xa0008f510fe9ee696e7e320c9e5cbf61e27791ee": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa0008f510fe9ee696e7e320c9e5cbf61e27791ee/0xa0008f510fe9ee696e7e320c9e5cbf61e27791ee.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa08b00eb41a452540c44e953d9ee86f86793af55__0xa08b00eb41a452540c44e953d9ee86f86793af55": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa08b00eb41a452540c44e953d9ee86f86793af55/0xa08b00eb41a452540c44e953d9ee86f86793af55.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa1b756be589441519b1a08e16bc4f60ab177d916__0xa1b756be589441519b1a08e16bc4f60ab177d916": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa1b756be589441519b1a08e16bc4f60ab177d916/0xa1b756be589441519b1a08e16bc4f60ab177d916.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa1b85dbba00f8d99ad1da05010fcc9e92c4aec60__0xa1b85dbba00f8d99ad1da05010fcc9e92c4aec60": {
+   "status": "ok",
+   "elapsed": 4.9,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa1b85dbba00f8d99ad1da05010fcc9e92c4aec60/0xa1b85dbba00f8d99ad1da05010fcc9e92c4aec60.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa2dbb4808d9ec74dc548cae39d3660e57f189840__0xa2dbb4808d9ec74dc548cae39d3660e57f189840": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa2dbb4808d9ec74dc548cae39d3660e57f189840/0xa2dbb4808d9ec74dc548cae39d3660e57f189840.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa2e4fb662ba999a1e1bac839340c4d34e36e5d19__0xa2e4fb662ba999a1e1bac839340c4d34e36e5d19": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa2e4fb662ba999a1e1bac839340c4d34e36e5d19/0xa2e4fb662ba999a1e1bac839340c4d34e36e5d19.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa4f9fe0ad9b9765dc0364444332fa4c69923a6d3__0xa4f9fe0ad9b9765dc0364444332fa4c69923a6d3": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa4f9fe0ad9b9765dc0364444332fa4c69923a6d3/0xa4f9fe0ad9b9765dc0364444332fa4c69923a6d3.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa5c11e420fd480675302f8e09e40b22ff65e5dfc__0xa5c11e420fd480675302f8e09e40b22ff65e5dfc": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa5c11e420fd480675302f8e09e40b22ff65e5dfc/0xa5c11e420fd480675302f8e09e40b22ff65e5dfc.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa5e5916a380fea1e633df88d7b5e1835a85b8262__0xa5e5916a380fea1e633df88d7b5e1835a85b8262": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa5e5916a380fea1e633df88d7b5e1835a85b8262/0xa5e5916a380fea1e633df88d7b5e1835a85b8262.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa7c58385b66e5d9905fef9dc43d7fb270e527497__0xa7c58385b66e5d9905fef9dc43d7fb270e527497": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa7c58385b66e5d9905fef9dc43d7fb270e527497/0xa7c58385b66e5d9905fef9dc43d7fb270e527497.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa8bf8d59fac7134a822ab47bf2d4506438530964__0xa8bf8d59fac7134a822ab47bf2d4506438530964": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa8bf8d59fac7134a822ab47bf2d4506438530964/0xa8bf8d59fac7134a822ab47bf2d4506438530964.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa8db62c8441dafec990e7736988ee1c49b96d454__0xa8db62c8441dafec990e7736988ee1c49b96d454": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa8db62c8441dafec990e7736988ee1c49b96d454/0xa8db62c8441dafec990e7736988ee1c49b96d454.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa9f5ccdd11178ac90746ad76153bb9d0915edd9f__0xa9f5ccdd11178ac90746ad76153bb9d0915edd9f": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa9f5ccdd11178ac90746ad76153bb9d0915edd9f/0xa9f5ccdd11178ac90746ad76153bb9d0915edd9f.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xb5e1b1ee15c6fa0e48fce100125569d430f1bd12__0xb5e1b1ee15c6fa0e48fce100125569d430f1bd12": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xb5e1b1ee15c6fa0e48fce100125569d430f1bd12/0xb5e1b1ee15c6fa0e48fce100125569d430f1bd12.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xb93430ce38ac4a6bb47fb1fc085ea669353fd89e__0xb93430ce38ac4a6bb47fb1fc085ea669353fd89e": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xb93430ce38ac4a6bb47fb1fc085ea669353fd89e/0xb93430ce38ac4a6bb47fb1fc085ea669353fd89e.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f__0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xbe4041d55db380c5ae9d4a9b9703f1ed4e7e3888__0xbe4041d55db380c5ae9d4a9b9703f1ed4e7e3888": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xbe4041d55db380c5ae9d4a9b9703f1ed4e7e3888/0xbe4041d55db380c5ae9d4a9b9703f1ed4e7e3888.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xcead721ef5b11f1a7b530171aab69b16c5e66b6e__0xcead721ef5b11f1a7b530171aab69b16c5e66b6e": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xcead721ef5b11f1a7b530171aab69b16c5e66b6e/0xcead721ef5b11f1a7b530171aab69b16c5e66b6e.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe0675184dc26273148a410065bfafb208d220d8e__0xe0675184dc26273148a410065bfafb208d220d8e": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe0675184dc26273148a410065bfafb208d220d8e/0xe0675184dc26273148a410065bfafb208d220d8e.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe12871cf4c9a64e87959c1cf7c18dca1cc2d07c6__0xe12871cf4c9a64e87959c1cf7c18dca1cc2d07c6": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe12871cf4c9a64e87959c1cf7c18dca1cc2d07c6/0xe12871cf4c9a64e87959c1cf7c18dca1cc2d07c6.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe3176e757f3fde2709ecf754dc194a3f50bd8449__0xe3176e757f3fde2709ecf754dc194a3f50bd8449": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe3176e757f3fde2709ecf754dc194a3f50bd8449/0xe3176e757f3fde2709ecf754dc194a3f50bd8449.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe43088cbb12b1cd6cd22351d43d276578617e1c0__0xe43088cbb12b1cd6cd22351d43d276578617e1c0": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe43088cbb12b1cd6cd22351d43d276578617e1c0/0xe43088cbb12b1cd6cd22351d43d276578617e1c0.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe4404db877e4c2fa39942b8002bda9f45edc031d__0xe4404db877e4c2fa39942b8002bda9f45edc031d": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe4404db877e4c2fa39942b8002bda9f45edc031d/0xe4404db877e4c2fa39942b8002bda9f45edc031d.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe71467394718abf92b61b220b640f40e9e97f0e8__0xe71467394718abf92b61b220b640f40e9e97f0e8": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe71467394718abf92b61b220b640f40e9e97f0e8/0xe71467394718abf92b61b220b640f40e9e97f0e8.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe813699e804d04e1212b2a2bb5a738f3254e5584__0xe813699e804d04e1212b2a2bb5a738f3254e5584": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe813699e804d04e1212b2a2bb5a738f3254e5584/0xe813699e804d04e1212b2a2bb5a738f3254e5584.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe8710c8c9d5fad016ce66e8a93d36a0fd7f39024__0xe8710c8c9d5fad016ce66e8a93d36a0fd7f39024": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe8710c8c9d5fad016ce66e8a93d36a0fd7f39024/0xe8710c8c9d5fad016ce66e8a93d36a0fd7f39024.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe87227adf0fd3f6e580e2825069a0f8e8da66ad0__0xe87227adf0fd3f6e580e2825069a0f8e8da66ad0": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe87227adf0fd3f6e580e2825069a0f8e8da66ad0/0xe87227adf0fd3f6e580e2825069a0f8e8da66ad0.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe968ad47b1c071ea3905ef982833552a495d6213__0xe968ad47b1c071ea3905ef982833552a495d6213": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe968ad47b1c071ea3905ef982833552a495d6213/0xe968ad47b1c071ea3905ef982833552a495d6213.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe990f83d0a309fe847c018430cc79bc3b3c6d616__0xe990f83d0a309fe847c018430cc79bc3b3c6d616": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe990f83d0a309fe847c018430cc79bc3b3c6d616/0xe990f83d0a309fe847c018430cc79bc3b3c6d616.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xea9eb702499ba163599d80ccd01fbf5335f6b799__0xea9eb702499ba163599d80ccd01fbf5335f6b799": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xea9eb702499ba163599d80ccd01fbf5335f6b799/0xea9eb702499ba163599d80ccd01fbf5335f6b799.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xeb26faf62c78df4b2516af8343699b0bd5738458__0xeb26faf62c78df4b2516af8343699b0bd5738458": {
+   "status": "ok",
+   "elapsed": 4.7,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xeb26faf62c78df4b2516af8343699b0bd5738458/0xeb26faf62c78df4b2516af8343699b0bd5738458.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xebcd0ea69b0f2b9bb23021348e9e31517340073f__0xebcd0ea69b0f2b9bb23021348e9e31517340073f": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xebcd0ea69b0f2b9bb23021348e9e31517340073f/0xebcd0ea69b0f2b9bb23021348e9e31517340073f.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xebdf9a7ae0009b958c6d09501eb9ac1dafeb31ab__0xebdf9a7ae0009b958c6d09501eb9ac1dafeb31ab": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xebdf9a7ae0009b958c6d09501eb9ac1dafeb31ab/0xebdf9a7ae0009b958c6d09501eb9ac1dafeb31ab.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xebed6da3e9355f1aa402f976c054db7bc16be7e0__0xebed6da3e9355f1aa402f976c054db7bc16be7e0": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xebed6da3e9355f1aa402f976c054db7bc16be7e0/0xebed6da3e9355f1aa402f976c054db7bc16be7e0.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xec427520576a649139a6fa37763d2f607c91c70d__0xec427520576a649139a6fa37763d2f607c91c70d": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xec427520576a649139a6fa37763d2f607c91c70d/0xec427520576a649139a6fa37763d2f607c91c70d.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xec80e62211ab9ba26e33d95033af8968cdef2464__0xec80e62211ab9ba26e33d95033af8968cdef2464": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xec80e62211ab9ba26e33d95033af8968cdef2464/0xec80e62211ab9ba26e33d95033af8968cdef2464.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xf015c35649c82f5467c9c74b7f28ee67665aad68__0xf015c35649c82f5467c9c74b7f28ee67665aad68": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xf015c35649c82f5467c9c74b7f28ee67665aad68/0xf015c35649c82f5467c9c74b7f28ee67665aad68.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_ERC20__ERC20": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_ERC20/ERC20.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_auction__auction": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SEND",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_auction/auction.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "nasd_dos_number__dos_number": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ARRAY_LENGTH_MANIPULATION",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_dos_number/dos_number.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_dos_simple__dos_simple": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_dos_simple/dos_simple.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_eth_tx_order_dependence_minimal__eth_tx_order_dependence_minimal": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_eth_tx_order_dependence_minimal/eth_tx_order_dependence_minimal.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_etherbank__etherbank": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_etherbank/etherbank.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_etherstore__etherstore": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_etherstore/etherstore.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_insecure_transfer__insecure_transfer": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_insecure_transfer/insecure_transfer.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_integer_overflow_1__integer_overflow_1": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_FUNCTIONS_RETURNS_TYPE_AND_NO_RETURN",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_integer_overflow_1/integer_overflow_1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_integer_overflow_mapping_sym_1__integer_overflow_mapping_sym_1": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_integer_overflow_mapping_sym_1/integer_overflow_mapping_sym_1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_integer_overflow_minimal__integer_overflow_minimal": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_integer_overflow_minimal/integer_overflow_minimal.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_integer_overflow_mul__integer_overflow_mul": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_integer_overflow_mul/integer_overflow_mul.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_integer_overflow_multitx_multifunc_feasible__integer_overflow_multitx_multifunc_feasible": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_integer_overflow_multitx_multifunc_feasible/integer_overflow_multitx_multifunc_feasible.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_integer_overflow_multitx_onefunc_feasible__integer_overflow_multitx_onefunc_feasible": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_integer_overflow_multitx_onefunc_feasible/integer_overflow_multitx_onefunc_feasible.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_list_dos__list_dos": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_FUNCTIONS_RETURNS_TYPE_AND_NO_RETURN",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_list_dos/list_dos.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_modifier_reentrancy__modifier_reentrancy": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_modifier_reentrancy/modifier_reentrancy.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_odds_and_evens__odds_and_evens": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_odds_and_evens/odds_and_evens.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_overflow_simple_add__overflow_simple_add": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_overflow_simple_add/overflow_simple_add.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_overflow_single_tx__overflow_single_tx": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_overflow_single_tx/overflow_single_tx.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_reentrance__reentrance": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_reentrance/reentrance.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_reentrancy_bonus__reentrancy_bonus": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UNCHECKED_CALL"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_reentrancy_bonus/reentrancy_bonus.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "nasd_reentrancy_cross_function__reentrancy_cross_function": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_reentrancy_cross_function/reentrancy_cross_function.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "nasd_reentrancy_dao__reentrancy_dao": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_reentrancy_dao/reentrancy_dao.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_reentrancy_simple__reentrancy_simple": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_reentrancy_simple/reentrancy_simple.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_send_loop__send_loop": {
+   "status": "ok",
+   "elapsed": 4.6,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SEND",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_send_loop/send_loop.sol",
+   "classes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "nasd_simple_dao__simple_dao": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_simple_dao/simple_dao.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_spank_chain_payment__spank_chain_payment": {
+   "status": "ok",
+   "elapsed": 1.6,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_EXTRA_GAS_IN_LOOPS",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SHOULD_NOT_BE_PURE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_USING_INLINE_ASSEMBLY",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_spank_chain_payment/spank_chain_payment.sol",
+   "classes": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0000000fdf9eb269b38e39e058f45d7d0ddb60f9__0x0000000fdf9eb269b38e39e058f45d7d0ddb60f9": {
+   "status": "ok",
+   "elapsed": 5.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0000000fdf9eb269b38e39e058f45d7d0ddb60f9/0x0000000fdf9eb269b38e39e058f45d7d0ddb60f9.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x0e8bc4a71814b91fe77b0a79768b2403422f99f7__0x0e8bc4a71814b91fe77b0a79768b2403422f99f7": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x0e8bc4a71814b91fe77b0a79768b2403422f99f7/0x0e8bc4a71814b91fe77b0a79768b2403422f99f7.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x1a75288226ad60431eb7759430cdf764e2bb56ea__0x1a75288226ad60431eb7759430cdf764e2bb56ea": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x1a75288226ad60431eb7759430cdf764e2bb56ea/0x1a75288226ad60431eb7759430cdf764e2bb56ea.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x312b34333d7d21a412af8ae029125cf1aab81c8e__0x312b34333d7d21a412af8ae029125cf1aab81c8e": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x312b34333d7d21a412af8ae029125cf1aab81c8e/0x312b34333d7d21a412af8ae029125cf1aab81c8e.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x388b2f93e822d39d45ce748f2b827aa1df657c39__0x388b2f93e822d39d45ce748f2b827aa1df657c39": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x388b2f93e822d39d45ce748f2b827aa1df657c39/0x388b2f93e822d39d45ce748f2b827aa1df657c39.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x395a200ab37e622ad721f6c0d2fa913b522c84cf__0x395a200ab37e622ad721f6c0d2fa913b522c84cf": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x395a200ab37e622ad721f6c0d2fa913b522c84cf/0x395a200ab37e622ad721f6c0d2fa913b522c84cf.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x3a0e9acd953ffc0dd18d63603488846a6b8b2b01__0x3a0e9acd953ffc0dd18d63603488846a6b8b2b01": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x3a0e9acd953ffc0dd18d63603488846a6b8b2b01/0x3a0e9acd953ffc0dd18d63603488846a6b8b2b01.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_0x603c096b5d19d631c58202931de0d11eb9accafa__0x603c096b5d19d631c58202931de0d11eb9accafa": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x603c096b5d19d631c58202931de0d11eb9accafa/0x603c096b5d19d631c58202931de0d11eb9accafa.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_0x682e075d92a0d5859abba7f3f73104725f1b3b05__0x682e075d92a0d5859abba7f3f73104725f1b3b05": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_0x682e075d92a0d5859abba7f3f73104725f1b3b05/0x682e075d92a0d5859abba7f3f73104725f1b3b05.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_11__buggy_11": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_11/buggy_11.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_14__buggy_14": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_14/buggy_14.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_16__buggy_16": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_16/buggy_16.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_17__buggy_17": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_17/buggy_17.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_19__buggy_19": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_19/buggy_19.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_1__buggy_1": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_EXACT_TIME",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_1/buggy_1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ]
+  },
+  "asd_buggy_20__buggy_20": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_20/buggy_20.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_22__buggy_22": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_22/buggy_22.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_24__buggy_24": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_24/buggy_24.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_25__buggy_25": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_25/buggy_25.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_27__buggy_27": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DIV_MUL",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_27/buggy_27.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_28__buggy_28": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_DIV_MUL",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_28/buggy_28.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_31__buggy_31": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SHOULD_NOT_BE_PURE",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_USING_INLINE_ASSEMBLY",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_31/buggy_31.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_32__buggy_32": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_32/buggy_32.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_33__buggy_33": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DIV_MUL",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_33/buggy_33.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_34__buggy_34": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_34/buggy_34.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_35__buggy_35": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_35/buggy_35.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_39__buggy_39": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_39/buggy_39.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_3__buggy_3": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_3/buggy_3.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_40__buggy_40": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_40/buggy_40.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_42__buggy_42": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DIV_MUL",
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_42/buggy_42.sol",
+   "classes": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_43__buggy_43": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_43/buggy_43.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_45__buggy_45": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_45/buggy_45.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_47__buggy_47": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_47/buggy_47.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_49__buggy_49": {
+   "status": "ok",
+   "elapsed": 3.7,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_49/buggy_49.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_4__buggy_4": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_4/buggy_4.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_50__buggy_50": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_50/buggy_50.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_5__buggy_5": {
+   "status": "ok",
+   "elapsed": 2.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_EXACT_TIME",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_5/buggy_5.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ]
+  },
+  "asd_buggy_7__buggy_7": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_LOCKED_MONEY",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_7/buggy_7.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_buggy_8__buggy_8": {
+   "status": "ok",
+   "elapsed": 1.4,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_EXACT_TIME",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_buggy_8/buggy_8.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+   ]
+  },
+  "asd_king_of_the_ether_throne__king_of_the_ether_throne": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_DIV_MUL",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_king_of_the_ether_throne/king_of_the_ether_throne.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "asd_proxy__proxy": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_proxy/proxy.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_timed_crowdsale__timed_crowdsale": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_timed_crowdsale/timed_crowdsale.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "asd_unchecked_return_value__unchecked_return_value": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_UNCHECKED_CALL",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/asd_unchecked_return_value/unchecked_return_value.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "nasd_0x023fa9e2a97799b3d87b3fa35674b50b8b5c9f4e__0x023fa9e2a97799b3d87b3fa35674b50b8b5c9f4e": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x023fa9e2a97799b3d87b3fa35674b50b8b5c9f4e/0x023fa9e2a97799b3d87b3fa35674b50b8b5c9f4e.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x20d11cb319552871969526f4c58b99c34df9e6ed__0x20d11cb319552871969526f4c58b99c34df9e6ed": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x20d11cb319552871969526f4c58b99c34df9e6ed/0x20d11cb319552871969526f4c58b99c34df9e6ed.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x22f004a328fdb5091376d8eaf83adc5bc2a33846__0x22f004a328fdb5091376d8eaf83adc5bc2a33846": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x22f004a328fdb5091376d8eaf83adc5bc2a33846/0x22f004a328fdb5091376d8eaf83adc5bc2a33846.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x2492644798cb3b5162159a6e7d261fe74435eeea__0x2492644798cb3b5162159a6e7d261fe74435eeea": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x2492644798cb3b5162159a6e7d261fe74435eeea/0x2492644798cb3b5162159a6e7d261fe74435eeea.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x25cdc98b4b04810c9a23cffc4db730f4f3286920__0x25cdc98b4b04810c9a23cffc4db730f4f3286920": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x25cdc98b4b04810c9a23cffc4db730f4f3286920/0x25cdc98b4b04810c9a23cffc4db730f4f3286920.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x2842366841b3a117ef143cc04568768be758b49e__0x2842366841b3a117ef143cc04568768be758b49e": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x2842366841b3a117ef143cc04568768be758b49e/0x2842366841b3a117ef143cc04568768be758b49e.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x311118596fe611e3ffe0be3b616f60e891c6877e__0x311118596fe611e3ffe0be3b616f60e891c6877e": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x311118596fe611e3ffe0be3b616f60e891c6877e/0x311118596fe611e3ffe0be3b616f60e891c6877e.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x31bf557a518aa5610bf89f68c29e4d51985cc370__0x31bf557a518aa5610bf89f68c29e4d51985cc370": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x31bf557a518aa5610bf89f68c29e4d51985cc370/0x31bf557a518aa5610bf89f68c29e4d51985cc370.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x32a4e2125fc9397017e0c04a605256c8fcbd1181__0x32a4e2125fc9397017e0c04a605256c8fcbd1181": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x32a4e2125fc9397017e0c04a605256c8fcbd1181/0x32a4e2125fc9397017e0c04a605256c8fcbd1181.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x501202610ce02b97fcbd406157431214ca55ec75__0x501202610ce02b97fcbd406157431214ca55ec75": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x501202610ce02b97fcbd406157431214ca55ec75/0x501202610ce02b97fcbd406157431214ca55ec75.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x5199071825cc1d6cd019b0d7d42b08106f6cf16d__0x5199071825cc1d6cd019b0d7d42b08106f6cf16d": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_NOT_BE_PURE",
+    "SOLIDITY_USING_INLINE_ASSEMBLY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x5199071825cc1d6cd019b0d7d42b08106f6cf16d/0x5199071825cc1d6cd019b0d7d42b08106f6cf16d.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x627125882d592bbf122815364667efff3bdcd4c6__0x627125882d592bbf122815364667efff3bdcd4c6": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x627125882d592bbf122815364667efff3bdcd4c6/0x627125882d592bbf122815364667efff3bdcd4c6.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x66158309d118b797882c27ee40cb803c7e49173a__0x66158309d118b797882c27ee40cb803c7e49173a": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x66158309d118b797882c27ee40cb803c7e49173a/0x66158309d118b797882c27ee40cb803c7e49173a.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x678042580304a7f32dd03b027d90083818dc16a1__0x678042580304a7f32dd03b027d90083818dc16a1": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x678042580304a7f32dd03b027d90083818dc16a1/0x678042580304a7f32dd03b027d90083818dc16a1.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x767385821ba49a86c343ea9d674702a9177ab816__0x767385821ba49a86c343ea9d674702a9177ab816": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x767385821ba49a86c343ea9d674702a9177ab816/0x767385821ba49a86c343ea9d674702a9177ab816.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x797d67bab1cad1a9ce0f0afe955fb77a95c22f6e__0x797d67bab1cad1a9ce0f0afe955fb77a95c22f6e": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x797d67bab1cad1a9ce0f0afe955fb77a95c22f6e/0x797d67bab1cad1a9ce0f0afe955fb77a95c22f6e.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x7a8721a9d64c74da899424c1b52acbf58ddc9782__0x7a8721a9d64c74da899424c1b52acbf58ddc9782": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_TX_ORIGIN",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x7a8721a9d64c74da899424c1b52acbf58ddc9782/0x7a8721a9d64c74da899424c1b52acbf58ddc9782.sol",
+   "classes": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x869b1f57380ae501d387b19262efd3c0eb7501b0__0x869b1f57380ae501d387b19262efd3c0eb7501b0": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_NOT_BE_VIEW",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x869b1f57380ae501d387b19262efd3c0eb7501b0/0x869b1f57380ae501d387b19262efd3c0eb7501b0.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x88088019a2a235f9e7495124d0b0e90f41a777b0__0x88088019a2a235f9e7495124d0b0e90f41a777b0": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SHOULD_RETURN_STRUCT"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x88088019a2a235f9e7495124d0b0e90f41a777b0/0x88088019a2a235f9e7495124d0b0e90f41a777b0.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x882fb4240f9a11e197923d0507de9a983ed69239__0x882fb4240f9a11e197923d0507de9a983ed69239": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x882fb4240f9a11e197923d0507de9a983ed69239/0x882fb4240f9a11e197923d0507de9a983ed69239.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x8c7777c45481dba411450c228cb692ac3d550344__0x8c7777c45481dba411450c228cb692ac3d550344": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x8c7777c45481dba411450c228cb692ac3d550344/0x8c7777c45481dba411450c228cb692ac3d550344.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x9341097483f88fbb65bfc6ea4c26a04e0c4429a0__0x9341097483f88fbb65bfc6ea4c26a04e0c4429a0": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x9341097483f88fbb65bfc6ea4c26a04e0c4429a0/0x9341097483f88fbb65bfc6ea4c26a04e0c4429a0.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x93c32845fae42c83a70e5f06214c8433665c2ab5__0x93c32845fae42c83a70e5f06214c8433665c2ab5": {
+   "status": "ok",
+   "elapsed": 3.8,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x93c32845fae42c83a70e5f06214c8433665c2ab5/0x93c32845fae42c83a70e5f06214c8433665c2ab5.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0x966889549fe7b3b950063151f6e2ad7651becdb9__0x966889549fe7b3b950063151f6e2ad7651becdb9": {
+   "status": "ok",
+   "elapsed": 1.3,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0x966889549fe7b3b950063151f6e2ad7651becdb9/0x966889549fe7b3b950063151f6e2ad7651becdb9.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa02d0b6bfce1dbd02b9cbb70e6b480333e8a86ec__0xa02d0b6bfce1dbd02b9cbb70e6b480333e8a86ec": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa02d0b6bfce1dbd02b9cbb70e6b480333e8a86ec/0xa02d0b6bfce1dbd02b9cbb70e6b480333e8a86ec.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa08d1762538439848b71a39cfef7f0454f1176ed__0xa08d1762538439848b71a39cfef7f0454f1176ed": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa08d1762538439848b71a39cfef7f0454f1176ed/0xa08d1762538439848b71a39cfef7f0454f1176ed.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa3cd2dd81c0115d801282f1711e9656ae2770566__0xa3cd2dd81c0115d801282f1711e9656ae2770566": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_RETURN_STRUCT",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa3cd2dd81c0115d801282f1711e9656ae2770566/0xa3cd2dd81c0115d801282f1711e9656ae2770566.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa3f7871a4b86bcc3b6e97c8fd0745e71c55e1f82__0xa3f7871a4b86bcc3b6e97c8fd0745e71c55e1f82": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa3f7871a4b86bcc3b6e97c8fd0745e71c55e1f82/0xa3f7871a4b86bcc3b6e97c8fd0745e71c55e1f82.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa4d1dbfe6850b4e9b8935c8b80ae11b1c12a0927__0xa4d1dbfe6850b4e9b8935c8b80ae11b1c12a0927": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa4d1dbfe6850b4e9b8935c8b80ae11b1c12a0927/0xa4d1dbfe6850b4e9b8935c8b80ae11b1c12a0927.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa7fac98b27435c90b916950bbeed91c7dbfe3e44__0xa7fac98b27435c90b916950bbeed91c7dbfe3e44": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa7fac98b27435c90b916950bbeed91c7dbfe3e44/0xa7fac98b27435c90b916950bbeed91c7dbfe3e44.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xa8eda9d4aee0eb882f8752c6ba7e16d9233c9ad2__0xa8eda9d4aee0eb882f8752c6ba7e16d9233c9ad2": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xa8eda9d4aee0eb882f8752c6ba7e16d9233c9ad2/0xa8eda9d4aee0eb882f8752c6ba7e16d9233c9ad2.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xaae1f51cf3339f18b6d3f3bdc75a5facd744b0b8__0xaae1f51cf3339f18b6d3f3bdc75a5facd744b0b8": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xaae1f51cf3339f18b6d3f3bdc75a5facd744b0b8/0xaae1f51cf3339f18b6d3f3bdc75a5facd744b0b8.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe1076fc995b3d299a2957eb0035049e8666b412e__0xe1076fc995b3d299a2957eb0035049e8666b412e": {
+   "status": "ok",
+   "elapsed": 1.2,
+   "checks": [
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe1076fc995b3d299a2957eb0035049e8666b412e/0xe1076fc995b3d299a2957eb0035049e8666b412e.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe26668cc7ce5239304b5af8f54b4bd57d11084d2__0xe26668cc7ce5239304b5af8f54b4bd57d11084d2": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe26668cc7ce5239304b5af8f54b4bd57d11084d2/0xe26668cc7ce5239304b5af8f54b4bd57d11084d2.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe351455b23ea96ad0a8a1fc3594ddef1c4bb2479__0xe351455b23ea96ad0a8a1fc3594ddef1c4bb2479": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe351455b23ea96ad0a8a1fc3594ddef1c4bb2479/0xe351455b23ea96ad0a8a1fc3594ddef1c4bb2479.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe6824483e279d967ea6f8472ace7585862fa1185__0xe6824483e279d967ea6f8472ace7585862fa1185": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe6824483e279d967ea6f8472ace7585862fa1185/0xe6824483e279d967ea6f8472ace7585862fa1185.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe69968dd1913f135f3b28ed81d9a02368204bd66__0xe69968dd1913f135f3b28ed81d9a02368204bd66": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe69968dd1913f135f3b28ed81d9a02368204bd66/0xe69968dd1913f135f3b28ed81d9a02368204bd66.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe916fd53f37c7279450857fa6d4bcae124cf94e1__0xe916fd53f37c7279450857fa6d4bcae124cf94e1": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe916fd53f37c7279450857fa6d4bcae124cf94e1/0xe916fd53f37c7279450857fa6d4bcae124cf94e1.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xe9813b3ac3fd938d21e47d10987f58914e6ff1fd__0xe9813b3ac3fd938d21e47d10987f58914e6ff1fd": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_ERC20_TRANSFER_SHOULD_THROW",
+    "SOLIDITY_OVERPOWERED_ROLE"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xe9813b3ac3fd938d21e47d10987f58914e6ff1fd/0xe9813b3ac3fd938d21e47d10987f58914e6ff1fd.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xea68d87ae3a55ba91c1a8e6488627a175be81588__0xea68d87ae3a55ba91c1a8e6488627a175be81588": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_OVERPOWERED_ROLE",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_REVERT_REQUIRE",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xea68d87ae3a55ba91c1a8e6488627a175be81588/0xea68d87ae3a55ba91c1a8e6488627a175be81588.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xeaf424831b74440c39f9a8c4a749ebe2e265337c__0xeaf424831b74440c39f9a8c4a749ebe2e265337c": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xeaf424831b74440c39f9a8c4a749ebe2e265337c/0xeaf424831b74440c39f9a8c4a749ebe2e265337c.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xeafd335c0e72bb89857972ee7a3ba90bd5a2f7fd__0xeafd335c0e72bb89857972ee7a3ba90bd5a2f7fd": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_SHOULD_NOT_BE_PURE",
+    "SOLIDITY_USING_INLINE_ASSEMBLY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xeafd335c0e72bb89857972ee7a3ba90bd5a2f7fd/0xeafd335c0e72bb89857972ee7a3ba90bd5a2f7fd.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xebb82eabbb699cedf7e72f316ec0e0f3fd1c3859__0xebb82eabbb699cedf7e72f316ec0e0f3fd1c3859": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xebb82eabbb699cedf7e72f316ec0e0f3fd1c3859/0xebb82eabbb699cedf7e72f316ec0e0f3fd1c3859.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xec48c2b5956d84b1b4a9911dd2480e71baaff00c__0xec48c2b5956d84b1b4a9911dd2480e71baaff00c": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ADDRESS_HARDCODED",
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xec48c2b5956d84b1b4a9911dd2480e71baaff00c/0xec48c2b5956d84b1b4a9911dd2480e71baaff00c.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_0xec5bb38e7a5e0578b76216df563fc1cc80ded4f2__0xec5bb38e7a5e0578b76216df563fc1cc80ded4f2": {
+   "status": "ok",
+   "elapsed": 1.0,
+   "checks": [
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_SAFEMATH"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_0xec5bb38e7a5e0578b76216df563fc1cc80ded4f2/0xec5bb38e7a5e0578b76216df563fc1cc80ded4f2.sol",
+   "classes": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_BECToken__BECToken": {
+   "status": "ok",
+   "elapsed": 1.1,
+   "checks": [
+    "SOLIDITY_DEPRECATED_CONSTRUCTIONS",
+    "SOLIDITY_ERC20_APPROVE",
+    "SOLIDITY_GAS_LIMIT_IN_LOOPS",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_REDUNDANT_FALLBACK_REJECT",
+    "SOLIDITY_SAFEMATH",
+    "SOLIDITY_UPGRADE_TO_050",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_BECToken/BECToken.sol",
+   "classes": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_dos_address__dos_address": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_dos_address/dos_address.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "nasd_reentrancy_insecure__reentrancy_insecure": {
+   "status": "ok",
+   "elapsed": 0.8,
+   "checks": [
+    "SOLIDITY_CALL_WITHOUT_DATA",
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_PRIVATE_MODIFIER_DONT_HIDE_DATA",
+    "SOLIDITY_UNCHECKED_CALL"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_reentrancy_insecure/reentrancy_insecure.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ]
+  },
+  "nasd_tokensalechallenge__tokensalechallenge": {
+   "status": "ok",
+   "elapsed": 0.9,
+   "checks": [
+    "SOLIDITY_PRAGMAS_VERSION",
+    "SOLIDITY_VISIBILITY"
+   ],
+   "solc": "fixed",
+   "tried": [
+    "fixed:ok"
+   ],
+   "source": "alldata(readonly)/alldata_sol_source/nasd_tokensalechallenge/tokensalechallenge.sol",
+   "classes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "classes_strict": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ }
+}

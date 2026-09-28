@@ -1,0 +1,113 @@
+{
+  "seed": 0,
+  "split_seed": 0,
+  "head": "binary",
+  "select_metric": "val_binary_ap",
+  "val_threshold": 0.5,
+  "threshold_scan": {
+    "metric": "binary_f1",
+    "best_threshold": 0.5,
+    "best_binary_f1": 1.0,
+    "candidates": [
+      {
+        "threshold": 0.2,
+        "f1": 0.04347826086956522
+      },
+      {
+        "threshold": 0.25,
+        "f1": 0.0625
+      },
+      {
+        "threshold": 0.3,
+        "f1": 0.08695652173913045
+      },
+      {
+        "threshold": 0.35,
+        "f1": 0.1
+      },
+      {
+        "threshold": 0.4,
+        "f1": 0.2222222222222222
+      },
+      {
+        "threshold": 0.45,
+        "f1": 0.5
+      },
+      {
+        "threshold": 0.5,
+        "f1": 1.0
+      },
+      {
+        "threshold": 0.55,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.6,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.65,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.7,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.75,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.8,
+        "f1": 0.0
+      }
+    ],
+    "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
+  },
+  "AP": {
+    "AP": 0.2,
+    "support": 1,
+    "n": 46
+  },
+  "test": {
+    "fixed_0.5": {
+      "threshold": 0.5,
+      "micro_f1": 0.0,
+      "binary_f1": 0.0,
+      "binary_precision": null,
+      "binary_recall": 0.0,
+      "binary_accuracy": 0.9782608695652174,
+      "binary_FPR": 0.0,
+      "binary_FNR": 1.0,
+      "TP": 0,
+      "FP": 0,
+      "FN": 1,
+      "TN": 45,
+      "support": 1
+    },
+    "val_threshold": {
+      "threshold": 0.5,
+      "micro_f1": 0.0,
+      "binary_f1": 0.0,
+      "binary_precision": null,
+      "binary_recall": 0.0,
+      "binary_accuracy": 0.9782608695652174,
+      "binary_FPR": 0.0,
+      "binary_FNR": 1.0,
+      "TP": 0,
+      "FP": 0,
+      "FN": 1,
+      "TN": 45,
+      "support": 1
+    }
+  },
+  "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
+  "timing": {
+    "infer_seconds": 0.2469
+  },
+  "environment": {
+    "device": "cuda",
+    "torch_version": "2.0.1+cu118",
+    "python_version": "3.11.3"
+  }
+}

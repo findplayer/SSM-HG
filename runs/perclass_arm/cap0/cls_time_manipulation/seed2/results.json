@@ -3,10 +3,10 @@
   "split_seed": 2,
   "head": "binary",
   "select_metric": "val_binary_ap",
-  "val_threshold": 0.5,
+  "val_threshold": 0.45,
   "threshold_scan": {
     "metric": "binary_f1",
-    "best_threshold": 0.5,
+    "best_threshold": 0.45,
     "best_binary_f1": 1.0,
     "candidates": [
       {
@@ -19,19 +19,19 @@
       },
       {
         "threshold": 0.3,
-        "f1": 0.08333333333333333
+        "f1": 0.09523809523809523
       },
       {
         "threshold": 0.35,
-        "f1": 0.13333333333333333
+        "f1": 0.15384615384615385
       },
       {
         "threshold": 0.4,
-        "f1": 0.19999999999999998
+        "f1": 0.33333333333333337
       },
       {
         "threshold": 0.45,
-        "f1": 0.33333333333333337
+        "f1": 1.0
       },
       {
         "threshold": 0.5,
@@ -65,7 +65,7 @@
     "tie_break": "并列取较小阈值（`>=` 下更偏向召回）"
   },
   "AP": {
-    "AP": 0.0625,
+    "AP": 0.2,
     "support": 1,
     "n": 46
   },
@@ -86,7 +86,7 @@
       "support": 1
     },
     "val_threshold": {
-      "threshold": 0.5,
+      "threshold": 0.45,
       "micro_f1": 0.0,
       "binary_f1": 0.0,
       "binary_precision": null,
@@ -103,7 +103,7 @@
   },
   "support_note": "二分类臂：单类「有没有漏洞」，键名一律 binary_*；不报 per-class/macro-F1（decisions §31）",
   "timing": {
-    "infer_seconds": 0.2135
+    "infer_seconds": 0.2148
   },
   "environment": {
     "device": "cuda",

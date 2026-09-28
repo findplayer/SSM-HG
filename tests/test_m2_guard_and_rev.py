@@ -276,7 +276,11 @@ def test_buggy_layout_output_matches_what_run_ablation_derives():
 
     base = RA.canonical_args(REPO / "runs" / "buggy_canon" / "seed0" / "config.json")
     derived = RA.variants_root_of(base)
-    assert derived == B.paths("alldata", "buggy")["ft"] / "graph_variants", \
+    # 🔴 **2026-09-25 换代**：任务 2 的现行正典树是 `graphs_ft_buggy_p2/cb_ft_ss{S}`，
+    #    故这里必须对齐到 layout **`buggy_p2`**。此前写的是 `"buggy"`（**16 轮旧档**的 layout）
+    #    ⇒ 换代后本条会**必然失败**（实测）——它防的正是"变体根漂移"，所以这条断言本身
+    #    也必须跟着正典换代，否则它会把**正确的**新路径判成错的。
+    assert derived == B.paths("alldata", "buggy_p2")["ft"] / "graph_variants", \
         f"run_ablation 推出 {derived}，而变体建在别处"
     # 冻结臂必须落在正典语料的 graphs/（两份正典共用同一份冻结编码器树）
     assert RA.frozen_graphs_of(base) == REPO / "products/alldata/graphs"
@@ -285,4 +289,4 @@ def test_buggy_layout_output_matches_what_run_ablation_derives():
 def test_buggy_layout_rejects_the_augmentation_corpus():
     """`layout=buggy` 只对 ① 成立（② 没有 buggy 池）——静默套用会产出跨语料的错误变体。"""
     src = (REPO / "scripts" / "build_ft_edge_variants.py").read_text(encoding="utf-8")
-    assert 'layout == "buggy" and args.dataset != "alldata"' in src
+    assert 'args.layout.startswith("buggy") and args.dataset != "alldata"' in src

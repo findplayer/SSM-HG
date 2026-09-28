@@ -1,0 +1,74 @@
+summary: 3 seeds [0, 1, 2] → micro-F1(0.5) 0.812931±0.014929；micro-F1(val_thr) 0.819241±0.018637 → runs/summary.json
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed0: 逐类诊断完成 → runs/seed0/diagnosis.json （test pos 3,2,1,1,5,2,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed1: 逐类诊断完成 → runs/seed1/diagnosis.json （test pos 3,2,1,1,6,1,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed2: 逐类诊断完成 → runs/seed2/diagnosis.json （test pos 3,3,1,1,5,1,7）
+跨种子聚合 → runs/diagnosis_summary.json
+🔴 seed0 不是单变量臂：['除 [\'head\', \'pos_weight_cap\'] 外还改了 [\'graph_dir\']：["graph_dir: \'/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss{seed}\' → \'/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs_ft_p2/cb_ft_ss0\'", "head: \'multi\' → \'binary\'", "out_dir: \'/home/saumarez/projects/deep-learning/SSM-HG/runs/p2_canon/seed0\' → \'/home/saumarez/projects/deep-learning/SSM-HG/runs/perclass_arm/cap20/cls_ANY_union\'"]']
+summary: 3 seeds [0, 1, 2] → micro-F1(0.5) 0.812931±0.014929；micro-F1(val_thr) 0.819241±0.018637 → runs/summary.json
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed0: 逐类诊断完成 → runs/seed0/diagnosis.json （test pos 3,2,1,1,5,2,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed1: 逐类诊断完成 → runs/seed1/diagnosis.json （test pos 3,2,1,1,6,1,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed2: 逐类诊断完成 → runs/seed2/diagnosis.json （test pos 3,3,1,1,5,1,7）
+跨种子聚合 → runs/diagnosis_summary.json
+🔴 seed0 不是单变量臂：['预期覆盖的键未生效：[\'pos_weight_cap\']（diffs=["head: \'multi\' → \'binary\'", "out_dir: \'/home/saumarez/projects/deep-learning/SSM-HG/runs/p2_canon/seed0\' → \'/home/saumarez/projects/deep-learning/SSM-HG/runs/perclass_arm/cap20/cls_ANY_union\'"]）']
+summary: 3 seeds [0, 1, 2] → micro-F1(0.5) 0.812931±0.014929；micro-F1(val_thr) 0.819241±0.018637 → runs/summary.json
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed0: 逐类诊断完成 → runs/seed0/diagnosis.json （test pos 3,2,1,1,5,2,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed1: 逐类诊断完成 → runs/seed1/diagnosis.json （test pos 3,2,1,1,6,1,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed2: 逐类诊断完成 → runs/seed2/diagnosis.json （test pos 3,3,1,1,5,1,7）
+跨种子聚合 → runs/diagnosis_summary.json
+[union seed0/train] rc=2
+ain.py [-h] [--seed SEED] [--split-seed SPLIT_SEED] [--epochs EPOCHS]
+                [--batch-size BATCH_SIZE] [--lr LR]
+                [--weight-decay WEIGHT_DECAY] [--lambda-var LAMBDA_VAR]
+                [--tau-var TAU_VAR] [--pos-weight-cap POS_WEIGHT_CAP]
+                [--head {multi,binary}] [--loss {bce,focal,asl}]
+                [--focal-gamma FOCAL_GAMMA] [--asl-gamma-pos ASL_GAMMA_POS]
+                [--asl-gamma-neg ASL_GAMMA_NEG] [--asl-clip ASL_CLIP]
+                [--prior-dropout PRIOR_DROPOUT]
+                [--struct-dropout STRUCT_DROPOUT]
+                [--model-dropout MODEL_DROPOUT]
+                [--scheduler-patience SCHEDULER_PATIENCE]
+                [--early-stop-patience EARLY_STOP_PATIENCE]
+                [--drop-edge-prob DROP_EDGE_PROB]
+                [--limit-graphs LIMIT_GRAPHS] [--drop-edges DROP_EDGES]
+                [--drop-ast] [--conv {rgcn,gcn,gat,sage}] [--meanpool]
+                [--num-bases NUM_BASES] [--layers {1,2,3}] [--hid HID]
+                [--ablate-sv] [--cb-channels CB_CHANNELS]
+                [--feat-groups {all,base,base+sem}] [--deterministic]
+                [--graph-dir GRAPH_DIR] [--split-dir SPLIT_DIR]
+                [--out-dir OUT_DIR] [--label-file LABEL_FILE]
+                [--label-key-mode {project,stem}] [--verify-channel-hash]
+                [--overwrite]
+train.py: error: unrecognized arguments: /home/saumarez/anaconda3/bin/python /home/saumarez/projects/deep-learning/SSM-HG/scripts/train.py
+
+summary: 3 seeds [0, 1, 2] → micro-F1(0.5) 0.812931±0.014929；micro-F1(val_thr) 0.819241±0.018637 → runs/summary.json
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed0: 逐类诊断完成 → runs/seed0/diagnosis.json （test pos 3,2,1,1,5,2,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed1: 逐类诊断完成 → runs/seed1/diagnosis.json （test pos 3,2,1,1,6,1,7）
+[diagnose] 标签来源：file=/home/saumarez/projects/deep-learning/SSM-HG/alldata(readonly)/contract_labels.json key_mode=project
+seed2: 逐类诊断完成 → runs/seed2/diagnosis.json （test pos 3,3,1,1,5,1,7）
+跨种子聚合 → runs/diagnosis_summary.json
+[union seed0/train] rc=0
+[union seed0/eval] rc=0
+[union seed0/diagnose] rc=0
+[union seed1/train] rc=0
+[union seed1/eval] rc=0
+[union seed1/diagnose] rc=0
+[union seed2/train] rc=0
+[union seed2/eval] rc=0
+[union seed2/diagnose] rc=0
+[union] 3 个种子 × train/eval/diagnose 全部完成
+
+[dive] ===== 步骤 stage =====
+[dive] stage：900 个源文件 → /home/saumarez/projects/deep-learning/SSM-HG/products/dive/src_stage（新拷 0 / 复用 900）
+
+[dive] ===== 步骤 raw =====

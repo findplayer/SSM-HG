@@ -1,0 +1,113 @@
+=== [17:37:35] ① DIVE 正典重评（per-class F1）===
+  [runs] seed0: micro@0.5=0.0028 @val_thr(0.6)=0.0019 mAP=0.3865
+  [runs] seed1: micro@0.5=0.0037 @val_thr(0.3)=0.0037 mAP=0.3987
+  [runs] seed2: micro@0.5=0.0055 @val_thr(0.55)=0.0046 mAP=0.3910
+
+[ext] 1 臂 → eval_results/dive/canon_main_newcanon.json（39.6s）
+① rc=0
+=== [17:38:22] SolidiFI ① 树重编码（新编码器）===
+
+[dive] ===== 步骤 features =====
+  [M3(冻结编码器)] ✓ 28.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs
+[m3] cb cache reused for 350/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+[dive] features：结构 350 图；开始 ①② 微调编码器重编码
+  [M3(alldata ss0，force 重算)] ✓ 663.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/ss0
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [alldata/ss0] 三通道逐位相同 350/350 ✓
+  [M3(alldata ss1，force 重算)] ✓ 688.7s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/ss1
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [alldata/ss1] 三通道逐位相同 350/350 ✓
+  [M3(alldata ss2，force 重算)] ✓ 701.3s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/ss2
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [alldata/ss2] 三通道逐位相同 350/350 ✓
+  [M3(augmentation ss0，编码器未变 ⇒ 复用缓存)] ✓ 30.5s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/ss0
+[m3] cb cache reused for 350/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [augmentation/ss0] 三通道逐位相同 350/350 ✓
+  [M3(augmentation ss1，编码器未变 ⇒ 复用缓存)] ✓ 28.5s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/ss1
+[m3] cb cache reused for 350/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [augmentation/ss1] 三通道逐位相同 350/350 ✓
+  [M3(augmentation ss2，编码器未变 ⇒ 复用缓存)] ✓ 32.9s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/ss2
+[m3] cb cache reused for 350/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [augmentation/ss2] 三通道逐位相同 350/350 ✓
+
+[dive] ===== 步骤 variants =====
+  [M2(cb_rev)] ✓ 59.9s  Processed 350 AST files, 0 skipped (no CFG dot & no cfgdetail)
+  [M2(cb_rev)+M1] ✓ 7.7s  Processed files: 350
+Output dir: /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graph_variants/cb_rev
+Batch summary: /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graph_variants/cb_rev/batch_summary.json
+  [M2(cb_rev)+PyG] ✓ 1.5s  Total DFG_DEP edges: 137501
+Total CALLBACK_RISK edges: 2414
+Total CALLBACK_RISK_REV edges: 2414
+  [M3(cb_rev 结构侧)] ✓ 726.2s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graph_variants/cb_rev
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [cb_rev] 三通道与正典：相同 350 / 不同 0
+  [cb_rev] 三通道 vs 正典：相同 ['1_buggy_1', '1_buggy_10', '1_buggy_11', '1_buggy_12', '1_buggy_13', '1_buggy_14', '1_buggy_15', '1_buggy_16', '1_buggy_17', '1_buggy_18', '1_buggy_19', '1_buggy_2', '1_buggy_20', '1_buggy_21', '1_buggy_22', '1_buggy_23', '1_buggy_24', '1_buggy_25', '1_buggy_26', '1_buggy_27', '1_buggy_28', '1_buggy_29', '1_buggy_3', '1_buggy_30', '1_buggy_31', '1_buggy_32', '1_buggy_33', '1_buggy_34', '1_buggy_35', '1_buggy_36', '1_buggy_37', '1_buggy_38', '1_buggy_39', '1_buggy_4', '1_buggy_40', '1_buggy_41', '1_buggy_42', '1_buggy_43', '1_buggy_44', '1_buggy_45', '1_buggy_46', '1_buggy_47', '1_buggy_48', '1_buggy_49', '1_buggy_5', '1_buggy_50', '1_buggy_6', '1_buggy_7', '1_buggy_8', '1_buggy_9', '2_buggy_1', '2_buggy_10', '2_buggy_11', '2_buggy_12', '2_buggy_13', '2_buggy_14', '2_buggy_15', '2_buggy_16', '2_buggy_17', '2_buggy_18', '2_buggy_19', '2_buggy_2', '2_buggy_20', '2_buggy_21', '2_buggy_22', '2_buggy_23', '2_buggy_24', '2_buggy_25', '2_buggy_26', '2_buggy_27', '2_buggy_28', '2_buggy_29', '2_buggy_3', '2_buggy_30', '2_buggy_31', '2_buggy_32', '2_buggy_33', '2_buggy_34', '2_buggy_35', '2_buggy_36', '2_buggy_37', '2_buggy_38', '2_buggy_39', '2_buggy_4', '2_buggy_40', '2_buggy_41', '2_buggy_42', '2_buggy_43', '2_buggy_44', '2_buggy_45', '2_buggy_46', '2_buggy_47', '2_buggy_48', '2_buggy_49', '2_buggy_5', '2_buggy_50', '2_buggy_6', '2_buggy_7', '2_buggy_8', '2_buggy_9', '4_buggy_1', '4_buggy_10', '4_buggy_11', '4_buggy_12', '4_buggy_13', '4_buggy_14', '4_buggy_15', '4_buggy_16', '4_buggy_17', '4_buggy_18', '4_buggy_19', '4_buggy_2', '4_buggy_20', '4_buggy_21', '4_buggy_22', '4_buggy_23', '4_buggy_24', '4_buggy_25', '4_buggy_26', '4_buggy_27', '4_buggy_28', '4_buggy_29', '4_buggy_3', '4_buggy_30', '4_buggy_31', '4_buggy_32', '4_buggy_33', '4_buggy_34', '4_buggy_35', '4_buggy_36', '4_buggy_37', '4_buggy_38', '4_buggy_39', '4_buggy_4', '4_buggy_40', '4_buggy_41', '4_buggy_42', '4_buggy_43', '4_buggy_44', '4_buggy_45', '4_buggy_46', '4_buggy_47', '4_buggy_48', '4_buggy_49', '4_buggy_5', '4_buggy_50', '4_buggy_6', '4_buggy_7', '4_buggy_8', '4_buggy_9', '5_buggy_1', '5_buggy_10', '5_buggy_11', '5_buggy_12', '5_buggy_13', '5_buggy_14', '5_buggy_15', '5_buggy_16', '5_buggy_17', '5_buggy_18', '5_buggy_19', '5_buggy_2', '5_buggy_20', '5_buggy_21', '5_buggy_22', '5_buggy_23', '5_buggy_24', '5_buggy_25', '5_buggy_26', '5_buggy_27', '5_buggy_28', '5_buggy_29', '5_buggy_3', '5_buggy_30', '5_buggy_31', '5_buggy_32', '5_buggy_33', '5_buggy_34', '5_buggy_35', '5_buggy_36', '5_buggy_37', '5_buggy_38', '5_buggy_39', '5_buggy_4', '5_buggy_40', '5_buggy_41', '5_buggy_42', '5_buggy_43', '5_buggy_44', '5_buggy_45', '5_buggy_46', '5_buggy_47', '5_buggy_48', '5_buggy_49', '5_buggy_5', '5_buggy_50', '5_buggy_6', '5_buggy_7', '5_buggy_8', '5_buggy_9', '6_buggy_1', '6_buggy_10', '6_buggy_11', '6_buggy_12', '6_buggy_13', '6_buggy_14', '6_buggy_15', '6_buggy_16', '6_buggy_17', '6_buggy_18', '6_buggy_19', '6_buggy_2', '6_buggy_20', '6_buggy_21', '6_buggy_22', '6_buggy_23', '6_buggy_24', '6_buggy_25', '6_buggy_26', '6_buggy_27', '6_buggy_28', '6_buggy_29', '6_buggy_3', '6_buggy_30', '6_buggy_31', '6_buggy_32', '6_buggy_33', '6_buggy_34', '6_buggy_35', '6_buggy_36', '6_buggy_37', '6_buggy_38', '6_buggy_39', '6_buggy_4', '6_buggy_40', '6_buggy_41', '6_buggy_42', '6_buggy_43', '6_buggy_44', '6_buggy_45', '6_buggy_46', '6_buggy_47', '6_buggy_48', '6_buggy_49', '6_buggy_5', '6_buggy_50', '6_buggy_6', '6_buggy_7', '6_buggy_8', '6_buggy_9', '70_buggy_1', '70_buggy_10', '70_buggy_11', '70_buggy_12', '70_buggy_13', '70_buggy_14', '70_buggy_15', '70_buggy_16', '70_buggy_17', '70_buggy_18', '70_buggy_19', '70_buggy_2', '70_buggy_20', '70_buggy_21', '70_buggy_22', '70_buggy_23', '70_buggy_24', '70_buggy_25', '70_buggy_26', '70_buggy_27', '70_buggy_28', '70_buggy_29', '70_buggy_3', '70_buggy_30', '70_buggy_31', '70_buggy_32', '70_buggy_33', '70_buggy_34', '70_buggy_35', '70_buggy_36', '70_buggy_37', '70_buggy_38', '70_buggy_39', '70_buggy_4', '70_buggy_40', '70_buggy_41', '70_buggy_42', '70_buggy_43', '70_buggy_44', '70_buggy_45', '70_buggy_46', '70_buggy_47', '70_buggy_48', '70_buggy_49', '70_buggy_5', '70_buggy_50', '70_buggy_6', '70_buggy_7', '70_buggy_8', '70_buggy_9', '71_buggy_1', '71_buggy_10', '71_buggy_11', '71_buggy_12', '71_buggy_13', '71_buggy_14', '71_buggy_15', '71_buggy_16', '71_buggy_17', '71_buggy_18', '71_buggy_19', '71_buggy_2', '71_buggy_20', '71_buggy_21', '71_buggy_22', '71_buggy_23', '71_buggy_24', '71_buggy_25', '71_buggy_26', '71_buggy_27', '71_buggy_28', '71_buggy_29', '71_buggy_3', '71_buggy_30', '71_buggy_31', '71_buggy_32', '71_buggy_33', '71_buggy_34', '71_buggy_35', '71_buggy_36', '71_buggy_37', '71_buggy_38', '71_buggy_39', '71_buggy_4', '71_buggy_40', '71_buggy_41', '71_buggy_42', '71_buggy_43', '71_buggy_44', '71_buggy_45', '71_buggy_46', '71_buggy_47', '71_buggy_48', '71_buggy_49', '71_buggy_5', '71_buggy_50', '71_buggy_6', '71_buggy_7', '71_buggy_8', '71_buggy_9']/890 —— REV 写在第三个键下，M1 看不见它，故**必须**全同
+  [M2(cb_unlimited)] ✓ 60.0s  Processed 350 AST files, 0 skipped (no CFG dot & no cfgdetail)
+  [M2(cb_unlimited)+M1] ✓ 7.9s  Processed files: 350
+Output dir: /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graph_variants/cb_unlimited
+Batch summary: /home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graph_variants/cb_unlimited/batch_summary.json
+  [M2(cb_unlimited)+PyG] ✓ 1.8s  Total DFG_DEP edges: 137501
+Total CALLBACK_RISK edges: 10747
+Total CALLBACK_RISK_REV edges: 0
+  [M3(cb_unlimited 结构侧)] ✓ 707.4s  [m3] device=cuda (requested=cuda)
+[m3] processed 350 graph(s), 101399 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graph_variants/cb_unlimited
+[m3] cb cache reused for 0/350 graphs (resume OK); wrote 350 _feat.pt channel dicts (no variant files)
+  [cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [alldata/ss0 cb_rev] 三通道与正典：相同 350 / 不同 0
+  [alldata/ss0 cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [M3(cb_unlimited 子集 alldata ss0 80 图)] ✓ 202.7s  [m3] device=cuda (requested=cuda)
+[m3] processed 80 graph(s), 25761 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/graph_variants/cb_unlimited_ss0
+[m3] cb cache reused for 0/80 graphs (resume OK); wrote 80 _feat.pt channel dicts (no variant files)
+  [alldata/ss0 cb_unlimited] must 子集三通道与边变体一致 80/80 ✓
+  [alldata/ss1 cb_rev] 三通道与正典：相同 350 / 不同 0
+  [alldata/ss1 cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [M3(cb_unlimited 子集 alldata ss1 80 图)] ✓ 194.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 80 graph(s), 25761 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/graph_variants/cb_unlimited_ss1
+[m3] cb cache reused for 0/80 graphs (resume OK); wrote 80 _feat.pt channel dicts (no variant files)
+  [alldata/ss1 cb_unlimited] must 子集三通道与边变体一致 80/80 ✓
+  [alldata/ss2 cb_rev] 三通道与正典：相同 350 / 不同 0
+  [alldata/ss2 cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [M3(cb_unlimited 子集 alldata ss2 80 图)] ✓ 194.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 80 graph(s), 25761 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft/graph_variants/cb_unlimited_ss2
+[m3] cb cache reused for 0/80 graphs (resume OK); wrote 80 _feat.pt channel dicts (no variant files)
+  [alldata/ss2 cb_unlimited] must 子集三通道与边变体一致 80/80 ✓
+  [augmentation/ss0 cb_rev] 三通道与正典：相同 350 / 不同 0
+  [augmentation/ss0 cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [M3(cb_unlimited 子集 augmentation ss0 80 图)] ✓ 210.5s  [m3] device=cuda (requested=cuda)
+[m3] processed 80 graph(s), 25761 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/graph_variants/cb_unlimited_ss0
+[m3] cb cache reused for 0/80 graphs (resume OK); wrote 80 _feat.pt channel dicts (no variant files)
+  [augmentation/ss0 cb_unlimited] must 子集三通道与边变体一致 80/80 ✓
+  [augmentation/ss1 cb_rev] 三通道与正典：相同 350 / 不同 0
+  [augmentation/ss1 cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [M3(cb_unlimited 子集 augmentation ss1 80 图)] ✓ 203.6s  [m3] device=cuda (requested=cuda)
+[m3] processed 80 graph(s), 25761 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/graph_variants/cb_unlimited_ss1
+[m3] cb cache reused for 0/80 graphs (resume OK); wrote 80 _feat.pt channel dicts (no variant files)
+  [augmentation/ss1 cb_unlimited] must 子集三通道与边变体一致 80/80 ✓
+  [augmentation/ss2 cb_rev] 三通道与正典：相同 350 / 不同 0
+  [augmentation/ss2 cb_unlimited] 三通道与正典：相同 270 / 不同 80
+  [M3(cb_unlimited 子集 augmentation ss2 80 图)] ✓ 190.2s  [m3] device=cuda (requested=cuda)
+[m3] processed 80 graph(s), 25761 node(s); schema=v2; feat_dir=/home/saumarez/projects/deep-learning/SSM-HG/products/solidifi/graphs_ft_aug/graph_variants/cb_unlimited_ss2
+[m3] cb cache reused for 0/80 graphs (resume OK); wrote 80 _feat.pt channel dicts (no variant files)
+  [augmentation/ss2 cb_unlimited] must 子集三通道与边变体一致 80/80 ✓
+
+[dive] 完成：features,variants
+固化 rc=0
+=== [19:10:13] SolidiFI 层次二：补齐 6 个 (语料,种子) ===
+[node] main seed0: 评了 350/350 合约；P@5  s_v=0.0983 a_v=0.0057 g_v=0.106286
+[node] main seed1: 评了 350/350 合约；P@5  s_v=0.0983 a_v=0.0 g_v=0.024571
+[node] main seed2: 评了 350/350 合约；P@5  s_v=0.0983 a_v=0.0034 g_v=0.092
+[node] → /home/saumarez/projects/deep-learning/SSM-HG/eval_results/solidifi/node_localization_main.json
+main rc=0
+[node] aug seed0: 评了 350/350 合约；P@5  s_v=0.0983 a_v=0.1309 g_v=0.044
+[node] aug seed1: 评了 350/350 合约；P@5  s_v=0.0983 a_v=0.1091 g_v=0.044571
+[node] aug seed2: 评了 350/350 合约；P@5  s_v=0.0983 a_v=0.1389 g_v=0.022857
+[node] → /home/saumarez/projects/deep-learning/SSM-HG/eval_results/solidifi/node_localization_aug.json
+aug rc=0

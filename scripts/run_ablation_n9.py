@@ -16,9 +16,10 @@
 
 **复用的三个来源（全部只读，绝不写）**：
   1. **对角臂 run**：`runs/ablation{,_aug}/<item>/seed{S}`（`ts = ss = S`，已跑）；
-  2. **① 的 9 对基线**：`runs/cbft_study/cbft_ts{T}_ss{S}`（§36 的 `cbft` 臂）。它的 `graph_dir`
-     是软链 `graph_variants/cb_ft_ss{S} → graphs_ft/ss{S}`，**数据与正典逐字节相同**；
-     已实测其对角 `cbft_ts{S}_ss{S}` 与论文正典 `runs/seed{S}` 的 test 指标**逐位相同**。
+  2. **① 的 9 对基线**：`runs/cbft_study/cbft_ts{T}_ss{S}`（§36 的 `cbft` 臂）。
+     🔴 2026-09-25 换代后它的 `graph_dir` **就是正典树本身**（`graphs_ft_p2/cb_ft_ss{S}`），
+     故其对角 `cbft_ts{S}_ss{S}` 与论文正典 `runs/seed{S}` 的同配置性**由构造成立**
+     （原设计用"逐字节相同的副本树 + 一次可失败的对拍"来建立这条等价性）。
   3. **② 的对角基线**：`runs/augmentation/seed{S}`。
   ⇒ 故**需要新跑**的只有：各臂的 6 个非对角对 + ② 基线的 6 个非对角对。
 
@@ -168,12 +169,20 @@ def arm_args(gkey: str, item: str, override: dict, t: int, s: int, out_dir) -> d
     variants = variants_of(base)
     frozen = RA.frozen_graphs_of(base)
     args = {k: RA.expand(v, s, variants, frozen) for k, v in base.items()}
-    args.update({k: RA.expand(v, s, variants, frozen) for k, v in override.items()})
+    # 🔴 GAT 系两臂被迫关确定性开关（PyTorch 无确定性 CUDA `scatter_reduce`）——
+    #    与 `override` 合起来才是它们相对基线的**全部**差异键，见 `RA.forced_overrides`。
+    full_override = {**override, **RA.forced_overrides(override)}
+    args.update({k: RA.expand(v, s, variants, frozen) for k, v in full_override.items()})
     args["seed"] = t
     args["split_seed"] = s
     args["out_dir"] = str(out_dir)
     args["overwrite"] = False
     return args
+
+
+def override_keys_of(override: dict) -> dict:
+    """该臂相对基线的**全部**差异键（含被迫的第二变量）——供单变量断言用。"""
+    return {**override, **RA.forced_overrides(override)}
 
 
 def new_leaf(gkey: str, item: str, t: int, s: int) -> Path:
@@ -288,7 +297,10 @@ def preflight(entries: list[dict]) -> list[str]:
         gkey, item, t, s = e["group"], e["item"], e["t"], e["s"]
         ref = expanded_base(gkey, s)
         if item != BASELINE_ITEM:
-            v = RA.verify_single_variable(ref, e["args"], e["override"])
+            # ⚠ 用 `override_keys_of`（含被迫的第二变量），**不是**裸 `e["override"]`——
+            #   否则 GAT 系两臂会被误报「预期覆盖的键未生效」（它们的 `deterministic`
+            #   是被 `RA.forced_overrides` 补上的）。
+            v = RA.verify_single_variable(ref, e["args"], override_keys_of(e["override"]))
             # 打印**展开后**的值（`{frozen}`/`{variants}` 原样打印会看不出到底指哪棵树）
             variants = variants_of(base_args(gkey))
             frozen = RA.frozen_graphs_of(base_args(gkey))

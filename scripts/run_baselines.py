@@ -10,15 +10,15 @@
 故链条只有两段。`diagnose` 缺席在这里**不会**造成整列 `—`。
 
 🔴 **正典由 `--layout` 决定，四条路径一起换**（`baseline_common.LAYOUTS` 是唯一真源）：
-    canon37 → 池 453（`graphs_ft/ss{S}` + `splits/`），默认，产物 `eval_results/baseline/<name>/`
-    buggy   → 池 497（`graphs_ft_buggy/cb_ft_ss{S}` + `splits/withbuggy_snapshot/`），
+    canon37 → 池 453（`graphs_ft_p2/cb_ft_ss{S}` + `splits/`），默认，产物 `eval_results/baseline/<name>/`
+    buggy   → 池 497（`graphs_ft_buggy_p2/cb_ft_ss{S}` + `splits/withbuggy_snapshot/`），
               产物 `eval_results/baseline/<name>_buggy/`
 布局知识**只放在这里**与 `LAYOUTS`，每个子进程都拿到**显式**的四条路径（不靠默认值），
 且子进程内部还会用 `baseline_common.check_layout()` 再复核一次「四者同正典」。
 
 ⚠ **两段正典的特征约定不同，是有意的、且必须随结果披露**：
-`canon37` 的三条基线**三种子用的都是 `graphs_ft/ss0`**（历史事实，已在库的产物如此），
-而 `buggy` 段用与 `--split-seed` **配对的** `cb_ft_ss{S}`（与 `runs/buggy_canon/seed{S}` 同款）。
+`canon37` 段三条基线**现与 `buggy` 段同款，都用与 `--split-seed` 配对的** `cb_ft_ss{S}`
+（2026-09-25 换代时统一；此前 canon37 段三种子都用 `graphs_ft/ss0`，是不对称的历史遗留）。
 原因是 `_cb.pt` 的 CodeBERT 节点行**逐张量随 `ss` 变**（实测 ss0/ss1/ss2 全不同），
 故「配对」才是本仓 `AGENTS.md` 语义锁死项要求的写法。两段各自内部可比，**跨段不可比**。
 

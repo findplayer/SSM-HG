@@ -30,11 +30,18 @@
   python scripts/build_ft_edge_variants.py --dataset alldata --dry-run
   python scripts/build_ft_edge_variants.py --dataset alldata
   python scripts/build_ft_edge_variants.py --dataset augmentation
-  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy   # 任务 2 新正典的配套变体
+  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy   # 任务 2 旧正典（16 轮档）的配套变体
+  python scripts/build_ft_edge_variants.py --dataset alldata --layout canon_p2    # ① 现行正典（20 轮档）
+  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy_p2    # 任务 2 现行正典（20 轮档）
 
-🔴 **`--layout buggy` 的产物落在 `products/alldata/graphs_ft_buggy/graph_variants/`**，
-与 `run_ablation.variants_root_of()` 从 buggy 正典 `graph_dir` 推导出的路径一致 ——
-即 `python scripts/run_ablation.py --base-config runs/buggy_canon/seed0/config.json` 能直接取到。
+🔴 **产物一律落在"与该 layout 的微调基座同级的 `graph_variants/`"下**，与
+`run_ablation.variants_root_of()` 从该 layout 正典 `graph_dir` 推导出的路径一致 ——
+即 `python scripts/run_ablation.py --base-config <该档正典>/seed0/config.json` 能直接取到：
+  - `canon`    → `products/<语料>/graphs_ft/graph_variants/`
+  - `canon_p2` → `products/alldata/graphs_ft_p2/graph_variants/`
+  - `buggy`    → `products/alldata/graphs_ft_buggy/graph_variants/`
+  - `buggy_p2` → `products/alldata/graphs_ft_buggy_p2/graph_variants/`
+⚠ 若产物根不存在，`run_ablation.variants_root_of()` 的硬守卫会 `SystemExit`（不再静默指向空目录）。
 """
 from __future__ import annotations
 
@@ -63,20 +70,33 @@ def paths(ds: str, layout: str = "canon") -> dict[str, Path]:
     `build_graph_variant.frozen_categories()` 取（缺文件即硬失败），
     不得按语料各取各的（那会造出两个可能漂移的来源，`AGENTS.md`「数据边界」）。
 
-    `layout` 两种（2026-09-21 新增 `buggy`）：
-      - `canon`：§37 正典。微调基座 `products/<语料>/graphs_ft/ss{S}`，
-        编码器 `runs/codebert_ft/<语料>/ss{S}/encoder`。
-      - `buggy`：任务 2 的新正典（池 497）。微调基座 `products/alldata/graphs_ft_buggy/cb_ft_ss{S}`，
-        编码器 `runs/codebert_ft_buggy/ss{S}/encoder`。
-    两者的**边变体源 `products/<语料>/graph_variants/` 是同一份**且**冻结树也是同一份**：
-    边结构与冻结 `_cb.pt` 都与池/划分/微调无关，只有微调编码器不同 —— 这正是"可复用"的依据。
+    `layout` 四种：
+      - `canon`：§37 正典（**5 轮编码器档**，2026-09-25 起降为消融档）。
+        微调基座 `products/<语料>/graphs_ft/ss{S}`，编码器 `runs/codebert_ft/<语料>/ss{S}/encoder`。
+      - `canon_p2`：**① 现行正典**（20 轮编码器档）。微调基座 `products/alldata/graphs_ft_p2/cb_ft_ss{S}`，
+        编码器 `runs/codebert_ft_p2/ss{S}/encoder`。
+      - `buggy`：任务 2 的**旧**正典（池 497，16 轮编码器档）。
+        微调基座 `products/alldata/graphs_ft_buggy/cb_ft_ss{S}`，编码器 `runs/codebert_ft_buggy/ss{S}/encoder`。
+      - `buggy_p2`：**任务 2 现行正典**（池 497，20 轮编码器档，2026-09-25 换代）。
+        微调基座 `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`，
+        编码器 `runs/codebert_ft_buggy_p2/ss{S}/encoder`。
+
+    🔴 四种 layout 的**边变体源 `products/<语料>/graph_variants/` 是同一份**、
+    **冻结树也是同一份**：边结构与冻结 `_cb.pt` 都与池/划分/微调无关，
+    只有"微调基座 + 编码器"这一对会随档位变 —— 这正是"可复用"的依据。
+    ⚠ 换代时**基座与编码器必须成对换**（`ft_dir` 与 `enc` 是配对的），只换一个会造出
+    「`_cb.pt` 来自 A 档、`_feat.pt` 软链自 B 档」的混合树。
     """
     import build_graph_variant as bgv
     base = REPO / "products" / ds
     if layout == "canon":
         ft_dir, prefix, enc = base / "graphs_ft", "", REPO / "runs" / "codebert_ft" / ds
+    elif layout == "canon_p2":
+        ft_dir, prefix, enc = base / "graphs_ft_p2", "cb_ft_", REPO / "runs" / "codebert_ft_p2"
     elif layout == "buggy":
         ft_dir, prefix, enc = base / "graphs_ft_buggy", "cb_ft_", REPO / "runs" / "codebert_ft_buggy"
+    elif layout == "buggy_p2":
+        ft_dir, prefix, enc = base / "graphs_ft_buggy_p2", "cb_ft_", REPO / "runs" / "codebert_ft_buggy_p2"
     else:
         raise SystemExit(f"[ftvar] 未知 layout {layout!r}")
     return {"ft": ft_dir, "ft_prefix": prefix, "encoder_root": enc,
@@ -258,16 +278,18 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dataset", required=True, choices=["alldata", "augmentation"])
-    ap.add_argument("--layout", default="canon", choices=["canon", "buggy"],
-                    help="微调基座布局。`canon`=§37 正典（graphs_ft/ss{S}）；"
-                         "`buggy`=任务 2 新正典（graphs_ft_buggy/cb_ft_ss{S}）。"
+    ap.add_argument("--layout", default="canon", choices=["canon", "canon_p2", "buggy", "buggy_p2"],
+                    help="微调基座布局。`canon`=§37 正典（graphs_ft/ss{S}，5 轮档）；"
+                         "`canon_p2`=① 现行正典（graphs_ft_p2/cb_ft_ss{S}，20 轮档）；"
+                         "`buggy`=任务 2 旧正典（graphs_ft_buggy/cb_ft_ss{S}，16 轮档）；"
+                         "`buggy_p2`=任务 2 现行正典（graphs_ft_buggy_p2/cb_ft_ss{S}，20 轮档）。"
                          "默认 canon ⇒ 既有调用行为逐字不变。")
     ap.add_argument("--dry-run", action="store_true", help="只断言 + 分流 + 打印将要建的目录。")
     args = ap.parse_args()
-    # 🔴 `buggy` 只存在于 ①：它的产物是"被剔除的 buggy_* 补回池后重划"的 ① 专属正典，
+    # 🔴 `buggy*` 只存在于 ①：它的产物是"被剔除的 buggy_* 补回池后重划"的 ① 专属正典，
     #   ② 没有对应的池，静默套用会产出一个「编码器属于别的语料」的错误变体（不报错）。
-    if args.layout == "buggy" and args.dataset != "alldata":
-        raise SystemExit("[ftvar] 🔴 layout=buggy 只对 dataset=alldata 成立（② 没有 buggy 池）")
+    if args.layout.startswith("buggy") and args.dataset != "alldata":
+        raise SystemExit("[ftvar] 🔴 layout=buggy* 只对 dataset=alldata 成立（② 没有 buggy 池）")
     build(args.dataset, args.dry_run, args.layout)
 
 

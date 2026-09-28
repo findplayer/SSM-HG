@@ -203,6 +203,19 @@ def score(model: CodeBertContract, seqs_of: dict, names: list[str], label_of: di
     return metrics.macro_f1(y.numpy(), (probs >= 0.5).float().numpy()), probs, y
 
 
+def swa_suffix_average(acc: dict, n: int) -> dict:
+    """把 SWA 累加器除以计数，得到「epoch ≥ swa_start」的**后缀平均**权重。
+
+    **原地**除以（不另开第二份 ≈440 MB）——本机可用内存仅约 4 GB，两份累加器会使
+    35 min 的编码器训练落在 OOM 边缘。
+    """
+    if n < 1:
+        raise ValueError(f"n 必须 ≥ 1（收到 {n}）")
+    for k in acc:
+        acc[k] /= n
+    return acc
+
+
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -229,6 +242,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--pos-weight-cap", type=float, default=20.0, help="与 train.py 同口径。")
     p.add_argument("--patience", type=int, default=2, help="val macro-F1 早停耐心（epoch 数）。")
     p.add_argument("--limit-contracts", type=int, default=0, help="冒烟用；0=全部。")
+    p.add_argument("--swa-start", type=int, default=0,
+                   help="SWA 起点：对 epoch ≥ N 的编码器权重取**后缀平均**，作为选点候选"
+                        "（`0` = 关闭，本脚本行为与引入该参数前**逐字节相同**）。"
+                        "平均权重先在 val 上打分，**只有不劣于 best-epoch 才采用** ⇒ "
+                        "在 val 上不可能变差；两个读数都写进 `config.json::swa`。"
+                        "动机：在 45 个 val 合约上挑「最好的那一轮」是又一次最大值选择"
+                        "（`improvement_proposals.md` §1.2）。建议 `--epochs 16 --swa-start 13`。")
     p.add_argument("--seed", type=int, default=0, help="只控 head 初始化与打乱（编码器有预训练权重）。")
     return p.parse_args()
 
@@ -300,6 +320,16 @@ def main() -> None:
 
     # ---- 训练循环（判据 = **val macro-F1**，大纲第 452 行点名此指标）----
     log, best_f1, best_epoch, bad = [], -1.0, -1, 0
+    # SWA（`--swa-start N`）：对 epoch ≥ N 的**编码器权重取后缀平均**。动机见
+    # `improvement_proposals.md` §1.2：在 45 个 val 合约上挑「最好的那一轮」本身就是又一次最大值选择。
+    # 🔴 三条设计约束：
+    #   ① **默认关（N=0）⇒ 本文件行为逐字节不变**（累加器不建、末尾分支不进）；
+    #   ② 只存**一份 fp32 累加器**（≈440 MB），**不存 K 份快照**——本机可用内存仅约 4 GB，
+    #      K 份快照（K=3 即 1.3 GB）会把 35 min 的编码器训练推到 OOM 边缘；
+    #   ③ 平均权重**先在 val 上打分**，只有不劣于 best-epoch 才采用（否则保留 best-epoch）
+    #      ⇒ 这一项**在 val 上不可能变差**，且两个读数都写进 config.json，选择依据可审计。
+    swa_sum: dict | None = None
+    swa_n = 0
     t_start = time.perf_counter()
     for epoch in range(1, args.epochs + 1):
         model.train()
@@ -339,6 +369,34 @@ def main() -> None:
             if bad >= args.patience:
                 print(f"[ft] val macro-F1 连续 {bad} 个 epoch 未提升，早停于 epoch {epoch}", flush=True)
                 break
+        # ---- SWA 累加（在早停判定**之后**：早停那一轮不进平均，与 best.pt 口径对称）----
+        if args.swa_start and epoch >= args.swa_start:
+            cur = model.encoder.state_dict()
+            if swa_sum is None:
+                swa_sum = {k: v.detach().to("cpu", torch.float32).clone() for k, v in cur.items()}
+            else:
+                for k, v in cur.items():
+                    swa_sum[k] += v.detach().to("cpu", torch.float32)
+            swa_n += 1
+
+    # ---- SWA 收尾：后缀平均 → 在 val 上打分 → **只有不劣于 best-epoch 才采用** ----
+    # 🔴 采用与否都写进 config.json（`swa.*`）：这一项的效果是**可审计的数字**，不是一句声明。
+    swa_info: dict = {"swa_start": args.swa_start, "n_averaged": swa_n,
+                      "swa_val_macro_f1": None, "selection": "best_epoch"}
+    if swa_sum is not None and swa_n >= 2:
+        swa_suffix_average(swa_sum, swa_n)
+        model.encoder.load_state_dict({k: v.to(device) for k, v in swa_sum.items()})
+        f1_swa, _, _ = score(model, seqs_of, val_names, label_of, args.seq_batch, device, pad_id)
+        swa_info["swa_val_macro_f1"] = round(float(f1_swa), 6)
+        if float(f1_swa) >= best_f1:                        # 择优 ⇒ **在 val 上不可能变差**
+            model.encoder.save_pretrained(encoder_dir)
+            tok.save_pretrained(encoder_dir)
+            swa_info["selection"] = "swa"
+        swa_sum = None
+        print(f"[ft] SWA（epoch ≥ {args.swa_start}，{swa_n} 轮平均）val={float(f1_swa):.4f} "
+              f"vs best_epoch val={best_f1:.4f} ⇒ 采用 **{swa_info['selection']}**", flush=True)
+    elif args.swa_start:
+        print(f"[ft] SWA 启用但只累到 {swa_n} 轮（需 ≥2）⇒ 不采用", flush=True)
 
     # 🔴 `encoder/` 的**语料边车**：让编码器自描述"我是用哪个语料微调的"。
     # 下游 `build_graph_variant.build_cb_ft` 靠它做硬校验——跨语料套用不会报错，
@@ -359,6 +417,8 @@ def main() -> None:
         "leak_check": "train ∩ (val ∪ test) = ∅（未用 --limit-contracts 时强制断言）",
         "text_spec": "函数源码 src_lines[fs-1:fe]，512 token 截断；与 m3_build_features 同源",
         "selection_metric": "val macro-F1（大纲第 452 行）",
+        # SWA 的选择依据与实测（`--swa-start 0` 时 n_averaged=0、selection 恒为 best_epoch）
+        "swa": swa_info,
         "best_epoch": best_epoch, "best_val_macro_f1": round(best_f1, 6),
         "n_train_sequences": n_seq,
         "pos_weight": [round(float(v), 6) for v in pos_weight.cpu()],

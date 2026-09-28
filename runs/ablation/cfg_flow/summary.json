@@ -10,63 +10,76 @@
   "per_seed": {
     "0": {
       "split_seed": 0,
-      "val_threshold": 0.55,
-      "micro_f1_fixed_0.5": 0.4,
-      "macro_f1_fixed_0.5": 0.2193719593100398,
-      "micro_f1_val_threshold": 0.5365853658536585,
-      "macro_f1_val_threshold": 0.3074675324675325,
-      "mAP": 0.6283687212258641
+      "val_threshold": 0.8,
+      "micro_f1_fixed_0.5": 0.7441860465116279,
+      "macro_f1_fixed_0.5": 0.512012987012987,
+      "micro_f1_val_threshold": 0.7567567567567567,
+      "macro_f1_val_threshold": 0.42987012987012985,
+      "mAP": 0.7385912698412699
     },
     "1": {
       "split_seed": 1,
-      "val_threshold": 0.7,
-      "micro_f1_fixed_0.5": 0.5833333333333334,
-      "macro_f1_fixed_0.5": 0.34595959595959597,
-      "micro_f1_val_threshold": 0.742857142857143,
-      "macro_f1_val_threshold": 0.3904761904761905,
-      "mAP": 0.823318216175359
+      "val_threshold": 0.6,
+      "micro_f1_fixed_0.5": 0.7111111111111111,
+      "macro_f1_fixed_0.5": 0.5063492063492063,
+      "micro_f1_val_threshold": 0.7441860465116279,
+      "macro_f1_val_threshold": 0.5777777777777777,
+      "mAP": 0.9263979595612248
     },
     "2": {
       "split_seed": 2,
-      "val_threshold": 0.8,
-      "micro_f1_fixed_0.5": 0.7391304347826089,
-      "macro_f1_fixed_0.5": 0.5555555555555555,
-      "micro_f1_val_threshold": 0.7692307692307692,
-      "macro_f1_val_threshold": 0.46031746031746035,
-      "mAP": 0.6459883953581433
+      "val_threshold": 0.4,
+      "micro_f1_fixed_0.5": 0.8095238095238095,
+      "macro_f1_fixed_0.5": 0.5970121381886088,
+      "micro_f1_val_threshold": 0.8095238095238095,
+      "macro_f1_val_threshold": 0.5970121381886088,
+      "mAP": 0.9301533311737392
     }
   },
   "head": "multi",
   "test": {
     "fixed_0.5": {
       "micro_f1": {
-        "mean": 0.574155,
-        "std": 0.169751,
+        "mean": 0.75494,
+        "std": 0.05008,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.373629,
-        "std": 0.169791,
+        "mean": 0.538458,
+        "std": 0.050788,
         "n": 3
       }
     },
     "val_threshold": {
       "micro_f1": {
-        "mean": 0.682891,
-        "std": 0.127389,
+        "mean": 0.770156,
+        "std": 0.034668,
         "n": 3
       },
       "macro_f1": {
-        "mean": 0.386087,
-        "std": 0.076519,
+        "mean": 0.534887,
+        "std": 0.091454,
         "n": 3
       }
     }
   },
   "mAP": {
-    "mean": 0.699225,
-    "std": 0.107828,
+    "mean": 0.865048,
+    "std": 0.10953,
     "n": 3
   },
-  "note": "主指标 micro-F1（标签对级）；macro-F1 为参考，注释须与其计算划分的支撑同口径；support≤2 的类仅描述性呈现（decisions §13）。"
+  "note": "主指标 micro-F1（标签对级）；macro-F1 为参考，注释须与其计算划分的支撑同口径；support≤2 的类仅描述性呈现（decisions §13）。",
+  "provenance": {
+    "n_configs": 3,
+    "encoder": "fine-tuned CodeBERT（**20 轮档**；① 现行正典，§37 谱系）",
+    "graph_dir_leaf": [
+      "cb_ft_ss0",
+      "cb_ft_ss1",
+      "cb_ft_ss2"
+    ],
+    "head": [
+      "multi"
+    ],
+    "note": "由各 seed 的 config.json::args 只读推导；不加载权重。"
+  }
 }

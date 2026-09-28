@@ -5,7 +5,7 @@
 > **权威数字出处**：主评估 `runs/*/seed*/results.json`；per-class 阈值 `eval_results/calibration{,_aug}/`；
 > 程序汇总 `eval_results/per_class_f1.json`（由 `scripts/collect_per_class_f1.py --check` 生成，
 > 会与 `calibrate.py` **逐位对拍**，不一致即拒绝落盘）。
-> **口径**：§37 起正典 = **微调 CodeBERT**，`graph_dir = products/<语料>/graphs_ft/ss{S}`（含划分种子）。
+> **口径**：**2026-09-25 编码器换代后**正典 = **20 轮微调 CodeBERT**，`graph_dir = products/alldata/graphs_ft_p2/cb_ft_ss{S}`（含划分种子；`cb_ft_ss{S}` 必须配 `--split-seed S`）。上一代 `products/alldata/graphs_ft/ss{S}`（§37，5 轮档）**原地保留**，是**旧正典（5 轮档）**的输入树（其 run 归档于 `runs/prior_canon37/seed{S}`；**不另设名为 `cb_ft5` 的臂**）。
 
 ---
 
@@ -109,7 +109,7 @@ front_running **1.0**、reentrancy **5.3**、time_manipulation **1.3**、uncheck
 
 ### 4.1 设定与必须披露的两个混杂
 
-- **唯一变量**：`--conv rgcn → gcn`。其余参数逐字取自正典 `config.json`（逐种子 `graph_dir` = `graphs_ft/ss{S}`）。
+- **唯一变量**：`--conv rgcn → gcn`。其余参数逐字取自正典 `config.json`（逐种子 `graph_dir` = `graphs_ft_p2/cb_ft_ss{S}`）。
 - 🔴 **混杂 1：GCN 是"关系盲"，不是"另一个数据集上的 GCN"**。`model.py` 的 `GCNConv` **完全忽略 `edge_type`**，
   即把 5 种语义关系塌成一张同构图。论文表格里必须写明这一点，否则会被读成"另一种 GNN 实现"。
 - 🔴 **混杂 2：参数量不等**。RGCN `rgcn_params` = **205,754**（basis 分解）；GCN = **41,864**；合计
@@ -197,9 +197,9 @@ python scripts/collect_per_class_f1.py --check
 # ---- (3) GCN 基线（唯一有训练成本的一步：6 run ≈ 2 分钟 GPU）----
 for s in 0 1 2; do
   python scripts/train.py    --seed $s --split-seed $s --conv gcn \
-      --graph-dir products/alldata/graphs_ft/ss$s --out-dir runs/baseline_gcn
+      --graph-dir products/alldata/graphs_ft_p2/cb_ft_ss$s --out-dir runs/baseline_gcn
   python scripts/evaluate.py --seed $s --runs-dir runs/baseline_gcn \
-      --graph-dir products/alldata/graphs_ft/ss$s --split-dir products/alldata/splits
+      --graph-dir products/alldata/graphs_ft_p2/cb_ft_ss$s --split-dir products/alldata/splits
 done
 python scripts/evaluate.py --summarize --runs-dir runs/baseline_gcn
 # ② 同理，另加：--split-dir products/augmentation/splits \
@@ -209,10 +209,10 @@ python scripts/evaluate.py --summarize --runs-dir runs/baseline_gcn
 # ---- (4) GCN 的诊断/概率缓存（逐 seed 传**匹配的**编码器树！见下）----
 for s in 0 1 2; do
   python scripts/diagnose.py --runs-dir runs/baseline_gcn --seed $s \
-      --graph-dir products/alldata/graphs_ft/ss$s --split-dir products/alldata/splits
+      --graph-dir products/alldata/graphs_ft_p2/cb_ft_ss$s --split-dir products/alldata/splits
 done
 python scripts/diagnose.py --runs-dir runs/baseline_gcn \
-    --graph-dir products/alldata/graphs_ft/ss0 --split-dir products/alldata/splits   # 聚合
+    --graph-dir products/alldata/graphs_ft_p2/cb_ft_ss0 --split-dir products/alldata/splits   # 聚合
 ```
 
 > 🔴 **第 (4) 步的坑**：`diagnose.py` 只有**一个** `--graph-dir`，但正典的编码器树是**逐划分种子**的

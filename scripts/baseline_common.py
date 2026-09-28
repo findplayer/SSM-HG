@@ -73,19 +73,29 @@ CANON_DEFAULTS = {
 # 故布局知识集中在**这一个表**，由 `run_baselines.py --layout` 展开、由 `check_layout()`
 # 在每条基线真正开工前复核。
 #
-# - `canon37`：§37 正典（池 453，已剔除全部 `buggy_*`）——**默认，逐字节等价于引入本表之前**。
-# - `buggy` ：任务 2 新正典（池 497，`withbuggy_snapshot` + `graphs_ft_buggy/cb_ft_ss{S}`）。
+# - `canon37`：**§37 正典谱系**（池 453，已剔除全部 `buggy_*`）——**默认**。
+#   ⚠ 2026-09-25 编码器换代：谱系名 `canon37` 保留（它命名的是「§37 起微调编码器即正典」
+#   这条**路线**，不是 epoch 数），但所指的**档位**已由 5 轮升为 **20 轮**，
+#   图树随之由 `graphs_ft/ss{S}` 换到 `graphs_ft_p2/cb_ft_ss{S}`
+#   （依据 `experiments/encoder_promotion_gate.md`：三门前全过，mAP 均 Δ +0.1369）。
+#   旧的 5 轮档**未删**，是**旧正典的输入树**（树仍在 `products/alldata/graphs_ft/ss{S}`；
+#   其 run 已归档于 `runs/prior_canon37/seed{S}`，**不另设名为 `cb_ft5` 的臂**）。
+# - `buggy` ：任务 2 正典（池 497，`withbuggy_snapshot`）。
+#   ⚠ 同日同步换代：16 轮 → **20 轮**，树由 `graphs_ft_buggy/cb_ft_ss{S}`
+#   换到 `graphs_ft_buggy_p2/cb_ft_ss{S}`。换代的理由与 ① 不同、更硬：
+#   原设计要对照的「池 vs 池」，但两侧 epoch 预算一个 16 一个 5 ⇒ **双变量混淆**，
+#   两侧都到 20 轮才只剩池一个变量。
 LAYOUTS = {
     "canon37": {
         "split_dir": "products/alldata/splits",
-        "graph_dir": "products/alldata/graphs_ft/ss{S}",
+        "graph_dir": "products/alldata/graphs_ft_p2/cb_ft_ss{S}",
         "feature_suffix": "",
         "out_dir": "eval_results/baseline/{name}",
         "n_pyg_min": 450,
     },
     "buggy": {
         "split_dir": "products/alldata/splits/withbuggy_snapshot",
-        "graph_dir": "products/alldata/graphs_ft_buggy/cb_ft_ss{S}",
+        "graph_dir": "products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}",
         "feature_suffix": "_buggy",
         "out_dir": "eval_results/baseline/{name}_buggy",
         "n_pyg_min": 490,
@@ -129,8 +139,13 @@ def _match_split(split_dir) -> str | None:
 def _match_graph(graph_dir) -> str | None:
     """按 `graph_dir` 模板 `{S}` **之前**的固定前缀匹配。
 
-    ⚠ `graphs_ft/` 与 `graphs_ft_buggy/` 靠**尾斜杠**区分——若把前缀写成 `graphs_ft`
-    （不带斜杠），`graphs_ft_buggy/...` 会同时命中两个正典。这是本函数唯一要注意的地方。
+    ⚠ **新增 layout 时**：取模板 `{S}` 之前的前缀，两条规则不得互为前缀。
+    历史上 `graphs_ft/` 与 `graphs_ft_buggy/` 正是靠**尾斜杠**区分的
+    （前缀写成不带斜杠的 `graphs_ft`，`graphs_ft_buggy/...` 会同时命中两个正典）。
+    2026-09-25 换代后两条前缀变成 `…/graphs_ft_p2/cb_ft_ss` 与
+    `…/graphs_ft_buggy_p2/cb_ft_ss`，天然互不为前缀，但这个坑对**下一个**新增的 layout 依旧成立。
+    ⚠ 换代前的旧树（`graphs_ft/ss{S}`、`graphs_ft_buggy/cb_ft_ss{S}`）现在**不匹配任何 layout**
+    ⇒ 返回 `None`。这是对的：它们是**旧正典（5 轮档）**的输入树，不再是正典。
     """
     r = _rel(graph_dir)
     for key, L in LAYOUTS.items():
@@ -554,7 +569,7 @@ def base_parser(desc: str, name: str) -> argparse.ArgumentParser:
     p.add_argument("--seed", type=int, default=0, help="训练种子。")
     p.add_argument("--split-seed", type=int, default=None,
                    help="读 split_seed{S}.json；默认 = --seed。")
-    p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft/ss0"),
+    p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft_p2/cb_ft_ss0"),
                    help="图目录（正典必须带 ss{S}，且 {S} 与 --split-seed 配对）。")
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
     p.add_argument("--feature-suffix", default="",

@@ -88,11 +88,18 @@ DS = "dive"                              # 由 `--dataset` 设置；下面是它
 
 DIVE = SRC_STAGE = RAW = GRAPHS = FT_MAIN = FT_AUG = SAMPLE = DIVE_SRC = LABEL_FILE = None
 ENCODER_TREES: dict = {}
+ENCODER_ROOTS: dict = {}
+
+
+def encoder_of(corpus: str, ss: int) -> Path:
+    """该语料、该划分种子的微调编码器目录（由 `use_dataset` 按语料重绑的 `ENCODER_ROOTS` 派生）。"""
+    return ENCODER_ROOTS[corpus] / f"ss{ss}" / "encoder"
 
 
 def use_dataset(name: str) -> None:
     """按数据集名重绑模块级路径常量（`--dataset` 调用；默认 dive 以保持既有行为不变）。"""
-    global DS, DIVE, SRC_STAGE, RAW, GRAPHS, FT_MAIN, FT_AUG, SAMPLE, DIVE_SRC, LABEL_FILE, ENCODER_TREES
+    global DS, DIVE, SRC_STAGE, RAW, GRAPHS, FT_MAIN, FT_AUG, SAMPLE, DIVE_SRC, LABEL_FILE, \
+        ENCODER_TREES, ENCODER_ROOTS
     if name not in DATASETS:
         raise SystemExit(f"[dive] 未知数据集 {name}；可选 {sorted(DATASETS)}")
     cfg = DATASETS[name]
@@ -106,8 +113,19 @@ def use_dataset(name: str) -> None:
     SAMPLE = cfg["sample"]
     DIVE_SRC = cfg["src"]
     LABEL_FILE = cfg["label"]
-    # 语料 → 特征树。键与 `runs/codebert_ft/<语料>/` 对应。
+    # 语料 → 特征树。**键必须与 `ENCODER_ROOTS` 的键一一对应**。
     ENCODER_TREES = {"alldata": FT_MAIN, "augmentation": FT_AUG}
+
+    # 🔴 语料 → **微调编码器根**（2026-09-25 编码器换代新增这一层映射）。
+    #   换代前两处调用点写死 `runs/codebert_ft/<语料>`。换代后：
+    #     ① 主库的现行正典编码器在 `runs/codebert_ft_p2/`（**名字不带语料维度**，它只服务 alldata）；
+    #     ② 增强集**未换代**，仍在 `runs/codebert_ft/augmentation/`。
+    #   ⇒ 必须**逐语料**指定。否则 ① 会**静默**拿旧 5 轮编码器重编码 DIVE ——
+    #     而下面的 `corpus.json` 硬校验**拦不住**这种错：它只校验语料，不校验档位。
+    ENCODER_ROOTS = {
+        "alldata": REPO / "runs" / "codebert_ft_p2",
+        "augmentation": REPO / "runs" / "codebert_ft" / "augmentation",
+    }
 
 
 def run(argv: list[str], label: str, env: dict | None = None, quiet: bool = False) -> None:
@@ -194,10 +212,39 @@ def step_raw() -> None:
 
 
 # --------------------------------------------------------------------------- 3. graphs
+def assert_raw_complete(out: Path) -> None:
+    """🔴 硬守卫：`raw/AST-raw` 与 `raw/DFG-raw` 必须**逐合约齐备**才能拿去建图。
+
+    **为什么必须有这一条**（2026-09-25 实测踩到）：`generate_all_ast_cfg_dfg.sh` 开工即
+    `find -delete` **清空**四个目标目录、**再逐个重生成**。若该步中途被打断（本次是
+    我中止了链），`raw/` 会停在「已清空 + 只生成了一小部分」的状态，
+    而 `filter_report.txt` 此时**仍是上一轮完整运行的旧报告**（脚本在末尾才重写它）
+    ⇒ 从外面看**一切正常**。此时若执行 `--steps graphs`，会**静默**产出一棵缩水的图树，
+    下游所有指标随之失真且**不报错**。
+
+    判据取自**同一份 `graphs/` 里的图数**（`out` 已存在时）—— 一个合约一张图、一份 AST、
+    一份 DFG，故三者必须齐平。这是自校准的：不写死 900/891 这类会漂移的常数。
+    """
+    ref = out
+    n_ref = len(list(ref.glob("*_hetero.json"))) if ref.is_dir() else 0
+    if n_ref == 0:
+        return                      # 图树尚未建过：没有参照物，本守卫不适用
+    for name, pat in (("AST-raw", "*.json"), ("DFG-raw", "*_dfg.txt")):
+        n = len(list((RAW / name).glob(pat)))
+        if n < n_ref:
+            raise SystemExit(
+                f"[dive] 🔴 `raw/{name}` 只有 {n} 个文件，而图树有 {n_ref} 张 ⇒ "
+                f"raw **不完整**（很可能是 `--steps raw` 中途被打断，"
+                f"`filter_report.txt` 此时仍是上一轮的旧报告，看不出异常）。\n"
+                f"    ⇒ 先跑完整的 `python scripts/build_dive_external_set.py --steps raw` 再建图；"
+                f"**不得**在残缺的 raw 上执行 graphs 步（会静默产出缩水的图树）。")
+
+
 def step_graphs(callback_args: list[str] | None = None, out_dir: Path | None = None,
                 label: str = "M2") -> None:
     """M2 异构图 + M1 锚点 + PyG 转换。`callback_args` 非空时产出**边变体**。"""
     out = out_dir or GRAPHS
+    assert_raw_complete(out)
     out.mkdir(parents=True, exist_ok=True)
     run([sys.executable, "scripts/build_cfg_centered_hetero_graph.py",
          "--ast-dir", str(RAW / "AST-raw"), "--cfg-dir", str(RAW / "CFG-raw"),
@@ -242,7 +289,7 @@ def step_features(limit: int = 0) -> None:
     print(f"[dive] features：结构 {len(names)} 图；开始 ①② 微调编码器重编码", flush=True)
     for corpus, tree in ENCODER_TREES.items():
         for ss in SPLIT_SEEDS:
-            encoder = REPO / "runs" / "codebert_ft" / corpus / f"ss{ss}" / "encoder"
+            encoder = encoder_of(corpus, ss)
             if not (encoder / "config.json").exists():
                 raise SystemExit(f"[dive] 找不到微调编码器 {encoder}")
             # 语料归属硬校验（照抄 build_graph_variant.build_cb_ft 的理由：
@@ -257,10 +304,28 @@ def step_features(limit: int = 0) -> None:
             for n in names:
                 for suffix in ("_hetero.json", "_m1.json", "_pyg.pt"):
                     link(GRAPHS / f"{n}{suffix}", vdir / f"{n}{suffix}")
+            # 🔴 **是否 `--force` 由「编码器换没换」决定，不是无条件**（2026-09-25 定）。
+            #   M3 的 `_cb.pt` 是**断点续跑缓存**（`cache_usable(cb_path) and not force`
+            #   ⇒ 直接读回旧张量），而复用一份**别的编码器**留下的 `_cb.pt` 从来不是正确行为；
+            #   且下面 `assert_feat_same` 只比三通道（与编码器无关）⇒ 混合树**不报错**。
+            #   本步末尾写的 `variant.json` 里记着 `encoder`，拿它当判据：
+            #     路径不同 ⟺ 换代了 ⇒ `--force` 重算；
+            #     路径相同 ⟹ 缓存就是这份编码器的产物 ⇒ 复用（省一次全量前向）。
+            #   ⚠ 无条件 `--force` 也**正确**，但会让**未换代的语料**（② 增强集）白跑 3 棵树的 M3。
+            prev_enc = None
+            pj = vdir / "variant.json"
+            if pj.exists():
+                try:
+                    prev_enc = json.loads(pj.read_text(encoding="utf-8")).get("encoder")
+                except json.JSONDecodeError:
+                    prev_enc = None            # 读不动就当"不知道" ⇒ 走 force，宁可重算
+            need_force = str(prev_enc) != str(encoder)
             run([sys.executable, "scripts/m3_build_features.py",
                  "--in-dir", str(vdir), "--out-dir", str(vdir), "--m1-dir", str(vdir),
                  "--categories", str(cats), "--codebert", str(encoder),
-                 "--device", "cuda"], f"M3({corpus} ss{ss})")
+                 *(["--force"] if need_force else []),
+                 "--device", "cuda"],
+                f"M3({corpus} ss{ss}，{'force 重算' if need_force else '编码器未变 ⇒ 复用缓存'})")
             assert_feat_same(vdir, GRAPHS, names, f"{corpus}/ss{ss}")
             write_variant_json(vdir, {
                 "variant": f"dive_{corpus}_ft", "split_seed": ss,
@@ -336,7 +401,7 @@ def step_variants() -> None:
         for ss in SPLIT_SEEDS:
             ft = tree / f"ss{ss}"
             for vname in EDGE_VARIANTS:
-                encoder = REPO / "runs" / "codebert_ft" / corpus / f"ss{ss}" / "encoder"
+                encoder = encoder_of(corpus, ss)
                 vdir = tree / "graph_variants" / f"{vname}_ss{ss}"
                 shutil.rmtree(vdir, ignore_errors=True)       # 清掉半成品，保证可重入
                 vdir.mkdir(parents=True, exist_ok=True)

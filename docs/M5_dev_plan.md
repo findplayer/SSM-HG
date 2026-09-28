@@ -243,7 +243,7 @@ loss_total = loss_cls + 1e-3 * loss_var              # lambda_var=1e-3
 | `--limit-graphs` | 0 | 小样：只取前 N 个 train 图（smoke） |
 | 消融透传 | — | `--drop-edges 3` / `--drop-ast`（dataset.Ablation）；`--conv gcn`、`--meanpool`、`--num-bases 4`、`--hid 256`（model）；`--ablate-sv`、`--cb-channels cb_node`、`--feat-groups base`（AblationConfig） |
 | `--deterministic` | False | 完整确定性开关（非主实验默认，记录性能代价） |
-| `--graph-dir / --out-dir` | products/alldata/{graphs,splits} / runs | 路径 ⚠ 正典训练**必须显式** `--graph-dir products/alldata/graphs_ft/ss{S}`（§37；`graphs` 已降为 `cb_frozen` 臂），且 `ss{S}` 必须配 `--split-seed S` |
+| `--graph-dir / --out-dir` | products/alldata/{graphs,splits} / runs | 路径 ⚠ 正典训练**必须显式** `--graph-dir products/alldata/graphs_ft_p2/cb_ft_ss{S}`（2026-09-25 编码器换代后的现行正典；`graphs_ft/ss{S}` 已降为**旧正典（5 轮档）的输入树**（**不另设名为 `cb_ft5` 的臂**）、`graphs` 为 `cb_frozen` 臂），且 `cb_ft_ss{S}` 必须配 `--split-seed S` |
 
 ### 5.7 smoke（`--limit-graphs 1`，decisions §9.5/§9.7）
 

@@ -18,6 +18,11 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
 
 - 一律在 **conda base** 环境运行：slither 0.11.5、solc-select、python 3.11、torch 2.0.1+cu118（GPU 版，RTX 4070；无 CUDA 时自动回退 CPU）、torch_geometric 2.7.0（含 torch-scatter/sparse/cluster 的 CUDA 扩展）、transformers 4.29.2。
   🔴 **唯一例外 = 5.3 的五个传统工具**（2026-09-23，`decisions.md` §47）：Mythril / Manticore / Securify / Oyente 各在**独立 conda env**（`mythril`/`manticore`/`securify`/`oyente`），SmartCheck 走 npm + apt 的 Java 8。**base 仍未新增任何包**（实测 torch 2.0.1+cu118 / PyG 2.7.0 / transformers 4.29.2 逐项不变）——隔离正是为了保护 base，**不要**把工具装进 base。装法见 `scripts/install_traditional_tools.sh`；调用口径（含 manticore 必须 `--thorough-mode`、securify 必须 `SOUFFLE_BINARY=souffle162`、oyente 必须 solc 0.4.19）见该脚本末尾。
+  🔴 **2026-09-25 已全部接入**（`decisions.md` §56）：`scripts/baseline_static_tools.py --tool {slither,mythril,manticore,smartcheck,securify,oyente}`，五工具的**调用/解析/映射**在 `scripts/static_tool_adapters.py`，**评测部分六工具共用一份实现**（表的内部可比性靠这条）。产物 `eval_results/baseline/<工具>_alldata{,.json}`；报告 `experiments/traditional_tools_results.md`（程序生成）；主对比表 `experiments/baseline_three_caliber_tables.md` 的**六行**。工具工作目录 = `runs/_tools_work/`（🔴 中间产物只能写 `products/`、`runs/`、`eval_results/`；且**源码一律复制后再跑**，只读源一个字节都不许写）。
+  🔴 **六条读表须知（缺一即误读；④⑤⑥ 为 2026-09-26 新增）**：① 六工具**同一把尺**——检测项进七类 ⟺ 有唯一且明确的 SWC 锚点；无锚点一律不纳入（逐条理由在产物 `excluded`）。② **`no_detector_classes` 是派生的**（从映射表取差集），声明的是「**该工具不提供此检测项**」（如 SmartCheck 没有 reentrancy/front_running 规则），**不得**读成「该工具在此类上 F1=0」。③ 🔴 **覆盖率不是随机缺失**：Securify 只吃 pragma 0.5.x、Oyente 钉 solc 0.4.19，而**真实池里「有漏洞 ⟺ 0.4.x」是完美分离**（0.4.x 38% 含漏洞 / 0.5.x **0%**）⇒ Securify 的可分析集**恰好全是干净合约**，其行在 test 上**结构性不可评估**（support 恒为 0，`collect_traditional_tools.py` 会**自动报 warning**）。⚠ 全库口径下 0.5.x 的 35% 含漏洞**全部是合成的 `buggy_*`**（100% 正例、不在池 453 划分里）——**不分族就会得出相反的结论**。** 表里该格现已直接画 `—`（用户 2026-09-26 裁定）。🔴 **`—` 有三种成因、须分开读**：(a) 工具不提供此检测项（见交叉表 `✗`）；(b) **整行不可评估**（可分析集里逐类 support 全 0，如 Securify——支持度表 + warning）；(c) **尚未评测**（有原始产物但无 `seed{S}_eval.json`，由 `no_eval_tools()` 点名）。⚠ 而「**跑了但没检出来**」的真实 0 **一律保留**（如 Slither 的 `arithmetic`/`dos`：有检测项、support>0、一个都没报对）——把它画成 `—` 会抹掉结论并让 micro/macro 虚高。
+  ④ 🔴 **† 两列（仅覆盖类口径）**：报告 §四另有 **† 两列 = 仅该工具有检测项的类上的 micro/macro**（切列重算 + 与产物存档逐位对拍，不符即拒绝出数）——它**分母更小、系统性偏高**，**只描述该工具自身覆盖范围，不得横比到本文方法/三条基线**；跨行能比的只有不带 † 的两列。
+  ⑤ 🔴 **0/0 的 F1 不计成 0**（用户 2026-09-26 裁定 A）——某种子上某类 support=0 时F1 未定义，已从该格均值**剔除并标 `‡`**（`0.3333±0.5774` → `0.5000±0.7071‡`）。`micro`/`macro` 仍按全量（全仓统一实现，改它会动到所有已报告数字）。
+  ⑥ 🔴 **跑动环境**：本机 WSL 总内存 **7.8 GB**，而 manticore 默认 `--core.procs` = CPU 核数（实测单子合约起 16 个 z3、90 秒涨到 4.1 GB）⇒ 只能**单路 + cgroup 上限 5 GB**。上限顶到时**求解器被杀而合约仍记 `ok`**（不报错的降级），已由 `run_env.json` 边车 + 报告 §六自动披露。**不得**为省内存中途调小 `--core.procs`（前后两半会不同尺）。2026-09-26 16:59 的全局 OOM 曾杀掉 `systemd` 与 VSCode 的 `MainThread` ⇒ **符号执行类不得并行**。
 - 训练/推理设备：`train.py`/`evaluate.py` 自动 `cuda if available else cpu`，数据经 `collate(..., device=...)` 上设备、模型 `.to(device)`；无 GPU 时行为与 CPU 版完全一致。
 - 脚本统一**从仓库根目录**运行：`python scripts/xxx.py`。不要 `cd scripts`，也不要从根目录直接 `import` 脚本。
 - 测试：`pytest tests/ -q`，或 `python tests/test_model_smoke.py`。
@@ -40,14 +45,28 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   - 其中 **`alldata_augmentation/` 已在 `.gitignore` 中**（2026-09-14）：它只读、可由 `MVD-HG-dataset` 派生重建，不纳入版本管理——「提交全部」不会把它扫进去。其余 4 个只读源历史上已入库，不在忽略之列。
 - 中间产物只能写到 `products/<数据集>/` 以及 `runs/`、`eval_results/`。
   🔴 **各区的形态（2026-09-20 补全，§37/§38 起不再只是三件套）**：
-  `products/alldata/{raw, graphs, graphs_ft/ss{S}, graph_variants, splits}`、
+  `products/alldata/{raw, graphs, graphs_ft/ss{S}, graphs_ft_p2/cb_ft_ss{S}, graph_variants, splits}`、
   `products/augmentation/{raw, graphs, graphs_ft/ss{S}, graph_variants, splits}`、`products/dive/…`（同上 + `graphs_ft_aug/ss{S}`、`src_stage/`）、
-  `products/solidifi/…`。**把新特征写进 `graphs_ft/ss{S}` 不算越界**——那正是 §37 的正典产物区。
+  `products/solidifi/…`。**把新特征写进 `graphs_ft_p2/cb_ft_ss{S}` 不算越界**——那正是**现行**正典产物区
+  （`graphs_ft/ss{S}` 是 §37 旧档 —— **5 轮档旧正典**的输入树，同样在区内；**不另设名为 `cb_ft5` 的臂**）。
   🔴 **2026-09-21（任务2）新增形态**：`products/alldata/graphs_ft_buggy/cb_ft_ss{S}/`（**含 `buggy_*` 的新池 497
   划分**对应的编码器特征树）、`runs/codebert_ft_buggy/ss{S}/encoder/`（其编码器）、
   `runs/codebert_ft_probe/ss2/`（epoch 探针，隔离）、`runs/buggy_canon/seed{S}/`（新正典的 GNN 产物）、
   `eval_results/baseline/`（传统工具基线）、`eval_results/ensemble/`（多种子集成）。
   这些**一律另开目录、绝不覆盖** §37 正典的 `graphs_ft/`、`runs/codebert_ft/`、`runs/seed{0,1,2}/`。
+  🔴 **2026-09-25（编码器换代）新增形态 —— 混合换位**：
+  **新一代替换到正典路径**（`runs/seed{S}` ← `runs/p2_canon/seed{S}`），
+  **旧一代改名到 `runs/prior_*`**；而**编码器与图树保留各自的 `_p2` 名字**（旧树原地不动）：
+  `runs/codebert_ft_p2/ss{S}/encoder/`、`products/alldata/graphs_ft_p2/cb_ft_ss{S}/`（+ 其 `graph_variants/`）、
+  `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}/`、`runs/codebert_ft_buggy_p2/`。
+  **为什么只换 run 目录、不换树**（三条实测依据，见 `decisions.md` §55）：
+  ① 归档 run 的 `config.json` 里 `graph_dir`/`encoder_dir` 是**原路径**，
+     旧树不动 ⇒ 它们**仍可逐字重放**；全物理换位会让它们指向新一代且**不报错**；
+  ② `m3_build_features.py` 的 `_cb.pt` 是**断点续跑缓存**（`cache_usable and not force`）⇒
+     把新编码器放进旧路径重跑 M3 会产出「新目录名 + 旧特征」且**不报错**；
+  ③ `check_encoder_promotion.py` / `collect_buggy_canon_summary.py` / `collect_ablation_results.py`
+     都把 `runs/codebert_ft/` + `graphs_ft/` 当**旧一代/消融档**引用 —— 旧树不动，这些引用**逐条仍然正确**。
+  ⚠ **编码器换代时要改的只有"图侧"常量**（`runs` 侧靠物理换位自动正确）：见「语义锁死项」段的 4 处清单。
 - 🔴 **2026-09-21（消融 n=9）新增形态**：`runs/ablation_n9/`、`runs/ablation_n9_aug/`（21 臂的 **n=9 同配对补跑**，
   只补非对角 6 对/臂；对角复用 `runs/ablation{,_aug}/<item>/seed{S}`，① 的 9 对基线复用 `runs/cbft_study/cbft_ts{T}_ss{S}`）、
   `runs/arch_n9/`、`runs/arch_n9_aug/`（架构基线族 GCN/GAT/SAGE 的 n=9 + 参数量匹配对照 `*_pm`）。叶目录形如 `<item>/ts{T}_ss{S}/seed{T}/`。
@@ -79,6 +98,17 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   回答「多标签共享是否压制了稀有类」；驱动 `scripts/run_perclass_arm.py`、汇总
   `scripts/collect_perclass_arm.py` → `experiments/perclass_arm_results.md`）
   + `products/alldata/perclass_labels/cls_<类名>.json`（逐类标签文件）。
+  🔴 **`cls_ANY_union` 是一个"孤儿臂"，与那 7 个类的来源不同**（2026-09-25 换代时查清）：
+  7 个类由 `run_perclass_arm.py` 产出（`classes = metrics.VULN_NAMES`），
+  而 **`ANY_union` 该脚本产不出** —— `--classes ANY_union` 会被「未知类名」守卫拒绝，
+  且 `git log -S "ANY_union" -- scripts/run_perclass_arm.py` **为空**（从未有过）。
+  它的真实身份 = `--head binary` + `label_file=None`（默认 7 维标签）⇒
+  §31 的 `any(targets)` 塌缩那条「有没有漏洞」臂，与逐类臂**同池同划分**；
+  **只有 `collect_perclass_arm.union_rows()` 读它，读不到就 `continue` 跳过**
+  ⇒ 缺了**不报错**，`perclass_arm_results.md` 里也就一直没有 union 行。
+  **现行做法**：由 `runs/_p3_finish.sh` 的 3.9 步**显式重放**（命令行由 `run_ablation` 的
+  argv 构造器从正典 config 派生，**不手抄参数**，并带单变量自检）。
+  ⚠ 换代时该臂的归档 config 在 `runs/prior_canon37/perclass_arm/cap20/cls_ANY_union/`。
   🔴 **零模型改动**：`--head binary` 的塌缩是 `any(targets)`（`dataset.stack_labels` 唯一的塌缩点），
   故把标签文件里除第 c 列外全部置 0 即可得到「该类有没有漏洞」的独立二分类器。
   **入库口径**：`best.pt` 排除（42+3 = 45 个，各约 5 MB ⇒ 约 225 MB；同 `runs/ablation_n9*` 那条裁定），
@@ -105,10 +135,14 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   退出码对白名单命中同样返回 0，只看退出码会把「入库」误读成「已忽略」（本次实测踩到，已更正）。
   **运行该区的入口**：`scripts/run_baselines.py`（子进程驱动）+ `scripts/collect_baseline_tables.py`
   （汇总，复用 `collect_three_caliber_tables`）。
-  🔴 **三个正典不可互换**：§37 正典（`graphs_ft/ss{S}` + `splits/`，池 453）/
-  任务2 新正典（`graphs_ft_buggy/cb_ft_ss{S}` + `splits/withbuggy_snapshot/`，池 497）/
-  ② 增强集（`products/augmentation/graphs_ft/ss{S}` + 其 `splits/`，池 1774）。
-  ⚠ **注意 `cb_ft_ss{S}` 这个前缀**：它只属于新正典，逐种子路径模板化必须**同时认两种形态**。
+  🔴 **三个正典不可互换**（**路径于 2026-09-25 编码器换代时更新**）：
+  §37 谱系正典（`graphs_ft_p2/cb_ft_ss{S}` + `splits/`，池 453，**20 轮档**）/
+  任务2 正典（`graphs_ft_buggy_p2/cb_ft_ss{S}` + `splits/withbuggy_snapshot/`，池 497，**20 轮档**）/
+  ② 增强集（`products/augmentation/graphs_ft/ss{S}` + 其 `splits/`，池 1774，**5 轮档、本次未换代**）。
+  ⚠ **`cb_ft_ss{S}` 这个前缀现在属于 ① 与任务 2 两处**，逐种子路径模板化必须**同时认 `ss{S}` 与 `cb_ft_ss{S}`**。
+  ⚠ **换代前的旧树仍在盘上、且仍可读**：`graphs_ft/ss{S}`（① 的 5 轮档**旧正典**的输入树，其 run 已归档于 `runs/prior_canon37/seed{S}`）、
+  `graphs_ft_buggy/cb_ft_ss{S}`（任务 2 的 16 轮档）。**它们不是正典**，
+  `baseline_common._match_graph()` 对它们返回 `None`（有机检 `test_deposed_trees_match_no_layout` 盯着）。
   🔴 **`test_probs.pt` 只由 `diagnose.py` 写，`evaluate.py` 不写** —— 任何"要产出可被
   `collect_three_caliber_tables.py` / `error_rates.py` 读取的 run"的链条**必须含 diagnose**，
   否则不是报错而是**整列 `—`**。`run_ablation.py` 已补上这一步（原先缺）。
@@ -127,9 +161,11 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
   `tests/test_baseline_tables.py::test_all_feature_root_calls_pass_the_suffix` 盯着这条；
   ② 换正典必须**四处一起换**（`split_dir`/`graph_dir`/`feature_suffix`/`out_dir`），
   由 `baseline_common.check_layout()` 在开工前硬拒不一致的组合；
-  ③ 🔴 **canon37 段的三条基线三种子用的都是 `graphs_ft/ss0`**（既存事实、**未修**），
-  而 `_buggy` 段用与 `--split-seed` **配对**的 `cb_ft_ss{S}`：`_cb.pt` 的 CodeBERT 节点行
-  **逐张量随 `ss` 变**（实测全不同）⇒ 两段**跨段不可比**，除了池还差着特征配对方式；
+  ③ ✅ **canon37 段「三种子都用 `graphs_ft/ss0`」的不对称已于 2026-09-25 换代时消除**：
+  现两段都与 `--split-seed` **配对**用 `cb_ft_ss{S}`。`_cb.pt` 的 CodeBERT 节点行
+  **逐张量随 `ss` 变**（实测全不同）⇒ 配对是硬要求，不配对就是拿另一套编码器特征训练。
+  ⚠ 换代前的旧产物**仍是 ss0 口径**，已归档到 `runs/prior_canon37/`；
+  `experiments/baseline_three_caliber_tables.md` 的「三、」段文本同步更新（`baseline_common.LAYOUTS` 是唯一真源）；
   ④ **MVD-HG 在 `_buggy` 的 ss1 上 test 少 1 个**（48/49）⇒ 该行分母与其余行不同，
   表里已显式标注，读表时必须带着；
   ⑤ **Slither 的评测输出目录只由 `--tag` 决定、与 `--split-dir` 无关** ⇒ 换划分时必须同时传
@@ -178,14 +214,84 @@ CFG 中心异构图 + RGCN 的智能合约七类漏洞多标签检测，流水�
     只做 (a) 仍会漏 —— `runs/` 侧从未做过同类排查，`codebert_ft` 就是这么漏的；
     而**做 (b) 才抓到了第三次**（前两次都是事后才发现）⇒ **(b) 是三步里唯一能兜住字面量失效的一步**。
     ⚠ **该字典只有一份（在 ① 下）**，原文写的 `products/**/graphs/ir_cat.json` 不精确（2026-09-18 更正）：② 的 `graphs/` 里**没有**它，② 的正典当初传的就是 ① 这份（证据见 `decisions.md` §35.4）。**不要给 ② 补建**——那会造出两个可能漂移的来源。所有变体构建一律经 `build_graph_variant.frozen_categories()` 取它（缺文件即硬失败，避免 m3 静默回退全库扫描）。
-  - `runs/**/best.pt`（`evaluate.py` 的唯一权重输入）+ `val_best_probs.pt`/`test_probs.pt`（推理缓存）→ 使已报告指标可**离线重算、无需重训**；全库 **约 1.5 GB / 1125 个文件**（§38 后 run 数增至 150+；2026-09-16 时为 115 MB / 24 run）、单文件 ≤4.77 MB。`last.pt` 仍排除（仅断点续训用，入库会使体积翻倍）。
+  - 🔴 **草稿区 `runs/_snap/` 不入库（2026-09-24 加，规则在 `.gitignore` 第 64 行）**：只放分析中途的临时件
+    （对比快照、事实清单、文档改写前的大纲 `.docx` 备份、git 自检清单）。**判据 = 「复现所需的最小集」**——
+    这些都不是，报告依据一律是 `products/`、正式 `runs/<目录>/` 与脚本本身。
+    ⚠ **大纲改写的审计链是脚本**（`scripts/edit_outline.py` 引擎 + `scripts/outline_spec.py` 内容，
+    每条编辑都写了依据与产物出处），**不是**这里的 `.docx` 备份 ⇒ 备份不必入库。
+    **三步自检实测（2026-09-24）**：(a) `git check-ignore -v runs/_snap/impl_facts.md` 命中第 64 行（无 `!`）⇒ 已忽略，
+    且 `runs/seed0/best.pt` **仍未被忽略**（规则没漏出去）；(b) `git add -A --dry-run runs/ products/ eval_results/`
+    由 **28 → 21** 个文件、`_snap` 命中 **0**、最大单文件 3.8 KB、**无 >100 MB**；
+    (c) 本段与 `项目组织架构.md` 同步。
+  - 🔴 **编码器换代的三个归档根（2026-09-25 加）**：`runs/prior_canon37/`（§37 谱系的 5 轮档，
+    `seed{S}` / `cbft_study` / `ablation` / `ablation_n9` / `arch_n9` / `perclass_arm` / `baseline_gcn`）、
+    `runs/prior_buggy16/`（任务 2 的 16 轮档，`buggy_canon` / `ablation_buggy` / `baseline_arch_buggy`）、
+    `runs/prior_probes/`（epoch 探针的**边车**，权重已按同一判据删除）。
+    **为什么用 `prior_` 前缀**：`scripts/aggregate_results.py:35` 的 `ARCHIVE_PREFIX = "prior_"`
+    按路径段自动排除它们（与既有的 `runs/prior_frozen/` 同一约定）⇒ **零代码改动**。
+    ⚠ **不要改名为 `runs/_archive/`**：`.gitignore` 的 `runs/codebert_ft*/**` 是**路径前缀**匹配，
+    `runs/_archive/codebert_ft/…` 会让 2.9 GB 的 `.bin` 漏网（实测过）；本方案**从不归档编码器**故无此问题。
+    **为什么保留**：`decisions.md` §55 的**逐单元格 before/after 对照表**要拿它们与新正典逐格相减
+    ——没有这三个根，那张表无法复核（本仓既有裁定「两代并存、旧的一律不删」）。
+    **入库口径**：`runs/prior_canon37/**/best.pt` + `runs/prior_buggy16/**/best.pt` 排除
+    （放在 `!runs/**/best.pt` **之后**才生效），口径同 `runs/ablation_n9*`：**入 probs / config / results，排除权重**。
+    **三步自检实测（2026-09-25）**：(a) `git check-ignore -v runs/prior_canon37/seed0/best.pt`
+    命中第 85 行（无 `!`）⇒ 已忽略；`runs/prior_canon37/seed0/test_probs.pt` **入库**；
+    `runs/seed0/best.pt` **仍未被忽略**（规则没漏出去）；(b) `git add -A --dry-run`（**全仓口径**）
+    共 **6865 个文件 / 0.4747 GB（509,660,552 B；均 72.5 KB）**、最大单文件 **9.37 MB**
+    （`runs/ablation/hid256/seed{S}/best.pt`）、**`pytorch_model.bin` 命中 0**、`_snap` 命中 **0**、**无 >100 MB**；
+    拆开 = **真新增 3409**（未跟踪）+ **已跟踪待更新 3456**；新增的大头是三个归档根
+    （`prior_canon37` 2734 + `prior_buggy16` 555 + `prior_probes` 6 = 3295）；(c) 本段与 `项目组织架构.md` 同步
+    （该文 :316 起已列这三个 `prior_*` 根，无需再改）。
+    ⚠ **旧载「3359 个文件 / 0.03 GB / 最大 5.0 MB」已作废**——那是只扫 `runs/ products/ eval_results/`
+    且**早于 `prior_*` 全部落盘**时的读数。2026-09-25 收尾复核时发现并更正；
+    教训：**自检数字也会过期**，凡在自检之后又落了新产物，提交前**必须重跑 (b) 并把数字改到本段**。
+  - 🔴 **传统工具的工作目录 `runs/_tools_work/` 不入库（2026-09-25 加，规则在 `.gitignore` 第 70 行）**：
+    只放**源码副本**（214 个 `.sol`）与工具的中间产物（manticore 的 workspace 单文件可达数百 MB）。
+    判据同 `_snap`：**不是**「复现所需的最小集」——源码可由只读源重建，工具产物可由
+    `baseline_static_tools.py --tool <名>` 重跑。**实测（2026-09-25）**：(a) `git check-ignore -v
+    runs/_tools_work/x.sol` 命中第 70 行（无 `!`）⇒ 已忽略，且 `runs/seed0/best.pt` **仍未被忽略**；
+    (b) `git add -A --dry-run runs/_tools_work` 命中 **0** 个文件（目录实际 1.9 MB）。
+    ⚠ 它**必须**落在 `runs/` 下（硬规则：中间产物只能写 `products/`、`runs/`、`eval_results/`）
+    —— 本目录**最初被误建在仓库根的 `work/`**，2026-09-25 收尾时发现并迁走。
+  - 🔴 **`eval_results/baseline/<工具>_alldata{,.json}` 要入库**（2026-09-25）：它们是**逐合约的原始检测项**
+    + 七维向量 + 状态，是"改映射不必重跑工具"的唯一依据（同 Slither 那份的既定口径）。
+    别把它们当成可再生的中间件忽略掉。
+  - 🔴 **`eval_results/baseline/manticore_alldata/run_env.json` 也要入库**（2026-09-26）：**跑动环境自述边车**
+    （`MEMCAP` / cgroup-OOM 击杀数 / `--core.procs` / `--flush-every` / 为什么加内存上限）。
+    **它是解释 manticore 那一行召回的唯一依据** —— 上限顶到时求解器被杀而合约**仍记 `ok`**，
+    这种降级**在产物里看不出来**；没有这份自述，那行数字不可解释。
+    由 `runs/_p7_manticore_finish.sh` 写入，报告 §六（`collect_traditional_tools._run_env_notes`）读它自动印出。
+  - **三步自检实测（2026-09-26，全仓口径）**：(a) 逐文件 `git check-ignore -v`：`runs/_tools_work/_manticore_todo.txt`
+    命中第 70 行（忽略），`run_env.json` / `<工具>_alldata/seed{S}_eval.json` / `runs/seed0/best.pt` **均未被忽略**
+    （= 按既定口径**入库**，判据是打出的规则带不带 `!`，不是退出码）；
+    (b) `git add -A --dry-run` 共 **6914 个文件 / 0.479 GB**、最大单文件 **9.37 MB**
+    （`runs/ablation/hid256/seed{S}/best.pt`）、**无 >100 MB**（较 2026-09-25 的 6865/0.4747 GB 增 49 个，
+    即本轮新增的编排脚本、日志与 `run_env.json`）；(c) 本节与 `项目组织架构.md` 同步。
+
+  - `runs/**/best.pt`（`evaluate.py` 的唯一权重输入）+ `val_best_probs.pt`/`test_probs.pt`（推理缓存）→ 使已报告指标可**离线重算、无需重训**。`last.pt` 仍排除（仅断点续训用，入库会使体积翻倍）。
+    **实测（2026-09-25，**全仓** `git add -A --dry-run` 口径）**：入库三件套 **1773 个 / 0.451 GB**（均 0.26 MB）；
+    **`last.pt` 入库命中 0**（正确排除）；入库 `best.pt` 单文件最大 **9.37 MB**
+    （`runs/ablation/hid256/seed{S}/best.pt`，隐藏维度 256 ⇒ 参数最多）。
+    ⚠ **旧载「约 1.5 GB / 1125 个文件、单文件 ≤4.77 MB」已作废**——那是 `hid256` 臂落盘**之前**的读数
+    （4.77 MB → 9.37 MB 的差就是该臂的参数量）。**凡新增参数更多的臂，这一行必须重量、重写。**
 
 ## 语义锁死项（最容易写错）
 
-- 🔴 **正典训练输入（2026-09-19 §37 起）= `products/<语料>/graphs_ft/ss{S}`**（微调 CodeBERT）。
-  ⚠ **路径含划分种子**：`ss{S}` **必须**与 `--split-seed S` 配对（否则 `seed2` 会拿 `ss0` 的编码器配 `split_seed2`）。
+- 🔴 **正典训练输入（2026-09-25 编码器换代后）= `products/<语料>/graphs_ft_p2/cb_ft_ss{S}`**（微调 CodeBERT，**20 轮档**）。
+  ⚠ **路径含划分种子**：`cb_ft_ss{S}` **必须**与 `--split-seed S` 配对（否则 `seed2` 会拿 `ss0` 的编码器配 `split_seed2`）。
   `products/<语料>/graphs` 是**冻结**编码器树，**现仅作 `cb_frozen` 消融臂输入，不得再写作正典**。
   这是本仓第三次全量作废的根因，凡涉及"正典 graph_dir"一律以本行为准。
+  📌 **换代沿革（同一形态已发生两次，故写全）**：
+  `graphs`（冻结）→ `graphs_ft/ss{S}`（§37，2026-09-19，5 轮）→ **`graphs_ft_p2/cb_ft_ss{S}`（2026-09-25，20 轮）**。
+  每一次换代都**不改动**旧树，只把它降为**上一档**：`graphs/` = `cb_frozen` 消融臂、`graphs_ft/ss{S}` = **5 轮档旧正典**（其 run 已归档于 `runs/prior_canon37/seed{S}`，**不另设同名臂**；与 20 轮档的配对比较是**跨代对照**）。
+  🔴 **换正典时要改的 4 处图侧常量**（`runs` 侧因"物理换位"而无需改）：
+  `baseline_common.py` 的 `LAYOUTS[*]["graph_dir"]` 与 `base_parser()` 的 `--graph-dir` 默认、
+  `collect_baseline_tables.py` 的 `LAYOUTS` 副本（**必须与前者逐字相同**，有机检）、
+  `run_perclass_arm.py::GRAPH_TMPL`；另需给 `build_ft_edge_variants.py` 加一个 layout 键。
+  ⚠ `run_ablation.variants_root_of()` 从 `graph_dir` 的**父目录**推导变体根 ——
+  换树后若不在新根下建 `graph_variants/`，两臂会**静默指向空目录**；
+  现有 `run_ablation.require_layout_dirs()` 会在开跑前**硬失败**兜住它。
 - 标签顺序固定：`access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标为 4）。
 - `_pyg.pt` 是只读的纯结构（`x` 为 N×1 占位，永不改写）；`_feat.pt` = M3 的**拼接前通道字典**（schema v2：`struct`/`type_id`/`sv` + 逐通道 sha256），是唯一模型输入载体；融合（Embedding+MLP）与全部掩码在 `model.NodeFuser`，`dataset.py` 只负责组合（含 `_cb.pt` 行对齐）、不再过 MLP、不重算、不做掩码。
 - M1 的 $s_v$ 是输入特征，不是标签；$a_v$ 是节点可疑度/解释信号，不是节点真值。
