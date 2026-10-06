@@ -47,7 +47,7 @@ from train import class_stats, masked_weighted_bce                      # noqa: 
 
 BASE = str(REPO)
 DEFAULT_GRAPH_DIR = f"{BASE}/products/alldata/graphs"
-DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
+DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits/withbuggy_snapshot"
 NUM_CLASSES = 7
 
 

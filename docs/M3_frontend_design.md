@@ -313,7 +313,7 @@ ch(cb_func, cb_node, type_id, struct, sv)
 ### 6.3 旧文件归档（R5）
 
 - 位置：`products/alldata/graphs/legacy_feat_pre_frontend/`（与 `splits/random_snapshot/` 同一先例：
-  **隔离目录、不进正典路径、不参与任何实验**）；`.gitignore` 已忽略 `products/**/graphs/` → 不会入库。
+  **隔离目录、不进正典（池 497）的任何实验路径、不参与任何实验**；原「对照口径（池 453）」路径同此——该口径数据已于 2026-10-02 删除，先例目录 `splits/random_snapshot/` 亦随之删除）；`.gitignore` 已忽略 `products/**/graphs/` → 不会入库。
 - **执行顺序硬约束：先归档、再重跑 M3**（否则旧 `_feat.pt` 被覆盖，T2 失去比对标量）。
 - 内容：旧 `_feat.pt` × 581 + 现存变体（`_feat_no-prior.pt`、`_feat_grp-*.pt` 等小样）。
 - `decisions` 记一行（归档位置 + 日期 + 原因 + 如何复现旧数值：`--freeze-fuser --fuser-init-seed=20260905`）。

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""补充臂汇总：**7 个独立二分类器** vs **正典七维共享模型**（`decisions.md` §50）。
+"""补充臂汇总：**7 个独立二分类器** vs **对照口径七维共享模型**（`decisions.md` §50）。
 
 回答一个问题：**多标签共享是否压制了稀有类？**
 
 四个并列口径（**同一批图、同一组划分种子、同一套超参**，唯一变量 = 输出头与标签）：
-  1. 正典七维共享 @0.5            —— 共享编码器 + 共享头，七类共用一个阈值
-  2. 正典七维共享 @逐类阈值       —— 同上，但阈值逐类独立（`calibrate.per_class_thresholds`）
-  3. 独立二分类器 @0.5 / @val_thr —— 每类一个**独立模型**（各自编码器），`--pos-weight-cap 20`（与正典同正则）
+  1. 对照口径七维共享 @0.5            —— 共享编码器 + 共享头，七类共用一个阈值
+  2. 对照口径七维共享 @逐类阈值       —— 同上，但阈值逐类独立（`calibrate.per_class_thresholds`）
+  3. 独立二分类器 @0.5 / @val_thr —— 每类一个**独立模型**（各自编码器），`--pos-weight-cap 20`（与对照口径同正则）
   4. 独立二分类器 @0.5 / @val_thr —— 同上，`--pos-weight-cap 0`（不截断，每类自带完整平衡）
   5. （可选）全类并集 any 分类器   —— 单头「有没有任意一类漏洞」，作**净技能**对照
 
@@ -66,7 +66,7 @@ def _val_thr(run_rel: str, seed: int):
     return d.get("best_threshold", d.get("binary_best_threshold"))
 
 
-# ------------------------------------------------------------ 正典七维共享（两行）
+# ------------------------------------------------------------ 对照口径七维共享（两行）
 def canon_rows(seeds) -> dict[str, list[list[float]]]:
     """→ {"@0.5": [逐类 F1（每种子一项）], "@per_class_thr": [...]}。"""
     import calibrate as CAL
@@ -157,7 +157,7 @@ def main() -> None:
 
     n_seed_arm = max((len(v) for v in arms.values()), default=0)
     doc: list[str] = [
-        "# 补充臂：7 个独立二分类器 vs 正典七维共享模型",
+        "# 补充臂：7 个独立二分类器 vs 对照口径七维共享模型",
         "",
         "> 程序生成（`scripts/collect_perclass_arm.py`）：**只读产物、只调 `metrics`**，不手抄、不重实现。",
         "> 驱动 = `scripts/run_perclass_arm.py`（`decisions.md` §50）。",
@@ -177,11 +177,11 @@ def main() -> None:
         "",
         "| 口径 | " + " | ".join(NAMES) + " | **平均（逐类等权）** |",
         "| --- | " + " | ".join(["---"] * len(NAMES)) + " | --- |",
-        _line("**正典七维共享** @0.5", canon["@0.5"]),
-        _line("**正典七维共享** @逐类阈值", canon["@per_class_thr"]),
+        _line("**对照口径七维共享** @0.5", canon["@0.5"]),
+        _line("**对照口径七维共享** @逐类阈值", canon["@per_class_thr"]),
     ]
     for cap in CAPS:
-        capname = "与正典同正则" if cap else "不截断、每类自带完整平衡"
+        capname = "与对照口径同正则" if cap else "不截断、每类自带完整平衡"
         for wp, wname in (("0.5", "@0.5"), ("val_thr", "@val_thr")):
             doc.append(_line(f"**独立二分类器** `cap={cap:g}`（{capname}） {wname}",
                              arms[(cap, wp)]))
@@ -232,7 +232,7 @@ def main() -> None:
                 "| 口径 | F1 | 平凡下限（全报「有漏洞」） | **净技能** |",
                 "| --- | --- | --- | --- |"]
         if mb:
-            doc.append(f"| **正典七维共享**（`max_c p_c ≥ t` 坍缩） | {np.mean(mb):.4f} | "
+            doc.append(f"| **对照口径七维共享**（`max_c p_c ≥ t` 坍缩） | {np.mean(mb):.4f} | "
                        f"{np.mean(mt):.4f} | **{np.mean(mb) - np.mean(mt):+.4f}** |")
         for cap in CAPS:
             for wp, wname in (("0.5", "@0.5"), ("val_thr", "@val_thr")):
@@ -247,7 +247,7 @@ def main() -> None:
                 "> 🔴 **读法**：二分类口径的平凡下限是 **0.6199**，七维口径只有 **0.1224** ⇒",
                 "> **两个口径的数字不可互比**。要判断「换二分类是否真的更强」，只能看**净技能**这一列",
                 "> （读数减掉自己那个口径的平凡下限）。**这是本仓 `decisions.md` §48 的同一本账。**",
-                "> ✅ **本表的关键读数**：单头 any 分类器的净技能 **+0.31**，与正典七维**坍缩**后的 **+0.32**",
+                "> ✅ **本表的关键读数**：单头 any 分类器的净技能 **+0.31**，与对照口径七维**坍缩**后的 **+0.32**",
                 "> **在噪声内持平** ⇒ 换成单头二分类**不带来任何净收益**（合法性来自",
                 "> `max_c p_c >= t ⇔ any_c p_c >= t`，`decisions.md` §31 已机检）。",
                 "> ⇒ **「换二分类数字就好看」是平凡下限从 0.12 抬到 0.62 造成的错觉**，不是检测能力变强。"]

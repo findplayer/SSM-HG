@@ -5,7 +5,7 @@
 `ablation_results.md` 里那些读数**哪些还站得住、哪些翻了**。
 
 **为什么不能直接扩用 `collect_ablation_results.py`**：那个脚本的配对是「臂的 `seed{s}`
-↔ 正典 `runs/seed{s}`」，即**只有 3 对**（`ablation_results.md` §12.4 已把它列为开口）。
+↔ 对照口径（池 453）`runs/seed{s}`」，即**只有 3 对**（`ablation_results.md` §12.4 已把它列为开口）。
 本脚本走 `ts ∈ {0,1,2} × ss ∈ {0,1,2}` 的 **3×3 网格**，配对数 **9**，
 且基线取**同 `(ts, ss)` 的那一对**（同划分、同初始化）⇒ 配对比较能消掉划分与初始化的方差。
 
@@ -489,7 +489,7 @@ def main() -> int:
            "同一 `(ts, ss)` 上臂与基线**同划分、同初始化** ⇒ 配对比较消掉划分与初始化的方差。", "",
            "🔴 **复用的三个来源**（详见 `run_ablation_n9.py` 的模块 docstring）："
            "对角臂 run 取 `runs/ablation{,_aug}/<item>/seed{S}`；① 的 9 对基线取 "
-           "`runs/cbft_study/cbft_ts{T}_ss{S}`（**论文正典 `runs/seed{S}` 正是由它的对角提升而来**，"
+           "`runs/cbft_study/cbft_ts{T}_ss{S}`（**对照口径（池 453）`runs/seed{S}` 正是由它的对角提升而来**，"
            "见其 `config.json::promoted_from`）；② 的对角基线取 `runs/augmentation/seed{S}`。"
            "复用的合法性由**逐 run 逐键对拍 config** 在开跑前验证。", "",
            f"**多重比较**：本页检验 **{len(items)} 臂 × {len(METRICS)} 指标 = {N_TESTS} 个**假设 "

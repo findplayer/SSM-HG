@@ -16,13 +16,13 @@ M5 的核心交付物是三件脚本 + M5 CI smoke，完成「图级七类多标
 | B | 训练闭环 | `scripts/train.py` + `tests/test_train_utils.py` | `--limit-graphs 1` 前向/反向/checkpoint 全绿 |
 | C | 评估 | `scripts/evaluate.py` + `tests/test_evaluate.py` | 阈值只读 val、双报告、zero-positive 跳过 |
 | D | M5 CI smoke | 6 类窄范围测试 | 全部通过，失败定位到单一契约 |
-| E | 主实验 | `runs/seed{0,1,2}/` + `runs/summary.json` | 三种子均值±std、日志字段齐全 |
-| F | 消融/基线 | `eval_results/{ablation,baseline}/` | 5.4.1/5.4.2 表有结果、零重跑分层正确 |
+| E | 主实验 | `runs/buggy_canon/seed{0,1,2}/` + `runs/buggy_canon/summary.json` | 三种子均值±std、日志字段齐全 |
+| F | 消融/基线 | `runs/ablation_buggy/`（消融）+ `eval_results/baseline/*_buggy/`（基线） | 5.4.1/5.4.2 表有结果、零重跑分层正确 |
 | G | 跨数据集（**阶段 5**） | `eval_results/{dive,solidifi}/` | DIVE 一次性、SolidiFI 三分数 |
 
 阶段 A–E 是 **M5 本体**（本文主体）；F、G 依赖 M5 跑通后执行，本文给出可执行路线与关键口径，但不阻塞 M5 本体。
 
-> ⚠ **本节为 2026-09-13 旧 448 池口径，已作废**（`runs/prior_448pool/`）。**现行 §37 微调正典**：① micro@0.5 **0.7110±0.0389**、@val_thr **0.7297±0.0675**、mAP **0.7582±0.0056**（`experiments/canonical_ft_numbers.md`）。原记录如下：**执行状态（2026-09-13）**：阶段 A–D（`metrics.py`/`train.py`/`evaluate.py` + M5 CI smoke）已实现并验收（`pytest tests/` **64 passed**）；阶段 E 主实验已跑通（CUDA/RTX 4070 Laptop）——micro-F1（主指标）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；结果与训练时间/吞吐见 `runs/summary.json`、`runs/seed*/config.json::timing` 与 `experiments/decisions.md` §17；阶段 F/G 待执行。
+> ⚠ **本节为 2026-09-13 旧 448 池口径，已作废**（`runs/prior_448pool/`，已删除）。**原 §37 微调档·对照口径（池 453）**（编码器轴不变；其所属池 453 自 2026-10-01 起为对照口径，**数据已于 2026-10-02 整体删除**）：① micro@0.5 **0.7110±0.0389**、@val_thr **0.7297±0.0675**、mAP **0.7582±0.0056**（`experiments/canonical_ft_numbers.md`，**该口径数据已删除、表内数字为冻结值、不可复算**）。原记录如下：**执行状态（2026-09-13）**：阶段 A–D（`metrics.py`/`train.py`/`evaluate.py` + M5 CI smoke）已实现并验收（`pytest tests/` **64 passed**）；阶段 E 主实验已跑通（CUDA/RTX 4070 Laptop）——micro-F1（主指标）固定 0.5 = **0.9058±0.0397**、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；结果与训练时间/吞吐见旧 `runs/summary.json`、`runs/seed*/config.json::timing`（均已随 453 于 2026-10-02 删除；现行正典为 `runs/buggy_canon/`）与 `experiments/decisions.md` §17；阶段 F/G 待执行。
 
 > 边界：DIVE 只做一次性外部测试，不参与训练/验证/早停/阈值/模型选择；SolidiFI 只做层次二合成注入节点覆盖评估。两者均不进入 `runs/`。
 
@@ -34,8 +34,8 @@ M5 的核心交付物是三件脚本 + M5 CI smoke，完成「图级七类多标
 
 - `scripts/dataset.py`：`build_index(graph_dir) -> (index, unmatched)`、`load_graph(base, graph_dir, ab, index, verify_channels) -> GraphSample`、`Ablation(drop_edges, drop_ast)`；`GraphSample` 含 `channels`（通道字典，固定序 `cb_func,cb_node,type_id,struct,sv`）、`edge_index/edge_type`、`label[7]`、`name`、`node_id`、`meta`。
 - `scripts/model.py`：`NodeFuser`（通道字典 → `h_v^(0)`∈R^{N×128}，`ablate` 确定性 / `prior_dropout`+`struct_dropout` 逐图随机分层，`proj` 之前置零）、`SSMHG`（两层 RGCN，`forward(x, edge_index, edge_type, batch) -> (z, a, node_logits)`）、`sample_dropout_masks(G, prior_p, struct_p, generator) -> (prior, struct)`、`apply_edge_mask(edge_index, edge_type, mask)`、`safe_readout`、`AblationConfig`、`parameter_report`。
-- `scripts/make_splits.py`：固定种子 8:1:1 + 覆盖约束校正（C1 合计≥30%、C2 每划分每类≥1）+ 两级池去重；产物齐备：`split_seed{0,1,2}.json`（载荷四键 `{seed,ratio,train,val,test}`）、`splits.csv`（**1360 行 = 453×3 + 表头**）、`split_report.json`（2026-09-20 更正；旧载 1345/448 为旧 448 池口径）、`coverage_swaps_seed*.txt`、`split_metadata_seed*.json`、`dedup_dropped.txt`、`unmatched_contracts.txt`。
-- **数据事实**（已核实，用于本方案的估算）：**590 图**（节点/边数见 `docs/data_funnel.md`）；**训练池 453（362/45/46）**（2026-09-20 更正；旧载 581 图/448 池为旧口径）；标签序 `access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标 4）；`D_struct=30`、`struct_layout={"visibility":4,"bool":14,"call_mode":5,"position":1,"ir":6}`、IR 类别 6 类、`NodeFuser` 融合 Linear 输入维 = `768*2 + 64 + 30 + 1 = 1631`。
+- `scripts/make_splits.py`：固定种子 8:1:1 + 覆盖约束校正（C1 合计≥30%、C2 每划分每类≥1）+ 两级池去重；产物齐备：`split_seed{0,1,2}.json`（载荷四键 `{seed,ratio,train,val,test}`）、`splits.csv`（**1360 行 = 453×3 + 表头**，池 453 口径冻结值）、`split_report.json`（2026-09-20 更正；旧载 1345/448 为旧 448 池口径）、`coverage_swaps_seed*.txt`、`split_metadata_seed*.json`、`dedup_dropped.txt`、`unmatched_contracts.txt`。⚠ **池 453 的这套划分原在 `products/alldata/splits/` 根下，已于 2026-10-02 删除**；现行正典（池 497）的同名产物在 `products/alldata/splits/withbuggy_snapshot/`。
+- **数据事实**（已核实，用于本方案的估算）：**590 图**（节点/边数见 `docs/data_funnel.md`）；**训练池 453（362/45/46）**（**原对照口径**；2026-09-20 更正；旧载 581 图/448 池为旧口径；**池 453 数据已于 2026-10-02 删除，此为冻结值；现行正典为池 497 = 398/50/49**）；标签序 `access_control, arithmetic, dos, front_running, reentrancy, time_manipulation, uncheck`（reentrancy 下标 4）；`D_struct=30`、`struct_layout={"visibility":4,"bool":14,"call_mode":5,"position":1,"ir":6}`、IR 类别 6 类、`NodeFuser` 融合 Linear 输入维 = `768*2 + 64 + 30 + 1 = 1631`。
 
 **待实现**（本文设计对象）：`metrics.py`、`train.py`、`evaluate.py`、M5 CI smoke。
 
@@ -158,7 +158,7 @@ model = SSMHG(in_dim=fuser.hidden, hid=cfg.hid, num_relations=5,
 
 ### 5.2 数据加载与批图 collate（本方案自实现，不用 PyG Data）
 
-**加载策略**：CPU 单进程，把 split 内全部 train/val/test 的 `GraphSample` 一次性 `load_graph` 进内存（`data_load_seconds` 计时）。估算：train 362 图 ≈ 5.76 万节点，cb 双通道约 `57600×768×2×4B ≈ 354 MB`，struct 约 7 MB，合计 < 500 MB，CPU RAM 无压力。val/test 各 45 图 ≈ 0.7 万节点。
+**加载策略**：CPU 单进程，把 split 内全部 train/val/test 的 `GraphSample` 一次性 `load_graph` 进内存（`data_load_seconds` 计时）。估算：train 362 图 ≈ 5.76 万节点，cb 双通道约 `57600×768×2×4B ≈ 354 MB`，struct 约 7 MB，合计 < 500 MB，CPU RAM 无压力。val/test 各 45 图 ≈ 0.7 万节点。（池 453 口径；该池数据已于 2026-10-02 删除，现行正典池 497 为 398/50/49）
 
 **collate（一次 batch）**：
 
@@ -216,7 +216,7 @@ loss_total = loss_cls + 1e-3 * loss_var              # lambda_var=1e-3
   `epoch, loss_total, loss_cls, loss_var, score_mean, score_std, val_macro_f1, val_micro_f1, lr, epoch_seconds, samples_processed, graphs_processed, gpu_mem_allocated`（CPU 写 null）。
 - 计时 `time.perf_counter()`：`data_load_seconds / train_seconds（仅 optimizer loop 累计）/ validation_seconds / run_wall_seconds / epoch_seconds_mean / graphs_per_second(=train_graphs/train_seconds)`。
 
-### 5.5 checkpoint 与产物（`runs/seed{seed}/`）
+### 5.5 checkpoint 与产物（`runs/buggy_canon/seed{seed}/`）
 
 - `best.pt` / `last.pt`：`{model_state_dict, fuser_state_dict, optimizer_state_dict, epoch, best_micro_f1, config, seed}`。
 - `config.json`：argparse 全量快照 + 派生量（`d_struct`、`fuser.in_dim`、`pos_weight`、`class_mask`、`active/skipped classes`、`train_pos/train_neg`、`parameter_report(...)`、split 文件摘要、环境/timing 字段）。
@@ -243,7 +243,7 @@ loss_total = loss_cls + 1e-3 * loss_var              # lambda_var=1e-3
 | `--limit-graphs` | 0 | 小样：只取前 N 个 train 图（smoke） |
 | 消融透传 | — | `--drop-edges 3` / `--drop-ast`（dataset.Ablation）；`--conv gcn`、`--meanpool`、`--num-bases 4`、`--hid 256`（model）；`--ablate-sv`、`--cb-channels cb_node`、`--feat-groups base`（AblationConfig） |
 | `--deterministic` | False | 完整确定性开关（非主实验默认，记录性能代价） |
-| `--graph-dir / --out-dir` | products/alldata/{graphs,splits} / runs | 路径 ⚠ 正典训练**必须显式** `--graph-dir products/alldata/graphs_ft_p2/cb_ft_ss{S}`（2026-09-25 编码器换代后的现行正典；`graphs_ft/ss{S}` 已降为**旧正典（5 轮档）的输入树**（**不另设名为 `cb_ft5` 的臂**）、`graphs` 为 `cb_frozen` 臂），且 `cb_ft_ss{S}` 必须配 `--split-seed S` |
+| `--graph-dir / --out-dir` | products/alldata/{graphs,splits} / runs | 路径 ⚠ **正典（池 497）**训练**必须显式** `--graph-dir products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`（20 轮档，且必须配 `--split-seed S`，划分读 `products/alldata/splits/withbuggy_snapshot/`）。对照口径（池 453）的 `graphs_ft_p2/cb_ft_ss{S}`（20 轮）与 `graphs_ft/ss{S}`（5 轮，**不另设名为 `cb_ft5` 的臂**）**已于 2026-10-02 随 453 删除**；`graphs` 为 `cb_frozen` 臂 |
 
 ### 5.7 smoke（`--limit-graphs 1`，decisions §9.5/§9.7）
 
@@ -257,18 +257,18 @@ loss_total = loss_cls + 1e-3 * loss_var              # lambda_var=1e-3
 
 ### 6.1 主实验（MVD-HG 内部测试）
 
-1. 读 `runs/seed{seed}/best.pt` + `config.json` → 重建 `fuser`+`model`（从 config 的 `d_struct/struct_layout/ablate/...`），`model.eval()`。
+1. 读 `runs/buggy_canon/seed{seed}/best.pt` + `config.json` → 重建 `fuser`+`model`（从 config 的 `d_struct/struct_layout/ablate/...`），`model.eval()`。
 2. **阈值搜索**：加载 val 图 → 前向得 val probs → `metrics.search_global_threshold`（候选 0.2–0.8，目标 val micro-F1，tie 取小）→ 写 `thresholds.json`（全候选 + tie 依据）。**只读 val**；若 train 已存 `val_best_probs.pt` 则复用（可选项：优先读该文件，缺省重算）。
 3. **测试双报告**：加载 test 图 → 前向得 test probs → 固定 0.5 与验证集阈值两套 `binary_preds` → 各算 micro-F1（主）/macro-F1（参考，附 support 构成）/每类 P/R/F1（随 support）/mAP + `ap_classes_used`/subset accuracy。
-4. 写 `runs/seed{seed}/results.json`：两套阈值结果 + 逐类 support + 阈值 + 计时/环境。
+4. 写 `runs/buggy_canon/seed{seed}/results.json`：两套阈值结果 + 逐类 support + 阈值 + 计时/环境。
 
-### 6.2 `runs/summary.json`（三种子汇总）
+### 6.2 `runs/buggy_canon/summary.json`（三种子汇总）
 
-聚合 seed0/1/2 的 `results.json` → 每指标 `mean ± std`；同时保留逐种子明细与划分种子声明（主种子 seed0）。写入 `runs/summary.json`。
+聚合 seed0/1/2 的 `results.json` → 每指标 `mean ± std`；同时保留逐种子明细与划分种子声明（主种子 seed0）。写入 `runs/buggy_canon/summary.json`。
 
 ### 6.3 `--task ablation|baseline` → `eval_results/`
 
-复用同一评估管线，指定 checkpoint/config 与消融/基线开关，输出到 `eval_results/{ablation,baseline}/`（不进 `runs/`）。基线与消融见 §9。
+复用同一评估管线，指定 checkpoint/config 与消融/基线开关，输出到 `runs/ablation_buggy/`（消融 run，与 `runs/buggy_canon/` 并列）与 `eval_results/baseline/*_buggy/`（基线）（不进 `runs/buggy_canon/`）。🔴 `eval_results/{ablation}/`（汇总产物目录）已随 453 于 2026-10-02 删除，497 侧无对应目录。基线与消融见 §9。
 
 ---
 
@@ -308,12 +308,12 @@ python scripts/evaluate.py --seed 0
 python scripts/evaluate.py --seed 1
 python scripts/evaluate.py --seed 2
 # 汇总
-python scripts/evaluate.py --summarize        # 写 runs/summary.json
+python scripts/evaluate.py --summarize        # 写 runs/buggy_canon/summary.json
 ```
 
 ### 8.3 耗时估算（CPU，torch 2.0.1）
 
-train 362 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；两层 RGCN 每 batch ~5 千节点，CPU 前向+反向约 0.5–2 s/batch → 约 10–20 s/epoch（含 val）；早停通常在 50–100 epoch → **单 seed 约 10–30 分钟，三 seed 约 1–1.5 小时**。可行性确认。若后续装 CUDA 版 torch（RTX 4070 存在），直接复用同脚本。
+train 362 图/5.76 万节点/约 14 万边（池 453 口径；该池数据已于 2026-10-02 删除，现行正典池 497 为 398/50/49），batch=32 → 约 12 batch/epoch；两层 RGCN 每 batch ~5 千节点，CPU 前向+反向约 0.5–2 s/batch → 约 10–20 s/epoch（含 val）；早停通常在 50–100 epoch → **单 seed 约 10–30 分钟，三 seed 约 1–1.5 小时**。可行性确认。若后续装 CUDA 版 torch（RTX 4070 存在），直接复用同脚本。
 
 ---
 
@@ -336,7 +336,7 @@ train 362 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；�
 
 **基线**（统一七维多标签 + BCE 训练，两种设定 MVD-HG 内部测试 + DIVE）——🔴 **2026-09-21 按大纲 `改II` 5.3 原文重列**：六个传统工具（`Securify/Mythril/Slither/Manticore/Smartcheck/Oyente`，输出七维规则命中 0/1）+ `EGFL` + `MVD-HG/MANDO-LLM` + 本文方法。**旧写法「Slither 规则 + CodeBERT 序列 + GCN」已作废**（大纲 5.3 既无 CodeBERT 也无 GCN/GAT）。映射与现状见 `Todo_List.md` §12.7.1 与 `论文开发手册.md` §10.6。
 
-产物写 `eval_results/{ablation,baseline}/`，**不污染 `runs/` 主结果**；任何消融结果不得在主实验完成前替换主方案。
+产物写 `runs/ablation_buggy/`（消融）与 `eval_results/baseline/*_buggy/`（基线），**不污染 `runs/buggy_canon/` 主结果**（🔴 `eval_results/ablation/` 汇总目录已随 453 于 2026-10-02 删除，497 侧无对应目录）；任何消融结果不得在主实验完成前替换主方案。
 
 ---
 
@@ -363,7 +363,7 @@ train 362 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；�
 1. **批图方式（自实现 collate vs PyG DataLoader）**：本方案选自实现 collate——数据是自定义通道字典而非标准 `Data`，`NodeFuser` 已设计为「批通道 + batch 向量」接口；自实现可完全确定、无 worker 复杂度、CPU 单进程足够。**代价**：放弃 DataLoader 的并行预取与 worker seed（decisions §6 的 `seed+worker_id` 仅在有 worker 时才适用，CPU 单进程不涉及）。若后续要 GPU/多进程，再包一层 DataLoader，接口不变。
 2. **训练/划分种子语义**：见 §8.1，**已裁定**——口径一/二共用代码，`--split-seed` 显式分离，默认 `--split-seed == --seed`（记录于 `experiments/decisions.md` §16）。
 3. **checkpoint 双模块**：`fuser` 与 `model` 是独立模块，漏存其一即恢复失败——已列为 smoke 断言。
-4. **val 只有 45 图、多类 support=1**：val micro-F1 会因单图翻转而抖动，早停/阈值选择在极小集上敏感；按手册记录 train/val 差距，不据此调协议。测试集 support≤2 的类仅描述性呈现。
+4. **val 只有 45 图、多类 support=1**（池 453 口径；该池数据已于 2026-10-02 删除，现行正典池 497 为 398/50/49）：val micro-F1 会因单图翻转而抖动，早停/阈值选择在极小集上敏感；按手册记录 train/val 差距，不据此调协议。测试集 support≤2 的类仅描述性呈现。
 5. **CPU 训练耗时**：见 §8.3，单 seed 约 10–30 分钟，可行；不引入 AMP/warmup/ensemble（decisions §8 不纳入主方案）。
 6. **`NodeFuser` 融合输入维 1631** 固定由 `D_struct=30`/`cb_channels=2`/`type_dim=64` 决定；`--cb-channels` 消融会改变 `proj.in_features`（仅影响融合层自身）。`SSMHG(in_dim=...)` 接收 fuser 的**输出** h_v^(0) ∈ R^128，必须从 `fuser.hidden`（恒 128）回读，不得硬编码 128/1631。~~原稿误写 `fuser.in_dim`~~（已更正为 `fuser.hidden`，2026-09-12 实现期发现）。
 
@@ -376,7 +376,7 @@ train 362 图/5.76 万节点/约 14 万边，batch=32 → 约 12 batch/epoch；�
 - [ ] 阈值只在 val 选（0.2–0.8，目标 val micro-F1，tie 取小）；固定 0.5 与搜索阈值双报告。
 - [ ] pos_weight 按训练集计算并截断 20；零正类用 class-mask（非 pos_weight=0）；全零正类报错。
 - [ ] 逐类 F1 与 per-class PR-AUC 随 support 报告；support≤2 的类仅描述性呈现。
-- [ ] 3 种子跑完，`runs/summary.json` 报均值±标准差；每 run 有 config/log/best.pt/last.pt/results/thresholds/val_best_probs.pt。
+- [ ] 3 种子跑完，`runs/buggy_canon/summary.json` 报均值±标准差；每 run 有 config/log/best.pt/last.pt/results/thresholds/val_best_probs.pt。
 - [ ] 论文口径数字全部取自 `docs/data_funnel.md`；多标签主张按「架构性声明 + DIVE 外部证据」。
 - [ ] 消融 5.4.1/5.4.2 与基线在 MVD-HG 内部测试 + DIVE 两设定评估，写 `eval_results/`，不污染 `runs/`。
 - [ ] M5 CI smoke 覆盖 split/loss/L_var/batch/train-one-step/eval-threshold；完整 3-seed 训练不进 CI。

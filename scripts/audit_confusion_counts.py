@@ -100,11 +100,13 @@ def _from_tool(tool: str, seed: int) -> tuple[list, list] | None:
     （覆盖率一栏已披露）。这不是本脚本的口径选择，是**产物本身的构造方式**。
     """
     import baseline_static_tools as ST
-    run_path = REPO / B.trad_root(tool) / ".." / f"{tool}_alldata.json"
-    run_path = (REPO / "eval_results" / "baseline" / f"{tool}_alldata.json")
+    # 🔴 2026-10-02：① 主库改指**正典池 497**（layout `buggy`）——工具产物根是
+    #    `<工具>_alldata_buggy`（Slither 为 `slither_buggy`）。命名规则走 `B.trad_root()`
+    #    这一唯一真源，不另拼字符串。
+    run_path = REPO / (B.trad_root(tool, "buggy") + ".json")
     if not run_path.exists():
         return None
-    sp = REPO / "products/alldata/splits" / f"split_seed{seed}.json"
+    sp = REPO / "products/alldata/splits/withbuggy_snapshot" / f"split_seed{seed}.json"
     if not sp.exists():
         return None
     payload = json.loads(run_path.read_text(encoding="utf-8"))
@@ -146,10 +148,10 @@ def collect() -> list[dict]:
     out: list[dict] = []
     jobs: list[tuple[str, str, str]] = []
     # (显示名, 类型, 产物根)
-    jobs.append(("① 主库 · 本文方法（正典）", "run", "runs"))
+    jobs.append(("① 主库 · 本文方法（正典）", "run", "runs/buggy_canon"))
     for arm, label in (("mvdhg", "MVD-HG"), ("egfl", "EGFL"),
                        ("egfl_ownlr", "EGFL（论文 lr）"), ("mando", "MANDO-LLM")):
-        jobs.append((f"① 主库 · {label}", "run", B.rel_of(arm, "canon37")))
+        jobs.append((f"① 主库 · {label}", "run", B.rel_of(arm, "buggy")))
     for tool in B.TRADITIONAL:
         jobs.append((f"① 主库 · {B.TRAD_LABEL[tool]}", "tool", tool))
     jobs.append(("② 增强集 · 本文方法（正典）", "run", AUG_RUNS))
@@ -172,7 +174,7 @@ def collect() -> list[dict]:
                         continue
                     y, p = got
                     thr = None
-                    ej = REPO / B.trad_root(root) / f"seed{s}_eval.json"
+                    ej = REPO / B.trad_root(root, "buggy") / f"seed{s}_eval.json"
                     stored = json.loads(ej.read_text(encoding="utf-8")) if ej.exists() else None
                 _verify(kind, label, s, y, p, stored, wp)
                 c = _counts(y, p)
@@ -262,7 +264,7 @@ def render(recs: list[dict]) -> list[str]:
     doc.append("---")
     doc.append("")
 
-    # 表 B/C：逐类计数（两个正典）× 两工作点
+    # 表 B/C：逐类计数（① 主库正典 与 ② 增强集正典）× 两工作点
     for wp, tag in (("fixed_0.5", "表 B"), ("val_thr", "表 C")):
         doc.append(f"# {tag} —— 逐类 TP / FP / FN（"
                    + ("@0.5" if wp == "fixed_0.5" else "@验证集阈值") + "）")

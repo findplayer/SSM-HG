@@ -42,7 +42,7 @@ from dataset import (DEFAULT_GRAPH_DIR, ENV_LABEL_FILE, ENV_LABEL_KEY_MODE,
 from evaluate import _load_ablation, infer, rebuild_models
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
-DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
+DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits/withbuggy_snapshot"
 DEFAULT_RUNS_DIR = f"{BASE}/runs"
 NAMES = metrics.VULN_NAMES          # 7 类固定序
 

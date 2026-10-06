@@ -65,8 +65,19 @@ def test_no_detector_classes_comes_from_live_code():
 # ------------------------------------------------------------------ 2. 退化行自动检测
 
 
+def _stem(tool: str) -> str:
+    """该工具在 497 正典下的产物主干名（`<工具>_alldata_buggy`；Slither 例外 `slither_buggy`）。
+
+    🔴 2026-10-02：`collect_traditional_tools` 改指池 497 后，产物目录不再是 `<工具>_alldata`。
+    这里**不另抄一份命名规则**，直接问 `collect_baseline_tables.trad_root()`（与脚本同源），
+    使合成产物的写盘位置与脚本的读盘位置永远一致。它不依赖 `C.BASE`，故可在 monkeypatch 之前调用。
+    """
+    import collect_baseline_tables as CB
+    return Path(CB.trad_root(tool, "buggy")).name
+
+
 def _write_eval(root: Path, tool: str, seed: int, support: list[int]) -> None:
-    d = root / f"{tool}_alldata"
+    d = root / _stem(tool)
     d.mkdir(parents=True, exist_ok=True)
     (d / f"seed{seed}_eval.json").write_text(json.dumps({
         "test": {"n_in_split": 46, "n_analyzed": 8, "per_class_support": support},
@@ -131,7 +142,10 @@ def test_report_declares_the_two_scopes():
     """报告必须**显式声明** Slither 与其余五工具的跑动范围不同（否则覆盖率一栏会被横比）。"""
     md, payload = C.build()
     assert payload["scope"]["slither"] != payload["scope"]["others"]
-    assert "590" in md and "214" in md
+    # 🔴 2026-10-02 改指池 497 后，其余五工具的并集由 214 变为 306（Slither 仍是 590 全库）。
+    #    旧期望值 214 现在只能从 `static_tool_adapters` 的能力边界文案里偶然命中
+    #    （那是**池 453 时代的实测**、尚未更新）⇒ 此处改为断言**范围表**真正写出的 306。
+    assert "590" in md and "306" in md
 
 
 def test_report_forbids_reading_zero_as_f1_zero():
@@ -150,8 +164,8 @@ def _write_eval_full(root: Path, tool: str, seed: int, support: list[int],
     🔴 原始产物 `<tool>_alldata.json` **也必须写**：`tool_names()` 以它判定"这个工具在不在报告里"，
     只写 eval 目录的话整行根本不出现（第一版就栽在这里）。
     """
-    (root / f"{tool}_alldata.json").write_text("{}", encoding="utf-8")
-    d = root / f"{tool}_alldata"
+    (root / f"{_stem(tool)}.json").write_text("{}", encoding="utf-8")
+    d = root / _stem(tool)
     d.mkdir(parents=True, exist_ok=True)
     (d / f"seed{seed}_eval.json").write_text(json.dumps({
         "test": {"n_in_split": 46, "n_analyzed": 20, "per_class_support": support,
@@ -198,7 +212,7 @@ def test_degenerate_row_is_dashed_but_still_warned(tmp_path, monkeypatch):
 
 def test_tool_with_products_but_no_eval_is_named(tmp_path, monkeypatch):
     """🔴 第三种 `—`：**有原始产物但还没评测** —— 必须点名，否则与「不可评估」长得一样。"""
-    (tmp_path / "manticore_alldata.json").write_text("{}", encoding="utf-8")
+    (tmp_path / f"{_stem('manticore')}.json").write_text("{}", encoding="utf-8")
     monkeypatch.setattr(C, "BASE", tmp_path)
     md, _ = C.build()
     assert "尚未评测" in md and "Manticore" in md, "有产物无评测的工具没有被点名"
@@ -214,7 +228,7 @@ def test_three_reasons_for_dash_are_spelled_out(tmp_path, monkeypatch):
         _write_eval_full(tmp_path, "smartcheck", s, [3, 2, 1, 1, 5, 2, 7],
                          [0.5, 0.0, 0.0, 0.0, 0.0, 0.6, 1.0])
         _write_eval_full(tmp_path, "securify", s, [0] * 7, [0.0] * 7)
-    (tmp_path / "manticore_alldata.json").write_text("{}", encoding="utf-8")   # 有产物、无评测
+    (tmp_path / f"{_stem('manticore')}.json").write_text("{}", encoding="utf-8")   # 有产物、无评测
     monkeypatch.setattr(C, "BASE", tmp_path)
     md, _ = C.build()
     for token in ("能力缺失", "不可评估", "尚未评测"):
@@ -229,12 +243,19 @@ if __name__ == "__main__":
 
 
 def _prod(tool: str) -> dict:
-    p = C.BASE / f"{tool}_alldata.json"
+    p = C.trad_json(tool)
     if not p.exists():
         pytest.skip(f"{tool} 尚无产物")
     return json.loads(p.read_text(encoding="utf-8"))
 
 
+# 🔴 2026-10-02：本脚本已改指**现行正典池 497**（layout `buggy`），本测试随之由池 453 改指 497。
+#    原先因「池 453 产物被删、脚本尚未改指」而 `skipif` 跳过，现恢复执行。
+_PROD_497 = REPO / "eval_results" / "baseline" / "mythril_alldata_buggy" / "seed0_eval.json"
+
+
+@pytest.mark.skipif(not _PROD_497.exists(),
+                    reason="池 497 的传统工具评测产物缺失（`<工具>_alldata_buggy/` 未生成）")
 def test_covered_metrics_drops_only_the_missing_classes():
     """🔴 † 列 = **仅该工具有检测项的类**的 micro/macro。
 
@@ -242,9 +263,12 @@ def test_covered_metrics_drops_only_the_missing_classes():
       ① 覆盖 **7/7** 的工具（Mythril）两列**必须逐位相同** —— 否则说明切列切错了；
       ② 覆盖 **6/7** 的 Slither，去掉的 `front_running` 在全七类口径里是 F1=0、support>0
          ⇒ 它贡献的全是 FN ⇒ 去掉后 micro **必须变高**（这就是 † 口径"系统性偏高"的来源）。
+
+    2026-10-02 在池 497 上实测两条仍成立（Slither 三种子 cov.micro − full 分别为
+    +0.0190 / +0.0162 / +0.0200）。
     """
     cov = C.covered_metrics("mythril", _prod("mythril"))
-    full = {s: json.loads((C.BASE / "mythril_alldata" / f"seed{s}_eval.json")
+    full = {s: json.loads((C.trad_root("mythril") / f"seed{s}_eval.json")
                           .read_text(encoding="utf-8"))["test"]["micro_f1"] for s in (0, 1, 2)}
     assert cov, "Mythril 应有覆盖类读数"
     for s, v in cov.items():
@@ -253,21 +277,29 @@ def test_covered_metrics_drops_only_the_missing_classes():
         assert abs(v["micro"] - full[s]) < 1e-6, f"7/7 覆盖的工具两列必须相同（seed{s}）"
 
     sl = C.covered_metrics("slither", _prod("slither"))
-    sl_full = {s: json.loads((C.BASE / "slither_alldata" / f"seed{s}_eval.json")
+    sl_full = {s: json.loads((C.trad_root("slither") / f"seed{s}_eval.json")
                              .read_text(encoding="utf-8"))["test"]["micro_f1"] for s in (0, 1, 2)}
     for s, v in sl.items():
         assert v["micro"] > sl_full[s], f"去掉 front_running 后 micro 应变高（seed{s}）"
 
 
 def test_covered_metrics_are_rendered_as_dedicated_columns():
-    """† 两列必须真的进表，且退化行（Securify）与未评测行（无产物工具）同样是 `—`。"""
+    """† 两列必须真的进表；🔴 池 497 下 Securify 的行**不再是整行 `—`**。
+
+    ⚠ **这是数据性质变化、不是代码坏了**：旧池 453 里 Securify（只吃 pragma 0.5.x）的可分析集
+    恰好全是干净合约 ⇒ test 逐类 support 全 0 ⇒ 整行 `—`；池 497 并入了 `buggy_*`
+    （恰是 0.5.x、100% 正例）⇒ support>0 ⇒ 该行有数。整行 `—` 的渲染逻辑本身由合成用例
+    `test_degenerate_row_is_dashed_but_still_warned` 独立守住，不受本改影响。
+    """
     md, _ = C.build()
     sec = md.split("## 四、", 1)[1].split("## 五、", 1)[0]
     head = next(l for l in sec.splitlines() if l.startswith("| 工具 |"))
     assert "micro†" in head and "macro†" in head, "第四节表头缺 † 两列"
     # `split("|")` = 首空段 + 行名 + 11 格 + 末空段 ⇒ 数据格 = len - 3
     assert len(head.split("|")) - 3 == len(C.NAMES) + 4, "第四节列数应为 7 类 + micro/macro + † 两列"
-    assert set(_row_cells(md, "Securify")) == {"—"}
+    cells = _row_cells(md, "Securify")
+    assert set(cells) != {"—"}, "池 497 下 Securify 有正样本，不应再整行 —（数据性质已变）"
+    # 未评测行（合成场景）仍必须是整行 `—`：见 test_tool_with_products_but_no_eval_is_named。
 
 
 # ------------------------------------------------------------------ 6. 裁定 A：0/0 不计成 0
@@ -303,9 +335,9 @@ def test_run_env_constraint_is_disclosed(tmp_path, monkeypatch):
     报告里只需**一行**（用户 2026-09-26 裁定：论文披露不堆细节）：那一行是在加了内存上限的
     条件下跑的。事实与细节留在 `run_env.json` 与 `decisions.md` §56.7。
     """
-    (tmp_path / "manticore_alldata").mkdir(parents=True)
-    (tmp_path / "manticore_alldata.json").write_text("{}", encoding="utf-8")
-    (tmp_path / "manticore_alldata" / "run_env.json").write_text(json.dumps({
+    (tmp_path / _stem("manticore")).mkdir(parents=True)
+    (tmp_path / f"{_stem('manticore')}.json").write_text("{}", encoding="utf-8")
+    (tmp_path / _stem("manticore") / "run_env.json").write_text(json.dumps({
         "mem_cap": "5G", "cgroup_oom_kills_syslog_total": 5,
         "note_kills": "全机累计", "core_procs": "默认 24", "flush_every": 1,
     }, ensure_ascii=False), encoding="utf-8")

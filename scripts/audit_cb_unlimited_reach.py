@@ -49,9 +49,12 @@ import metrics                                                    # noqa: E402
 #    而 ② 未换代、叶子仍是 `ss{S}`。此前这里写死 `graph_root / f"ss{S}"` ⇒ ① 侧拼出
 #    `graphs_ft_p2/ss0/...`（不存在）⇒ `FileNotFoundError` 直接崩，**而不是**给出旧数字。
 #    ⚠ 这正是 `AGENTS.md` 警告过的那条：「逐种子路径模板化必须**同时认 `ss{S}` 与 `cb_ft_ss{S}`**」。
+# 🔴 **2026-10-02：① 改指现行正典池 497**（图树 `graphs_ft_buggy_p2`、划分
+#    `splits/withbuggy_snapshot`、消融 `runs/ablation_buggy`、正典 `runs/buggy_canon`）。
+#    ② 增强集不受池对调影响、路径逐字未变。叶子名 `cb_ft_ss{S}` / `ss{S}` 两段各自不同，保持不变。
 CORPORA = {
-    "main": ("products/alldata/graphs_ft_p2", "products/alldata/splits",
-             "runs/ablation", "runs", "① 主库", "cb_ft_ss{seed}"),
+    "main": ("products/alldata/graphs_ft_buggy_p2", "products/alldata/splits/withbuggy_snapshot",
+             "runs/ablation_buggy", "runs/buggy_canon", "① 主库", "cb_ft_ss{seed}"),
     "aug": ("products/augmentation/graphs_ft", "products/augmentation/splits",
             "runs/ablation_aug", "runs/augmentation", "② 增强集", "ss{seed}"),
 }

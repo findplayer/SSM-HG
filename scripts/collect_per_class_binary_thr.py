@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""**主库两条谱系 ×（正典 + 21 个消融臂）**的逐类 binary-F1 @逐类验证集阈值表。
+"""**两条口径谱系（正典 池 497 / 对照口径 池 453）×（正典 + 21 个消融臂）**的逐类
+binary-F1 @逐类验证集阈值表。
 
-用户 2026-09-27 指令：「输出主库正典（含 `buggy_*`）和逐个消融选项的逐类 binary-F1@逐类
+🔴 **2026-10-01 口径对调（用户裁定）**：池 497（含全部 `buggy_*`）升为正典（报告主体，表 1），
+   池 453（已剔除 `buggy_*`）降为**对照口径**（追加段，表 2）。两 key 的字面名与全部路径
+   **一律未改**（`runs/` 仍是对照口径的 run、`runs/buggy_canon/` 仍是正典的 run）。
+
+用户 2026-09-27 指令：「输出正典（池 497，含 `buggy_*`）和逐个消融选项的逐类 binary-F1@逐类
 验证集阈值 + micro-F1@逐类验证集阈值 + macro-F1@逐类验证集阈值 的表格」。
 
 **这张表回答什么**：把「七类共享一个阈值」换成「每类各自一个阈值（只在 val 上按该类自身的
@@ -19,9 +24,9 @@ F1 选）」之后，**每个消融选项在七个类上分别是什么读数**�
   - 消融臂的策展文本（层 / 变量说明）← `collect_ablation_three_metric.LAYERS`（同一份，不抄第二份）
 
 两条硬机检（**默认执行，不通过即拒绝出表**）：
-  ① **对拍**：canon37 正典那一行的 7 个逐类格 + micro + macro，必须与存量审计产物
-     `eval_results/calibration/summary.json::test_schemes.per_class_threshold` **逐位相同**
-     （容差 1e-6）⇒ 证明本脚本没有第二套 per-class 阈值实现。
+  ① **对拍**：canon37（**对照口径，池 453**）那一行的 7 个逐类格 + micro + macro，必须与
+     存量审计产物 `eval_results/calibration/summary.json::test_schemes.per_class_threshold`
+     **逐位相同**（容差 1e-6）⇒ 证明本脚本没有第二套 per-class 阈值实现。
   ② **恒等式**：每行每种子的 `metrics.macro_f1` 必须**逐位等于**其 7 个逐类 F1 的算术平均
      （`zero_division=0` 下二者数学恒等）⇒ 一旦分叉，说明类序或 zero 处理被改动过。
 
@@ -56,22 +61,24 @@ OUT_JSON = REPO / "eval_results" / "per_class_binary_thr.json"
 
 POOLS: tuple[dict, ...] = (
     {
-        "key": "canon37",
-        "table_no": 1,
-        "pool_label": "① §37 谱系",
-        "pool_desc": "池 **453**，已剔除全部 `buggy_*`；train/val/test = 362/45/46",
-        "canon": "runs/seed{seed}",
-        "arm": "runs/ablation/{arm}/seed{seed}",
-        "calib_ref": "eval_results/calibration/summary.json",
-    },
-    {
         "key": "buggy",
-        "table_no": 2,
-        "pool_label": "② 任务2 谱系",
+        "table_no": 1,
+        "pool_label": "① 正典谱系",
         "pool_desc": "池 **497**，**含** `buggy_*` 合成注入合约；train/val/test = 398/50/49",
         "canon": "runs/buggy_canon/seed{seed}",
         "arm": "runs/ablation_buggy/{arm}/seed{seed}",
+        "canon_disp": "**正典**",
         "calib_ref": None,
+    },
+    {
+        "key": "canon37",
+        "table_no": 2,
+        "pool_label": "② 对照口径谱系",
+        "pool_desc": "池 **453**，已剔除全部 `buggy_*`；train/val/test = 362/45/46",
+        "canon": "runs/seed{seed}",
+        "arm": "runs/ablation/{arm}/seed{seed}",
+        "canon_disp": "**对照口径**",
+        "calib_ref": "eval_results/calibration/summary.json",
     },
 )
 
@@ -157,12 +164,16 @@ def check_identity(all_rows: dict) -> list[str]:
 
 
 def check_against_calibration(all_rows: dict) -> list[str]:
-    """对拍：canon37 正典行 ↔ `eval_results/calibration/summary.json`（存量审计产物）。"""
+    """对拍：canon37（**对照口径，池 453**）行 ↔ `eval_results/calibration/summary.json`。
+
+    ⚠ 存量审计产物是**池 453**的，2026-10-01 口径对调后它不再叫正典——但**它仍是那个池**，
+      故对拍对象不变；变的只是该行在表里的**角色名**（表 2）。
+    """
     bad: list[str] = []
     ref_p = REPO / "eval_results/calibration/summary.json"
     row = next((r for r in all_rows.get("canon37", []) if r["arm"] == "canon"), None)
     if row is None:
-        return ["canon37 正典行缺失"]
+        return ["canon37（对照口径）行缺失"]
     if not ref_p.exists():
         return [f"缺对拍对象 {ref_p}"]
     sc = json.loads(ref_p.read_text(encoding="utf-8"))["test_schemes"]["per_class_threshold"]
@@ -219,7 +230,7 @@ def table_block(pool: dict, rows: list[dict]) -> list[str]:
 
 def render(all_rows: dict, entries: dict) -> str:
     doc: list[str] = [
-        "# 逐类 binary-F1 @逐类验证集阈值：主库两条谱系的正典 + 逐个消融选项",
+        "# 逐类 binary-F1 @逐类验证集阈值：正典（池 497）与对照口径（池 453）+ 逐个消融选项",
         "",
         "> 🔴 **本文件由 `scripts/collect_per_class_binary_thr.py` 程序生成，不要手改。**",
         "> 生成：`python scripts/collect_per_class_binary_thr.py --write`；"
@@ -239,17 +250,17 @@ def render(all_rows: dict, entries: dict) -> str:
         "",
         "🔴 **本表与主口径不是一个工作点**：现行主口径是「七类共享一个 `val_threshold`」"
         "（见 `experiments/ablation_three_metric_table.md`）。换成逐类阈值后"
-        "**macro 升、micro 降**（正典：macro +0.0484 / micro −0.0417，见 `experiments/p1_gains.md`）"
-        "⇒ 它是**并列口径**，不得作为「更好的主口径」引用。",
+        "**macro 升、micro 降**（对照口径（池 453）：macro +0.0484 / micro −0.0417，"
+        "见 `experiments/p1_gains.md`）⇒ 它是**并列口径**，不得作为「更好的主口径」引用。",
         "",
-        "🔴 **逐类阈值的过拟合已量化**：主库 val 每类只有 1–3 个正样本，`dos` 的阈值三种子"
+        "🔴 **逐类阈值的过拟合已量化**：对照口径（池 453）val 每类只有 1–3 个正样本，`dos` 的阈值三种子"
         "极差达 0.55，val→test 落差最大 0.16（审计见 `eval_results/calibration/summary.json::"
         "overfit_audit` 与 `experiments/gcn_baseline_and_per_class_f1.md` §3）。**本表的 std 里"
         "同时含「模型种子」与「阈值抖动」两个来源**，别把 std 读成纯模型方差。",
         "",
-        "⚠ **两条谱系的 test 集不同**（表 1 池 453 **已剔除**全部 `buggy_*`；表 2 池 497 **含**它们，"
-        "且 `buggy_*` 是 100% 正例的合成注入合约）⇒ **两表之间不得相减**；表内跨行可比"
-        "（同池、同划分、同训练种子）。",
+        "⚠ **两条谱系的 test 集不同**（表 1 池 497 **正典**，**含**全部 `buggy_*`；"
+        "表 2 池 453 **对照口径**，**已剔除**它们；且 `buggy_*` 是 100% 正例的合成注入合约）"
+        "⇒ **两表之间不得相减**；表内跨行可比（同池、同划分、同训练种子）。",
         "",
     ]
     for pool in POOLS:
@@ -259,14 +270,14 @@ def render(all_rows: dict, entries: dict) -> str:
     doc += [
         "## 机检（每次生成都跑，不通过即拒绝出表）",
         "",
-        "① **对拍**：表 1「正典」行的 7 个逐类格 + micro + macro，与存量审计产物",
+        "① **对拍**：表 2「对照口径（池 453）」行的 7 个逐类格 + micro + macro，与存量审计产物",
         "`eval_results/calibration/summary.json::test_schemes.per_class_threshold` **逐位相同**",
         "（容差 1e-6）⇒ 本脚本没有第二套 per-class 阈值实现。",
         "",
         "② **恒等式**：每行每种子的 `metrics.macro_f1` **逐位等于**其 7 个逐类 F1 的算术平均"
         "（`zero_division=0` 下数学恒等）⇒ 类序与 zero 处理未被改动。",
         "",
-        "⚠ 表 2（pool 497）**无存量审计产物可比**（`eval_results/calibration/` 只有池 453 的），"
+        "⚠ 表 1（正典，pool 497）**无存量审计产物可比**（`eval_results/calibration/` 只有池 453 的），"
         "故只有机检 ② 覆盖它——这是本表在两条谱系上唯一的**非对称**。",
         "",
         "## 三条读表须知",
@@ -297,7 +308,7 @@ def build() -> tuple[dict, dict]:
         if canon_raw:
             e = entry(canon_raw)
             e.update({"arm": "canon", "layer": "—",
-                      "arm_disp": "**正典**",
+                      "arm_disp": pool["canon_disp"],
                       "var": "**微调 CodeBERT + 全部组件**",
                       "_raw_pc": [r["per_class_f1"] for r in canon_raw],
                       "_raw_macro": [r["macro"] for r in canon_raw]})
@@ -338,12 +349,13 @@ def main() -> int:
                 print("   -", b)
             return 1
         print("\n[机检] ✅ 恒等式（macro ≡ 逐类平均）逐位成立；"
-              "✅ 表 1 正典行与 eval_results/calibration/summary.json 逐位相同")
+              "✅ 表 2 对照口径（池 453）行与 eval_results/calibration/summary.json 逐位相同")
 
     if args.write:
         OUT_MD.write_text(doc, encoding="utf-8")
         payload = {
-            "note": "逐类 binary-F1 @逐类验证集阈值；正典 + 21 个消融臂 × 两条谱系。"
+            "note": "逐类 binary-F1 @逐类验证集阈值；正典（池 497）+ 21 个消融臂 × 两条谱系"
+                    "（正典 池 497 / 对照口径 池 453）。"
                     "阈值由 calibrate.per_class_thresholds 只在 val 上选；"
                     "指标由 metrics.per_class_prf/micro_f1/macro_f1 计算（本脚本不重实现）。"
                     "两池 test 集不同，不得相减。",

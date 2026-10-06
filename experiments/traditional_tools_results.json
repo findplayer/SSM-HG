@@ -1,8 +1,8 @@
 {
- "created_utc": "2026-09-26T17:03:35+00:00",
+ "created_utc": "2026-10-02T01:43:35+00:00",
  "scope": {
   "slither": "全量 590 图（`products/alldata/graphs`）",
-  "others": "三种子 val∪test 并集 214 个合约"
+  "others": "三种子 val∪test 并集 306 个合约"
  },
  "tools": {
   "slither": {
@@ -58,11 +58,11 @@
    "tool": "mythril",
    "tool_label": "Mythril",
    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
-   "n_contracts": 214,
+   "n_contracts": 306,
    "status_counts": {
-    "ok": 184,
-    "timeout": 21,
-    "error": 9
+    "ok": 261,
+    "timeout": 30,
+    "error": 15
    },
    "detector_to_class": {
     "107": "reentrancy",
@@ -99,11 +99,11 @@
    "tool": "manticore",
    "tool_label": "Manticore",
    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
-   "n_contracts": 214,
+   "n_contracts": 306,
    "status_counts": {
-    "ok": 177,
-    "timeout": 31,
-    "error": 6
+    "ok": 252,
+    "timeout": 42,
+    "error": 12
    },
    "detector_to_class": {
     "Reachable SELFDESTRUCT": "access_control",
@@ -159,9 +159,9 @@
    "tool": "smartcheck",
    "tool_label": "Smartcheck",
    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
-   "n_contracts": 214,
+   "n_contracts": 306,
    "status_counts": {
-    "ok": 214
+    "ok": 306
    },
    "detector_to_class": {
     "SOLIDITY_TX_ORIGIN": "access_control",
@@ -206,10 +206,11 @@
    "tool": "securify",
    "tool_label": "Securify",
    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
-   "n_contracts": 214,
+   "n_contracts": 306,
    "status_counts": {
-    "ok": 47,
-    "error": 167
+    "ok": 86,
+    "error": 219,
+    "timeout": 1
    },
    "detector_to_class": {
     "Gas-dependent Reentrancy": "reentrancy",
@@ -248,7 +249,9 @@
     "Taint Analysis for PASS Project": "特定项目的污点分析，非本文语料"
    },
    "capability": [
-    "🔴 **`--ignore-pragma` 不要传**：securify2 **默认会把 pragma ≤ 0.5.8 的源码改写成它支持的版本**再分析 —— 所以它**不是**只吃 ≥0.5.8（`decisions.md` §47.4 第 1 条的旧表述过严，本轮实测更正）。",
+    "🔴 **实测边界（2026-09-25，本池 214 个合约逐条验过；最终跑数）**：**47 个成功里 45 个是 0.5.x、2 个是 0.4.x**（后者语法恰好 0.5 兼容）。按 pragma 分：**0.5.x 成功 45/46（98%）**、**0.4.x 成功 2/161（1.2%）**、**无 pragma 成功 0/7** ⇒ 总覆盖 **47/214 = 22.0%**。⚠ 措辞取「只能吃 0.5.x 的老合约」而非「只吃 ≥0.5.8」——实测成功的 0.5.x 里含 `^0.5.0`/`^0.5.4` 这类 <0.5.8 的。",
+    "🔴 **两条失败路径都实测到了**（这是「真的不行」而非「参数没调对」的证据）：① 给 pragma 匹配的 0.4.x solc ⇒ `Solc version X not supported by CFG compiler`（`ast_dict[_solc_version]` KeyError —— 它的 CFG 语法表里没有 0.4）；② 给 0.5.12 ⇒ `SyntaxError: No visibility specified` + `TypeError: Wrong argument count for function call: 0 arguments given but expected 1`（0.4 语法在 0.5.0+ 非法）。**pragma 改写只改 pragma 行、不升级语法**，故两条路都堵死。",
+    "⚠ **`--ignore-pragma` 不要传**：默认的 pragma 改写正是它能吃 0.5.x 老合约的原因（改写后按它支持的 solc 编译，0.5.x 语法恰好兼容）。",
     "需 `SOUFFLE_BINARY=souffle162` 与 `libfunctors` 的 `LD_LIBRARY_PATH`（见 `install_traditional_tools.sh`；souffle 2.5 会被 2019 年的 `.dl` 拒收）。",
     "⚠ 它**会改写源码副本**（pragma 替换）⇒ 必须在 `work/` 的副本上跑，绝不能碰只读源。"
    ],
@@ -256,7 +259,7 @@
    "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
    "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
    "capability_live": [
-    "🔴 **实测边界（2026-09-25，本池 214 个合约逐条验过；最终跑数）**：**47 个成功里 45 个是 0.5.x、2 个是 0.4.x**（后者语法恰好 0.5 兼容）。按 pragma 分：**0.5.x 成功 45/46（98%）**、**0.4.x 成功 2/161（1.2%）**、**无 pragma 成功 0/7** ⇒ 总覆盖 **47/214 = 22.0%**。⚠ 措辞取「只能吃 0.5.x 的老合约」而非「只吃 ≥0.5.8」——实测成功的 0.5.x 里含 `^0.5.0`/`^0.5.4` 这类 <0.5.8 的。",
+    "🔴 **实测边界（池 497，306 个合约逐条算过；2026-10-02 重算）**：**86 个成功里 80 个是 0.5.x、6 个是 0.4.x**（后者语法恰好 0.5 兼容）。按 pragma 分：**0.5.x 成功 80/88（90.9%）**、**0.4.x 成功 6/210（2.9%）**、**无 pragma 成功 0/8（0%）** ⇒ 总覆盖 **86/306 = 28.1%**。（算法：读 `securify_alldata_buggy.json` 的 306 条 `contracts[*]`，`status=='ok'` 为成功；pragma 家族由每条 `source` 路径经 `parse_pragma` 推出。）⚠ 措辞取「只能吃 0.5.x 的老合约」而非「只吃 ≥0.5.8」——实测成功的 0.5.x 里含 `^0.5.0`/`^0.5.4` 这类 <0.5.8 的。",
     "🔴 **两条失败路径都实测到了**（这是「真的不行」而非「参数没调对」的证据）：① 给 pragma 匹配的 0.4.x solc ⇒ `Solc version X not supported by CFG compiler`（`ast_dict[_solc_version]` KeyError —— 它的 CFG 语法表里没有 0.4）；② 给 0.5.12 ⇒ `SyntaxError: No visibility specified` + `TypeError: Wrong argument count for function call: 0 arguments given but expected 1`（0.4 语法在 0.5.0+ 非法）。**pragma 改写只改 pragma 行、不升级语法**，故两条路都堵死。",
     "⚠ **`--ignore-pragma` 不要传**：默认的 pragma 改写正是它能吃 0.5.x 老合约的原因（改写后按它支持的 solc 编译，0.5.x 语法恰好兼容）。",
     "需 `SOUFFLE_BINARY=souffle162` 与 `libfunctors` 的 `LD_LIBRARY_PATH`（见 `install_traditional_tools.sh`；souffle 2.5 会被 2019 年的 `.dl` 拒收）。",
@@ -267,10 +270,10 @@
    "tool": "oyente",
    "tool_label": "Oyente",
    "graph_dir": "/home/saumarez/projects/deep-learning/SSM-HG/products/alldata/graphs",
-   "n_contracts": 214,
+   "n_contracts": 306,
    "status_counts": {
-    "error": 169,
-    "ok": 45
+    "error": 254,
+    "ok": 52
    },
    "detector_to_class": {
     "Re-Entrancy Vulnerability": "reentrancy",
@@ -297,7 +300,7 @@
    "mapping_rule": "六工具同一把尺：检测项进入七类，当且仅当有唯一且明确的 SWC 锚点，且该 SWC 落在七类语义内；无锚点一律不纳入（宁可漏，不可编）",
    "warning": "classes 为七维规则命中向量；`no_detector_classes` 里的类是**该工具不提供此检测项**（恒 0），不得读成「该工具在此类上 F1=0」；status!=ok 的合约未分析，不得记作全零预测",
    "capability_live": [
-    "🔴 **solc 钉死 0.4.19**（源码内 tested 版本，env 内的 `solc` shim 保证）⇒ **0.5.x/0.8.x 的合约一律编译失败**；本轮池里 214 个合约有 161 个是 0.4.x，故 Oyente 的可分析面**结构性偏向老合约**，这个偏差必须写进行注。",
+    "🔴 **solc 钉死 0.4.19**（源码内 tested 版本，env 内的 `solc` shim 保证）⇒ **0.5.x/0.8.x 的合约一律编译失败**；本轮池里 306 个合约有 210 个是 0.4.x，故 Oyente 的可分析面**结构性偏向老合约**（实测可分析 52 个：51 个 0.4.x + 1 个无 pragma；88 个 0.5.x 全部失败），这个偏差必须写进行注。（算法同 Securify 条：`oyente_alldata_buggy.json` 的 `status` + `source` 的 `parse_pragma`。）",
     "必须在 `~/tools/oyente/oyente` 目录内跑（源码用顶层 import）；`-s` **必须是绝对路径**（相对路径在 cd 后会解析失败）；`eval` 二进制由 `PATH` 提供。",
     "⚠ 启动时硬检查 `z3.z3util`，故 z3 钉 4.8.17。"
    ]

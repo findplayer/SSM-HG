@@ -67,12 +67,18 @@ LAYERS: list[tuple[str, str, str]] = [
 ]
 
 CORPORA = [
+    # `canon_word`：该语料**基线行的角色名**，逐语料不同（2026-10-01 §58 池对调）——
+    #   ① 2026-10-02 改指**现行正典池 497**（`runs/buggy_canon` + `runs/ablation_buggy`）⇒ 又成「正典」；
+    #   ② 增强集不受池对调影响 ⇒ 仍是**正典**。
+    # 角色词做成数据、不硬写进行标签（同 `collect_ablation_results.GROUPS[*]["canon_word"]`）：
+    # ① / ② 共用同一个 `collect()`，若把角色词写死，「正典」就会同时指两个相反的口径。
     {"label": "① 主库 `alldata(readonly)`",
-     "canon_dir": "runs/seed{seed}", "arm_dir": "runs/ablation/{arm}/seed{seed}",
-     "tbl_thr": 1, "tbl_05": 2},
+     "canon_dir": "runs/buggy_canon/seed{seed}",
+     "arm_dir": "runs/ablation_buggy/{arm}/seed{seed}",
+     "tbl_thr": 1, "tbl_05": 2, "canon_word": "正典（池 497）"},
     {"label": "② 增强集 `alldata_augmentation`",
      "canon_dir": "runs/augmentation/seed{seed}", "arm_dir": "runs/ablation_aug/{arm}/seed{seed}",
-     "tbl_thr": 3, "tbl_05": 4},
+     "tbl_thr": 3, "tbl_05": 4, "canon_word": "正典"},
 ]
 
 
@@ -113,7 +119,8 @@ def _fmt(vals: list[float]) -> str:
 def collect(cfg: dict) -> dict[str, dict[str, list[float]]]:
     """→ {ann: {"thr": {...各口径的 3 种子列表}, "05": {...}}}"""
     acc: dict[str, dict[str, list[float]]] = {}
-    rows = [("**正典**", cfg["canon_dir"])] + [(a, cfg["arm_dir"]) for a in ARMS]
+    cw = cfg["canon_word"]          # ① 对照口径（池 453） / ② 正典（增强集）
+    rows = [(cw, cfg["canon_dir"])] + [(a, cfg["arm_dir"]) for a in ARMS]
     for ann, tmpl in rows:
         per = {"thr": {k: [] for k in ("micro", "macro", "mAP", "buggy", "cbin")},
                "05": {k: [] for k in ("micro", "macro", "mAP", "buggy", "cbin")}}
@@ -126,13 +133,13 @@ def collect(cfg: dict) -> dict[str, dict[str, list[float]]]:
     return acc
 
 
-def table(title: str, wp: str, acc: dict) -> list[str]:
+def table(title: str, wp: str, acc: dict, canon_word: str) -> list[str]:
     L = [f"### {title}", "",
          "| 层 | 臂 | 变量（唯一改动） | Micro-F1 | Buggy-F1<br>（有漏洞合约子集） | "
          "Buggy-F1<br>（合约级二分类） | Macro-F1 | mAP |",
          "| --- | --- | --- | --- | --- | --- | --- | --- |"]
-    c = acc["**正典**"][wp]
-    L.append("| — | **正典** | **微调 CodeBERT + 全部组件** | "
+    c = acc[canon_word][wp]
+    L.append(f"| — | **{canon_word}** | **微调 CodeBERT + 全部组件** | "
              + " | ".join([f"**{_fmt(c['micro'])}**", f"**{_fmt(c['buggy'])}**",
                            f"**{_fmt(c['cbin'])}**", f"**{_fmt(c['macro'])}**",
                            f"**{_fmt(c['mAP'])}**"]) + " |")
@@ -187,9 +194,10 @@ def main() -> int:
     for cfg in CORPORA:
         doc += [f"## 表 {cfg['tbl_thr']} / 表 {cfg['tbl_05']}：{cfg['label']}", ""]
         acc = collect(cfg)
+        cw = cfg["canon_word"]
         doc += table(f"表 {cfg['tbl_thr']} —— @验证集阈值（主工作点，test 集，3 种子 mean±std）",
-                     "thr", acc)
-        doc += table(f"表 {cfg['tbl_05']} —— @固定 0.5（未标定工作点）", "05", acc)
+                     "thr", acc, cw)
+        doc += table(f"表 {cfg['tbl_05']} —— @固定 0.5（未标定工作点）", "05", acc, cw)
 
     # 🔴 **只替换「头部 + §0 + 4 张表」，`## 1. 分析` 之后的正文原样保留**。
     #    理由：那些段落是**人工写的分析/规划**（不是产物），生成器无权删除它们。

@@ -101,12 +101,22 @@ def test_diagonal_is_reused_and_offdiagonal_is_new():
             assert e["run_dir"].parent.name == f"ts{e['t']}_ss{e['s']}"
 
 
-def test_main_baseline_is_fully_reused_from_cbft_study():
-    """① 的 9 对基线来自 §36 的 `cbft_study`，**零新跑**（论文正典即由它的对角提升而来）。"""
+def test_main_baseline_reuses_diagonal_only():
+    """① 的 9 对基线：对角复用池 497 正典 `runs/buggy_canon/seed{S}`、非对角新跑。
+
+    🔴 2026-10-02 改指 497 前，① 的 9 对基线由 §36 的 `cbft_study` **全量复用**（零新跑，
+    论文正典即由它的对角提升而来）；池 453 的数据当日整体删除后，该来源不复存在
+    ⇒ ① 与 ② 同构，改走"对角复用本组正典、非对角新跑"。
+    """
     base = [e for e in _plan("main") if e["item"] == R9.BASELINE_ITEM]
     assert len(base) == 9
-    assert all(e["reuse"] for e in base)
-    assert all(e["run_dir"].parent.parent.name == "cbft_study" for e in base)
+    for e in base:
+        if e["t"] == e["s"]:
+            assert e["reuse"], f"基线 {e['t']}:{e['s']} 对角却要新跑"
+            assert e["run_dir"].parent.name == "buggy_canon"
+        else:
+            assert not e["reuse"]
+            assert "ablation_n9" in str(e["run_dir"])
 
 
 def test_aug_baseline_reuses_diagonal_only():

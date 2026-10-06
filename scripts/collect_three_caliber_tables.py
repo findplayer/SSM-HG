@@ -8,7 +8,7 @@
 |---|---|---|
 | ① 主库 | `runs/seed{S}/`、`runs/ablation/<臂>/seed{S}/` | `test_probs.pt` + `thresholds.json` |
 | ② 增强集 | `runs/augmentation/seed{S}/`、`runs/ablation_aug/<臂>/seed{S}/` | 同上 |
-| ① 主库 · 含 buggy 新正典 | `runs/buggy_canon/seed{S}/`、`runs/ablation_buggy/<臂>/seed{S}/` | 同上（`--canon-only-runs` + `--ablation-root`） |
+| ① 主库 · 正典（池 497） | `runs/buggy_canon/seed{S}/`、`runs/ablation_buggy/<臂>/seed{S}/` | 同上（`--canon-only-runs` + `--ablation-root`） |
 | DIVE 外部测试 | `eval_results/dive/matrix_{main,aug}.json` | 逐种子逐类 P/R/F1 + 漏洞子集块 |
 
 🔴 **`test_probs.pt` 由 `diagnose.py` 写，`evaluate.py` 不写**（2026-09-21）。故任何"产出可被本表读取的
@@ -191,8 +191,8 @@ def best_seed_from_runs(run_rel: str, seeds=SEEDS) -> int:
     """从一个 run 目录自己的 `seed*/results.json` 选最佳种子（**主指标 micro-F1@val_thr**）。
 
     与 `best_seed_of` 同一口径（`decisions.md` §39），但**不读 `eval_results/ablation/`**——
-    那份 JSON 服务的是正典那批 run，换正典（如任务 2 的含 buggy 臂）后它就是**旧工作点**，
-    拿它选种子会把"按旧正典挑的种子"套到新正典上（同一类口径错配，本仓已栽过两次）。
+    那份 JSON 服务的是正典那批 run，换正典（如池 497 的含 buggy 臂）后它就是**旧工作点**，
+    拿它选种子会把"按对照口径挑的种子"套到正典上（同一类口径错配，本仓已栽过两次）。
     """
     best, best_v = None, -1.0
     for s in seeds:
@@ -206,20 +206,26 @@ def best_seed_from_runs(run_rel: str, seeds=SEEDS) -> int:
 
 
 def build_rows(best_seed: bool = False):
-    """按「① 正典 → ① 21 臂 → ② 正典 → ② 21 臂 → DIVE ①②模型」构造行。
+    """按「① 基线 → ① 21 臂 → ② 基线 → ② 21 臂 → DIVE ①②模型」构造行
+    （① 基线 = **对照口径（池 453）**、② 基线 = **正典（增强集）**，见各组 `canon_word`）。
 
     `best_seed=True` 时**每个语料只取它自己那个最佳种子**（① seed2 / ② seed1），
     且该语料的内测行与 DIVE 行**共用同一个种子**——否则同一批行里"① 模型"会是不同模型。
     """
     rows, supports = [], {}
     k = {c: [best_seed_of(c)] if best_seed else list(SEEDS) for c in ("main", "aug")}
+    # `canon_word`：**该语料基线行的角色名**，逐语料不同（2026-10-01 §58 池对调）——
+    #   ① 主库跑在**池 453** 上 ⇒ 由「正典」降为**对照口径（池 453）**；
+    #   ② 增强集不受池对调影响 ⇒ 仍是**正典**。
+    # 角色词做成数据、不硬写进行标签（同 `collect_ablation_results.GROUPS[*]["canon_word"]`），
+    # 否则两组会串味（本仓已因「同一字面量服务两种语义」栽过）。
     groups = (("① 主库", "runs", "runs/ablation", "eval_results/dive/matrix_main.json",
-               "①模型", "main"),
+               "①模型", "main", "对照口径（池 453）"),
               ("② 增强集", "runs/augmentation", "runs/ablation_aug",
-               "eval_results/dive/matrix_aug.json", "②模型", "aug"))
-    for gname, canon_dir, abl_root, matrix_file, dtag, ckey in groups:
+               "eval_results/dive/matrix_aug.json", "②模型", "aug", "正典"))
+    for gname, canon_dir, abl_root, matrix_file, dtag, ckey, canon_word in groups:
         r = row_from_run(canon_dir, k[ckey])
-        rows.append((f"**{gname} · 正典**", r))
+        rows.append((f"**{gname} · {canon_word}**", r))
         supports[gname] = r["support"]
         for arm, _ov, desc in RA.ABLATIONS:
             rel = f"{abl_root}/{arm}"
@@ -237,7 +243,7 @@ def _thin_support_note(supports: dict) -> str:
     """按**实际 support** 生成薄支撑警告——**不写死数字**。
 
     ⚠ 这一行原来是硬编码的「① 主库 test 的 `dos`/`front_running` 逐类 support 低到 1」，
-    换正典（任务2 的池 497 划分）后那句就**变成假的**（实测 support 是 6–14）。
+    换正典（池 497 划分）后那句就**变成假的**（实测 support 是 6–14）。
     样板句失真是本仓点过名的一类问题（`decisions.md` §40.7 第 5 条）——
     这类句子**不会报错、只会误导**，故改为从数据推导。
     """
@@ -280,8 +286,8 @@ def main() -> None:
     ap.add_argument("--out", default="", help="写入的 markdown 路径；留空只打印到 stdout")
     ap.add_argument("--canon-only-runs", default=None,
                     help="**只出主库一行**：行 = 该 run 目录的正典（如 `runs/buggy_canon`）。"
-                         "供新正典（任务 2 的含 buggy 臂）单独出一份表；"
-                         "最佳种子从**该目录自己的** results.json 选，不读旧正典的 collected.json。")
+                         "供正典（池 497 的含 buggy 臂）单独出一份表；"
+                         "最佳种子从**该目录自己的** results.json 选，不读对照口径的 collected.json。")
     ap.add_argument("--ablation-root", default=None,
                     help="配合 `--canon-only-runs`：把该根下的消融臂也加进来（如 `runs/ablation_buggy`）。"
                          "**臂集合与顺序一律取 `run_ablation.ABLATIONS`**（21 项）——不另立一份清单，"
@@ -291,7 +297,11 @@ def main() -> None:
     if args.canon_only_runs:
         rel = args.canon_only_runs
         k = best_seed_from_runs(rel)
-        canon_label = f"**① 主库 · 正典（{rel}）**"
+        # 🔴 本模式下该目录**就是现行正典（池 497，含 `buggy_*`）**——与默认模式下
+        #   「① 主库 `runs/seed{S}` = 池 453 = 对照口径」**指向相反**，故角色词按模式给，
+        #   两个模式**不能共用一个字面量**（2026-10-01 §58 口径对调后必须分开着色）。
+        canon_word = f"正典（池 497，{rel}）"
+        canon_label = f"**① 主库 · {canon_word}**"
         rows_best = [(canon_label, row_from_run(rel, [k]))]
         rows = [(canon_label, row_from_run(rel, list(SEEDS)))]
         supports = {"① 主库": rows[0][1]["support"]}
@@ -339,7 +349,8 @@ def main() -> None:
          f"判据 = 该正典在 micro-F1@val_thr 上最高），**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"
          if args.canon_only_runs else
          f"> 🔴 **两组表并列**：**表 1–6 = 最佳种子口径**（用户 2026-09-20 裁定，`decisions.md` §39；"
-         f"① 取 **seed{k_main}**、② 取 **seed{k_aug}**，判据 = 该语料正典在 micro-F1@val_thr 上最高），"
+         f"① 取 **seed{k_main}**、② 取 **seed{k_aug}**，判据 = 该语料基线行"
+         f"（① **对照口径（池 453）** / ② **正典**）在 micro-F1@val_thr 上最高），"
          f"**表 7–12 = 3 种子 mean±std 附录**（ddof=1）。"),
         "",
         "> ⚠ 最佳种子口径下**没有 ±**（单种子无方差），且本仓实测重跑抖动 ≈0.012"

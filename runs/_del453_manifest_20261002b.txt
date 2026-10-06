@@ -1,0 +1,13 @@
+# 池 453 残留清扫（第二批）2026-10-02
+# 上批 runs/_del453_manifest_20261002.txt 已清主体；本批清 husk 与 453 口径的评测残留。
+eval_results/baseline/mando_pairedfix_probe     # 453 口径探针：graph_dir=graphs_ft/ss1（已删）、split_dir=splits（453 根）；无文档/测试引用
+eval_results/baseline/manticore_alldata         # 453 manticore 跑的 run_env.json 边车（目录内仅此一文件）
+products/alldata/baseline/egfl                  # 453 离线特征目录的空壳
+products/alldata/baseline/mando                 # 同上
+products/alldata/baseline/mvdhg                 # 同上
+# ---- 以下为**未删**项及理由（保留，见对话）----
+# eval_results/baseline/<工具>_alldata.json   ×6  与池无关的原始检测产物（跑的是全 590 图），是将来在 497 上重评的唯一来源
+# products/alldata/splits/cb_func_gap{,_after}.json  图级审计（CFG 节点 (contract,function) 键 × CodeBERT 缓存），与池无关
+# eval_results/baseline/slither_buggy{,.json}  池 497 正典（collect_baseline_tables.py:222）
+# runs/prior_buggy16                          池 497 的 16 轮档前代（AGENTS.md：prior_* 留追溯）
+# runs/withbuggy                              池 497（split_dir=withbuggy_snapshot）

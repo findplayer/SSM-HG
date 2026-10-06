@@ -377,7 +377,7 @@ def parse_args():
     p.add_argument("--graph-dir", default=str(REPO / "products/alldata/graphs_ft_p2/cb_ft_ss0"))
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
     p.add_argument("--feature-suffix", default="",
-                   help="离线特征根后缀：`\"\"`=§37 正典（池 453），`_buggy`=新正典（池 497）。"
+                   help="离线特征根后缀：`\"\"`=对照口径（池 453），`_buggy`=正典（池 497）。"
                         "🔴 必须与 --graph-dir/--split-dir 同时换（见 baseline_common.LAYOUTS）。")
     p.add_argument("--split-seed", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)

@@ -106,7 +106,7 @@ def test_write_bundle_requires_best_threshold(tmp_path):
 @pytest.mark.parametrize("name", BASELINES)
 def test_three_calibers_computable(name):
     """有产物就核三口径；没有则跳过（不静默假装通过）。"""
-    rel = f"eval_results/baseline/{name}"
+    rel = B.LAYOUTS[B.DEFAULT_LAYOUT]["out_dir"].format(name=name)
     seeds = [s for s in SEEDS if (REPO / rel / f"seed{s}" / "test_probs.pt").exists()]
     if not seeds:
         pytest.skip(f"{rel} 尚无产物")
@@ -254,14 +254,14 @@ def test_decode_bucket_id_order():
 
 
 def test_opcodes_table_has_144_entries():
-    p = B.feature_root("egfl") / "opcodes.json"
+    p = B.feature_root("egfl", "_buggy") / "opcodes.json"   # 🔴 2026-10-02 改指正典（池 497）
     if not p.exists():
         pytest.skip("opcodes.json 尚未生成")
     assert len(json.loads(p.read_text(encoding="utf-8"))) == 144
 
 
 def test_mando_metadata_sha_matches_current_pool():
-    p = B.feature_root("mando") / "hgt_metadata.json"
+    p = B.feature_root("mando", "_buggy") / "hgt_metadata.json"   # 🔴 2026-10-02 改指正典（池 497）
     if not p.exists():
         pytest.skip("hgt_metadata.json 尚未生成")
     d = json.loads(p.read_text(encoding="utf-8"))
@@ -284,7 +284,9 @@ def test_baseline_placeholder_sanitizer():
 
 # ------------------------------------------------- ⑥ 逐类二分类口径（binary-F1，§4）
 def _rel_of(name):
-    return "runs" if name == "runs" else f"eval_results/baseline/{name}"
+    # 🔴 2026-10-02 改指正典（池 497）：原为 `runs` + `eval_results/baseline/{name}`（池 453，
+    #    已随磁盘清理删除）。现行正典 = `runs/buggy_canon` 与 `eval_results/baseline/{name}_buggy`。
+    return "runs/buggy_canon" if name == "runs" else f"eval_results/baseline/{name}_buggy"
 
 
 def test_pc_binary_thresholds_come_from_val_only(monkeypatch):
@@ -296,8 +298,8 @@ def test_pc_binary_thresholds_come_from_val_only(monkeypatch):
     import numpy as np
     import calibrate as CAL
     import collect_baseline_tables as CB
-    if not (REPO / "runs/seed0/val_best_probs.pt").exists():
-        pytest.skip("runs/seed0 尚无概率缓存")
+    if not (REPO / "runs/buggy_canon/seed0/val_best_probs.pt").exists():
+        pytest.skip("runs/buggy_canon/seed0 尚无概率缓存")
     seen = []
     orig = CAL.per_class_thresholds
 
@@ -306,13 +308,13 @@ def test_pc_binary_thresholds_come_from_val_only(monkeypatch):
         return orig(vp, vy, *a, **k)
 
     monkeypatch.setattr(CAL, "per_class_thresholds", spy)
-    CB._pc_pairs("runs", [0])
+    CB._pc_pairs(_rel_of("runs"), [0])
     assert len(seen) == 1, "每种子应恰好选一次逐类阈值"
-    dv = torch.load(REPO / "runs/seed0/val_best_probs.pt", map_location="cpu")
+    dv = torch.load(REPO / "runs/buggy_canon/seed0/val_best_probs.pt", map_location="cpu")
     assert np.allclose(seen[0][0], dv["probs"].numpy())
     assert np.array_equal(seen[0][1], dv["labels"].numpy().astype(int))
     # 负向断言：绝不能是 test 缓存
-    dt = torch.load(REPO / "runs/seed0/test_probs.pt", map_location="cpu")
+    dt = torch.load(REPO / "runs/buggy_canon/seed0/test_probs.pt", map_location="cpu")
     assert not np.array_equal(seen[0][1], dt["labels"].numpy().astype(int))
 
 
@@ -347,10 +349,10 @@ def test_pc_binary_matches_calibration_artifact():
     import numpy as np
     import collect_baseline_tables as CB
     f = REPO / "eval_results/calibration/summary.json"
-    if not f.exists() or not (REPO / "runs/seed0/test_probs.pt").exists():
+    if not f.exists() or not (REPO / "runs/buggy_canon/seed0/test_probs.pt").exists():
         pytest.skip("缺 calibration/summary.json 或 runs 概率缓存")
     sc = json.loads(f.read_text(encoding="utf-8"))["test_schemes"]["per_class_threshold"]
-    pairs = CB._pc_pairs("runs", list(SEEDS))
+    pairs = CB._pc_pairs(_rel_of("runs"), list(SEEDS))
     for i, n in enumerate(metrics.VULN_NAMES):
         mine = float(np.mean([p[0][i] for p in pairs]))
         assert abs(mine - float(sc["per_class_f1"][n]["mean"])) < 1e-6, f"{n} 与存量不一致"
@@ -361,9 +363,9 @@ def test_pc_binary_matches_calibration_artifact():
 def test_pc_binary_block_renders_8_columns():
     """表 1 必须是 7 类 + 平均 = 8 列，且行数 ≥ 请求的 4 行。"""
     import collect_baseline_tables as CB
-    if not (REPO / "eval_results/baseline/mvdhg/seed0/test_probs.pt").exists():
+    if not (REPO / "eval_results/baseline/mvdhg_buggy/seed0/test_probs.pt").exists():
         pytest.skip("三条基线尚无产物")
-    lines = CB.per_class_binary_block("runs", list(SEEDS))
+    lines = CB.per_class_binary_block(_rel_of("runs"), list(SEEDS))
     assert "**平均**" in lines[2] and "| 方法 |" in lines[2], "表头末列必须叫「平均」"
     body = [ln for ln in lines if ln.startswith("| **")]
     assert len(body) >= 4, "至少要有 本文方法 + 三条基线四行"
@@ -376,9 +378,9 @@ def test_pc_binary_block_renders_8_columns():
 def test_overview_block_marks_below_trivial_rows():
     """EGFL / MANDO 的「本行最高」不得被读成「好看」——块内必须有该声明的原文。"""
     import collect_baseline_tables as CB
-    if not (REPO / "eval_results/baseline/mando/seed0/test_probs.pt").exists():
+    if not (REPO / "eval_results/baseline/mando_buggy/seed0/test_probs.pt").exists():
         pytest.skip("三条基线尚无产物")
-    txt = "\n".join(CB.overview_block("runs", list(SEEDS)))
+    txt = "\n".join(CB.overview_block(_rel_of("runs"), list(SEEDS)))
     assert "平凡下限" in txt and "本行最高" in txt
 
 
@@ -594,16 +596,24 @@ def test_buggy_bundle_is_7dim_on_disk(name):
 
 
 def test_buggy_metadata_is_its_own_file():
-    """MANDO 的结构词表逐正典一份：497 池比 453 池**多一种边类型**，两份不能是同一个文件。"""
-    canon = B.feature_root("mando") / "hgt_metadata.json"
+    """MANDO 的结构词表逐正典一份：497 池比 453 池**多一种边类型**，两份不能是同一个文件。
+
+    🔴 2026-10-02：池 453 的产物已随磁盘清理整体删除 ⇒ "两份不能是同一个文件"这一半
+    **无从执行**，此处仅校验池 497（现行正典）那份的自洽性。跨口径那一半待 453 回流后恢复；
+    注意本测试与 `test_structure_fingerprint_ignores_graph_dir_but_not_pool` 一起
+    才构成"换正典必须换根"的完整守卫。
+    """
     buggy = B.feature_root("mando", "_buggy") / "hgt_metadata.json"
     if not buggy.exists():
         pytest.skip("products/alldata/baseline/mando_buggy/hgt_metadata.json 尚无产物")
-    assert canon.exists()
-    a = json.loads(canon.read_text(encoding="utf-8"))
     b = json.loads(buggy.read_text(encoding="utf-8"))
-    assert a["pool_sha256"] != b["pool_sha256"], "两个正典的 metadata 指纹相同（说明写进了同一份）"
     assert len(b["node_types"]) == 9 and isinstance(b["edge_types"], list)
+
+    canon = B.feature_root("mando") / "hgt_metadata.json"
+    if not canon.exists():
+        pytest.skip("池 453 的 mando/hgt_metadata.json 已于 2026-10-02 随 453 数据删除")
+    a = json.loads(canon.read_text(encoding="utf-8"))
+    assert a["pool_sha256"] != b["pool_sha256"], "两个正典的 metadata 指纹相同（说明写进了同一份）"
 
 
 def test_structure_fingerprint_ignores_graph_dir_but_not_pool():
@@ -693,7 +703,10 @@ def test_overview_block_survives_an_all_dash_row():
     import collect_baseline_tables as CB
     if not (REPO / "eval_results/baseline/securify_alldata/seed0_eval.json").exists():
         pytest.skip("Securify 尚无产物")
-    lines = CB.overview_block("runs", list(SEEDS))          # 不抛异常即通过
+    # 🔴 layout 必须**显式**传：本用例读的是 `runs/`（池 453，今为**对照口径**）
+    #    那批产物，不能靠默认值。2026-10-01 口径对调后默认 layout 变成正典（池 497），
+    #    靠默认值会读到 `securify_buggy`（整行有数），本用例的前提「整行皆 —」就不成立。
+    lines = CB.overview_block("runs", list(SEEDS), layout="canon37")   # 不抛异常即通过
     sec = next(ln for ln in lines if "Securify" in ln)
     assert sec.rstrip().endswith("**—** |"), f"整行皆 — 时末列应写 —：{sec}"
 

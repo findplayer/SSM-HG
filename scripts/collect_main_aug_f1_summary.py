@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -46,9 +47,11 @@ WORKPOINTS = [(wp, disp) for wp, disp, _dk, _bk in T.WORKPOINTS]
 WP_DISP = dict(WORKPOINTS)
 
 # ------------------------------------------------------------------ 行定义
-# 🔴 两语料的**正典 run 目录**：① = `runs/`，② = `runs/augmentation/`。
+# 🔴 两语料的**主 run 目录**：① = `runs/buggy_canon/`（**现行正典**，池 497；
+#    2026-10-02 由池 453 的 `runs/` 改指）、② = `runs/augmentation/`（**正典**，未受池对调影响）。
 #    ② 未换代（仍是冻结编码器树 + 其正典 run），故路径与 ① 不对称是**事实**、不是笔误。
 AUG_RUNS = "runs/augmentation"
+MAIN_RUNS = "runs/buggy_canon"
 
 # 二语料 × 三条论文基线：`(臂名, 显示名)`。
 # 🔴 `egfl_ownlr` 是 EGFL 的**敏感性命中臂**（改用其论文 lr=0.002）——`collect_baseline_tables`
@@ -67,7 +70,7 @@ def empty_row() -> dict:
     return {"cells": {wp: {c: [] for c in CALIBERS} for wp, _ in WORKPOINTS}, "support": {}}
 
 
-def paper_row(arm: str, layout: str = "canon37", seeds=None) -> dict | None:
+def paper_row(arm: str, layout: str = "buggy", seeds=None) -> dict | None:
     """三条论文基线 → 与 `row_from_run` 同构的行（复用 `collect_baseline_tables.rel_of`）。
 
     它们与本文方法**共用同一个行构造器**：`results.json`/`test_probs.pt`/`thresholds.json`
@@ -79,31 +82,31 @@ def paper_row(arm: str, layout: str = "canon37", seeds=None) -> dict | None:
     return T.row_from_run(rel, seeds or SEEDS)
 
 
-def trad_row(tool: str, layout: str = "canon37", seeds=None) -> dict | None:
+def trad_row(tool: str, layout: str = "buggy", seeds=None) -> dict | None:
     return B.trad_row(tool, seeds, layout)
 
 
 def build(best_seed: bool = False):
     """→ `[(label, row)]`，外加 `(supports, missing)` 两个旁注块。"""
     k = {}
-    for ckey, rel in (("main", "runs"), ("aug", AUG_RUNS)):
+    for ckey, rel in (("main", MAIN_RUNS), ("aug", AUG_RUNS)):
         k[ckey] = [T.best_seed_from_runs(rel)] if best_seed else list(SEEDS)
 
     rows: list[tuple[str, dict]] = []
     supports: dict[str, dict] = {}
     missing: list[str] = []
 
-    # ---- ① 主库 ----------------------------------------------------------
-    r = T.row_from_run("runs", k["main"])
+    # ---- ① 主库（2026-10-02 改指**现行正典**，池 497）--------------------
+    r = T.row_from_run(MAIN_RUNS, k["main"])
     rows.append(("**① 主库 · 本文方法（正典）**", r))
     supports["① 主库"] = r["support"]
     for arm, label in PAPER_ARMS:
-        pr = paper_row(arm, "canon37", k["main"])
+        pr = paper_row(arm, "buggy", k["main"])
         rows.append((f"① 主库 · {label}", pr if pr else empty_row()))
         if pr is None:
             missing.append(f"① 主库 · {label}")
     for tool in TRADITIONAL:
-        tr = trad_row(tool, "canon37", k["main"])
+        tr = trad_row(tool, "buggy", k["main"])
         rows.append((f"① 主库 · {B.trad_label(tool)}", tr if tr else empty_row()))
         if tr is None:
             missing.append(f"① 主库 · {tool}")
@@ -125,7 +128,7 @@ def build(best_seed: bool = False):
             missing.append(f"② 增强集 · {label}")
     for tool in TRADITIONAL:
         found = None
-        for cand in (f"eval_results/baseline/{B.trad_root(tool)}_aug",
+        for cand in (f"eval_results/baseline/{B.trad_root(tool, 'canon37')}_aug",
                      f"eval_results/baseline/{tool}_alldata_aug"):
             if (REPO / cand / f"seed{k['aug'][0]}_eval.json").exists():
                 found = B.slither_row(k["aug"], cand, tool=tool)
@@ -190,9 +193,10 @@ def _method_key(label: str) -> str | None:
 def _key_of(label: str) -> tuple[str, str] | None:
     """`① 主库 · **EGFL**（改用其论文 lr=0.002）` → `("main", "egfl_ownlr")`。
 
-    ⚠ **先剥掉 `**`**：正典那两行的标签是加粗的（`**① 主库 · 本文方法（正典）**`），
-    直接 `startswith("①")` 会判 False ⇒ 两行**静默跳过对拍**、`checked` 少 36 格却仍报"通过"。
-    （这正是 `checked == 0` 之外还要打印**格数**的原因：少对拍也是错，只是不容易发现。）
+    ⚠ **先剥掉 `**`**：那两行的标签是加粗的（`**① 主库 · 本文方法（正典）**` /
+    `**② 增强集 · 本文方法（正典）**`），直接 `startswith("①")` 会判 False ⇒ 两行**静默跳过对拍**、
+    `checked` 少 36 格却仍报"通过"。（这正是 `checked == 0` 之外还要打印**格数**的原因：
+    少对拍也是错，只是不容易发现。）
     """
     body = label.replace("*", "")
     corpus = "main" if body.startswith("①") else ("aug" if body.startswith("②") else None)
@@ -202,37 +206,60 @@ def _key_of(label: str) -> tuple[str, str] | None:
     return (corpus, mk) if mk else None
 
 
+def _pool453_section_start(lines: list[str]) -> int | None:
+    """在 `lines` 里定位**池 453（对照口径）**的「3 种子 mean±std」节下标。
+
+    🔴 **为什么要按角色定位、不再用「第一个不含 buggy 的节」**：2026-10-01 口径对调后，
+    `baseline_three_caliber_tables.md` 的**两节顺序变了**——原本 §二 = 池 453（对照）、
+    §三之二 = 池 497（正典）；对调后 §二 = 正典（池 497）、**§三之二 = 对照口径（池 453）**。
+    本表 ① = 池 453，故必须取**对照口径那一节**（现在是**后一节**）。
+
+    判据 = 该节**所属章标题**（最近的 `# 甲、…`）含「对照口径」或「池 453」。找不到时
+    退回**第一个不含 `buggy` 的节**（`per_class_three_caliber_tables.md` 无角色章标题，走这条）。
+    """
+    part = ""
+    fallback: int | None = None
+    for i, raw in enumerate(lines):
+        line = raw.strip()
+        if not line.startswith("# "):
+            continue
+        title = line[2:].strip()
+        if "3 种子 mean±std" in title:
+            if fallback is None and "buggy" not in title:
+                fallback = i
+            if "对照口径" in part or "池 453" in part:
+                return i
+            continue
+        # 章标题 = `# 一、…` / `# 三、…`（`# 三之一、…` 因 `之X` 不以 `、` 接续而不匹配）
+        if re.match(r"^[一二三四五六七八九十]+、", title):
+            part = title
+    return fallback
+
+
 def _parse_tables(path: Path) -> dict[tuple[str, str], dict[str, str]]:
     """md → `{(口径, 工作点): {行名: "| a | b | ... |"}}`。
 
     按**抬头文字**定位表（不按表号——表号会随新增小节平移，写死就会指错表且不报错）。
 
     🔴 **必须按「节」限域，不能全文件扫**：`baseline_three_caliber_tables.md` 里有**两个**
-    「3 种子 mean±std」节（§二 = 池 453、§三之二 = 池 497），两节的**行名逐字相同**；
-    全文件扫会让后一节**静默覆盖**前一节 ⇒ 拿池 497 的数字去"对拍"池 453 的表，
-    报出一堆假不一致（本轮实测就是这么发现的）。故只取**第一个不含 `buggy` 的
-    `附录：3 种子 mean±std` 节**，遇到下一个一级标题即停止。
+    「3 种子 mean±std」节（2026-10-01 对调后 = §二 池 497 / §三之二 池 453），两节的
+    **行名逐字相同**；全文件扫会让后一节**静默覆盖**前一节 ⇒ 拿另一池的数字去"对拍"，
+    报出一堆假不一致（本轮实测就是这么发现的）。故只取 `_pool453_section_start` 定位到的
+    **对照口径（池 453）那一节**，遇到下一个一级标题即停止。
     """
     if not path.exists():
+        return {}
+    lines = path.read_text(encoding="utf-8").splitlines()
+    start = _pool453_section_start(lines)
+    if start is None:
         return {}
     out: dict[tuple[str, str], dict[str, str]] = {}
     cur: tuple[str, str] | None = None
     caliber = None
-    in_scope = False
-    seen_scope = False                    # 🔴 只认**第一个**匹配节：§三之二 的抬头里
-                                          #    没有 `buggy` 二字（它在 §三 里），只靠关键词
-                                          #    挡不住它 —— 实测正是它把 §二 盖掉的。
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if line.startswith("# "):
-            if not seen_scope and "3 种子 mean±std" in line and "buggy" not in line:
-                in_scope = seen_scope = True
-            else:
-                in_scope = False
-            cur = None
-            continue
-        if not in_scope:
-            continue
+    for i in range(start, len(lines)):
+        line = lines[i].strip()
+        if i > start and line.startswith("# "):
+            break                              # 下一节：本段结束
         if line.startswith("## 表"):
             for c in ("micro", "macro", "buggy"):
                 if f"{c}-F1 口径" in line:
@@ -368,20 +395,22 @@ def main() -> None:
         cells = ["/".join(str(s[i]) for s in sup) if sup else "—" for i in range(len(NAMES))]
         doc.append(f"| {gname} | " + " | ".join(cells) + " |")
     doc.append("")
-    doc.append("> 🔴 ① 的 `dos`/`front_running`/`time_manipulation` test support 低到 **1–2**："
-               "**单类 F1 一次翻转即跳 ±0.67**，这些类**仅描述性呈现、不进方法间比较**（`decisions.md` §13）。"
-               "② 的逐类 support 在 10–39 之间，无此类问题。")
+    doc.append("> 🔴 ① 的逐类 test support 在 **6–14**（池 497；旧池 453 曾低到 1–2，改指后正样本充足）："
+               "最低的 `front_running`/`dos`/`time_manipulation` 也有 6–7 ⇒ 单类 F1 一次翻转约 ±0.15，"
+               "仍**仅描述性呈现、不进方法间比较**（`decisions.md` §13）。② 的逐类 support 在 10–39 之间。")
     doc.append("> 两个工作点的 support **逐位相同**（同一测试集，只是阈值不同），故只列一张。")
     doc.append("")
     doc.append("### 0.1 🔴 基线/工具行的分母**与本表不同**（逐条从产物读出，不手抄）")
     doc.append("")
-    doc.extend(B.coverage_block("canon37"))
+    doc.extend(B.coverage_block("buggy"))
     doc.append("")
     doc.append("| 工具 | test 分母 `n_in_split` | 可分析 `n_analyzed` | 覆盖率 |")
     doc.append("| --- | --- | --- | --- |")
     _cov_seen = False
     for tool in TRADITIONAL:
-        d = REPO / B.trad_root(tool) / "seed0_eval.json"
+        # 🔴 2026-10-02：① 主库改指**正典池 497**，其工具产物根是 `<工具>_alldata_buggy`
+        #    （Slither 为 `slither_buggy`）；命名规则走 `B.trad_root(tool, "buggy")`。
+        d = REPO / B.trad_root(tool, "buggy") / "seed0_eval.json"
         if not d.exists():
             doc.append(f"| {B.TRAD_LABEL[tool]} | — | — | **未跑** |")
             continue
@@ -392,10 +421,11 @@ def main() -> None:
     doc.append("")
     doc.append("> 🔴 **分析失败的合约不计入分母、也不记全零** ⇒ 传统工具行的逐格 Δ 与三条基线**不可直接解读**"
                "（这是「工具跑不了」与「工具说没漏洞」的区别，`decisions.md` §56）。")
-    doc.append("> 🔴 **分母本身不是随机缺失**：Securify 只吃 pragma 0.5.x、Oyente 钉死 solc 0.4.19，"
-               "而 ① 真实池里「有漏洞 ⟺ 0.4.x」是**完美分离**（0.4.x 38% 含漏洞 / 0.5.x **0%**）"
-               "⇒ Securify 的可分析集**恰好全是干净合约**，其整行**结构性不可评估**"
-               "（表里画 `—`，`collect_traditional_tools.py` 会自动报 warning）。")
+    doc.append("> 🔴 **分母本身不是随机缺失**：Securify 只吃 pragma 0.5.x、Oyente 钉死 solc 0.4.19。"
+               "⚠ 池 453 时 Securify 的可分析集**恰好全是干净合约**、整行结构性不可评估；"
+               "**2026-10-02 改指池 497 后不成立**——池 497 并入了 `buggy_*`（0.5.x、100% 正例）"
+               "⇒ Securify 的可分析集首次含漏洞合约、其行可变（详见 "
+               "`collect_traditional_tools.py` 第五节）。")
     doc.append("")
     doc.append("---")
     doc.append("")
@@ -413,8 +443,9 @@ def main() -> None:
     doc.append("")
     doc.append("## 表 3 —— 最佳种子（① seed1 / ② seed1）@0.5（单值，无 ±）")
     doc.append("")
-    doc.append("> 判据与全仓一致 = 本文方法正典在 **micro-F1@val_thr** 上最高的种子"
-               "（`decisions.md` §39）。两条基线/工具行**与该语料共用同一个种子**。")
+    doc.append("> 判据与全仓一致 = 本文方法在该语料的**主 run**（① 正典（池 497）/ ② 正典）在"
+               "**micro-F1@val_thr** 上最高的种子（`decisions.md` §39）。"
+               "两条基线/工具行**与该语料共用同一个种子**。")
     doc.append("")
     doc.extend(render(rows_bs, "fixed_0.5"))
     doc.append("")
@@ -449,14 +480,14 @@ def main() -> None:
                "补 ② 需**先加一个 `aug` layout**（四处一起改：`split_dir`/`graph_dir`/"
                "`feature_suffix`/`out_dir`，`baseline_common.check_layout()` 会硬拒不一致组合），"
                "再重建 ② 的离线特征（MVD-HG 的 AST/CFG/DFG + word2vec、EGFL 的 opcode 序列）。"
-               "② 池 **1774** 对 ① 池 453 ≈ **3.9 倍**合约数 ⇒ 离线建图与训练时间同倍增长"
+               "② 池 **1774** 对 ① 池 **497** ≈ **3.6 倍**合约数 ⇒ 离线建图与训练时间同倍增长"
                "（① 的三基线训练规模见 `baseline_three_caliber_tables.md` §2）。")
     doc.append("- **六工具**：产物根命名是 `{tool}_alldata{suffix}`，`suffix` 由 layout 派生 ⇒ "
                "同样要先有 `aug` layout。成本上**符号执行类是瓶颈**（manticore 单路 + cgroup 5 GB 上限，"
                "见 `decisions.md` §56；**不得并行**）；且 ② 的 pragma 分布会让 "
                "**Securify（只吃 0.5.x）/ Oyente（钉死 solc 0.4.19）的可分析集进一步收缩**——"
                "② 的可分析集上逐类 support 是否全 0 **须实测**，不能沿用 ① 的结论"
-               "（① 的「0.5.x 恰好全干净」是**该池**的性质，`decisions.md` §56 已点明是完美分离、不可外推）。")
+               "（① 的「0.5.x 恰好全干净」原是**旧池 453** 的性质；池 497 已并入 `buggy_*`，该性质不再成立）。")
     doc.append("")
 
     text = "\n".join(doc) + "\n"

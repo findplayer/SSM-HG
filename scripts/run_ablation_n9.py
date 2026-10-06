@@ -14,14 +14,19 @@
   ⚠ 该等价性由 **`--verify-reuse` 在开跑前对每一个拟复用的 run 逐键对拍 config** 再验一次，
     不靠上面那一次三例抽检 —— 抽检只证明"当时等价"，逐键对拍证明"这一个 run 就是这个配置"。
 
+🔴 **2026-10-02 改指正典（池 497）**：① 组原先挂在池 453 上
+（基线 `runs/seed{S}`、对角 `runs/ablation/`、9 对基线 `runs/cbft_study/`）。
+该口径的数据已于当日**整体删除**（磁盘清理），故 ① 组改挂池 497 的对应目录
+（基线 `runs/buggy_canon/`、对角 `runs/ablation_buggy/`）。② 组（增强集）不受影响。
+⚠ 池 497 没有 `cbft_study` 那样的"现成 9 对基线"，故 ① 与 ② 一样走
+「对角复用本组正典、非对角新跑」的分支。
+
 **复用的三个来源（全部只读，绝不写）**：
-  1. **对角臂 run**：`runs/ablation{,_aug}/<item>/seed{S}`（`ts = ss = S`，已跑）；
-  2. **① 的 9 对基线**：`runs/cbft_study/cbft_ts{T}_ss{S}`（§36 的 `cbft` 臂）。
-     🔴 2026-09-25 换代后它的 `graph_dir` **就是正典树本身**（`graphs_ft_p2/cb_ft_ss{S}`），
-     故其对角 `cbft_ts{S}_ss{S}` 与论文正典 `runs/seed{S}` 的同配置性**由构造成立**
-     （原设计用"逐字节相同的副本树 + 一次可失败的对拍"来建立这条等价性）。
+  1. **对角臂 run**：① `runs/ablation_buggy/<item>/seed{S}`、② `runs/ablation_aug/<item>/seed{S}`
+     （`ts = ss = S`，已跑）；
+  2. **① 的对角基线**：`runs/buggy_canon/seed{S}`（池 497 正典，原为 `runs/seed{S}`）；
   3. **② 的对角基线**：`runs/augmentation/seed{S}`。
-  ⇒ 故**需要新跑**的只有：各臂的 6 个非对角对 + ② 基线的 6 个非对角对。
+  ⇒ 故**需要新跑**的只有：各臂的 6 个非对角对 + 两组基线的 6 个非对角对。
 
 **产物**：`runs/ablation_n9/<item>/ts{T}_ss{S}/seed{T}/`（①）、`runs/ablation_n9_aug/…`（②）。
 **绝不**覆盖 `runs/ablation*` / `runs/cbft_study` / `runs/augmentation` / `runs/seed*`。
@@ -63,14 +68,16 @@ BOOKKEEPING_DIFF_PREFIXES = ("out_dir:", "seed:", "split_seed:", "overwrite:")
 # ① 与 ② **各自独立完整**（`decisions.md` §23）：各用各的基线 config、各写各的产物根，**不混用**。
 GROUPS: dict[str, dict] = {
     "main": {
-        "title": "① 主库 alldata(readonly)",
-        "base_config": "runs/seed0/config.json",
-        "diag_root": "runs/ablation",            # 对角复用来源
+        # 🔴 2026-10-02：改挂池 497 正典（原为池 453 的 runs/seed{S} / runs/ablation / runs/cbft_study，
+        #    三者已于当日随 453 数据整体删除）。口径见模块 docstring。
+        "title": "① 主库 alldata(readonly)（正典：池 497，含 buggy_*）",
+        "base_config": "runs/buggy_canon/seed0/config.json",
+        "diag_root": "runs/ablation_buggy",      # 对角复用来源
         "new_root": "runs/ablation_n9",          # 非对角新跑
         "arch_root": "runs/arch_n9",             # 架构基线族另开根（**不进消融表**）
-        # ① 的 9 对基线已由 §36 备齐（cf. 模块 docstring 来源 2）
-        "baseline_leaves": ("runs/cbft_study", "cbft"),
-        "baseline_diag": None,                   # 不需要：9 对全在 leaves 里
+        # 池 497 没有 §36 那样的现成 9 对基线 ⇒ 同 ② 走"对角复用"分支
+        "baseline_leaves": None,
+        "baseline_diag": "runs/buggy_canon/seed{seed}",
     },
     "aug": {
         "title": "② 增强集 alldata_augmentation",

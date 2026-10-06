@@ -2,16 +2,26 @@
 
 > 🔴 **当前状态以 `log.md` 为准（本页顶部以下的日期块是历史记录，不是现状）** —— 2026-09-24 加此指引。
 > 逐阶段现状速查：**M1–M4 完成**；**M5 主实验 / 消融（n=3 与 n=9 两代）/ 5.3 对比（三条论文基线 +
-> **六个传统工具全部接入并跑完**，含 `_buggy` 新正典第二轮）/ DIVE 外部测试 / SolidiFI 层次二 全部完成**；
+> **六个传统工具全部接入并跑完**，含 `_buggy` **正典（池 497）**第二轮）/ DIVE 外部测试 / SolidiFI 层次二 全部完成**；
 > 本文方法的**编码器欠训（`--epochs 5`）已定位、探针已跑**（见 `improvement_proposals.md` §1.1）。
 > **仍未做**：DIVE 的 20–30 例 FN/FP 人工检查、
 > 编码器全量重微调（P2）。
+>
+> 🔴 **2026-10-01 口径对调（依据 `experiments/decisions.md` §58）**：**池 497（含全部 `buggy_*`）升为正典（默认口径），
+> 池 453（已剔除 `buggy_*`）降为对照口径。** ⇒ 默认方法侧 = `runs/buggy_canon/seed{S}`、默认划分 =
+> `products/alldata/splits/withbuggy_snapshot/`、默认基线 = `eval_results/baseline/<臂>_buggy`、默认 M3 特征 =
+> `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`；池 453 侧的 `runs/seed{S}` / `graphs_ft_p2/cb_ft_ss{S}` /
+> `baseline/<臂>` 一律改标**对照口径（池 453）**。🔴 **2026-10-02：池 453 的全部数据已随磁盘清理整体删除**（清单
+> `runs/_del453_manifest_20261002{,b}.txt`；文档快照 `docs/archive/caliber453_snapshot_20261002/`）——上列 453 侧路径
+> **均已不存在**，其引用数字只能作**冻结值**读、不可复算。
+> ⚠ 引用池 497 的 `macro-F1`/`mAP` 时**必须同时给出 `clean_only`（剔 `buggy_*`）诊断列**（`buggy_*` 七类全 1 的注入假象，
+> 见 `decisions.md` §18.4/§43.3）；两段 test 集不同（池 453 = 46 vs 池 497 = 49）⇒ **跨段数字不可相减**（池 453 段数据已于 2026-10-02 删除，两值均为冻结值）。
 >
 > 版本：2026-09-11（按 `研究点一细化大纲改II.docx` 复核：术语改“节点可疑度”、日志改名 `score_mean/score_std`、外部测试集改 **DIVE**、划分改固定种子 8:1:1（门槛 2026-09-12 修订：验证+内部测试合计每类正样本 ≥ 该类正样本总数的30%，原“≥20”）、CALLBACK_RISK 4.2.2 重写、结构特征 18 项+四组分组消融、消融拆 5.4.1/5.4.2、新增推理输出 4.5.4）
 > 依据：论文开发手册修订版（2026-09-11 按 `改II` 复核）+ 当前仓库真实状态
 > **本轮改动状态**：**M1~M3 已按 `改II` 落地并全链重跑通过**（见三/四/六节：CALLBACK_RISK 6328→509 边、172→85 图（**2026-09-12 R5 后 511 边/86 图**）；M1 七类 flags 21567（**R5 后 21571**）；M3 18 项+分组/单通道消融开关就绪；build×2 确定性一致、M4 22 用例全绿）；**M1–M4 抽查审计（2026-09-12）已执行**（581 图 M1 复算 0 差异、M2 回调边不变量 0 违规、13 合约语义抽样全部符合、M4 22 用例+真实前向通过；发现并修复 2 处文档口径问题，零行为改动，见四/六节）；**仍未完成**：M5 数据集（DIVE）/划分协议/日志字段/消融清单/推理输出（见八/十二节）。
 > **2026-09-12 M5 主体实现（阶段 A→D 完成）**：`scripts/{metrics,train,evaluate}.py` 已实现并验收——主指标 **micro-F1**、masked weighted BCE（pos_weight 截断 20 + 零正类 class_mask）+ 按图 population `L_var`（开方内 eps 防 std=0 反向 NaN）+ AdamW/ReduceLROnPlateau(val micro-F1)/早停、自实现批图 collate（`dataset.collate`，不用 PyG DataLoader）、双模块 checkpoint（fuser+model）、种子语义（`--seed`/`--split-seed`）、阈值双报告（固定 0.5 + val 阈值，`--summarize` 均值±std）；新增 `tests/{test_metrics,test_train_utils,test_evaluate}.py` 21 用例，`pytest tests/` **64 passed**；`train.py --limit-graphs 12 --epochs 3` → `evaluate.py --seed 0` → `--summarize` 全链路 smoke 通过（含 checkpoint 双模块 round-trip）。实现期修正：`SSMHG(in_dim=fuser.hidden)`（fuser 输出 128，非融合输入 1631，已同步 decisions §16/§11.6/Todo 12.6）；`--limit-graphs` 取前 N 个含正样本图（保证 smoke 损失可定义）。**3 种子主实验已完成（2026-09-13，CUDA/RTX 4070 Laptop）**，结果与训练时间/吞吐见下方 2026-09-13 记录；阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
-> **2026-09-13 M5 阶段 E 主实验完成（CUDA/RTX 4070 Laptop，torch 2.0.1+cu118）**：`train.py --seed {0,1,2} --epochs 200 --batch-size 32` → `evaluate.py --seed {0,1,2}` → `--summarize` 全跑通，`runs/seed{0,1,2}/` + `summary.json` 就绪。主指标 micro-F1（标签对级）：固定 0.5 = **0.9058±0.0397**（0.8603/0.9238/0.9333）、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；macro-F1（参考）固定 0.5 = 0.2300±0.0428；mAP = 0.4139±0.1070。训练时间/吞吐（§11.4 口径，`runs/seed*/config.json::timing`）：seed0/1/2 wall 40.8/16.3/16.0 s、train_seconds 7.4/6.0/3.2 s、graphs/s 924/660/1003、早停@epoch 18/10/8（best val micro-F1 0.9556/0.9492/0.9587）。完整结果（逐种子/逐类/计时/产物）见 `experiments/results.md` §1；七类逐类 F1/macro-F1 见 §1.4、逐类诊断与改进线索见 §1.7（`scripts/diagnose.py` 生成）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
+> **2026-09-13 M5 阶段 E 主实验完成（CUDA/RTX 4070 Laptop，torch 2.0.1+cu118）**：`train.py --seed {0,1,2} --epochs 200 --batch-size 32` → `evaluate.py --seed {0,1,2}` → `--summarize` 全跑通，`runs/seed{0,1,2}/` + `summary.json` 就绪（⚠ 旧 448 池产物，已于 2026-10-02 删除；现行正典主实验为 `runs/buggy_canon/seed{0,1,2}/` + `summary.json`）。主指标 micro-F1（标签对级）：固定 0.5 = **0.9058±0.0397**（0.8603/0.9238/0.9333）、验证集阈值 = **0.9492±0.0145**（阈值 0.75/0.60/0.55）；macro-F1（参考）固定 0.5 = 0.2300±0.0428；mAP = 0.4139±0.1070。训练时间/吞吐（§11.4 口径，旧 `runs/seed*/config.json::timing`，已于 2026-10-02 删除）：seed0/1/2 wall 40.8/16.3/16.0 s、train_seconds 7.4/6.0/3.2 s、graphs/s 924/660/1003、早停@epoch 18/10/8（best val micro-F1 0.9556/0.9492/0.9587）。完整结果（逐种子/逐类/计时/产物）见 `experiments/results.md` §1；七类逐类 F1/macro-F1 见 §1.4、逐类诊断与改进线索见 §1.7（`scripts/diagnose.py` 生成）。阶段 F（消融/基线）与 G（DIVE/SolidiFI）待执行。
 > 先决条件：先修好 Stage 0，再动 M2；M2 是第一最小原子模块，不要跳过。
 > **2026-09-12 目录重构（方案 B）**：产物统一迁入 `products/<数据集>/`——顶层 `raw/`→`products/alldata/raw/`、`Heterogeneous graphs/`→`products/alldata/graphs/`、`splits/`→`products/alldata/splits/`；新增 `products/dive/{raw,graphs,splits}`、`products/solidifi/{raw,graphs,mapping}` 与 `runs/`、`eval_results/{ablation,baseline,dive,solidifi}/`；脚本默认路径、.gitignore、手册/架构/copilot-instructions 已同步，迁移后 compileall + bash -n + pytest（22 passed）+ `dataset.py --check` 全绿；`_m1.json`/`batch_summary.json` 内嵌旧路径已全量刷新（581 文件，数值零差异）。
 > **2026-09-12 划分门槛修订（大纲 5.1 第三条）**：“≥20 个”改为“**验证集与内部测试集中的正样本合计 ≥ 该类正样本总数的30%**”；`make_splits.py` 增补 `splits.csv`（1485 行）、`split_metadata_seed{0,1,2}.json`、逐类 support 与 `rule_check` 门槛审核（三种子划分成员不变，sha256 校验通过；仅新增字段与新文件）；实测三种子均未达标（每种子 5–6/7 类不足；随机划分下 val+test 期望占比 ≈20% < 30%，换种子不可解）→ 约束分层重划/局限记录待决策。
@@ -26,7 +36,7 @@
   - CFG: products/alldata/raw/CFG-raw
   - DFG: products/alldata/raw/DFG-raw
   - Hetero（全部**结构**图产物 _hetero.json/_m1.json/_pyg.pt）: products/alldata/graphs
-  - M3 特征正典（**2026-09-25 编码器换代后**：20 轮微调 CodeBERT，**含划分种子**）: products/alldata/graphs_ft_p2/cb_ft_ss{S}（**逐划分种子取：seed{S} 配 ss{S}**）；旧档 products/alldata/graphs_ft/ss{S}（5 轮）保留为**旧正典的输入树**（其 run 归档于 runs/prior_canon37/seed{S}；**不另设名为 cb_ft5 的臂**）
+  - M3 特征正典（**默认口径；2026-10-01 §58 起 = 池 497 正典**，20 轮微调 CodeBERT，**含划分种子**）: products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}（**逐划分种子取：seed{S} 配 ss{S}**）；**对照口径（池 453）**的输入树 products/alldata/graphs_ft_p2/cb_ft_ss{S}（20 轮档）与旧档 products/alldata/graphs_ft/ss{S}（5 轮；其 run 原归档于 runs/prior_canon37/seed{S}）——**两者均已随池 453 于 2026-10-02 删除**（**不另设名为 cb_ft5 的臂**）
     - `products/alldata/graphs` 下的 M3 特征是**冻结编码器**那套（现已降为消融臂 `cb_frozen`），仅该臂使用
   - 源码根（只读数据源）: alldata(readonly)/alldata_sol_source
   - 主标签: alldata(readonly)/contract_labels.json
@@ -267,11 +277,11 @@
 > - **口径（2026-09-12 P0 最小改动，见 `experiments/decisions.md` §13）**：**主指标 micro-F1**；阈值搜索与早停目标改 **val micro-F1**（协议形状不变，macro-F1 降为参考）；逐类 F1 与 per-class PR-AUC **强制标注 support**，support ≤2 的类仅描述性呈现；**多标签叙事降级为架构性声明**（池内去重后仅 1 个），实证主张只在 DIVE（68.2% 多标签）；口径数字全部取自 `docs/data_funnel.md`（`scripts/audit_data_funnel.py`）。
 > - **口径收口（2026-09-12 补充；含 P1 落地）**：① **防错位原则**——macro-F1 的*低支撑构成*注释用**计算它的那个划分**（seed0 test：5 个类 support ≤2），*数据稀疏天空板*叙述用**池级**（3 个类正样本 ≤6），两口径不得互相借用；② **口径绑定指纹**——支撑数字绑定 `split_seed*.json` 的 sha256，**T-A 两级去重已重跑，刷新链条已履行**（`docs/data_funnel.md` 重跑 / decisions §13+§14 / 手册 10.2+10.5）；③ **DIVE 抽样已闭案**——seed=0、**n=900**、均匀，实测 front_running=30 ≥20（未触发后备；后备=n→1100 重抽一次，再不足则 report-only；**禁止换 seed 重抽**）；④ AST 稀疏性统计表与关系数映射表已并入 `docs/data_funnel.md` §4 与手册 §7.7；⑤ 手册 10.4 骨架接口修正为 3 值 `(z, a, node_logits)`；⑥ **P1**：池去重（495→448）、关系数口径（4 语义/5 物理）、`--drop-ast`=删 relation 1+2，详见 `experiments/decisions.md` §14。
 - [x] 2026-09-07 划分已落地并验收：`scripts/dataset.py`（build_proj_labels/build_index/load_graph/Ablation/--check）与 `scripts/make_splits.py`（8:1:1、3 种子、buggy 剔除、三件套报告）已实现；`products/alldata/splits/` 已生成——train 396/val 50/test 49（每种子），495 训练池 / 86 buggy_ 剔除（asd_+nasd_ 两份 43 项目）/ 0 unmatched；3 种子互斥+全覆盖断言通过；simple_dao `--check` 通过（9 节点/28 边/label=reentrancy）
-  - 更新（2026-09-12 P1 两级池去重后，**2026-09-12 当时**）：池 **448** / 划分 **358/45/45**（×3 种子）；C1+C2 7/7 达标；跨划分内容/地址重复均为 0；**现行池 453 / 划分 362/45/46**，见 `experiments/decisions.md` §18
+  - 更新（2026-09-12 P1 两级池去重后，**2026-09-12 当时**）：池 **448** / 划分 **358/45/45**（×3 种子）；C1+C2 7/7 达标；跨划分内容/地址重复均为 0；**对照口径池 453 / 划分 362/45/46**（2026-10-01 §58 起；数据已于 2026-10-02 删除、冻结值；**现行正典 = 池 497**），见 `experiments/decisions.md` §18
 - [x] M5 v5 审阅结论（2026-09-08，可行性判定见 `experiments/decisions.md` 第 0、9 节）
   - [x] 已确认：dataset/model 契约与 M4 输出一致；class-masked BCE 分母、按图 population `L_var`、单图 DropEdge、zero-positive 类和 split API 校验升级为硬性验收项
   - [x] **先验 dropout 前置条件升级为必做**：~~训练期 0.2 整图切换需要全量 `_feat_no-prior.pt`（现仅单图变体），train.py 前先跑 `python scripts/m3_build_features.py --variant no-prior`（复用 _cb.pt，秒级）~~——**该方案已于 2026-09-12 前端化退役**：先验 dropout 改为 `model.NodeFuser` 内按图 Bernoulli(0.2) 置零（融合前），不再需要变体文件
-  - [x] 补充项：**5.3 对比方法（2026-09-21 按大纲原文重列，旧的「CodeBERT 序列 + GCN/GAT 同构图」写法已作废）**——见下方「5.3 对比实验（现行）」小节。传统工具基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）的做法只适用于 **Slither**；其余五个工具须各自实跑（`scripts/baseline_static_tools.py` 已备好 `DETECTOR_TO_CLASS` 与 solc 版本选择）。**✅ 2026-09-25 全部接入、2026-09-26 六个工具在正典池 214 合约上全部跑完**（Slither 全库 590）；报告 = `experiments/traditional_tools_results.md`，主表六行 = `experiments/baseline_three_caliber_tables.md`
+  - [x] 补充项：**5.3 对比方法（2026-09-21 按大纲原文重列，旧的「CodeBERT 序列 + GCN/GAT 同构图」写法已作废）**——见下方「5.3 对比实验（现行）」小节。传统工具基线 = `_m1.json` node_flags 图级聚合（任一节点命中该类→图命中）的做法只适用于 **Slither**；其余五个工具须各自实跑（`scripts/baseline_static_tools.py` 已备好 `DETECTOR_TO_CLASS` 与 solc 版本选择）。**✅ 2026-09-25 全部接入、2026-09-26 六个工具在对照口径（池 453）的 214 合约上全部跑完**（该 453 口径产物已于 2026-10-02 删除；Slither 全库 590 与池 497 正典上的六工具补跑见 `decisions.md` §57）；报告 = `experiments/traditional_tools_results.md`，主表六行 = `experiments/baseline_three_caliber_tables.md`
   - [x] 风险记录：**DIVE/SolidiFI 数据已就位（2026-09-11）**；层次二与 5.5.1 需先建类别映射表（SolidiFI 前缀→七类；DIVE 已剔除 Bad Randomness，7 维可直接用）；验证集可能仅约 50 图、低正样本类（4~6 个）对 macro-F1 敏感，按手册记录训练/验证差距
 - [ ] 文件组织（2026-09-08 v5：metrics/train/evaluate 与 CI smoke 仍待实现）
   - [x] dataset.py：已完成（2026-09-07；数据层：_pyg.pt 结构 + _feat.pt(x) + 标签对齐加载断言 + 边级消融开关；不过 MLP，只组合与裁剪）
@@ -287,7 +297,7 @@
   - [x] **函数级通道缺口修复（2026-09-12 三轮，已完成）**：`scripts/audit_cb_func_gap.py` → 修复前/后清单（`cb_func_gap.json` / `cb_func_gap_after.json`）；M2 补登记（alias + modifier + **legacy_ctor**，`fn_meta_table` 双隔离）+ **`normalize_ast` 两风格 AST 兼容**（R5）→ `functions` 14741 → **23260**；缺口 **37.6% → 2.8% → 2.55% → 2.52%**（**2356 行 / 475 键 / 382 图 / 覆盖率 97.48%**）；`_cb.pt` 全量重建（≈55 min）与增量补丁（7m25s / 1m08s / R5 1m09s）全库逐位等价；R2 根因＝旧写法**未同步改写 `function` 字段**（已复现并修正）；R5 后库级结构统计刷新（边 226511、DFG 146712、CALLBACK_RISK 511/86、M1 raw hits 21571）；全库断言（含 cb 双通道哈希）+ `pytest` **43 passed**
   - [x] **残留函数级通道缺口（R1/R3/R4 保持现状，已记档）**：待办与裁定入口 **`docs/residual_gaps.md`**（**R1 合成作用域 2356 行不可编码**（保持零向量 + 披露）；**R2 老式继承构造函数已闭合**；**R3 可见性元信息已被三轮连带解决**——27556 节点经 M3 `fn_table` 回退获得真实值，属修正性结构通道变化；**R4** `--cb-patch` 不删多余键；**R5 三图 AST 格式已闭合**；**附：AST 映射丢弃率 97.2% / 18 图无 AST 边 → 披露项**）
   - [x] 匹配键（2026-09-05 定稿）：已按项目前缀并集实现（先 nasd_ 后 asd_；0 unmatched 验证）
-  - [ ] buggy_* 噪声处置（2026-09-05 定稿）：主实验剔除 asd_buggy_*/nasd_buggy_*（每合约同款注入噪声标签，与具体特征不对应）；另做含 buggy_* 消融对比论证剔除合理性；剔除明细写入 products/alldata/splits/unmatched_contracts.txt 单独一节
+  - [ ] buggy_* 噪声处置（2026-09-05 定稿）：主实验剔除 asd_buggy_*/nasd_buggy_*（每合约同款注入噪声标签，与具体特征不对应）；另做含 buggy_* 消融对比论证剔除合理性；剔除明细写入 products/alldata/splits/unmatched_contracts.txt 单独一节。⚠ **2026-10-01 起作废**：大纲已把含 `buggy_*` 的池 497 定为正典，主实验**不再剔除** `buggy_*`；此条仅存历史。
   - [x] train.py：已实现（2026-09-12；masked BCE + 按图 `L_var`（population std、开方内 eps 防 NaN）+ DropEdge/先验 dropout + 双模块 checkpoint + JSONL 日志（含 `score_mean/score_std`）+ perf_counter 计时；`--limit-graphs` 取前 N 个含正样本图；`--seed`/`--split-seed` 分离）；`tests/test_train_utils.py` 9 用例；`--limit-graphs 12 --epochs 3` smoke 通过
   - [x] evaluate.py：已实现（2026-09-12；纯评估，只 import model/dataset/metrics）；复用 val_best_probs.pt 选阈值、内部测试固定 0.5 + val 阈值双报告、`--summarize` 汇总 mean±std；`tests/test_evaluate.py` 3 用例。**DIVE 外部测试两设定**与 `--task ablation/baseline` 属阶段 F/G（待主实验跑通后）
 - [ ] 读取标签文件 alldata(readonly)/contract_labels.json
@@ -317,13 +327,13 @@
   - [x] 验证集选阈值 0.2~0.8，步长 0.05，**目标 val micro-F1**；稀有类不单独调阈
   - [ ] **口径报表**：论文数字取自 `docs/data_funnel.md`（`python scripts/audit_data_funnel.py`）；多标签主张按“架构性声明 + DIVE 外部证据”（DIVE 证据待阶段 G）
   - [x] 记录固定阈值 0.5
-  - [x] >=3 个 seed 的均值 ± 标准差（runs/summary.json）
+  - [x] >=3 个 seed 的均值 ± 标准差（`runs/buggy_canon/summary.json`；旧 `runs/summary.json` 已于 2026-10-02 删除）
   - [ ] DIVE：各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查、归因分层（阶段 G）
   - [ ] SolidiFI 报告 a_v/s_v/g_v 三类分数（g_v 按注入类别归属）+ a_v 增量覆盖节点统计（阶段 G）
 
 ## 九、收尾与验收门槛
 - [ ] 全链路在 1 个样本上跑通
-- [ ] 关键中间产物齐全（**结构产物**均在 products/alldata/graphs/ 下；**M3 特征正典在 `products/alldata/graphs_ft_p2/cb_ft_ss{S}`**（2026-09-25 换代后 20 轮档；旧档 `graphs_ft/ss{S}` 保留为**旧正典的输入树**（其 run 归档于 `runs/prior_canon37/seed{S}`；**不另设名为 `cb_ft5` 的臂**），**逐划分种子取：seed{S} 配 ss{S}**））：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/、runs/seedN/、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
+- [ ] 关键中间产物齐全（**结构产物**均在 products/alldata/graphs/ 下；**M3 特征正典（默认口径；2026-10-01 §58 起 = 池 497 正典）在 `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`**，**对照口径（池 453）**的输入树 `products/alldata/graphs_ft_p2/cb_ft_ss{S}`（20 轮档）与旧档 `graphs_ft/ss{S}`（5 轮；其 run 原归档于 `runs/prior_canon37/seed{S}`；**不另设名为 `cb_ft5` 的臂**）——**均已随池 453 于 2026-10-02 删除**（**逐划分种子取：seed{S} 配 ss{S}**））：_hetero.json、_m1.json、_pyg.pt（只读结构）、_feat.pt（schema v2 通道字典，融合在 model.NodeFuser）；products/alldata/splits/（正典划分在 `withbuggy_snapshot/`）、`runs/buggy_canon/seedN/`、eval_results/ 按架构文件归档；外部评估读 DIVE/、SolidiFI/（只读）
 - [ ] 图结构字段完整，后续模块可直接消费
 - [ ] M1 结果与 M2 图结构一致
 - [ ] 训练可启动，且 validation loss / macro-F1 可观察
@@ -419,16 +429,16 @@
 - 损失：`l_cls + 1e-3*L_var`；`L_var` 按图计算 population `a.std(unbiased=False)` 且保留梯度，单节点图 std=0；AdamW + `clip_grad_norm_(1.0)`；使用 `ReduceLROnPlateau(mode=max, factor=0.5, patience=3)`。
 - 训练期先验/结构 dropout：`model.sample_dropout_masks(G, prior_p=0.2, struct_p=0.2, generator)` 采样 `(G,)` 掩码 → 随 `batch` 传入 `NodeFuser`（融合前置零）；验证/测试不传掩码。
 - 早停：验证 **micro-F1** 连续 5 epoch 不提升（2026-09-12 主指标；macro-F1 同步记录作参考）；每个 epoch 日志字段按 10.3（含 **`score_mean/score_std`**），并增加 `samples_processed/graphs_processed`；GPU 可用时增加 `gpu_mem_allocated`，CPU 写 null。
-- 产物：`runs/seed{seed}/log.txt`（epoch JSONL）、`best.pt`、`last.pt`、`config.json`、`results.json`、`thresholds.json`（argparse+全部超参快照）；记录 `run_wall_seconds/data_load_seconds/train_seconds/validation_seconds/epoch_seconds_mean/graphs_per_second` 和硬件环境。`graphs_per_second=train_graphs/train_seconds`，只统计 optimizer loop；run 总耗时不重复写入每个 epoch 行。
+- 产物：`runs/buggy_canon/seed{seed}/log.txt`（epoch JSONL）、`best.pt`、`last.pt`、`config.json`、`results.json`、`thresholds.json`（argparse+全部超参快照）；记录 `run_wall_seconds/data_load_seconds/train_seconds/validation_seconds/epoch_seconds_mean/graphs_per_second` 和硬件环境。`graphs_per_second=train_graphs/train_seconds`，只统计 optimizer loop；run 总耗时不重复写入每个 epoch 行。
 
 ### 12.7 scripts/evaluate.py（新建，M5，纯评估）
 - 只 import：`model`、`dataset`、`metrics`（不实现数据/指标逻辑）
-- 主实验（默认）：加载 `runs/seed*/best.pt` → 验证集阈值搜索 0.2~0.8/步长 0.05 选 best → **MVD-HG 内部测试**固定 0.5 与 best 双报告 → `runs/seedN/results.json` → 3 种子 `runs/summary.json`（均值±标准差）
+- 主实验（默认）：加载 `runs/buggy_canon/seed*/best.pt` → 验证集阈值搜索 0.2~0.8/步长 0.05 选 best → **MVD-HG 内部测试**固定 0.5 与 best 双报告 → `runs/buggy_canon/seedN/results.json` → 3 种子 `runs/buggy_canon/summary.json`（均值±标准差）
 - **DIVE 外部测试（改II）**：一次性评估，不参与训练/验证/早停/阈值/模型选择；报告各类 PR-AUC、全零标签子集每类 FPR、20~30 例 FN/FP 人工检查；结果写 `eval_results/`
 - `--task ablation|baseline` → `eval_results/`（10.6；**基线以上方「5.3 对比实验（现行）」小节为准**；**两种设定：MVD-HG 内部测试 + DIVE**）
 - SolidiFI 层次二：$a_v/s_v/g_v$ 的 P@k/R@k/IoU（$g_v$ 按注入类别归属）+ “$a_v$ 增量覆盖节点”统计
 - 每类 P/R/F1、macro/micro-F1、mAP 用 `metrics.py`
-- 主阈值为验证集选择的单一全局阈值；per-class 阈值仅作补充报告；记录 support=0 和 AP 跳过类别；保存所有候选阈值及 tie 选择依据到 `runs/seedN/thresholds.json`。
+- 主阈值为验证集选择的单一全局阈值；per-class 阈值仅作补充报告；记录 support=0 和 AP 跳过类别；保存所有候选阈值及 tie 选择依据到 `runs/buggy_canon/seedN/thresholds.json`。
 
 ### 12.7.1 5.3 对比实验（现行 · 2026-09-21 按大纲 `改II` 原文重列）
 
@@ -451,10 +461,10 @@
 | 基线 | 实现位置 / 现状 | 待办 |
 | --- | --- | --- |
 | 传统工具 ×6 | `scripts/baseline_static_tools.py`（`--tool {slither,mythril,manticore,smartcheck,securify,oyente}`；Slither 的 `DETECTOR_TO_CLASS` 27 条含 SWC 引用、`installed_solc_versions`/`version_ok`/`pick_solc_candidates`）+ `scripts/static_tool_adapters.py`（其余五工具的**调用 / 解析 / 映射表**） | ✅ **接入完成（2026-09-25）**：六工具产物 `eval_results/baseline/<工具>_alldata{,.json}`；报告 = `experiments/traditional_tools_results.md`（程序生成：映射逐条带 SWC 依据 + 能力边界 + 覆盖率 + 成本）；主对比表 = `baseline_three_caliber_tables.md` 的**六行**（`collect_baseline_tables.py` 已改成出六行，缺产物**点名而不静默少行**）。<br>🔴 **六工具同一把尺**：检测项进七类 ⟺ 有唯一且明确的 SWC 锚点且落在七类语义内；无锚点一律不纳入（逐条理由在产物 `excluded` 与报告第二节）。<br>🔴 **五处「不报错」的解析陷阱已逐个踩到并修**（securify 的输出用**展示名**而非 pattern 类名 / manticore 的 `global.findings` 是**描述文本** / **oyente 把 8 个检查名全打印，只匹配名字 ⇒ 六个类全亮** / 结果走 **stderr** / 报错摘要取「最后一行」会丢掉 solc 版本线索 ⇒ 候选重试永不触发）⇒ 回归测试 `tests/test_static_tool_adapters.py`（23 例，每条对应一个坑） |
-| **EGFL** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_egfl_build.py` + `baseline_egfl.py`（原生字节码模态），产物 `eval_results/baseline/egfl/seed{0,1,2}/` | 🔴 两处口径损失必须随结果披露：① 图分支的 256 维是**重建件**（原 `cfg_graph` 作者未开源）；② **83.2% 的合约被截断到 seq_len=512**（8 GB 卡跑不动它的稠密 O(L²) 注意力；原论文 SEQ_LEN=8000） | 大纲列的是**具体方法**。⚠ 本仓此前的 `--conv {gcn,gat,sage}`（`runs/arch_n9*`）只**近似**了「验证边类型是否必要」这个**目的**，不是 EGFL 本身 |
-| **MVD-HG** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_mvdhg_build.py`（**驱动原仓库代码**建图） + `baseline_mvdhg.py`，产物 `eval_results/baseline/mvdhg/seed{0,1,2}/` | 覆盖率 448/453；5 个失败样本**全在 train**、test 一个没少 ⇒ 逐类 support 与本文方法可比 |
+| **EGFL** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_egfl_build.py` + `baseline_egfl.py`（原生字节码模态），产物 `eval_results/baseline/egfl_buggy/seed{0,1,2}/`（池 453 口径的 `egfl/` 产物已于 2026-10-02 删除） | 🔴 两处口径损失必须随结果披露：① 图分支的 256 维是**重建件**（原 `cfg_graph` 作者未开源）；② **83.2% 的合约被截断到 seq_len=512**（8 GB 卡跑不动它的稠密 O(L²) 注意力；原论文 SEQ_LEN=8000） | 大纲列的是**具体方法**。⚠ 本仓此前的 `--conv {gcn,gat,sage}`（`runs/arch_n9*`，已随 453 删除）只**近似**了「验证边类型是否必要」这个**目的**，不是 EGFL 本身 |
+| **MVD-HG** | ✅ **已实现并跑通（2026-09-22）**：`scripts/baseline_mvdhg_build.py`（**驱动原仓库代码**建图） + `baseline_mvdhg.py`，产物 `eval_results/baseline/mvdhg_buggy/seed{0,1,2}/`（池 453 口径的 `mvdhg/` 产物已于 2026-10-02 删除） | 覆盖率 **448/453**（**池 453 口径**的冻结值，该口径数据已于 2026-10-02 删除 ⇒ 不可复算）；5 个失败样本**全在 train**、test 一个没少 ⇒ 逐类 support 与本文方法可比 |
 | **MANDO-LLM** | ✅ **已跑完（2026-09-22/23，三种子 + `_buggy` 第二轮）**：`scripts/baseline_mando.py`（PyG `HGTConv` 替 dgl，无需新建 conda 环境），产物 `eval_results/baseline/{mando,mando_buggy}/seed{0,1,2}/` |  ✅ 名称已裁定（2026-09-21）：以 **`MANDO-LLM`** 为准，大纲正文的 `MANDO-HGT` 须同步改（`.docx` 改动需作者授权）。基线代码已由作者安装在 `/home/saumarez/projects/deep-learning`（⚠ 在本仓读取硬边界之外，见 AGENTS.md） |
-| 本文方法 | ✅ `runs/seed{0,1,2}` | 两设定评估（DIVE 见 `eval_results/dive/`） |
+| 本文方法 | ✅ 正典（池 497）`runs/buggy_canon/seed{0,1,2}`（对照口径（池 453）的 `runs/seed{0,1,2}` 已于 2026-10-02 删除） | 两设定评估（DIVE 见 `eval_results/dive/`） |
 
 ✅ **2026-09-22/23 状态收口**：四个基线（`slither_alldata` / `mvdhg` / `egfl`（+ 其论文 lr 臂 `egfl_ownlr`）/ `mando`）
 各 3 种子**全部跑完**，逐类三口径 × 两工作点的明细见 `experiments/baseline_three_caliber_tables.md`
@@ -465,11 +475,11 @@ MVD-HG 0.3224 / EGFL 0.1138 / MANDO-LLM 0.1091 / Slither 0.2937）、**表 2 = �
 其 **@0.5 工作点逐位等于 macro 表的逐类格**（恒等，故不另列）。⚠ 换到该口径后**排序与量级都不变**
 ⇒ 基线读数低**不是**「阈值没调好」；且 EGFL 两行与 MANDO 行的最高口径读数**都不高于平凡下限 0.6199**。
 
-✅ **2026-09-23（同日晚）第二轮：三条基线在「含 `buggy_*` 的新正典（池 497）」上补跑完毕**（`decisions.md` §52）。
+✅ **2026-09-23（同日晚）第二轮：三条基线在「正典（池 497）」（原「含 `buggy_*` 的新正典」）上补跑完毕**（`decisions.md` §52）。
 §51.6.2 的「换 497 池不可行」**被用户裁定推翻**（理由仍写成表头警告，不是取消）。新增产物区一律带 `_buggy`
 后缀（离线特征 `products/alldata/baseline/<名>_buggy/`、模型产物 `eval_results/baseline/<臂>_buggy/seed{S}/`、
 `slither_buggy/`），驱动 = `python scripts/run_baselines.py --layout buggy`；
-交付物 = `experiments/baseline_three_caliber_tables.md` 的**「三、」段（表 15–28）**，**canon37 段（表 1–14）逐字节不变**。
+交付物 = `experiments/baseline_three_caliber_tables.md` 的**「三、」段（表 15–28）**，**canon37 段（表 1–14）逐字节不变**（canon37 段 = 今**对照口径（池 453）**，2026-10-01 §58 起；⚠ **该段数据已于 2026-10-02 删除，表内数字为冻结值、不可复算**）。
 🔴 **读该段前必须知道的三条**：① 两段 test 集不同（46→49）**且**特征配对方式也不同
 （✅ 2026-09-25 换代已消除该不对称：现两段都与 `--split-seed` 配对用 `cb_ft_ss{S}`；`_cb.pt` 逐张量随 ss 变）⇒ **跨段仍因池不同而不可比**；
 ② `buggy_*` 标签绝大多数是全 1 ⇒ 该段必须并列 `clean_only`（剔 buggy）诊断列，**不得**据此声称补数据提升了检测能力；
@@ -516,10 +526,10 @@ MVD-HG 0.3224 / EGFL 0.1138 / MANDO-LLM 0.1091 / Slither 0.2937）、**表 2 = �
 
 **A. 统一口径与产物隔离**
 
-- 5.4 主消融统一使用主库现行正典池 **453**、`products/alldata/splits/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`（**2026-09-25 起：`products/alldata/graphs_ft_p2/cb_ft_ss{S}`**，**逐划分种子取，seed{S} 配 ss{S}**；训练种子与划分种子分离）；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/` 的绝对值与现行 453 池混比。
+- 5.4 主消融统一使用主库**正典（池 497）**（2026-10-01 §58 起；**池 453 对照口径的数据已于 2026-10-02 删除**）、`products/alldata/splits/withbuggy_snapshot/split_seed{0,1,2}.json` 和当前 `_feat.pt`/`_cb.pt`（**`products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`**，**逐划分种子取，seed{S} 配 ss{S}**；训练种子与划分种子分离）；主划分固定 seed0，seed1/2 只作稳健性复核。不得把旧 `runs/prior_448pool/`（已删除）的绝对值与主库池混比。
 - 每个变体只改变一个因素；训练/划分种子、batch=32、lr=1e-4、weight_decay=1e-4、200 epoch 上限、val micro-F1 早停、阈值候选 0.20–0.80、固定 0.5 与 val threshold 双报告均与主实验一致。每个变体至少先跑 seed0，进入论文主消融表必须跑 seed0/1/2，并报告 mean±std。
 - 主比较指标按优先级为 `micro-F1@0.5`、`micro-F1@val_thr`、mAP；macro-F1 仅参考。逐类 F1/AP 必须带 test support；support≤2 的类别只能描述，不能据此宣称变体优于另一变体。
-- 消融只写入 `eval_results/ablation/<variant>/`，不覆盖 `runs/seed*/`。每个目录保存 `manifest.json`（父实验摘要、唯一变量、命令、代码/数据指纹、seed 列表）、每 seed 的 config/results/diagnosis 和汇总表。运行前后都检查 split、标签文件、`ir_cat.json`、图目录和模型默认参数。
+- （**2026-09 计划稿，路径口径已作废**）消融产物隔离：原计划写入 `eval_results/ablation/<variant>/`——该目录是**汇总产物**目录、已随 453 于 2026-10-02 删除，497 侧**无对应目录**；实际消融 run 一直写在 `runs/` 下，497 侧现行在 `runs/ablation_buggy/<臂>/seed{S}/`（汇总报告 `experiments/per_class_three_caliber_tables_buggy.md`）。每个目录保存 `manifest.json`（父实验摘要、唯一变量、命令、代码/数据指纹、seed 列表）、每 seed 的 config/results/diagnosis 和汇总表。运行前后都检查 split、标签文件、`ir_cat.json`、图目录和模型默认参数。
 - 主库诊断已显示稀有类的 test support 和池级正样本极低，`pos_weight`、focal/ASL、温度缩放也未稳定救活稀有类。因此 5.4 结论优先解释模块贡献、结构信息和有足够支撑的类别，不把稀有类 F1=0 直接归因于某一个模块。
 
 **B. 5.4.1 必要消融执行矩阵（11 项）**
@@ -538,7 +548,11 @@ MVD-HG 0.3224 / EGFL 0.1138 / MANDO-LLM 0.1091 / Slither 0.2937）、**表 2 = �
 | A10 | 关闭先验 Dropout | `--prior-dropout 0` | M5；零重跑数据 | 模型是否依赖 M1 先验捷径；不与 `--ablate-sv` 混淆 |
 | A11 | 结构特征分组 | 分别运行 `--feat-groups base`、`base+sem`、`all` | M5；模型侧零重跑 | 基础结构、漏洞语义、位置/指令组的增量贡献 |
 
-seed0 的窄验证命令模板如下，确认路径和参数后再扩展 seed1/2：
+> 🔴 **下列命令模板为 2026-09 计划稿，路径与口径均已作废**：`eval_results/ablation/` 是**汇总产物**目录，已随 453 于 2026-10-02 删除；
+> 497 侧**没有**对应的 `eval_results/ablation/` 目录——消融 run 本身一直写在 `runs/` 下，497 侧现行消融 run 在 `runs/ablation_buggy/<臂>/seed{S}/`，
+> 汇总报告 = `experiments/per_class_three_caliber_tables_buggy.md`（由 `collect_three_caliber_tables.py` 从 `runs/ablation_buggy` 生成）。以下模板**仅存历史**：
+
+seed0 的窄验证命令模板（历史）如下：
 
 ```bash
 python scripts/train.py --seed 0 --split-seed 0 --drop-edges 3 --out-dir eval_results/ablation/a1_drop_dfg
@@ -567,29 +581,30 @@ python scripts/evaluate.py --summarize --runs-dir eval_results/ablation/a1_drop_
 
 **E. 已完成但不替代 5.4 的相关实验**
 
-- `runs/pw_unclamped/`：已完成 `pos_weight` 上限 20→不截断；固定 0.5 micro-F1 约 0.906→0.815，稀有类仍未恢复，主实验继续保留 cap=20。它属于损失敏感性补充，不是 5.4.1 的 11 项之一。（⚠ 旧口径；已按 §28 推翻；且这两条线的 run 仍是**冻结编码器**工作点，只能在冻结工作点上解读，见 `decisions.md` §39.6）
-- `runs/loss_focal/`、`runs/loss_asl/`：已完成损失形状补充；验证阈值 micro-F1 与 BCE 差异在种子波动内，ASL 固定 0.5 不稳，BCE 仍为主方案。（⚠ 旧口径；已按 §28 推翻；且这两条线的 run 仍是**冻结编码器**工作点，只能在冻结工作点上解读，见 `decisions.md` §39.6）
-- `eval_results/calibration/`：温度缩放改善校准但全局阈值下等价于阈值变化；per-class threshold 只作补充，不能进入主结果。
-- `runs/neardup/`、`runs/withbuggy/`、`runs/augmentation/`、`runs/augmentation_dedup/`：分别是零泄漏、含 buggy、增强集和增强集去重对照；它们改变数据范围或划分纪律，不能放进主库 5.4 表，也不能与主库绝对指标合并。
+- `runs/pw_unclamped/`：已完成 `pos_weight` 上限 20→不截断；固定 0.5 micro-F1 约 0.906→0.815，稀有类仍未恢复，主实验继续保留 cap=20。它属于损失敏感性补充，不是 5.4.1 的 11 项之一。（⚠ 旧口径；已按 §28 推翻；且这两条线的 run 仍是**冻结编码器**工作点，只能在冻结工作点上解读，见 `decisions.md` §39.6；**该产物已于 2026-10-02 删除**）
+- `runs/loss_focal/`、`runs/loss_asl/`：已完成损失形状补充；验证阈值 micro-F1 与 BCE 差异在种子波动内，ASL 固定 0.5 不稳，BCE 仍为主方案。（⚠ 旧口径；已按 §28 推翻；且这两条线的 run 仍是**冻结编码器**工作点，只能在冻结工作点上解读，见 `decisions.md` §39.6；**该产物已于 2026-10-02 删除**）
+- `eval_results/calibration_aug/`：温度缩放改善校准但全局阈值下等价于阈值变化；per-class threshold 只作补充，不能进入主结果。（① 主库同名目录 `eval_results/calibration/` 已随 453 于 2026-10-02 删除）
+- `runs/neardup/`（**已随 453 于 2026-10-02 删除**）、`runs/withbuggy/`、`runs/augmentation/`、`runs/augmentation_dedup/`：分别是零泄漏、含 buggy、增强集和增强集去重对照；它们改变数据范围或划分纪律，不能放进主库 5.4 表，也不能与主库绝对指标合并。
 
 **F. 5.4 交付与完成判定**
 
-- [ ] 建立 `eval_results/ablation/ablation_manifest.json`：11 项必要消融、三 seed 状态、输入指纹、命令和产物路径齐全；未执行项必须写明阻塞原因。
-- [ ] 建立 `eval_results/ablation/summary.json`：主实验 + A1–A11 的 `micro-F1@0.5`、`micro-F1@val_thr`、mAP、macro-F1、训练时间和参数量 mean±std；A11 三组单列。
+- [ ] 建立 `eval_results/ablation/ablation_manifest.json`：11 项必要消融、三 seed 状态、输入指纹、命令和产物路径齐全；未执行项必须写明阻塞原因。（⚠ **未落地；`eval_results/ablation/` 目录已随 453 于 2026-10-02 删除**；497 侧消融 run 在 `runs/ablation_buggy/`，无对应汇总目录。）
+- [ ] 建立 `eval_results/ablation/summary.json`：主实验 + A1–A11 的 `micro-F1@0.5`、`micro-F1@val_thr`、mAP、macro-F1、训练时间和参数量 mean±std；A11 三组单列。（⚠ **未落地；同上，该目录已随 453 删除**。）
 - [ ] 生成论文表：边信息、CodeBERT 双通道、readout/L_var/先验 dropout、结构特征四块分别呈现；每行标注零重跑或 M2–M5 重跑。
 - [ ] 生成解释表：A9 的 score_std、A10 的先验依赖、A5 的边数/吞吐、A1–A4 的实际保留边计数和逐类 support。
 - [ ] 三种子通过 paired seed 检查；任何变体缺 seed、改 split 或写入正典 `runs/`，均不得进入论文主消融表。
 
-### 12.8.2 消融的「两代记录」与三个正典（2026-09-21 现状）
+### 12.8.2 消融的「两代记录」与正典段／对照段（2026-09-21 现状；2026-10-01 按 §58 更新口径）
 
 > 🔴 **本仓现在同时存在三代消融记录，用途不同，谁都不删、谁也不覆盖谁。**
-> 引用任何数字前先确认它出自哪一代、哪个正典。
+> 引用任何数字前先确认它出自哪一代、哪个口径。
+> ⚠ **2026-10-01 §58 起**：池 497 升为**正典（默认口径）**、池 453 降为**对照口径**（**池 453 的全部数据已于 2026-10-02 删除**）——下表已按新口径标注。
 
 | 代 | 产物 | 报告 | n | 能回答什么 |
 | --- | --- | --- | --- | --- |
-| **第一代** | `runs/ablation/`、`runs/ablation_aug/` | `experiments/ablation_results.md`、`eval_results/ablation/collected{,_aug}.{json,md}` | **3** | 描述性；**不得**据此判方向（§12.4 第 6 条已列此开口） |
-| **第二代** | `runs/ablation_n9/`、`runs/ablation_n9_aug/`、`runs/arch_n9{,_aug}/` | `experiments/ablation_n9_results.md`、`eval_results/ablation/n9_summary.json` | **9** | 同配对判方向（`ts × ss` 3×3；判据 `\|t\| > 2.306`，另给 Bonferroni 参考） |
-| **第三代（buggy 正典）** | `runs/ablation_buggy/` | `experiments/per_class_three_caliber_tables_buggy.md` | **3** | 新正典（池 497）上的逐类三口径读数 |
+| **第一代** | `runs/ablation/`（**已随 453 于 2026-10-02 删除**）、`runs/ablation_aug/` | `experiments/ablation_results.md`、`eval_results/ablation/collected{,_aug}.{json,md}`（**已删除**） | **3** | 描述性；**不得**据此判方向（§12.4 第 6 条已列此开口） |
+| **第二代** | `runs/ablation_n9/`（**已随 453 删除**）、`runs/ablation_n9_aug/`、`runs/arch_n9{,_aug}/`（**`arch_n9` 已删除、`arch_n9_aug` 保留**） | `experiments/ablation_n9_results.md`、`eval_results/ablation/n9_summary.json`（**已删除**） | **9** | 同配对判方向（`ts × ss` 3×3；判据 `\|t\| > 2.306`，另给 Bonferroni 参考） |
+| **第三代（池 497 正典）** | `runs/ablation_buggy/` | `experiments/per_class_three_caliber_tables_buggy.md` | **3** | 正典（池 497）上的逐类三口径读数 |
 
 **第一代为什么保留**（2026-09-21 用户裁定「原来的结果不要删」）：第二代的价值有一半在于
 **「和第一代比，哪些结论翻了」**——删掉 n=3 就等于删掉对照臂本身。实现上第二代
@@ -599,22 +614,22 @@ python scripts/evaluate.py --summarize --runs-dir eval_results/ablation/a1_drop_
 与现行代码重建的命令行对拍，3/3 抽查**逐位一致**（仅 `timing.infer_seconds` 不同）。
 ⇒ 第二代只需补**非对角 6 对**（21 臂 × 2 组 × 6 = 252 run），而非全量 396。
 
-**三个正典不可互换**（`AGENTS.md` 语义锁死项）：
+**正典段与对照段不可互换**（`AGENTS.md` 语义锁死项）：
 
-| 正典 | `graph_dir` | `split_dir` | 池 | 用在哪 |
+| 口径 | `graph_dir` | `split_dir` | 池 | 用在哪 |
 | --- | --- | --- | --- | --- |
-| §37 谱系正典（**现行**，20 轮档） | `products/alldata/graphs_ft_p2/cb_ft_ss{S}` | `products/alldata/splits` | 453 | 主实验 `runs/seed{S}`、第二代消融 |
-| §37 旧档（5 轮，**已降为旧正典**） | `products/alldata/graphs_ft/ss{S}` | 同上 | 453 | **旧正典（5 轮档）**的输入树；run 归档于 `runs/prior_canon37/seed{S}`（三档阶梯的中档，**不另设同名臂**） |
-| 任务2 正典（**现行**，20 轮档） | `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}` | `products/alldata/splits/withbuggy_snapshot` | 497 | `runs/buggy_canon`、**第三代消融** |
+| **正典（池 497）（现行，20 轮档）** | `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}` | `products/alldata/splits/withbuggy_snapshot` | 497 | `runs/buggy_canon`、**第三代消融** |
+| **对照口径（池 453）（20 轮档）**（旧口径的现行） | `products/alldata/graphs_ft_p2/cb_ft_ss{S}` | `products/alldata/splits` | 453 | 主实验 `runs/seed{S}`、第二代消融 —— **该口径数据已于 2026-10-02 删除** |
+| §37 旧档（5 轮） | `products/alldata/graphs_ft/ss{S}` | 同上 | 453 | **旧正典（5 轮档）**的输入树；run 归档于 `runs/prior_canon37/seed{S}`（三档阶梯的中档，**不另设同名臂**）—— **该口径数据已于 2026-10-02 删除** |
 | ② 增强集 | `products/augmentation/graphs_ft/ss{S}` | `products/augmentation/splits` | 1774 | `runs/augmentation`、② 的消融 |
 
-⚠ **注意 `cb_ft_ss{S}` 这个前缀**：它是**新正典专有**的命名，`graph_dir` 的逐种子模板化
+⚠ **注意 `cb_ft_ss{S}` 这个前缀**：它是**正典（池 497）专有**的命名，`graph_dir` 的逐种子模板化
 必须同时认 `ss{S}` 与 `cb_ft_ss{S}` 两种形态（2026-09-21 修掉的正则漏洞，见手册 §12 错误清单）。
 
 **第三代要补的两件前置**（2026-09-21 已完成）：
 1. `products/alldata/graphs_ft_buggy/graph_variants/{cb_rev,cb_unlimited}_ss{S}/` —— 由
    `build_ft_edge_variants.py --dataset alldata --layout buggy` 造（该 layout 为本次新增）。
-   边变体源与冻结树**与 §37 正典共用同一份**（边结构与冻结 `_cb.pt` 都与池/划分/微调无关），
+   边变体源与冻结树**原与对照口径（池 453）共用同一份**（边结构与冻结 `_cb.pt` 都与池/划分/微调无关；**该共用源已于 2026-10-02 随 453 删除，现取 `graphs_ft_buggy_p2/` 侧**），
    只有微调基座与编码器不同 ⇒ 产物 `variant.json` 与 §37 版**只差 `derived_from` 一个键**（机检过）。
 2. `run_ablation.py` 的 train→evaluate 链**补上 diagnose**（原先缺，见下）。
 

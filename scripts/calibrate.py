@@ -35,7 +35,7 @@ from dataset import DEFAULT_GRAPH_DIR, build_index, load_graph
 from evaluate import _load_ablation, infer, rebuild_models
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
-DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
+DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits/withbuggy_snapshot"
 DEFAULT_RUNS_DIR = f"{BASE}/runs"
 DEFAULT_OUT_DIR = f"{BASE}/eval_results/calibration"
 NAMES = metrics.VULN_NAMES

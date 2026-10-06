@@ -20,7 +20,7 @@
   python scripts/run_arch_baselines.py --dry-run
   python scripts/run_arch_baselines.py --convs gat sage
   python scripts/run_arch_baselines.py --graph-root products/alldata/graphs_ft_buggy \\
-      --split-dir products/alldata/splits/withbuggy_snapshot     # 在任务2 的新正典上跑
+      --split-dir products/alldata/splits/withbuggy_snapshot     # 在正典（池 497）上跑
 
 产物：`<runs-root>/<conv>/seed{S}/` + `summary.json`（`runs-root` 默认 `runs/baseline_arch`）。
 """
@@ -63,7 +63,7 @@ def main() -> int:
     ap.add_argument("--seeds", type=int, nargs="*", default=list(SEEDS))
     ap.add_argument("--graph-root", default="products/alldata/graphs_ft_p2",
                     help="编码器树根（默认 ① 现行正典 graphs_ft_p2；"
-                         "任务2 现行正典传 products/alldata/graphs_ft_buggy_p2）")
+                         "正典（池 497）传 products/alldata/graphs_ft_buggy_p2）")
     ap.add_argument("--split-dir", default="products/alldata/splits")
     ap.add_argument("--base-config", default="runs/seed0/config.json",
                     help="基线 config（**唯一变量 = --conv** 的参照）")

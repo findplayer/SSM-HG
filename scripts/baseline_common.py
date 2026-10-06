@@ -2,7 +2,7 @@
 """5.3 三条论文基线（EGFL / MVD-HG / MANDO-LLM）的**共用层**。
 
 **存在理由**：三条基线在「图与特征」上互不相干（MVD-HG 自带 AST/CFG/DFG 异构图；
-EGFL 是字节码 opcode + 基本块 CFG；MANDO-LLM 吃本仓 §37 正典图），但它们在
+EGFL 是字节码 opcode + 基本块 CFG；MANDO-LLM 吃本仓对照口径（池 453）图，池 497 正典同构），但它们在
 **「训练 / 早停 / 阈值搜索 / 产物契约 / 覆盖守卫」**上必须逐字一致——否则「某基线更弱」
 就可能是被训练配置削的，而不是方法本身弱（本仓 §36.4 的教训）。
 
@@ -73,18 +73,20 @@ CANON_DEFAULTS = {
 # 故布局知识集中在**这一个表**，由 `run_baselines.py --layout` 展开、由 `check_layout()`
 # 在每条基线真正开工前复核。
 #
-# - `canon37`：**§37 正典谱系**（池 453，已剔除全部 `buggy_*`）——**默认**。
-#   ⚠ 2026-09-25 编码器换代：谱系名 `canon37` 保留（它命名的是「§37 起微调编码器即正典」
-#   这条**路线**，不是 epoch 数），但所指的**档位**已由 5 轮升为 **20 轮**，
-#   图树随之由 `graphs_ft/ss{S}` 换到 `graphs_ft_p2/cb_ft_ss{S}`
-#   （依据 `experiments/encoder_promotion_gate.md`：三门前全过，mAP 均 Δ +0.1369）。
-#   旧的 5 轮档**未删**，是**旧正典的输入树**（树仍在 `products/alldata/graphs_ft/ss{S}`；
-#   其 run 已归档于 `runs/prior_canon37/seed{S}`，**不另设名为 `cb_ft5` 的臂**）。
-# - `buggy` ：任务 2 正典（池 497，`withbuggy_snapshot`）。
-#   ⚠ 同日同步换代：16 轮 → **20 轮**，树由 `graphs_ft_buggy/cb_ft_ss{S}`
-#   换到 `graphs_ft_buggy_p2/cb_ft_ss{S}`。换代的理由与 ① 不同、更硬：
-#   原设计要对照的「池 vs 池」，但两侧 epoch 预算一个 16 一个 5 ⇒ **双变量混淆**，
-#   两侧都到 20 轮才只剩池一个变量。
+# 🔴 **2026-10-01 口径对调（用户裁定）：池 497 升为正典，池 453 降为对照口径。**
+#    两个 key 的**字面名保持不变**（它们与未改名的产物路径绑定：`runs/buggy_canon`、
+#    `graphs_ft_buggy_p2`、`eval_results/baseline/*_buggy`），但**角色已互换**——
+#    读到 `buggy` 时不要按字面当成「对照臂」，它现在是默认口径。
+#
+# - `buggy` ：**现行正典**（池 497，`withbuggy_snapshot`，含全部 `buggy_*`）——**默认**。
+#   epoch 预算 20，树 `graphs_ft_buggy_p2/cb_ft_ss{S}`，run 在 `runs/buggy_canon/`。
+#   ⚠ 该池的多标签合约主要来自 `buggy_*` 的注入假象（文件夹归属被推成标签）
+#   ⇒ 引用其 macro/mAP 时必须同时给出 `clean_only` 诊断列（`experiments/buggy_canon_summary.md`）。
+# - `canon37`：**对照口径**（池 453，已剔除全部 `buggy_*`），原名「§37 正典」，2026-10-01 降级。
+#   epoch 预算同为 20（2026-09-25 由 5 轮升档），树 `graphs_ft_p2/cb_ft_ss{S}`，run 在 `runs/`。
+#   旧的 5 轮档**未删**：树仍在 `products/alldata/graphs_ft/ss{S}`，
+#   其 run 已归档于 `runs/prior_canon37/seed{S}`，**不另设名为 `cb_ft5` 的臂**。
+#   ⚠ 两段 test 集不是同一批合约（49 vs 46）⇒ **跨段数字不可相减**，只能看方向。
 LAYOUTS = {
     "canon37": {
         "split_dir": "products/alldata/splits",
@@ -101,7 +103,7 @@ LAYOUTS = {
         "n_pyg_min": 490,
     },
 }
-DEFAULT_LAYOUT = "canon37"
+DEFAULT_LAYOUT = "buggy"          # 2026-10-01 口径对调：默认 = 现行正典（池 497）
 
 
 def layout_paths(layout: str, name: str, split_seed: int) -> dict:
@@ -145,7 +147,7 @@ def _match_graph(graph_dir) -> str | None:
     2026-09-25 换代后两条前缀变成 `…/graphs_ft_p2/cb_ft_ss` 与
     `…/graphs_ft_buggy_p2/cb_ft_ss`，天然互不为前缀，但这个坑对**下一个**新增的 layout 依旧成立。
     ⚠ 换代前的旧树（`graphs_ft/ss{S}`、`graphs_ft_buggy/cb_ft_ss{S}`）现在**不匹配任何 layout**
-    ⇒ 返回 `None`。这是对的：它们是**旧正典（5 轮档）**的输入树，不再是正典。
+    ⇒ 返回 `None`。这是对的：它们是对照口径（池 453）与正典（池 497）的**旧编码器档（5/16 轮）**输入树，均非现行输入。
     """
     r = _rel(graph_dir)
     for key, L in LAYOUTS.items():
@@ -179,7 +181,14 @@ def _match_out(out_dir) -> str | None:
     for key, L in LAYOUTS.items():
         if L["feature_suffix"] and arm.endswith(L["feature_suffix"]):
             return key
-    return DEFAULT_LAYOUT          # 不带任何正典后缀 ⇒ 默认正典（§37）
+    # 不带任何后缀 ⇒ **后缀为空的那一个口径**。这是结构判断，不是「默认口径」判断：
+    # 🔴 2026-10-01 口径对调时这里踩过坑——当时写成 `return DEFAULT_LAYOUT`，
+    #    而默认口径（`buggy`）**带** `_buggy` 后缀 ⇒ 无后缀的 `baseline/<臂名>`
+    #    被判成默认口径，与其余三格（split/graph/feature 都判成 canon37）不一致而抛错。
+    for key, L in LAYOUTS.items():
+        if not L["feature_suffix"]:
+            return key
+    return DEFAULT_LAYOUT
 
 
 def check_layout(args, name: str) -> str:
@@ -271,8 +280,8 @@ def sample_ids_of(split: dict, arm: str) -> list[str]:
 def feature_root(name: str, suffix: str = "") -> Path:
     """中间产物根：`products/alldata/baseline/<name><suffix>/`（大文件，不入库）。
 
-    `suffix` = **正典选择器**（取值见 `LAYOUTS`）：`""` = §37 正典（池 453，默认），
-    `"_buggy"` = 任务 2 新正典（池 497）。
+    `suffix` = **口径选择器**（取值见 `LAYOUTS`）：`"_buggy"` = **正典（池 497，默认）**，
+    `""` = 对照口径（池 453，2026-10-01 由「§37 正典」降级）。
 
     🔴 **换正典必须换根，不能往老根里增量补**：两个 build 脚本都是「`feat/<base>.pt` 存在即跳过」，
     且 `w2v.model` 一旦存在就复用。把 497 池的样本补进 453 的根里，会得到
@@ -573,7 +582,7 @@ def base_parser(desc: str, name: str) -> argparse.ArgumentParser:
                    help="图目录（正典必须带 ss{S}，且 {S} 与 --split-seed 配对）。")
     p.add_argument("--split-dir", default=str(REPO / "products/alldata/splits"))
     p.add_argument("--feature-suffix", default="",
-                   help="离线特征根的正典后缀（`\"\"`=§37 正典池 453；`_buggy`=新正典池 497）。"
+                   help="离线特征根的口径后缀（`\"\"`=对照口径（池 453）；`_buggy`=正典（池 497），默认）。"
                         "🔴 必须与 `--graph-dir`/`--split-dir`/`--out-dir` **同时**换，"
                         "开工前由 `baseline_common.check_layout()` 复核。")
     p.add_argument("--label-file", default=None)

@@ -34,26 +34,29 @@ SEEDS = T.SEEDS
 CALIBERS = T.CALIBERS
 
 # ---------------------------------------------------------------- 布局（正典选择）
-# 🔴 两段正典（§37 池 453 / 含 buggy 池 497）**共用同一份行定义与同一套渲染**，
+# 🔴 **2026-10-01 口径对调（用户裁定）**：池 497 升为正典（默认），池 453 降为对照口径。
+#    两个 key 的**字面名与全部路径字段一律未改**（它们与未改名的产物路径绑定），
+#    只有**角色**互换 ⇒ 读到 `canon37` 时不要按字面当「正典」，它现在是**对照口径**（追加段）。
+# 🔴 两段（正典 池 497 / 对照口径 池 453）**共用同一份行定义与同一套渲染**，
 #    只有「产物根」这一件事不同 ⇒ 用后缀派生，不复制第二份行清单
 #    （复制会让两张表的行集合漂移——本仓点过名的一类问题）。
 LAYOUTS = {
     "canon37": {"suffix": "", "runs_dir": "runs",
                 "split_dir": "products/alldata/splits",
                 "graph_dir": "products/alldata/graphs_ft_p2/cb_ft_ss{S}",
-                "title": "§37 正典（池 453）"},
+                "title": "对照口径（池 453）"},
     "buggy": {"suffix": "_buggy", "runs_dir": "runs/buggy_canon",
               "split_dir": "products/alldata/splits/withbuggy_snapshot",
               "graph_dir": "products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}",
-              "title": "含 `buggy_*` 的新正典（池 497）"},
+              "title": "正典（池 497）"},
 }
 # 🔴 `split_dir` / `graph_dir` 与 `baseline_common.LAYOUTS` **必须逐字相同**：
 #    它们是「这是哪个正典」的判据，而本文件只出表、不跑批 ⇒ 漂移了不会报错，
 #    只会让表头标注的来源与实际训练时用的池不一致（`tests/test_baseline_tables.py` 有守卫）。
 
 
-def rel_of(arm: str, layout: str = "canon37") -> str:
-    """臂名 + 布局 → 产物相对路径。canon37 下与引入布局参数之前**逐字符相同**。"""
+def rel_of(arm: str, layout: str = "buggy") -> str:
+    """臂名 + 布局 → 产物相对路径。默认 = **正典**（2026-10-01 起 = 池 497 / `_buggy`）。"""
     return f"eval_results/baseline/{arm}{LAYOUTS[layout]['suffix']}"
 
 
@@ -99,13 +102,13 @@ SENSITIVITY = [
 ]
 
 
-def coverage_block(layout: str = "canon37") -> list[str]:
+def coverage_block(layout: str = "buggy") -> list[str]:
     """三条基线的**离线覆盖率**（分母是否与本文方法相同）—— 逐行读各自 results.json。
 
-    🔴 **test 覆盖按「全部种子取并集」判**（不是只看 seed0）：buggy 段实测 MVD-HG 在
-    **seed1** 上掉了 1 个 test 合约（正典段是三个种子都完整）⇒ 只看 seed0 会把它报成
-    「test 完整」，而那一行的分母其实是 48 —— 正是本表最不能静默出错的一格。
-    「训练集剔除」仍按 seed0 报（与引入本参数之前的输出逐字符相同）。
+    🔴 **test 覆盖按「全部种子取并集」判**（不是只看 seed0）：正典段（池 497）实测 MVD-HG
+    在 **seed1** 上掉了 1 个 test 合约（对照段（池 453）是三个种子都完整）⇒ 只看 seed0 会
+    把它报成「test 完整」，而那一行的分母其实是 48 —— 正是本表最不能静默出错的一格。
+    「训练集剔除」仍按 seed0 报。
     """
     lines = ["| 基线 | 离线特征覆盖 | test 覆盖 | 备注 |", "| --- | --- | --- | --- |"]
     for label, arm, _n in BASELINES:
@@ -138,16 +141,16 @@ def coverage_block(layout: str = "canon37") -> list[str]:
     return lines
 
 
-def slither_row(seeds=None, root_rel: str = "eval_results/baseline/slither_alldata",
+def slither_row(seeds=None, root_rel: str = "eval_results/baseline/slither_buggy",
                 tool: str | None = None) -> dict | None:
-    """Slither 的 `seed{S}_eval.json` → 与 `row_from_run` 同构的行（buggy 口径无产物 ⇒ `—`）。
+    """Slither 的 `seed{S}_eval.json` → 与 `row_from_run` 同构的行（某池无产物 ⇒ `—`）。
 
     🔴 **分母不同**：`n_analyzed` < `n_in_split`（分析失败/不支持的合约**不计入分母、也不记全零**），
     故它与三条基线的逐格 Δ **不可解读**。
 
-    🔴 `root_rel` **必须可传**：它原先硬编码 `slither_alldata`。若忘了参数化，497 池的表里
-    会**静默出现 46 池的 Slither 数字**（两份 json 都长一个样、都叫 `seed{S}_eval.json`），
-    是本表最隐蔽的一类错（`decisions.md` §52.6）。
+    🔴 `root_rel` **必须可传**：它原先硬编码 `slither_alldata`。若忘了参数化，正典（池 497）
+    段会**静默出现对照段（池 453）的 Slither 数字**（两份 json 都长一个样、都叫
+    `seed{S}_eval.json`），是本表最隐蔽的一类错（`decisions.md` §52.6）。
     """
     root = REPO / root_rel
     # 🔴 **必须接受 seeds 过滤**：最佳种子表里如果 Slither 仍铺开 3 个种子，
@@ -215,11 +218,12 @@ def _blank_unsupported(out: dict, tool: str | None, root_rel: str, support: dict
     return out
 
 
-def slither_root(layout: str = "canon37") -> str:
-    """Slither 产物根。🔴 **逐段不同**：正典段是 `slither_alldata`，buggy 段是 `slither_buggy`。
+def slither_root(layout: str = "buggy") -> str:
+    """Slither 产物根。🔴 **逐段不同**：正典段（池 497）是 `slither_buggy`，对照段（池 453）
+    是 `slither_alldata`。
 
     两段的 json 同名同形（`seed{S}_eval.json`），**唯一能分辨的是目录名**——
-    故这个函数是防「46 池数字混进 497 池表」那类静默错的唯一一道。
+    故这个函数是防「453 池数字混进 497 池表」那类静默错的唯一一道。
     """
     return ("eval_results/baseline/slither_alldata" if layout == "canon37"
             else f"eval_results/baseline/slither{LAYOUTS[layout]['suffix']}")
@@ -236,7 +240,7 @@ TRAD_LABEL: dict[str, str] = {
 TRAD_MARK = "<trad:"
 
 
-def trad_root(tool: str, layout: str = "canon37") -> str:
+def trad_root(tool: str, layout: str = "buggy") -> str:
     """某传统工具的产物根。🔴 **逐工具、逐段都不同**（`slither_alldata` 是历史命名，不带工具后缀的
     那一层是 `_alldata`），故这里逐条列出，不做字符串拼接的猜测。"""
     if tool == "slither":
@@ -245,17 +249,17 @@ def trad_root(tool: str, layout: str = "canon37") -> str:
     return f"eval_results/baseline/{tool}_alldata{suffix}"
 
 
-def available_trads(layout: str = "canon37") -> list[str]:
+def available_trads(layout: str = "buggy") -> list[str]:
     """已有产物的传统工具（缺的**不静默出行**，而是不出行并在表下点名）。"""
     return [t for t in TRADITIONAL
             if (REPO / trad_root(t, layout) / "seed0_eval.json").exists()]
 
 
-def missing_trads(layout: str = "canon37") -> list[str]:
+def missing_trads(layout: str = "buggy") -> list[str]:
     return [t for t in TRADITIONAL if t not in available_trads(layout)]
 
 
-def trad_row(tool: str, seeds=None, layout: str = "canon37") -> dict | None:
+def trad_row(tool: str, seeds=None, layout: str = "buggy") -> dict | None:
     """复用 `slither_row`：六工具的 `seed{S}_eval.json` 由**同一个** `evaluate()` 写出，
     格式同形 ⇒ 同一个行构造器就够（这正是"评测只有一份实现"带来的便利）。
 
@@ -291,10 +295,10 @@ TRAD_DASH_NOTE = (
 
 
 def _trivial_table_stats(run_rel: str, seeds) -> dict:
-    """从**本文方法**该正典的 `test_probs.pt` 算两个平凡下限与正例率（供本块的读法句用）。
+    """从**本文方法**该段的 `test_probs.pt` 算两个平凡下限与正例率（供本块的读法句用）。
 
-    🔴 **必须从数据算，不能写死**：正典段（池 453）的「二分类 0.62 / 七维 0.12」是
-    那批产物的性质，**换到池 497 就全变了**——实测七维平凡下限从 0.12 抬到约 **0.31**
+    🔴 **必须从数据算，不能写死**：对照段（池 453）的「二分类 0.62 / 七维 0.12」是
+    那批产物的性质，**换到正典段（池 497）就全变了**——实测七维平凡下限从 0.12 抬到约 **0.31**
     （`buggy_*` 的全 1 标签把正例率从 6.5% 抬到约 18%）。写死的读法句不会报错，只会误导。
     """
     import torch
@@ -320,20 +324,21 @@ def _trivial_table_stats(run_rel: str, seeds) -> dict:
             "n_cells": n_cells, "n_contracts": n_cells // len(NAMES)}
 
 
-def binary_caliber_block(runs_dir: str, layout: str = "canon37",
-                         method_label: str = "**本文方法**（§37 正典）") -> list[str]:
+def binary_caliber_block(runs_dir: str, layout: str = "buggy",
+                         method_label: str = "**本文方法**（正典）") -> list[str]:
     """**合约级二分类**口径对照（三条基线论文的原生口径）——解释「为什么七维 F1 看起来低」。
 
     🔴 **为什么必须并列这一块**：三条基线的论文报的都是**合约级二分类 F1**（有/无漏洞），
     而大纲 [411] 要求 5.3 **统一按七维多标签**评测。两个口径的**平凡下限差 0.50**
-    （正典段实测 七维 0.1224 vs 二分类 0.6199）⇒ 只看七维数字会把「任务更难」误读成
-    「这些方法不行」。本块给出**同数据、同划分、同产物**下的二分类读数，并**强制附上平凡下限**。
+    （对照段（池 453）实测 七维 0.1224 vs 二分类 0.6199）⇒ 只看七维数字会把「任务更难」
+    误读成「这些方法不行」。本块给出**同数据、同划分、同产物**下的二分类读数，
+    并**强制附上平凡下限**。
 
     坍缩规则：`max_c p_c >= t ⇔ any_c(p_c >= t)`（`decisions.md` §31 已机检），
     故合约级预测 = `probs.max(axis=1) >= thr`，**不是**另训一个模型。
 
     🔴 分母与读法句里的四个数（合约数 / 二分类平凡下限 / 七维平凡下限 / 正例率）
-    **一律由数据算**（见 `_trivial_table_stats`）：buggy 段的分母是 **49** 不是 46，
+    **一律由数据算**（见 `_trivial_table_stats`）：正典段（池 497）的分母是 **49** 不是 46，
     且它的二分类平凡下限**逐种子可变**（0.71/0.58/0.68）——写死会错得很自然。
     """
     seeds = list(SEEDS)
@@ -358,9 +363,9 @@ def binary_caliber_block(runs_dir: str, layout: str = "canon37",
         tm = sum(triv) / len(triv)
         out.append(f"| {label} | **{mean:.4f}** | {tm:.4f} | **{mean - tm:+.4f}** | "
                    f"{'/'.join(str(x) for x in _n_pos(_rel, seeds))} / {denom} |")
-    # 🔴 **canon37 段的分句逐字保留原文**（该段已发布、数字已被人引用；改成现算会让
-    #    每一次重生成都动到已发布的行）。**buggy 段必须现算**——池换了之后
-    #    分母（49 不是 46）与两个平凡下限都变了，写死的句子会"看着仍权威"却已失真。
+    # 🔴 **canon37（对照段，池 453）的分句逐字保留原文**（该段数字已发布、已被人引用；
+    #    改成现算会让每一次重生成都动到已发布的行）。**buggy（正典段，池 497）必须现算**——
+    #    池换了之后分母（49 不是 46）与两个平凡下限都变了，写死的句子会"看着仍权威"却已失真。
     if layout == "canon37":
         floor_txt = "二分类的平凡下限是 **0.62**（46 个测试合约里 45.7% 本来就有漏洞）"
         micro_txt = "而七维 micro 的平凡下限只有 **0.12**（322 个标签格里 6.5% 是正例）"
@@ -488,8 +493,9 @@ def _mAP_of(rel: str, seeds) -> list[float]:
 def _pc_crosscheck(runs_dir: str, pairs) -> str:
     """🔴 与既有审计产物逐位对拍：`eval_results/calibration/summary.json`（`calibrate.py` 生成）。
 
-    只用 `runs`（正典）时才有可比对象。不一致即**拒绝**——本仓的规矩是宁可硬失败也不静默
-    产出两套数字（同 `collect_per_class_f1.py --check` 的做法）。
+    只用 `runs`（对照段，池 453——存量审计产物即出自它，2026-10-01 口径对调后它不再叫正典）
+    时才有可比对象。不一致即**拒绝**——本仓的规矩是宁可硬失败也不静默产出两套数字
+    （同 `collect_per_class_f1.py --check` 的做法）。
     """
     if runs_dir != "runs" or not pairs:
         return ""
@@ -512,15 +518,16 @@ def _pc_crosscheck(runs_dir: str, pairs) -> str:
             "**逐位相同**（7 类 + 平均，容差 1e-6）。⇒ 本块没有第二套实现。")
 
 
-def per_class_binary_block(runs_dir: str, seeds, layout: str = "canon37",
-                           method_label: str = "**本文方法**（§37 正典）",
+def per_class_binary_block(runs_dir: str, seeds, layout: str = "buggy",
+                           method_label: str = "**本文方法**（正典）",
                            table_title: str = "## 表 1 —— 逐类 binary-F1 @逐类验证集阈值"
                                               "（3 种子 mean±std）",
                            xref: str = "（见 §一 的表 5、§二 的表 11）") -> list[str]:
     """§4.1：逐类二分类 F1（binary-F1）@逐类验证集阈值。
 
-    🔴 `table_title`/`xref`/`method_label`/`layout` 全部外置：本函数被**两段**（canon37 与
-    buggy）共用，表号与「见哪几张表」的交叉引用逐段不同；写死会让 buggy 段指向 canon 段的表号。
+    🔴 `table_title`/`xref`/`method_label`/`layout` 全部外置：本函数被**两段**（正典 池 497 /
+    对照口径 池 453）共用，表号与「见哪几张表」的交叉引用逐段不同；写死会让正典段指向
+    对照段的表号。
     """
     # 🔴 本表里 EGFL 有**两行**（统一 lr 与它的论文 lr），行名必须把 lr 写出来，
     #    否则「EGFL」那一行会被误读成论文口径——这正是 §0 第 5 条要防的那种误读。
@@ -582,8 +589,8 @@ def per_class_binary_block(runs_dir: str, seeds, layout: str = "canon37",
     return out
 
 
-def overview_block(runs_dir: str, seeds, layout: str = "canon37",
-                   method_label: str = "**本文方法**（§37 正典）",
+def overview_block(runs_dir: str, seeds, layout: str = "buggy",
+                   method_label: str = "**本文方法**（正典）",
                    xref_buggy_thr: str = "（见 §一 的表 7、§二 的表 13）",
                    xref_pcbin: str = "（见 §一 的表 5、§二 的表 11）") -> list[str]:
     """§4.2：各口径汇总列总览（"有哪些好看的读数可放"）。
@@ -642,7 +649,8 @@ def overview_block(runs_dir: str, seeds, layout: str = "canon37",
     st = _trivial_table_stats(runs_dir, seeds)
     mf = st["micro_floor"] if st else float("nan")
     bf = st["binary_floor"] if st else float("nan")
-    # 🔴 同 `binary_caliber_block`：canon37 段的两句读法**逐字保留原文**，buggy 段现算。
+    # 🔴 同 `binary_caliber_block`：canon37（对照段）的两句读法**逐字保留原文**，
+    #    buggy（正典段）现算。
     if layout == "canon37":
         floor_line = ("不存在谁更真——但**不同口径的平凡下限差 0.50**"
                       "（七维 0.1224 vs 合约级二分类 0.6199），")
@@ -675,11 +683,12 @@ def overview_block(runs_dir: str, seeds, layout: str = "canon37",
 def _below_trivial_note(runs_dir: str, layout: str) -> str:
     """「哪些行的**合约级二分类**读数**不高于**该口径的平凡下限」——**从数据算，不写死**。
 
-    正典段原来是写死的（「EGFL 两行与 MANDO 行的最高列 0.6199 / 0.5254 / 0.6178 都不高于 0.6199」）。
-    换到池 497 后平凡下限变成另一组数（且逐种子可变），写死的句子会**看起来仍然权威**却已失真。
+    对照段（池 453）原来是写死的（「EGFL 两行与 MANDO 行的最高列 0.6199 / 0.5254 / 0.6178
+    都不高于 0.6199」）。换到正典段（池 497）后平凡下限变成另一组数（且逐种子可变），
+    写死的句子会**看起来仍然权威**却已失真。
 
     ⚠ **只说「合约级二分类」这一列，不说「最高列」**：本函数只算得出这一列的平凡下限，
-    而某行的实际最高列**可能不是它**——实测 `_buggy` 段 EGFL-ownlr 的最高列是
+    而某行的实际最高列**可能不是它**——实测正典段（池 497）EGFL-ownlr 的最高列是
     `buggy@val_thr`（0.5553）而非合约级 binary（0.3748）。沿用「最高列」会把一个只对
     一列成立的判断说成对整行成立，那是本仓点过名的「样板句失真」。
     """
@@ -740,7 +749,7 @@ def _canon_timing_row(layout: str, seed: int) -> dict | None:
     }
 
 
-def _inputs_block(layout: str = "canon37") -> list[str]:
+def _inputs_block(layout: str = "buggy") -> list[str]:
     """**表前**标注：本表各行的（a）图/特征来源、（b）逐种子项目数量（用户 2026-09-24 要求）。
 
     🔴 数量**逐种子从产物读**（`results.json::n_*_graphs`、`config.json::derived`），不写死——
@@ -788,11 +797,11 @@ def _inputs_block(layout: str = "canon37") -> list[str]:
     return lines
 
 
-def timing_block(layout: str = "canon37") -> list[str]:
+def timing_block(layout: str = "buggy") -> list[str]:
     """训练时间与规模（用户 2026-09-22 要求记录成本；2026-09-24 起**含本文方法**）。"""
     lines = ["| 方法 | 种子 | 参数量 (M) | best epoch | 训练 (s) | 每 epoch (s) | 总 wall (s) | device |",
              "| --- | --- | --- | --- | --- | --- | --- | --- |"]
-    m_label = "**本文方法**" + ("（含 `buggy_*` 新正典）" if layout == "buggy" else "（§37 正典）")
+    m_label = "**本文方法**" + ("（正典）" if layout == "buggy" else "（对照口径）")
     for s in SEEDS:
         r = _canon_timing_row(layout, s)
         if r is None:
@@ -820,7 +829,7 @@ def timing_block(layout: str = "canon37") -> list[str]:
 
 
 def _cross_canon_note() -> tuple[list[str], list[str]]:
-    """两段正典的**方向性对照**（micro@val_thr，3 种子均值）。
+    """两段口径（正典 池 497 / 对照 池 453）的**方向性对照**（micro@val_thr，3 种子均值）。
 
     🔴 **它是「看方向、不看小数位」的表**，理由与 `experiments/buggy_canon_summary.md` §3b 逐字相同：
     两段的 **test 集不是同一批合约**（46 vs 49，且划分重划过）⇒ **严格说不可相减**。
@@ -849,7 +858,7 @@ def _cross_canon_note() -> tuple[list[str], list[str]]:
     rows = [("**本文方法**", LAYOUTS["canon37"]["runs_dir"], LAYOUTS["buggy"]["runs_dir"])]
     for label, arm, _n in BASELINES + SENSITIVITY:
         rows.append((label, rel_of(arm, "canon37"), rel_of(arm, "buggy")))
-    lines = ["| 方法 | 池 453（§37 正典） | 池 497（含 `buggy_*`） | Δ（方向） |",
+    lines = ["| 方法 | 池 453（对照口径） | 池 497（正典） | Δ（方向） |",
              "| --- | --- | --- | --- |"]
     gap_lines = []
     for label, r0, r1 in rows:
@@ -948,70 +957,73 @@ def _split_table(block: list[str]) -> tuple[list[str], list[str]]:
     return tbl, notes
 
 
-def canon_doc(runs_dir: str, with_buggy: bool = False) -> tuple[list[str], list[str], int, int]:
-    """**§37 正典段**（池 453）。
+def clean_doc() -> tuple[list[str], list[str], int]:
+    """**对照口径段（池 453，已剔除全部 `buggy_*`）** —— 追加在 §二 之后（§三，表 15–28）。
 
-    🔴 **「与引入 buggy 段之前逐字节相同」这一约束自 2026-09-24 起放宽为「除排版重排外」**：
-    用户当日裁定「解释性文字一律放表后、不打断阅读」，本次进一步下沉到**全文件末尾的单一「附」**
-    ⇒ 本段正文只剩 **抬头 + 指针行 + 一张表一句话的引导 + 全部表格**。
-    **表号（表 1–14）与每一条表行逐字节未变**（`grep '^|'` 排序后对拍相等），
-    声明块的**文字本身也逐字未改**，只是从「表与表之间」搬到文末「附-A / 附-B / 附-C」。
+    🔴 **2026-10-01 口径对调（用户裁定）**：本段原是居正文主体的「§37 正典」；用户当日裁定
+    池 453 降为对照口径 ⇒ 它现居文末、表号顺延为 15–28。**报告主体（表 1–14）= 正典
+    （池 497）**，由 `canon_doc()` 生成。
 
-    返回 `(正文, 「附」的正文, 末表号, 最佳种子)`——「附」由 `main()` 统一拼在两段之后
-    （两段各出一半，全文件只有一个 `## 附` 标题）。
+    🔴 正文只剩 **抬头 + 指针行 + 一张表一句话的引导 + 全部表格**：解释性文字一律下沉到
+    全文件末尾的单一「附」（用户 2026-09-24 裁定：表与表之间不留任何说明文字）；
+    本段的声明块收在文末「附-A / 附-B / 附-C」。
+
+    返回 `(正文, 「附」的正文, 末表号)`——「附」由 `main()` 与正典段的「附-D」拼在同一个
+    `## 附` 下。
     """
+    layout = "canon37"
+    runs_dir = LAYOUTS[layout]["runs_dir"]
     best = T.best_seed_from_runs(runs_dir, SEEDS)
     if best is None:
         raise SystemExit(f"🔴 {runs_dir} 下没有 results.json，无法选最佳种子")
-    method_label = "**本文方法**（§37 正典）"
+    method_label = "**本文方法**（对照口径）"
     rows_all, rows_best, supports, sl = _rows_for(
-        "canon37", runs_dir, method_label, best, slither_root("canon37"),
-        supports_key="本文方法与三基线共用（§37 正典 test）")
+        layout, runs_dir, method_label, best, slither_root(layout),
+        supports_key="本文方法与三基线共用（对照口径 test）")
 
     # ---- 正文：只留「抬头 + 指针行 + 一张表一句话的引导 + 表格」 --------------------------
     doc: list[str] = []
-    doc += ["# 5.3 对比表：本文方法 vs 三条论文基线（EGFL / MVD-HG / MANDO-LLM）",
-            "",
-            "> 程序生成（`scripts/collect_baseline_tables.py`）：**只搬运产物、只调 `metrics`**，"
-            "不手抄、不重实现指标。逐类格与汇总列一律经 "
-            "`collect_three_caliber_tables.render_table`。", "",
-            "> 🔴 **口径声明与逐行声明（引用本表前必读）在文末「附」（即原「§0」）**——"
-            "移到文末是为了**不打断表的阅读**（用户 2026-09-24 裁定）。声明按来源分四小节："
-            "**附-A** §37 正典段（原「§0」第 1–6 条）、**附-B** 为何必须并列合约级二分类、"
-            "**附-C** binary-F1 的定义与代价、**附-D** 含 `buggy_*` 新正典段（原「§0」第 1–7 条）。"
-            "读表顺序："
-            f"§1 support → §2 成本 → §3 合约级二分类 → §4 表 1/表 2 总览 → "
-            f"一、表 3–8（最佳种子 **seed{best}**）→ 二、表 9–14（3 种子 mean±std）→ "
-            "三、表 15–28（含 `buggy_*` 新正典）→ 附（全部声明）。", "",
-            *(["> 🔴🔴 **本文件有两段（两个正典）**：**§一–§二 = §37 正典（池 453）**；"
-               "**文件末尾的「三、」= 含 `buggy_*` 的新正典（池 497）**。"
-               "两段的 test 集**不是同一批合约**（46 vs 49）⇒ **跨段数字不可相减**；"
-               "两段的三条基线连**特征配对方式都不同**（见 附-D 第 4 条）。", ""]
-              if with_buggy else []),
+    doc += ["---", "", "---", "",
+            "# 三、对照口径：仅正常合约的池 453", "",
+            "> 🔴🔴 **本段与上面 §一–§二 不是同一个 test 集**（49 → **46**，且各自划分）"
+            "⇒ **跨段数字不可直接相减**，只能看**方向**。本段回答的是「把被剔除的注入噪声合约"
+            "移除、只用正常合约时，基线与本文方法的**差距形状**是否改变」。", "",
+            "> 🔴 **口径声明与逐行声明（引用本段前必读）在文末「附-A/B/C」**——移到文末是为了"
+            "**不打断表的阅读**。读表顺序：§1 support → §2 成本 → "
+            f"§3 合约级二分类 → §4 表 15/表 16 → 三之一、表 17–22（最佳种子 **seed{best}**）"
+            "→ 三之二、表 23–28（3 种子 mean±std）。", "",
             "---", "", "## 1. 逐类 support（先读）", ""]
     sup_tbl, sup_notes = _split_table(T.support_block(supports))
     thin_note = T._thin_support_note(supports)
     doc += sup_tbl
     doc += ["", "---", "", "## 2. 训练时间与规模（成本）", "",
             "**先看输入**——本表各行的图/特征来源与项目数量（逐种子，**从产物读、不手抄**）：", ""]
-    doc += _inputs_block()
-    doc += [""] + timing_block()
+    doc += _inputs_block(layout)
+    doc += [""] + timing_block(layout)
     timing_notes = [
         "> `训练 (s)` = 训练循环净耗时；`总 wall (s)` = 含验证推理与阈值搜索的整段耗时。",
         "> ⚠ **本文方法的表内成本只是 GNN 段**：它的输入要先经 CodeBERT 微调"
         "（`finetune_codebert.py`）与 M3 重编码，这两步是**一次性上游成本**、不计在上表内；"
         "三条基线则把特征工程放在离线步（同样不计在表内）。"]
     doc += ["", "---", "", "## 3. 🔴 合约级二分类口径（三条基线论文的原生口径）", ""]
-    bin_tbl, bin_notes = _split_table(binary_caliber_block(runs_dir))
+    bin_tbl, bin_notes = _split_table(
+        binary_caliber_block(runs_dir, layout=layout, method_label=method_label))
     doc += bin_tbl
     doc += ["", "---", "", "## 4. 逐类二分类 F1（binary-F1）与全口径总览", "",
             "> 本节两张表是**同一批产物**的不同算法（3 种子 mean±std）。"
             "**定义（附-C-2）与代价说明（附-C-3）在文末「附-C」**——不打断表的阅读。", ""]
-    pc_tbl, pc_notes = _split_table(per_class_binary_block(runs_dir, list(SEEDS)))
+    pc_tbl, pc_notes = _split_table(per_class_binary_block(
+        runs_dir, list(SEEDS), layout=layout, method_label=method_label,
+        table_title="## 表 15 —— 逐类 binary-F1 @逐类验证集阈值"
+                    "（3 种子 mean±std）",
+        xref="（见本段表 19 与表 25）"))
     doc += pc_tbl
     doc += ["", "同一批产物、不同算法（3 种子 mean±std）：", "",
-            "## 表 2 —— 方法 × 口径 汇总列总览（3 种子 mean±std）", ""]
-    ov_tbl, ov_notes = _split_table(overview_block(runs_dir, list(SEEDS)))
+            "## 表 16 —— 方法 × 口径 汇总列总览（3 种子 mean±std）", ""]
+    ov_tbl, ov_notes = _split_table(overview_block(
+        runs_dir, list(SEEDS), layout=layout, method_label=method_label,
+        xref_buggy_thr="（见本段表 21、表 27）",
+        xref_pcbin="（见本段表 19、表 25）"))
     doc += ov_tbl
     sec4 = ["", "#### 附-C-2 什么是 binary-F1", "",
             "**定义。** 把「这个合约有没有第 $c$ 类漏洞」当成一个**只有两个答案**的问题（有 / 没有）"
@@ -1023,7 +1035,7 @@ def canon_doc(runs_dir: str, with_buggy: bool = False) -> tuple[list[str], list[
             "$FN_c$ = 真值有、模型判没有的。末列的**平均** = 7 个 $F1_c$ 的**算术平均**"
             "（每类等权，不受类大小影响）。",
             "",
-            "**它与本文件表 3–14 的「逐类格」是不是一回事？** —— **公式完全相同**。"
+            "**它与本段表 17–28 的「逐类格」是不是一回事？** —— **公式完全相同**。"
             "多标签评测里的「第 $c$ 类 F1」**本身就是**该类的二分类 F1（同一个混淆矩阵）。"
             "🔴 **两者唯一的分歧在判决规则**：",
             "",
@@ -1061,7 +1073,7 @@ def canon_doc(runs_dir: str, with_buggy: bool = False) -> tuple[list[str], list[
             "根因是 **val 上 `dos`/`front_running`/`time_manipulation` 各只有 1 个正样本**，"
             "在 1 个正样本上「调 F1 最优阈值」在数学上近乎无约束（总能取到 F1=1）。",
             "",
-            "🔴 **所以引用表 1 时的强制声明（缺一不可）**：",
+            "🔴 **所以引用本段表 15 时的强制声明（缺一不可）**：",
             "① 它是**补充口径**，不进 5.3 主表；② 它建立在 **val 每类 1–3 个正样本**上，"
             "**过拟合已量化**（val→test 落差最大 0.16，`dos` 阈值三种子极差 0.55）；"
             "③ 它与三口径表的 @0.5 版**同源**，不得当成两套独立证据；"
@@ -1072,10 +1084,10 @@ def canon_doc(runs_dir: str, with_buggy: bool = False) -> tuple[list[str], list[
             "⇒ **排序里带着的信息量支持约 0.80 的 macro-F1，实际只兑现了 0.636**。"
             "这把主库的瓶颈定位得很干净：**不在模型的排序能力**（AP/ROC-AUC 已在 0.76–0.98），"
             "**而在「用一个全局阈值去卡七类概率尺度差异极大的输出」这件事本身**。", ""]
-    doc += ["", "---", "", f"# 一、主口径：最佳种子（seed{best}）", ""]
-    sub, n = _detail_tables(rows_best, 2)
+    doc += ["", "---", "", f"# 三之一、最佳种子（seed{best}）", ""]
+    sub, n = _detail_tables(rows_best, 16)
     doc += sub
-    doc += ["---", "", "# 二、附录：3 种子 mean±std", ""]
+    doc += ["---", "", "# 三之二、附录：3 种子 mean±std", ""]
     sub, n = _detail_tables(rows_all, n)
     doc += sub
 
@@ -1083,16 +1095,16 @@ def canon_doc(runs_dir: str, with_buggy: bool = False) -> tuple[list[str], list[
     # 🔴 解释性文字**一律下沉到全文件末尾的单一「附」**（用户 2026-09-24 裁定：表与表之间
     #    不留任何说明文字）。小节标题里保留「§0」字样是为了让全仓既有的「见本表 §0 第 N 条」
     #    引用继续可解析（Markdown 里的段号引用**不会被任何测试发现失效**）。
-    tail: list[str] = ["### 附-A §37 正典段口径声明（引用作「本表 §0 第 1–6 条」）", "",
-                       "> **表 3–8 = 最佳种子口径**（判据 = 本文方法正典在 micro-F1@val_thr 上最高 ⇒ "
+    tail: list[str] = ["### 附-A 对照口径段口径声明（引用作「本段 §0 第 1–6 条」）", "",
+                       "> **表 17–22 = 最佳种子口径**（判据 = 本文方法在 micro-F1@val_thr 上最高 ⇒ "
                        f"**seed{best}**；全部行共用同一个种子，否则同一批行不是同一批模型）；"
-                       "**表 9–14 = 3 种子 mean±std 附录**（ddof=1）。"
+                       "**表 23–28 = 3 种子 mean±std 附录**（ddof=1）。"
                        "⚠ 最佳种子口径下没有 ±，且本仓实测重跑抖动 ≈0.012 ⇒ "
                        "**不得**据单种子差下「某方法更强」的结论。",
                        "",
-                       "> **表 1–2 = 跨口径总览（先读这两张）**：表 1 = 逐类 **binary-F1**"
-                       "（三篇论文的原生判决规则），表 2 = 各口径的汇总列一览（选口径用）。"
-                       "两者**都是零重训**的离线重算，与表 3–14 **同一批产物**，只是换算法。", ""]
+                       "> **表 15–16 = 跨口径总览（先读这两张）**：表 15 = 逐类 **binary-F1**"
+                       "（三篇论文的原生判决规则），表 16 = 各口径的汇总列一览（选口径用）。"
+                       "两者**都是零重训**的离线重算，与表 17–28 **同一批产物**，只是换算法。", ""]
     tail += _canon_section0(runs_dir, sl)
     tail += ["**6）成本。** 训练时间与规模见 §2；**本文方法的上游成本**（CodeBERT 微调 + M3 重编码）"
              "见 附-A-2（§2 表下注）——两张表的口径都是「模型训练」，不含各自的特征工程步。"
@@ -1110,20 +1122,23 @@ def canon_doc(runs_dir: str, with_buggy: bool = False) -> tuple[list[str], list[
     tail += ["### 附-C binary-F1 的定义、代价与 §4 两张总览表的读法", "",
              "#### 附-C-1 表 1（逐类 binary-F1）的读法与对拍", ""] + pc_notes + [""]
     tail += sec4
-    tail += ["#### 附-C-4 表 2（全口径总览）的读法", ""] + ov_notes + [""]
-    return doc, tail, n, best
+    tail += ["#### 附-C-4 表 16（全口径总览）的读法", ""] + ov_notes + [""]
+    return doc, tail, n
 
 
 def _canon_section0(runs_dir: str, sl) -> list[str]:
-    """canon37 段的 §0 声明（原样保留；抽成函数只是为了两段各写各的，内容逐字未动）。"""
+    """**对照口径段（池 453）的 §0 声明** —— 2026-10-01 口径对调后本段居 §三（表 15–28）。
+
+    ⚠ 函数名仍叫 `_canon_section0`（为兼容既有引用与测试；它现在服务的是**对照段**）。
+    """
     doc: list[str] = []
-    doc += ["**1）正典与池。** 本表正典 = **§37 谱系现行正典（20 轮编码器档）**"
+    doc += ["**1）对照口径与池。** 本段为**对照口径** —— **池 453，已剔除全部 `buggy_*`**"
             "（`products/alldata/graphs_ft_p2/cb_ft_ss{S}` + "
             "`products/alldata/splits/split_seed{S}.json`，池 **453**、train/val/test = 362/45/46）。"
-            "该池**已剔除全部 `buggy_*` 合约**——这正是用户 2026-09-22 裁定的「去除 `buggy_*` 的数据集」"
+            "它是用户 2026-09-22 裁定的「去除 `buggy_*` 的数据集」"
             "（497 删 44 个 `buggy_*` 后与 453 **集合级恒等**）。"
-            "▶ 本表与 `experiments/per_class_three_caliber_tables.md` **同池同划分**，"
-            "与 `..._tables_buggy.md` **不是同一个 test 集**，两边数字**不可直接相减**。", "",
+            "▶ 本段与 `experiments/per_class_three_caliber_tables.md` **同池同划分**，"
+            "与 `..._tables_buggy.md`（正典段）**不是同一个 test 集**，两边数字**不可直接相减**。", "",
             "**2）三口径。** `micro` / `macro` 的**逐类格是全测试集**逐类 F1；`buggy` 的逐类格是"
             "**仅 `y.any(axis=1)` 的合约**上的逐类 F1。汇总列：`micro` = 标签对 micro-F1，"
             "`buggy` = 漏洞子集上的 micro-F1，`macro` = 那 7 个逐类 F1 的未加权平均。"
@@ -1132,7 +1147,7 @@ def _canon_section0(runs_dir: str, sl) -> list[str]:
             "（`epochs=200, lr=1e-4, weight_decay=1e-4, scheduler_patience=3, "
             "pos_weight_cap=20.0`），早停判据 = val micro-F1，阈值只在验证集搜"
             "（0.20–0.80 步长 0.05）。**与本文方法有两处已知口径差，逐条列出：**"
-            "① 🔴 **`early_stop_patience` 基线用 20、本文方法正典用 5**——正典的 5 是为 SSM-HG 调的，"
+            "① 🔴 **`early_stop_patience` 基线用 20、本文方法（池 453）用 5**——5 是为 SSM-HG 调的，"
             "实测套到 MVD-HG 上会在 **loss 仍在下降**（2.20→0.64）时于第 14 轮截断、**系统性压低基线**；"
             "② **batch 配置因显存/耗时而异，逐行列出**：**本文方法与 MANDO-LLM = 字面 `batch_size=32`**；"
             "**MVD-HG 与 EGFL = `batch_size=4 × accum_steps=8`**（等效 batch 仍是 32）。"
@@ -1145,11 +1160,11 @@ def _canon_section0(runs_dir: str, sl) -> list[str]:
             "这条差异是已知的、未消除的。"
             "**逐处有意偏离已写入各自的 `results.json::reconstruction_notes`。**", "",
             "**4）离线覆盖率（分母是否相同）。**", ""]
-    doc += coverage_block()
+    doc += coverage_block("canon37")
     doc += ["", TRAD_DASH_NOTE, ""]
     doc += ["",
             "> ⚠ **分母不可比的只有 Slither**（见下）：三条基线的 `test_probs.pt` 行数"
-            "**全部等于 46**（正典 test 的合约数），故与本文方法**逐格可比**。", "",
+            "**全部等于 46**（本段 test 的合约数），故与本文方法**逐格可比**。", "",
             "**5）🔴 三条基线的实现性质与口径损失不同，逐行声明（不得只写一个总注，"
             "不得声称复现了作者原结果）：**", ""]
     for label, _arm, note in BASELINES:
@@ -1169,22 +1184,26 @@ def _canon_section0(runs_dir: str, sl) -> list[str]:
     return doc
 
 
-def buggy_doc() -> tuple[list[str], list[str], int]:
-    """**含 `buggy_*` 的新正典段**（池 497）——追加在 §二 之后，表号顺延。
+def canon_doc(runs_dir: str, with_clean: bool = False) -> tuple[list[str], list[str], int, int]:
+    """**正典段（池 497，含全部 `buggy_*`）** —— 本文件主体（§一–§二，表 1–14）。
 
-    🔴 与 canon37 段的差别**逐条列出**，因为读者最容易在这里做错比较：
-     1. **池与 test 都换了**（497 / 49，划分重划）⇒ 跨段不可相减；
+    🔴 **2026-10-01 口径对调（用户裁定）**：本段原是附在文末的「含 `buggy_*` 的主库」；用户
+    当日裁定池 497 升为正典 ⇒ 它现居正文主体、表号 1–14。另一段为**对照口径（池 453，已剔除
+    `buggy_*`）**，由 `clean_doc()` 追加在 §二 之后（§三，表 15–28）。
+
+    🔴 与对照段的差别**逐条列出**，因为读者最容易在这里做错比较：
+     1. **池与 test 都不同**（497 / 49 vs 453 / 46，划分各自重划）⇒ **跨段不可相减**；
      2. **`buggy_*` 的标签是度量假象**（39/44 为 `1111111`）⇒ 必须并列 `clean_only` 列；
-     3. **特征约定与 canon37 段不同**：本段用与 `--split-seed` **配对**的 `cb_ft_ss{S}`
-        （与 `runs/buggy_canon/seed{S}` 同款），而 canon37 段的三条基线三种子**都用 `ss0`**
+     3. **特征约定与对照段不同**：本段用与 `--split-seed` **配对**的 `cb_ft_ss{S}`
+        （与 `runs/buggy_canon/seed{S}` 同款），而对照段的三条基线三种子**都用 `ss0`**
         （历史事实）。两段各自内部可比、**跨段不可比**。
 
-    返回 `(正文, 「附」的正文, 末表号)`——本段的声明块收在文末「附-D」（用户 2026-09-24 裁定：
-    表与表之间不留任何说明文字），由 `main()` 与 canon37 段的「附-A/B/C」拼在同一个 `## 附` 下。
+    返回 `(正文, 「附」的正文, 末表号, 最佳种子)`——本段的声明块收在文末「附-D」（用户
+    2026-09-24 裁定：表与表之间不留任何说明文字），由 `main()` 与对照段的「附-A/B/C」拼在
+    同一个 `## 附` 下。
     """
     layout = "buggy"
-    runs_dir = LAYOUTS[layout]["runs_dir"]
-    method_label = "**本文方法**（含 `buggy_*` 新正典）"
+    method_label = "**本文方法**（正典）"
     # 🔴 最佳种子必须有 3/3 的 results.json：`T.best_seed_from_runs` 在缺文件时**静默回退 seeds[0]**
     #    （它永不返回 None），于是「某个种子没跑完」会被读成「最佳种子就是 seed0」。
     missing = [s for s in SEEDS if not (REPO / runs_dir / f"seed{s}" / "results.json").exists()]
@@ -1192,33 +1211,41 @@ def buggy_doc() -> tuple[list[str], list[str], int]:
         raise SystemExit(f"🔴 {runs_dir} 缺 seed{missing} 的 results.json——"
                          f"先跑完三种子再出表（否则最佳种子会静默取 seed0）")
     # 🔴 **缺任何一个基线就硬失败，不静默出少几行的表**：`_rows_for` 对缺产物是
-    # `continue`（canon37 段沿用该行为，因为"某基线还没跑"在那里是合法的中间态），
-    # 但 `--with-buggy` 是**显式**要求出这一段的，缺行会让「497 池上没有这条基线」
-    # 与「它还没跑完」看起来一模一样。
+    # `continue`（对照段沿用该行为，因为"某基线还没跑"在那里是合法的中间态），
+    # 但**正典段是报告主体**，缺行会让「497 池上没有这条基线」与「它还没跑完」看起来一模一样。
     absent = [f"{arm}{LAYOUTS[layout]['suffix']}"
               for arm in [a for _l, a, _n in BASELINES + SENSITIVITY]
               if not (REPO / rel_of(arm, layout)).exists()]
     if absent or slither_row(root_rel=slither_root(layout)) is None:
-        raise SystemExit(f"🔴 --with-buggy 需要的产物尚未齐（缺 {absent or []}"
+        raise SystemExit(f"🔴 正典段需要的产物尚未齐（缺 {absent or []}"
                          f"{'；slither_buggy 也缺' if slither_row(root_rel=slither_root(layout)) is None else ''}）"
                          f"——先跑 `python scripts/run_baselines.py --layout buggy` 与 "
                          f"`scripts/baseline_static_tools.py --tag buggy`")
     best = T.best_seed_from_runs(runs_dir, SEEDS)
     rows_all, rows_best, supports, sl = _rows_for(
         layout, runs_dir, method_label, best, slither_root(layout),
-        supports_key="本文方法与三基线共用（含 `buggy_*` 新正典 test）")
+        supports_key="本文方法与三基线共用（正典 test）")
 
     # ---- 正文：只留「抬头 + 指针行 + 一张表一句话的引导 + 表格」 --------------------------
     doc: list[str] = []
-    doc += ["---", "", "---", "",
-            "# 三、含 `buggy_*` 的主库（池 497 · 新正典）", "",
-            "> 🔴🔴 **本段与上面 §一–§二 不是同一个 test 集**（46 → **49**，且 8:1:1 重划过）"
-            "⇒ **跨段数字不可直接相减**，只能看**方向**。本段回答的是「把被剔除的注入噪声合约"
-            "补回池里之后，基线与本文方法的**差距形状**是否改变」。", "",
-            "> 🔴 **口径声明与逐行声明（引用本段前必读）在文末「附-D」**——移到文末是为了"
-            "**不打断表的阅读**。读表顺序：§1 support → §2 成本 → §2b 两段方向对照 → "
-            f"§3 合约级二分类 → §4 表 15/表 16 → 三之一、表 17–22（最佳种子 **seed{best}**）"
-            "→ 三之二、表 23–28（3 种子 mean±std）。", "",
+    doc += ["# 5.3 对比表：本文方法 vs 三条论文基线（EGFL / MVD-HG / MANDO-LLM）",
+            "",
+            "> 程序生成（`scripts/collect_baseline_tables.py`）：**只搬运产物、只调 `metrics`**，"
+            "不手抄、不重实现指标。逐类格与汇总列一律经 "
+            "`collect_three_caliber_tables.render_table`。", "",
+            "> 🔴 **口径声明与逐行声明（引用本表前必读）在文末「附」（即原「§0」）**——"
+            "移到文末是为了**不打断表的阅读**（用户 2026-09-24 裁定）。声明按来源分四小节："
+            "**附-A** 对照口径段（池 453，原「§0」第 1–6 条）、**附-B** 为何必须并列合约级二分类、"
+            "**附-C** binary-F1 的定义与代价、**附-D** 正典段（池 497，原「§0」第 1–7 条）。"
+            "读表顺序："
+            f"§1 support → §2 成本 → §3 合约级二分类 → §4 表 1/表 2 总览 → "
+            f"一、表 3–8（最佳种子 **seed{best}**）→ 二、表 9–14（3 种子 mean±std）→ "
+            "三、表 15–28（对照口径：仅正常合约的池 453）→ 附（全部声明）。", "",
+            *(["> 🔴🔴 **本文件有两段（两个口径）**：**§一–§二 = 正典（池 497，含全部 `buggy_*`）**；"
+               "**文件末尾的「三、」= 对照口径（池 453，仅正常合约）**。"
+               "两段的 test 集**不是同一批合约**（49 vs 46）⇒ **跨段数字不可相减**；"
+               "两段的三条基线连**特征配对方式都不同**（见 附-D 第 4 条）。", ""]
+              if with_clean else []),
             "---", "", "## 1. 逐类 support（先读）", ""]
     sup_tbl, sup_notes = _split_table(T.support_block(supports))
     thin_note = T._thin_support_note(supports)
@@ -1237,8 +1264,8 @@ def buggy_doc() -> tuple[list[str], list[str], int]:
     doc += _inputs_block(layout)
     doc += [""] + timing_block(layout)
     timing_note = ("> `训练 (s)` = 训练循环净耗时；`总 wall (s)` = 含验证推理与阈值搜索的整段耗时。"
-                   "⚠ 基线三臂为 `--early-stop-patience 20`（与 canon37 段同款，见 §0 第 3 条）；"
-                   "本文方法该正典为 `patience 5`。"
+                   "⚠ 基线三臂为 `--early-stop-patience 20`（与对照段同款，见 §0 第 3 条）；"
+                   "本文方法（正典）为 `patience 5`。"
                    "**本文方法的表内成本只是 GNN 段**：上游的 CodeBERT 微调与 M3 重编码不计在内。")
     cross_body, cross_notes = _cross_canon_note()
     doc += cross_body
@@ -1248,40 +1275,40 @@ def buggy_doc() -> tuple[list[str], list[str], int]:
     doc += bin_tbl
     doc += ["", "---", "", "## 4. 逐类二分类 F1（binary-F1）与全口径总览", "",
             "> 本段两张表同源（同一批产物、3 种子 mean±std）。"
-            "**定义与恒等式与 canon37 段 附-C-2 逐字相同**（`decisions.md` §13/§49），"
+            "**定义与恒等式与对照段 附-C-2 逐字相同**（`decisions.md` §13/§49），"
             "本段**不重复**那段推导，只给本段的读数。", ""]
     pc_tbl, pc_notes = _split_table(per_class_binary_block(
         runs_dir, list(SEEDS), layout=layout,
         method_label=method_label,
-        table_title="## 表 15 —— 逐类 binary-F1 @逐类验证集阈值"
+        table_title="## 表 1 —— 逐类 binary-F1 @逐类验证集阈值"
                     "（3 种子 mean±std）",
-        xref="（见本段表 19 与表 25）"))
+        xref="（见 §一 的表 5、§二 的表 11）"))
     doc += pc_tbl
     overfit_note = (
-        "> 🔴 **本段该口径的过拟合比 canon37 段更重**：`clean_only` 侧 val/test 的逐类正样本"
+        "> 🔴 **本段该口径的过拟合比对照段更重**：`clean_only` 侧 val/test 的逐类正样本"
         "低到 **0–6**，在 0 个正样本上调阈值在数学上无约束。"
-        "故本段表 15 **只作描述性呈现**，**不得**据此下「某方法在此口径更强」的结论。")
+        "故本段表 1 **只作描述性呈现**，**不得**据此下「某方法在此口径更强」的结论。")
     doc += ["", "同一批产物、不同算法（3 种子 mean±std）：", "",
-            "## 表 16 —— 方法 × 口径 汇总列总览（3 种子 mean±std）", ""]
+            "## 表 2 —— 方法 × 口径 汇总列总览（3 种子 mean±std）", ""]
     ov_tbl, ov_notes = _split_table(overview_block(
         runs_dir, list(SEEDS), layout=layout, method_label=method_label,
-        xref_buggy_thr="（见本段表 21、表 27）",
-        xref_pcbin="（见本段表 19、表 25）"))
+        xref_buggy_thr="（见 §一 的表 7、§二 的表 13）",
+        xref_pcbin="（见 §一 的表 5、§二 的表 11）"))
     doc += ov_tbl
-    # 🔴 标题**必须带段号**：本段与 canon37 段各自有一组「主口径 / 附录」，
-    #    若都写 `# 一、`/`# 二、`，同一个文件里就有两套同名标题（本段初版即如此）。
-    doc += ["", "---", "", f"# 三之一、主口径：最佳种子（seed{best}）", ""]
-    sub, n = _detail_tables(rows_best, 16)
+    # 🔴 标题**必须带段号**：本段（正典）与文末对照段各自有一组「主口径 / 附录」，
+    #    若都写 `# 一、`/`# 二、`，同一个文件里就有两套同名标题。
+    doc += ["", "---", "", f"# 一、主口径：最佳种子（seed{best}）", ""]
+    sub, n = _detail_tables(rows_best, 2)
     doc += sub
-    doc += ["---", "", "# 三之二、附录：3 种子 mean±std", ""]
+    doc += ["---", "", "# 二、附录：3 种子 mean±std", ""]
     sub, n = _detail_tables(rows_all, n)
     doc += sub
     # ---- 文末「附」（本段部分 = 附-D）----------------------------------------------------
-    tail: list[str] = ["### 附-D 含 `buggy_*` 新正典段口径声明（引用作「本段 §0 第 1–7 条」）", ""]
+    tail: list[str] = ["### 附-D 正典段口径声明（引用作「本段 §0 第 1–7 条」）", ""]
     tail += ["**1）正典与池。** `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}` + "
              "`products/alldata/splits/withbuggy_snapshot/split_seed{S}.json`，池 **497**、"
-             "train/val/test = **398/50/49**；本文方法 = `runs/buggy_canon`（任务 2，"
-             "`decisions.md` §43–§46）。", "",
+             "train/val/test = **398/50/49**；本文方法 = `runs/buggy_canon`"
+             "（池 497 正典口径，原「任务 2」；`decisions.md` §43–§46、§58）。", "",
              "**2）🔴 `buggy_*` 标签是度量假象，故本段必须并列 `clean_only` 诊断列。**"
              "那 44 个补回的合约里 **39 个标签为 `1111111`、5 个为 `0100011`**"
              "（上游按「每类各放一份」复制，`decisions.md` §18.4/§46.2）——"
@@ -1295,7 +1322,7 @@ def buggy_doc() -> tuple[list[str], list[str], int]:
              "**基线侧另有一处不同（特征配对方式），见下条第 4 条**。", "",
              "**4）🔴 特征约定（跨段不可比的一条，必须单独声明）：**"
              "本段三条基线用的是**与 `--split-seed` 配对的** `cb_ft_ss{S}`。"
-             "⚠ 2026-09-25 换代前，上面 canon37 段三条基线**三个种子用的都是 `graphs_ft/ss0`**"
+             "⚠ 2026-09-25 换代前，上面 §三（对照段）三条基线**三个种子用的都是 `graphs_ft/ss0`**"
              "（历史事实）；本次换代把两段统一为**配对**写法，该不对称已消除。"
              "配对本仓是硬要求（`AGENTS.md` 语义锁死项）："
              "**`_cb.pt` 的 CodeBERT 节点行逐张量随 `ss` 变**，"
@@ -1309,7 +1336,7 @@ def buggy_doc() -> tuple[list[str], list[str], int]:
              "**MVD-HG 在 seed1 上少 1 个**（该合约在任何已装 solc 下都编不出 compact AST）"
              "⇒ **该行分母是 48，与其余行逐格不可解读**，读表时必须带着这条。", "",
              "**6）实现性质与口径损失**：三条基线的实现性质**与本段无关**（与池无关），"
-             "逐行声明见上面 §0 第 5 条，**同样适用**，**不得**声称复现了作者原结果。", "",
+             "逐行声明见对照段 附-A §0 第 5 条，**同样适用**，**不得**声称复现了作者原结果。", "",
              "**7）成本。** 训练时间与规模见 §2（已含本文方法）；"
              "本文方法该正典的上游成本（CodeBERT 微调 + M3 重编码）与更细的吞吐数字见 "
              "`experiments/buggy_canon_summary.md` §1。", "",
@@ -1322,25 +1349,26 @@ def buggy_doc() -> tuple[list[str], list[str], int]:
              "而大纲 [411] 要求 5.3 **统一按七维多标签**评测。本块用**同一批产物**坍缩出二分类读数"
              "（坍缩规则 `max_c p_c >= t ⇔ any_c(p_c >= t)`，`decisions.md` §31 已机检），"
              "**不是**另训一个模型。"
-             "🔴 **本段的平凡下限与 canon37 段不同**（`buggy_*` 的全 1 标签把「本来就有漏洞」的比例"
+             "🔴 **本段的平凡下限与对照段不同**（`buggy_*` 的全 1 标签把「本来就有漏洞」的比例"
              "从 45.7% 抬到约 51%），故**逐种子可变**——表尾的读法句已按本段数据现算。", ""]
     tail += ["#### 附-D-4 本段 §4 两张总览表的读法", ""] + pc_notes + [overfit_note, ""] + ov_notes + [""]
-    return doc, tail, n
+    return doc, tail, n, best
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="5.3 基线三口径对比表")
-    ap.add_argument("--runs-dir", default="runs", help="本文方法的正典 run 目录。")
+    ap.add_argument("--runs-dir", default="runs/buggy_canon",
+                    help="本文方法**正典**（池 497）的 run 目录。")
     ap.add_argument("--out", default="", help="写入的 markdown 路径；留空只打印。")
-    ap.add_argument("--with-buggy", action="store_true",
-                    help="在 §二 之后追加「三、含 `buggy_*` 的主库（池 497）」整段"
-                         "（本文方法 = `runs/buggy_canon`，基线 = `eval_results/baseline/*_buggy`）。"
-                         "缺产物即硬失败，不静默出 `—` 行。")
+    ap.add_argument("--with-clean", "--with-buggy", dest="with_clean", action="store_true",
+                    help="在 §二 之后追加「三、对照口径：仅正常合约的池 453」整段"
+                         "（本文方法 = `runs`，基线 = `eval_results/baseline/*`，**无后缀**）。"
+                         "缺产物即硬失败，不静默出 `—` 行。（`--with-buggy` 是旧名隐藏别名。）")
     args = ap.parse_args()
 
-    doc, tail, n, best = canon_doc(args.runs_dir, with_buggy=args.with_buggy)
-    if args.with_buggy:
-        sub, sub_tail, n = buggy_doc()
+    doc, tail, n, best = canon_doc(args.runs_dir, with_clean=args.with_clean)
+    if args.with_clean:
+        sub, sub_tail, n = clean_doc()
         doc += sub
         tail += sub_tail
     # 🔴 **全文件只有这一个「附」**（用户 2026-09-24 裁定）：两段各自的声明块都收在这里。
@@ -1352,9 +1380,9 @@ def main() -> None:
         p = REPO / args.out
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(text, encoding="utf-8")
-        k = "两段" if args.with_buggy else "一段"
+        k = "两段" if args.with_clean else "一段"
         print(f"[collect] 已写 {p}（{len(text)} 字符，{k}共 {n} 张明细表 + 两段的表 1/2/15/16 总览；"
-              f"canon37 最佳种子 seed{best}）")
+              f"正典最佳种子 seed{best}）")
     else:
         print(text)
 

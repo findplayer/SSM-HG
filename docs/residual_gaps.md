@@ -125,7 +125,7 @@
 | 补登记实现（①alias ②modifier ③legacy_ctor）与双重隔离 | `scripts/build_cfg_centered_hetero_graph.py`（`fn_meta_table`、`build_callback_risk_edges` 调用点） |
 | 两种 AST 风格归一化 | 同文件的 `normalize_ast()` / `load_ast()`；单测 `tests/test_ast_normalize.py`（4 用例） |
 | 等价性证据 | 全量 `--force` 重建 vs `--cb-patch`：581 图 `combined_sha256`/`cb_func`/`cb_node` 逐位相等（第一轮，仍适用） |
-| 库级结构统计（自动刷新） | `python scripts/audit_data_funnel.py` → `docs/data_funnel.md` §4 + `products/alldata/splits/data_funnel.json` |
+| 库级结构统计（自动刷新） | `python scripts/audit_data_funnel.py` → `docs/data_funnel.md` §4 + `products/alldata/splits/data_funnel.json`（⚠ **`data_funnel.json` 已于 2026-10-02 随池 453 删除**；`docs/data_funnel.md` 仍在，为可读的机器生成版） |
 | R5 只读探针（已实施，留档） | `/tmp/probe_classB.py`（新式 AST 归一化后的 3 图结构规模，未写任何产物） |
 
 

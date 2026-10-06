@@ -46,9 +46,13 @@ NAMES = ["access_control", "arithmetic", "dos", "front_running",
 # 语料 → 配置。`arm` 是 `error_rates.json::arms` 里的键名（① 叫 `seed`、② 叫 `augmentation`）。
 CORPORA = [
     {
-        "title": "① 主库 alldata(readonly)",
+        # 🔴 2026-10-01 口径对调：本语料的 run 目录 `runs/` 是**池 453**，故其角色由
+        #    「① 主库（正典）」降为**对照口径**；路径字段一律未改（`runs`、`graphs_ft_p2/…`）。
+        #    ⚠ `canon_tree` / `encoders` 两处写的是**编码器档位轴**（20 轮 / 5 轮），该轴上
+        #    20 轮**仍是现行正典**（与池无关），故保留 —— 只把「现行正典」点明为「编码器档」。
+        "title": "① 对照口径（池 453）alldata(readonly)",
         "runs": "runs", "arm": "seed", "enc_corpus": "alldata",
-        "canon_tree": "products/alldata/graphs_ft_p2/cb_ft_ss{S}（20 轮档，2026-09-25 换代后现行正典）",
+        "canon_tree": "products/alldata/graphs_ft_p2/cb_ft_ss{S}（20 轮档，2026-09-25 换代后的现行**编码器档**）",
         "encoders": [("runs/codebert_ft_p2", "**新正典（20 轮）**"),
                      ("runs/codebert_ft/alldata", "消融档（5 轮，§37 旧正典）")],
     },
@@ -240,7 +244,7 @@ def main() -> int:
     doc: list[str] = [
         "",
         "> 🔴 **本文件由 `scripts/collect_canonical_numbers.py` 程序生成，不要手改。**",
-        "> 生成时间点的正典即表内数字的口径；**换代后必须重跑本脚本**（这是它过去漂移的根因：",
+        "> 生成时间点的**口径归属**即表内数字的口径；**换代后必须重跑本脚本**（这是它过去漂移的根因：",
         "> 该文件曾被标为「程序生成」却实为手写，2026-09-25 编码器换代后继续发出整代旧数字）。",
         "> ⚠ `buggy_sub_*` 的名字是历史遗留：它是**「有漏洞合约」子集**上的 micro-F1，",
         "> 与 `buggy_*` 合约无关（① 的池里没有它们）。",

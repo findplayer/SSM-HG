@@ -24,6 +24,16 @@ sys.path.insert(0, str(_REPO / "scripts"))
 import audit_cb_func_gap as gap  # noqa: E402
 import audit_data_funnel as funnel  # noqa: E402
 
+# 🔴 2026-10-02：池 453 的数据（含 `products/alldata/splits/` **根**下的划分）已随磁盘清理
+#    整体删除（清单见 `runs/_del453_manifest_20261002.txt`），现行正典改为池 497。
+#    本文件有两个测试**以 453 为被锁对象**——它们钉的是该口径特有的漏斗/池不变量，
+#    **没有 497 对应物**，故显式跳过：改指 497 会把这些不变量悄悄换成另一条，
+#    绿了但锁的不是原来那件事（`audit_data_funnel.py` 本身也仍是 453 漏斗的实现）。
+_CANON453_SPLIT = _REPO / "products/alldata/splits/split_seed0.json"
+_skip_no_453 = pytest.mark.skipif(
+    not _CANON453_SPLIT.exists(),
+    reason="池 453 的划分为 2026-10-02 磁盘清理所删；本测试锁 453 漏斗/池不变量，待审计脚本改指 497 后恢复")
+
 
 # ------------------------------------------------------------ 边类型键（防“全 0 表”）
 def _write_hetero(tmp: Path, name: str, edges: dict, nodes: int = 1,
@@ -202,8 +212,12 @@ def _subprocess_env() -> dict:
     return {**os.environ, "MKL_THREADING_LAYER": "GNU"}
 
 
+@_skip_no_453
 def test_audit_data_funnel_print_only_runs():
-    """--print 端到端跑通（含全部断言：漏斗不变量、池规模、targets 列宽、边类型键）。"""
+    """--print 端到端跑通（含全部断言：漏斗不变量、池规模、targets 列宽、边类型键）。
+
+    ⚠ 读 `splits/split_seed{S}.json`（453 漏斗）⇒ 随 453 删除而跳过，见文件头说明。
+    """
     import subprocess
     r = subprocess.run([sys.executable, str(_REPO / "scripts/audit_data_funnel.py"), "--print"],
                        cwd=_REPO, capture_output=True, text=True, env=_subprocess_env())
@@ -211,6 +225,7 @@ def test_audit_data_funnel_print_only_runs():
     assert "两级去重" in r.stdout
 
 
+@_skip_no_453
 def test_class_folder_records_are_not_positive_counts():
     """上游 `<类>_contract/sol_source/` 的目录数是**源码池记录数**，不是该类正例数。
 
@@ -285,20 +300,25 @@ def test_audit_cb_func_gap_print_only_runs():
 
 # ------------------------------------------------------------ 推理缓存必须与划分一致
 def test_cached_test_probs_match_current_split():
-    """`runs/seed*/test_probs.pt` 的 sample_ids 必须等于当前划分的 test 列表。
+    """正典 run 的 `test_probs.pt` 的 sample_ids 必须等于当前划分的 test 列表。
 
     2026-09-14 实际踩过：缓存只按“文件存在”复用，重训/重划后静默沿用旧划分的推理结果，
     `diagnosis.json` 的逐类 support 与诊断结论随之错位（access_control test_pos 报 2、实为 3）。
     `evaluate.py` 早有 sample_ids 校验，`diagnose.py` 已补齐同样校验；本测试防止回归。
+
+    🔴 2026-10-02 改指正典（池 497）：原对象是 `runs/seed{S}` + `splits/split_seed{S}.json`，
+    两者均为池 453 且已随磁盘清理删除；现行正典是 `runs/buggy_canon/seed{S}` +
+    `splits/withbuggy_snapshot/split_seed{S}.json`。被锁的性质（缓存与划分同源）与口径无关。
     """
     import json
 
     import torch
 
     runs = _REPO / "runs"
-    splits = _REPO / "products/alldata/splits"
+    canon_runs = runs / "buggy_canon"
+    splits = _REPO / "products/alldata/splits/withbuggy_snapshot"
     checked = 0
-    for seed_dir in sorted(runs.glob("seed[0-9]")):
+    for seed_dir in sorted(canon_runs.glob("seed[0-9]")):
         cache = seed_dir / "test_probs.pt"
         split_file = splits / f"split_seed{seed_dir.name[4:]}.json"
         if not cache.exists() or not split_file.exists():
@@ -312,35 +332,36 @@ def test_cached_test_probs_match_current_split():
 
 # ------------------------------------------------------------ 对照臂隔离（--include-buggy）
 def test_include_buggy_isolates_output_and_keeps_canon(tmp_path):
-    """`--include-buggy` 只能写 <out-dir>/withbuggy_snapshot/，绝不触碰正典划分。
+    """`--include-buggy` 只能写 <out-dir>/withbuggy_snapshot/，绝不触碰 out-dir 根的划分。
 
-    含 buggy_* 的臂是**对照**：buggy_* 为七类全 1 的注入标签，其 macro-F1/mAP 会被
-    支撑虚高（度量假象），绝不能让它的产物覆盖正典，也不能让正典数字被它污染。
+    含 buggy_* 的臂**曾是对照**（buggy_* 为七类全 1 的注入标签，其 macro-F1/mAP 会被支撑虚高）；
+    2026-10-01 起池 497（含 buggy_*）升为正典，但"`--include-buggy` 必须隔离输出"这条
+    **产物层性质不变**——否则重跑会就地覆盖正典划分产物。
+
+    🔴 2026-10-02：池 453 的仓内划分（`splits/` 根）已随磁盘清理删除 ⇒ 本测试不再以
+    仓内产物为参照，改为**在同一临时目录下各生成一次**（不带 / 带 `--include-buggy`）再比对。
+    被锁的两条性质（隔离、池变大）与仓内是否留着 453 无关。
     """
-    import hashlib
     import json
     import subprocess
 
-    splits = _REPO / "products/alldata/splits"
-    canon_before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in sorted(splits.glob("*.json"))}
-    assert canon_before, "正典划分不存在，先跑 make_splits.py"
+    plain, arm_out = tmp_path / "plain", tmp_path / "arm"
+    for out in (plain, arm_out):
+        out.mkdir()
 
-    r = subprocess.run([sys.executable, str(_REPO / "scripts/make_splits.py"),
-                        "--include-buggy", "--seeds", "0", "--out-dir", str(tmp_path)],
-                       cwd=_REPO, capture_output=True, text=True, env=_subprocess_env())
-    assert r.returncode == 0, r.stderr[-2000:]
+    for extra, out in (([], plain), (["--include-buggy"], arm_out)):
+        r = subprocess.run([sys.executable, str(_REPO / "scripts/make_splits.py"),
+                            *extra, "--seeds", "0", "--out-dir", str(out)],
+                           cwd=_REPO, capture_output=True, text=True, env=_subprocess_env())
+        assert r.returncode == 0, r.stderr[-2000:]
 
-    arm = tmp_path / "withbuggy_snapshot"
+    arm = arm_out / "withbuggy_snapshot"
     assert (arm / "split_report.json").exists(), "对照臂未隔离到 withbuggy_snapshot/"
     arm_report = json.loads((arm / "split_report.json").read_text(encoding="utf-8"))
     assert arm_report["include_buggy"] is True
     assert arm_report["buggy_excluded_graphs"] == 0
+    assert not (arm_out / "split_seed0.json").exists(), "对照臂污染了 out-dir 根"
 
-    canon_report = json.loads((splits / "split_report.json").read_text(encoding="utf-8"))
+    canon_report = json.loads((plain / "split_report.json").read_text(encoding="utf-8"))
     assert canon_report.get("include_buggy", False) is False
     assert arm_report["dedup"]["pool_after_dedup"] > canon_report["dedup"]["pool_after_dedup"]
-
-    canon_after = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
-                   for p in sorted(splits.glob("*.json"))}
-    assert canon_after == canon_before, "对照臂改动了正典划分产物"

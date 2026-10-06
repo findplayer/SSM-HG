@@ -6,7 +6,7 @@
 就得逐格重抄，抄错无处可查。本脚本让该声明成立：表 = 产物，可随时重生成、可逐位对照。
 
 **臂的识别规则**（`results.json` 的路径 → 臂名）：
-  `runs/seed{0,1,2}/results.json`              → `main`（正典① 主库）
+  `runs/seed{0,1,2}/results.json`              → `main`（① 对照口径，池 453）
   `runs/<臂>/seed{0,1,2}/results.json`         → `<臂>`（正典② / 干预臂 / 例外臂）
   `runs/<组>/<配置>/seed{0,1,2}/results.json`  → `<组>/<配置>`（研究臂，同配对设计）
 

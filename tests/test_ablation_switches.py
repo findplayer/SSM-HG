@@ -202,7 +202,9 @@ def test_hidden_dim_flag_is_wired():
 
 
 # ============================================================ 关闭 L_var（零新计算）
-@pytest.mark.parametrize("run_dir", ["runs/seed0", "runs/neardup/seed0", "runs/augmentation/seed0"])
+# 🔴 2026-10-02 改指正典：`runs/seed0` → `runs/buggy_canon/seed0`（池 497）；
+#    `runs/neardup/seed0` 已随 453 数据删除，故从参数表移除。
+@pytest.mark.parametrize("run_dir", ["runs/buggy_canon/seed0", "runs/augmentation/seed0"])
 def test_lambda_var_composition_matches_logged_losses(run_dir):
     """由既有 runs 日志验证 loss 复合式：`loss_total = loss_cls + λ·loss_var`。
 

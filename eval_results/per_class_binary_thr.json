@@ -1,16 +1,16 @@
 {
- "note": "逐类 binary-F1 @逐类验证集阈值；正典 + 21 个消融臂 × 两条谱系。阈值由 calibrate.per_class_thresholds 只在 val 上选；指标由 metrics.per_class_prf/micro_f1/macro_f1 计算（本脚本不重实现）。两池 test 集不同，不得相减。",
+ "note": "逐类 binary-F1 @逐类验证集阈值；正典（池 497）+ 21 个消融臂 × 两条谱系（正典 池 497 / 对照口径 池 453）。阈值由 calibrate.per_class_thresholds 只在 val 上选；指标由 metrics.per_class_prf/micro_f1/macro_f1 计算（本脚本不重实现）。两池 test 集不同，不得相减。",
  "workpoint": "per_class_val_threshold",
  "pools": {
-  "canon37": {
-   "canon_run": "runs/seed{seed}",
-   "arm_run": "runs/ablation/{arm}/seed{seed}",
-   "calib_ref": "eval_results/calibration/summary.json"
-  },
   "buggy": {
    "canon_run": "runs/buggy_canon/seed{seed}",
    "arm_run": "runs/ablation_buggy/{arm}/seed{seed}",
    "calib_ref": null
+  },
+  "canon37": {
+   "canon_run": "runs/seed{seed}",
+   "arm_run": "runs/ablation/{arm}/seed{seed}",
+   "calib_ref": "eval_results/calibration/summary.json"
   }
  },
  "classes": [
@@ -23,3066 +23,6 @@
   "uncheck"
  ],
  "rows": {
-  "canon37": [
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.433333,
-      "std": 0.057735,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.842593,
-      "std": 0.137025,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.777536,
-     "std": 0.025383,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.739322,
-     "std": 0.055966,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7999999999999999,
-     0.75,
-     0.782608695652174
-    ],
-    "macro_per_seed": [
-     0.6774891774891775,
-     0.753968253968254,
-     0.7865079365079366
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.5833,
-      "per_seed": [
-       0.4,
-       0.8,
-       0.55
-      ],
-      "range": 0.4
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5,
-      "per_seed": [
-       0.8,
-       0.25,
-       0.45
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "canon",
-    "layer": "—",
-    "arm_disp": "**正典**",
-    "var": "**微调 CodeBERT + 全部组件**"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.133333,
-      "std": 0.23094,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.688889,
-      "std": 0.300617,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.558974,
-      "std": 0.084732,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.518792,
-      "std": 0.061217,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.382091,
-     "std": 0.077045,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.271427,
-     "std": 0.037994,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.3,
-     0.4528301886792453,
-     0.3934426229508196
-    ],
-    "macro_per_seed": [
-     0.23736263736263735,
-     0.3124018838304553,
-     0.2645161290322581
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.5833,
-      "per_seed": [
-       0.55,
-       0.5,
-       0.7
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.55,
-      "per_seed": [
-       0.55,
-       0.4,
-       0.7
-      ],
-      "range": 0.3
-     },
-     "dos": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.2,
-       0.35,
-       0.45
-      ],
-      "range": 0.25
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.7333,
-      "per_seed": [
-       0.75,
-       0.65,
-       0.8
-      ],
-      "range": 0.15
-     },
-     "time_manipulation": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "uncheck": {
-      "mean": 0.5667,
-      "per_seed": [
-       0.6,
-       0.6,
-       0.5
-      ],
-      "range": 0.1
-     }
-    },
-    "arm": "cb_frozen",
-    "layer": "**编码器层**<br>（输入表征来源）",
-    "arm_disp": "`cb_frozen`",
-    "var": "CodeBERT **冻结**（正典为微调）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.6,
-      "std": 0.24037,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.488889,
-      "std": 0.15396,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.896296,
-      "std": 0.100206,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.6,
-      "std": 0.52915,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.862037,
-      "std": 0.078584,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.804432,
-     "std": 0.047466,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.762302,
-     "std": 0.046729,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.8260869565217391,
-     0.75,
-     0.8372093023255814
-    ],
-    "macro_per_seed": [
-     0.8107142857142857,
-     0.7587301587301587,
-     0.7174603174603176
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.2833,
-      "per_seed": [
-       0.3,
-       0.2,
-       0.35
-      ],
-      "range": 0.15
-     },
-     "arithmetic": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.25,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "dos": {
-      "mean": 0.25,
-      "per_seed": [
-       0.2,
-       0.25,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "front_running": {
-      "mean": 0.25,
-      "per_seed": [
-       0.35,
-       0.2,
-       0.2
-      ],
-      "range": 0.15
-     },
-     "reentrancy": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "time_manipulation": {
-      "mean": 0.3,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.5
-      ],
-      "range": 0.3
-     },
-     "uncheck": {
-      "mean": 0.45,
-      "per_seed": [
-       0.2,
-       0.45,
-       0.7
-      ],
-      "range": 0.5
-     }
-    },
-    "arm": "ast_parent",
-    "layer": "**结构层**<br>（图边集）",
-    "arm_disp": "`ast_parent`",
-    "var": "去 AST_PARENT（关系 1+2，`--drop-ast`）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.666667,
-      "std": 0.288675,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.416667,
-      "std": 0.520416,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.840741,
-      "std": 0.044905,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.433333,
-      "std": 0.404145,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.84488,
-      "std": 0.079945,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.741068,
-     "std": 0.064492,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.676517,
-     "std": 0.096399,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7346938775510204,
-     0.68,
-     0.8085106382978723
-    ],
-    "macro_per_seed": [
-     0.6285714285714287,
-     0.6134920634920634,
-     0.7874883286647992
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3667,
-      "per_seed": [
-       0.4,
-       0.45,
-       0.25
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.4667,
-      "per_seed": [
-       0.7,
-       0.5,
-       0.2
-      ],
-      "range": 0.5
-     },
-     "dos": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.2,
-       0.6,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.4167,
-      "per_seed": [
-       0.4,
-       0.5,
-       0.35
-      ],
-      "range": 0.15
-     },
-     "time_manipulation": {
-      "mean": 0.25,
-      "per_seed": [
-       0.2,
-       0.3,
-       0.25
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5833,
-      "per_seed": [
-       0.8,
-       0.55,
-       0.4
-      ],
-      "range": 0.4
-     }
-    },
-    "arm": "cfg_flow",
-    "layer": "",
-    "arm_disp": "`cfg_flow`",
-    "var": "去 CFG_FLOW（物理关系 0）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.6,
-      "std": 0.24037,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.611111,
-      "std": 0.096225,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.650794,
-      "std": 0.357407,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.896296,
-      "std": 0.100206,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.722222,
-      "std": 0.254588,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.878063,
-      "std": 0.087001,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.795845,
-     "std": 0.077994,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.765498,
-     "std": 0.065532,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.8372093023255814,
-     0.7058823529411764,
-     0.8444444444444444
-    ],
-    "macro_per_seed": [
-     0.7985347985347985,
-     0.6900226757369614,
-     0.807936507936508
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.25,
-      "per_seed": [
-       0.25,
-       0.3,
-       0.2
-      ],
-      "range": 0.1
-     },
-     "arithmetic": {
-      "mean": 0.3,
-      "per_seed": [
-       0.2,
-       0.5,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "dos": {
-      "mean": 0.3,
-      "per_seed": [
-       0.2,
-       0.5,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.3833,
-      "per_seed": [
-       0.25,
-       0.5,
-       0.4
-      ],
-      "range": 0.25
-     },
-     "time_manipulation": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "uncheck": {
-      "mean": 0.3667,
-      "per_seed": [
-       0.35,
-       0.45,
-       0.3
-      ],
-      "range": 0.15
-     }
-    },
-    "arm": "dfg_dep",
-    "layer": "",
-    "arm_disp": "`dfg_dep`",
-    "var": "去 DFG_DEP（物理关系 3）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.433333,
-      "std": 0.057735,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.842593,
-      "std": 0.137025,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.783333,
-     "std": 0.028868,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.755195,
-     "std": 0.078326,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7999999999999999,
-     0.75,
-     0.7999999999999999
-    ],
-    "macro_per_seed": [
-     0.6774891774891775,
-     0.753968253968254,
-     0.8341269841269842
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.5,
-      "per_seed": [
-       0.35,
-       0.6,
-       0.55
-      ],
-      "range": 0.25
-     },
-     "time_manipulation": {
-      "mean": 0.25,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.35
-      ],
-      "range": 0.15
-     },
-     "uncheck": {
-      "mean": 0.3833,
-      "per_seed": [
-       0.5,
-       0.25,
-       0.4
-      ],
-      "range": 0.25
-     }
-    },
-    "arm": "callback_risk",
-    "layer": "",
-    "arm_disp": "`callback_risk`",
-    "var": "去 CALLBACK_RISK（物理关系 4）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.584127,
-      "std": 0.266893,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.933333,
-      "std": 0.11547,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.488889,
-      "std": 0.15396,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.555556,
-      "std": 0.509175,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.896296,
-      "std": 0.100206,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.266667,
-      "std": 0.46188,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.838207,
-      "std": 0.141604,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.748022,
-     "std": 0.064586,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.651868,
-     "std": 0.112235,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.8085106382978723,
-     0.7555555555555556,
-     0.68
-    ],
-    "macro_per_seed": [
-     0.745578231292517,
-     0.6825396825396826,
-     0.527485380116959
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3167,
-      "per_seed": [
-       0.2,
-       0.3,
-       0.45
-      ],
-      "range": 0.25
-     },
-     "arithmetic": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.3667,
-      "per_seed": [
-       0.5,
-       0.2,
-       0.4
-      ],
-      "range": 0.3
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.25,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "uncheck": {
-      "mean": 0.3833,
-      "per_seed": [
-       0.65,
-       0.2,
-       0.3
-      ],
-      "range": 0.45
-     }
-    },
-    "arm": "cb_rev",
-    "layer": "",
-    "arm_disp": "`cb_rev`",
-    "var": "**加**反向关系 CALLBACK_RISK_REV（关系数 5→6）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.433333,
-      "std": 0.057735,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.842593,
-      "std": 0.137025,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.777536,
-     "std": 0.025383,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.739322,
-     "std": 0.055966,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7999999999999999,
-     0.75,
-     0.782608695652174
-    ],
-    "macro_per_seed": [
-     0.6774891774891775,
-     0.753968253968254,
-     0.7865079365079366
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.5833,
-      "per_seed": [
-       0.4,
-       0.8,
-       0.55
-      ],
-      "range": 0.4
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5,
-      "per_seed": [
-       0.8,
-       0.25,
-       0.45
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "cb_unlimited",
-    "layer": "",
-    "arm_disp": "`cb_unlimited`",
-    "var": "CALLBACK_RISK 出边不设上限（正典 4）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.933333,
-      "std": 0.11547,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.488889,
-      "std": 0.15396,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.777778,
-      "std": 0.19245,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.933333,
-      "std": 0.11547,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.862037,
-      "std": 0.078584,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.80069,
-     "std": 0.040014,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.786544,
-     "std": 0.061527,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7916666666666667,
-     0.7659574468085107,
-     0.8444444444444444
-    ],
-    "macro_per_seed": [
-     0.7298701298701299,
-     0.7777777777777778,
-     0.8519841269841271
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3167,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.25
-      ],
-      "range": 0.15
-     },
-     "arithmetic": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "uncheck": {
-      "mean": 0.35,
-      "per_seed": [
-       0.2,
-       0.35,
-       0.5
-      ],
-      "range": 0.3
-     }
-    },
-    "arm": "dropedge02",
-    "layer": "",
-    "arm_disp": "`dropedge02`",
-    "var": "DropEdge 概率 0.2（正典 0.0＝关）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.7,
-      "std": 0.173205,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.933333,
-      "std": 0.11547,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.472222,
-      "std": 0.209718,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.560606,
-      "std": 0.412444,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.388889,
-      "std": 0.346944,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.83664,
-      "std": 0.051752,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.715019,
-     "std": 0.102985,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.679669,
-     "std": 0.094567,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.5964912280701755,
-     0.7659574468085107,
-     0.782608695652174
-    ],
-    "macro_per_seed": [
-     0.5711502782931355,
-     0.7444444444444445,
-     0.7234126984126984
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.5,
-      "per_seed": [
-       0.55,
-       0.5,
-       0.45
-      ],
-      "range": 0.1
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.55,
-       0.25,
-       0.2
-      ],
-      "range": 0.35
-     },
-     "dos": {
-      "mean": 0.3,
-      "per_seed": [
-       0.45,
-       0.25,
-       0.2
-      ],
-      "range": 0.25
-     },
-     "front_running": {
-      "mean": 0.2833,
-      "per_seed": [
-       0.45,
-       0.2,
-       0.2
-      ],
-      "range": 0.25
-     },
-     "reentrancy": {
-      "mean": 0.4833,
-      "per_seed": [
-       0.55,
-       0.5,
-       0.4
-      ],
-      "range": 0.15
-     },
-     "time_manipulation": {
-      "mean": 0.3,
-      "per_seed": [
-       0.5,
-       0.2,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "uncheck": {
-      "mean": 0.4167,
-      "per_seed": [
-       0.5,
-       0.4,
-       0.35
-      ],
-      "range": 0.15
-     }
-    },
-    "arm": "cb_func_only",
-    "layer": "**特征层**<br>（节点通道）",
-    "arm_disp": "`cb_func_only`",
-    "var": "去节点级 CodeBERT（只留函数级）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.628571,
-      "std": 0.296923,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.774603,
-      "std": 0.097745,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.214286,
-      "std": 0.257539,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.333333,
-      "std": 0.57735,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.860131,
-      "std": 0.063395,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.714456,
-     "std": 0.063194,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.596703,
-     "std": 0.007305,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7083333333333334,
-     0.7804878048780488,
-     0.6545454545454545
-    ],
-    "macro_per_seed": [
-     0.5978573247480811,
-     0.6033613445378151,
-     0.5888888888888888
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.5167,
-      "per_seed": [
-       0.4,
-       0.4,
-       0.75
-      ],
-      "range": 0.35
-     },
-     "arithmetic": {
-      "mean": 0.45,
-      "per_seed": [
-       0.7,
-       0.25,
-       0.4
-      ],
-      "range": 0.45
-     },
-     "dos": {
-      "mean": 0.3167,
-      "per_seed": [
-       0.2,
-       0.55,
-       0.2
-      ],
-      "range": 0.35
-     },
-     "front_running": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.3,
-       0.2,
-       0.2
-      ],
-      "range": 0.1
-     },
-     "reentrancy": {
-      "mean": 0.4333,
-      "per_seed": [
-       0.55,
-       0.2,
-       0.55
-      ],
-      "range": 0.35
-     },
-     "time_manipulation": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "uncheck": {
-      "mean": 0.5167,
-      "per_seed": [
-       0.45,
-       0.35,
-       0.75
-      ],
-      "range": 0.4
-     }
-    },
-    "arm": "cb_node_only",
-    "layer": "",
-    "arm_disp": "`cb_node_only`",
-    "var": "去函数级 CodeBERT（只留节点级）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.433333,
-      "std": 0.057735,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.842593,
-      "std": 0.137025,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.771739,
-     "std": 0.018827,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.739322,
-     "std": 0.055966,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.782608695652174,
-     0.75,
-     0.782608695652174
-    ],
-    "macro_per_seed": [
-     0.6774891774891775,
-     0.753968253968254,
-     0.7865079365079366
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.5667,
-      "per_seed": [
-       0.4,
-       0.75,
-       0.55
-      ],
-      "range": 0.35
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5167,
-      "per_seed": [
-       0.8,
-       0.3,
-       0.45
-      ],
-      "range": 0.5
-     }
-    },
-    "arm": "feat_base",
-    "layer": "",
-    "arm_disp": "`feat_base`",
-    "var": "结构特征分组 = base"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.488889,
-      "std": 0.15396,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.859259,
-      "std": 0.12239,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.789394,
-     "std": 0.035307,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.749639,
-     "std": 0.046328,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.8181818181818182,
-     0.75,
-     0.7999999999999999
-    ],
-    "macro_per_seed": [
-     0.7012987012987013,
-     0.753968253968254,
-     0.7936507936507937
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.5833,
-      "per_seed": [
-       0.4,
-       0.8,
-       0.55
-      ],
-      "range": 0.4
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5,
-      "per_seed": [
-       0.8,
-       0.25,
-       0.45
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "feat_base_sem",
-    "layer": "",
-    "arm_disp": "`feat_base_sem`",
-    "var": "结构特征分组 = base+sem"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.8,
-      "std": 0.34641,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.388889,
-      "std": 0.346944,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.896296,
-      "std": 0.100206,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.6,
-      "std": 0.52915,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.826211,
-      "std": 0.083889,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.797588,
-     "std": 0.04088,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.736549,
-     "std": 0.159876,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.8372093023255814,
-     0.7999999999999999,
-     0.7555555555555556
-    ],
-    "macro_per_seed": [
-     0.8175824175824176,
-     0.8396825396825396,
-     0.5523809523809524
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.35,
-       0.25,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "arithmetic": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "dos": {
-      "mean": 0.25,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.35
-      ],
-      "range": 0.15
-     },
-     "front_running": {
-      "mean": 0.25,
-      "per_seed": [
-       0.35,
-       0.2,
-       0.2
-      ],
-      "range": 0.15
-     },
-     "reentrancy": {
-      "mean": 0.4667,
-      "per_seed": [
-       0.2,
-       0.8,
-       0.4
-      ],
-      "range": 0.6
-     },
-     "time_manipulation": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "uncheck": {
-      "mean": 0.45,
-      "per_seed": [
-       0.75,
-       0.2,
-       0.4
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "meanpool",
-    "layer": "**模型层**<br>（聚合/深度/容量）",
-    "arm_disp": "`meanpool`",
-    "var": "meanpool 替换 $a_v$ 加权 readout"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.72381,
-      "std": 0.131966,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.933333,
-      "std": 0.11547,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.388889,
-      "std": 0.346944,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.486111,
-      "std": 0.312731,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.840741,
-      "std": 0.044905,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.433333,
-      "std": 0.404145,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.918954,
-      "std": 0.08911,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.749185,
-     "std": 0.134679,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.675024,
-     "std": 0.11034,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.8510638297872339,
-     0.5964912280701755,
-     0.7999999999999999
-    ],
-    "macro_per_seed": [
-     0.7952380952380952,
-     0.5783613445378152,
-     0.6514739229024943
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.35,
-      "per_seed": [
-       0.2,
-       0.55,
-       0.3
-      ],
-      "range": 0.35
-     },
-     "arithmetic": {
-      "mean": 0.4,
-      "per_seed": [
-       0.5,
-       0.5,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "dos": {
-      "mean": 0.3,
-      "per_seed": [
-       0.2,
-       0.35,
-       0.35
-      ],
-      "range": 0.15
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.45,
-      "per_seed": [
-       0.2,
-       0.55,
-       0.6
-      ],
-      "range": 0.4
-     },
-     "time_manipulation": {
-      "mean": 0.3,
-      "per_seed": [
-       0.2,
-       0.3,
-       0.4
-      ],
-      "range": 0.2
-     },
-     "uncheck": {
-      "mean": 0.65,
-      "per_seed": [
-       0.75,
-       0.5,
-       0.7
-      ],
-      "range": 0.25
-     }
-    },
-    "arm": "layers1",
-    "layer": "",
-    "arm_disp": "`layers1`",
-    "var": "RGCN 层数 L=1（正典 L=2）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.6,
-      "std": 0.173205,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.833333,
-      "std": 0.288675,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.333333,
-      "std": 0.333333,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.277778,
-      "std": 0.254588,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.811111,
-      "std": 0.019245,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.555556,
-      "std": 0.509175,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.804424,
-      "std": 0.129268,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.68599,
-     "std": 0.046588,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.602219,
-     "std": 0.101662,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.6521739130434783,
-     0.7391304347826089,
-     0.6666666666666666
-    ],
-    "macro_per_seed": [
-     0.489010989010989,
-     0.6319327731092438,
-     0.6857142857142858
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.35,
-      "per_seed": [
-       0.45,
-       0.3,
-       0.3
-      ],
-      "range": 0.15
-     },
-     "arithmetic": {
-      "mean": 0.4333,
-      "per_seed": [
-       0.5,
-       0.3,
-       0.5
-      ],
-      "range": 0.2
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.2667,
-      "per_seed": [
-       0.3,
-       0.25,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "time_manipulation": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.25
-      ],
-      "range": 0.05
-     },
-     "uncheck": {
-      "mean": 0.4667,
-      "per_seed": [
-       0.75,
-       0.45,
-       0.2
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "layers3",
-    "layer": "",
-    "arm_disp": "`layers3`",
-    "var": "RGCN 层数 L=3（正典 L=2）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.7,
-      "std": 0.173205,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.866667,
-      "std": 0.11547,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.555556,
-      "std": 0.509175,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.166667,
-      "std": 0.288675,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.896296,
-      "std": 0.100206,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.066667,
-      "std": 0.11547,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.873869,
-      "std": 0.049783,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.715817,
-     "std": 0.150222,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.589389,
-     "std": 0.093791,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.5454545454545455,
-     0.7727272727272727,
-     0.8292682926829269
-    ],
-    "macro_per_seed": [
-     0.489010989010989,
-     0.6747899159663866,
-     0.6043650793650794
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3167,
-      "per_seed": [
-       0.5,
-       0.25,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "arithmetic": {
-      "mean": 0.3,
-      "per_seed": [
-       0.5,
-       0.2,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "dos": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.2,
-       0.25,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.3167,
-      "per_seed": [
-       0.4,
-       0.2,
-       0.35
-      ],
-      "range": 0.2
-     },
-     "time_manipulation": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.2,
-       0.25,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "uncheck": {
-      "mean": 0.4833,
-      "per_seed": [
-       0.8,
-       0.2,
-       0.45
-      ],
-      "range": 0.6
-     }
-    },
-    "arm": "hid256",
-    "layer": "",
-    "arm_disp": "`hid256`",
-    "var": "隐藏维度 256（正典 128）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.466667,
-      "std": 0.057735,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.355556,
-      "std": 0.335548,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.111111,
-      "std": 0.19245,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.819373,
-      "std": 0.062137,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.190476,
-      "std": 0.329914,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.841176,
-      "std": 0.150777,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.689103,
-     "std": 0.021017,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.540623,
-     "std": 0.048972,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.6923076923076923,
-     0.6666666666666666,
-     0.7083333333333334
-    ],
-    "macro_per_seed": [
-     0.5915227629513343,
-     0.4938375350140056,
-     0.5365079365079365
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.4167,
-      "per_seed": [
-       0.35,
-       0.65,
-       0.25
-      ],
-      "range": 0.4
-     },
-     "arithmetic": {
-      "mean": 0.5333,
-      "per_seed": [
-       0.6,
-       0.6,
-       0.4
-      ],
-      "range": 0.2
-     },
-     "dos": {
-      "mean": 0.3667,
-      "per_seed": [
-       0.2,
-       0.5,
-       0.4
-      ],
-      "range": 0.3
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.4167,
-      "per_seed": [
-       0.2,
-       0.65,
-       0.4
-      ],
-      "range": 0.45
-     },
-     "time_manipulation": {
-      "mean": 0.2833,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.45
-      ],
-      "range": 0.25
-     },
-     "uncheck": {
-      "mean": 0.45,
-      "per_seed": [
-       0.65,
-       0.5,
-       0.2
-      ],
-      "range": 0.45
-     }
-    },
-    "arm": "numbases1",
-    "layer": "",
-    "arm_disp": "`numbases1`",
-    "var": "RGCN 基分解 num_bases=1（正典 5）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.6,
-      "std": 0.173205,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.790476,
-      "std": 0.214444,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.595238,
-      "std": 0.366543,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.355556,
-      "std": 0.335548,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.819373,
-      "std": 0.062137,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.266667,
-      "std": 0.46188,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.918954,
-      "std": 0.08911,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.726646,
-     "std": 0.068432,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.620895,
-     "std": 0.070534,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.6545454545454545,
-     0.7906976744186046,
-     0.7346938775510204
-    ],
-    "macro_per_seed": [
-     0.5609105180533752,
-     0.6985994397759103,
-     0.6031746031746031
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.4667,
-      "per_seed": [
-       0.55,
-       0.65,
-       0.2
-      ],
-      "range": 0.45
-     },
-     "arithmetic": {
-      "mean": 0.4,
-      "per_seed": [
-       0.35,
-       0.4,
-       0.45
-      ],
-      "range": 0.1
-     },
-     "dos": {
-      "mean": 0.2667,
-      "per_seed": [
-       0.2,
-       0.4,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.5,
-      "per_seed": [
-       0.2,
-       0.8,
-       0.5
-      ],
-      "range": 0.6
-     },
-     "time_manipulation": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "uncheck": {
-      "mean": 0.6,
-      "per_seed": [
-       0.7,
-       0.45,
-       0.65
-      ],
-      "range": 0.25
-     }
-    },
-    "arm": "numbases3",
-    "layer": "",
-    "arm_disp": "`numbases3`",
-    "var": "RGCN 基分解 num_bases=3（正典 5）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.655556,
-      "std": 0.150308,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 0.933333,
-      "std": 0.11547,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.688889,
-      "std": 0.300617,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.277778,
-      "std": 0.346944,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.840741,
-      "std": 0.044905,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.555556,
-      "std": 0.509175,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.782353,
-      "std": 0.07132,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.721597,
-     "std": 0.061122,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.676315,
-     "std": 0.133469,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7916666666666667,
-     0.6792452830188678,
-     0.6938775510204083
-    ],
-    "macro_per_seed": [
-     0.7557422969187675,
-     0.7509803921568627,
-     0.5222222222222223
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.35,
-      "per_seed": [
-       0.35,
-       0.5,
-       0.2
-      ],
-      "range": 0.3
-     },
-     "arithmetic": {
-      "mean": 0.4167,
-      "per_seed": [
-       0.25,
-       0.45,
-       0.55
-      ],
-      "range": 0.3
-     },
-     "dos": {
-      "mean": 0.2833,
-      "per_seed": [
-       0.25,
-       0.4,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.4167,
-      "per_seed": [
-       0.2,
-       0.6,
-       0.45
-      ],
-      "range": 0.4
-     },
-     "time_manipulation": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "uncheck": {
-      "mean": 0.35,
-      "per_seed": [
-       0.2,
-       0.55,
-       0.3
-      ],
-      "range": 0.35
-     }
-    },
-    "arm": "numbases4",
-    "layer": "",
-    "arm_disp": "`numbases4`",
-    "var": "RGCN 基分解 num_bases=4（正典 5）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.433333,
-      "std": 0.057735,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.842593,
-      "std": 0.137025,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.771739,
-     "std": 0.018827,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.739322,
-     "std": 0.055966,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.782608695652174,
-     0.75,
-     0.782608695652174
-    ],
-    "macro_per_seed": [
-     0.6774891774891775,
-     0.753968253968254,
-     0.7865079365079366
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "reentrancy": {
-      "mean": 0.5833,
-      "per_seed": [
-       0.4,
-       0.8,
-       0.55
-      ],
-      "range": 0.4
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5,
-      "per_seed": [
-       0.8,
-       0.25,
-       0.45
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "no_lvar",
-    "layer": "**训练目标/正则层**",
-    "arm_disp": "`no_lvar`",
-    "var": "关闭 $L_{var}$（方差正则）"
-   },
-   {
-    "n_seeds": 3,
-    "per_class_f1": {
-     "access_control": {
-      "mean": 0.644444,
-      "std": 0.26943,
-      "n": 3
-     },
-     "arithmetic": {
-      "mean": 1.0,
-      "std": 0.0,
-      "n": 3
-     },
-     "dos": {
-      "mean": 0.433333,
-      "std": 0.057735,
-      "n": 3
-     },
-     "front_running": {
-      "mean": 0.5,
-      "std": 0.5,
-      "n": 3
-     },
-     "reentrancy": {
-      "mean": 0.865993,
-      "std": 0.058038,
-      "n": 3
-     },
-     "time_manipulation": {
-      "mean": 0.888889,
-      "std": 0.19245,
-      "n": 3
-     },
-     "uncheck": {
-      "mean": 0.842593,
-      "std": 0.137025,
-      "n": 3
-     }
-    },
-    "micro": {
-     "mean": 0.777536,
-     "std": 0.025383,
-     "n": 3
-    },
-    "macro": {
-     "mean": 0.739322,
-     "std": 0.055966,
-     "n": 3
-    },
-    "micro_per_seed": [
-     0.7999999999999999,
-     0.75,
-     0.782608695652174
-    ],
-    "macro_per_seed": [
-     0.6774891774891775,
-     0.753968253968254,
-     0.7865079365079366
-    ],
-    "support": [
-     3.0,
-     2.3333333333333335,
-     1.0,
-     1.0,
-     5.333333333333333,
-     1.3333333333333333,
-     7.0
-    ],
-    "n_test": 46,
-    "thresholds": {
-     "access_control": {
-      "mean": 0.3,
-      "per_seed": [
-       0.4,
-       0.3,
-       0.2
-      ],
-      "range": 0.2
-     },
-     "arithmetic": {
-      "mean": 0.3333,
-      "per_seed": [
-       0.6,
-       0.2,
-       0.2
-      ],
-      "range": 0.4
-     },
-     "dos": {
-      "mean": 0.2,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.2
-      ],
-      "range": 0.0
-     },
-     "front_running": {
-      "mean": 0.2167,
-      "per_seed": [
-       0.25,
-       0.2,
-       0.2
-      ],
-      "range": 0.05
-     },
-     "reentrancy": {
-      "mean": 0.5667,
-      "per_seed": [
-       0.4,
-       0.75,
-       0.55
-      ],
-      "range": 0.35
-     },
-     "time_manipulation": {
-      "mean": 0.2333,
-      "per_seed": [
-       0.2,
-       0.2,
-       0.3
-      ],
-      "range": 0.1
-     },
-     "uncheck": {
-      "mean": 0.5,
-      "per_seed": [
-       0.8,
-       0.25,
-       0.45
-      ],
-      "range": 0.55
-     }
-    },
-    "arm": "no_prior_drop",
-    "layer": "",
-    "arm_disp": "`no_prior_drop`",
-    "var": "关闭先验 Dropout（正典丢弃率 0.2）"
-   }
-  ],
   "buggy": [
    {
     "n_seeds": 3,
@@ -6135,6 +3075,3066 @@
        0.2
       ],
       "range": 0.45
+     }
+    },
+    "arm": "no_prior_drop",
+    "layer": "",
+    "arm_disp": "`no_prior_drop`",
+    "var": "关闭先验 Dropout（正典丢弃率 0.2）"
+   }
+  ],
+  "canon37": [
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.433333,
+      "std": 0.057735,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.842593,
+      "std": 0.137025,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.777536,
+     "std": 0.025383,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.739322,
+     "std": 0.055966,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7999999999999999,
+     0.75,
+     0.782608695652174
+    ],
+    "macro_per_seed": [
+     0.6774891774891775,
+     0.753968253968254,
+     0.7865079365079366
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.5833,
+      "per_seed": [
+       0.4,
+       0.8,
+       0.55
+      ],
+      "range": 0.4
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5,
+      "per_seed": [
+       0.8,
+       0.25,
+       0.45
+      ],
+      "range": 0.55
+     }
+    },
+    "arm": "canon",
+    "layer": "—",
+    "arm_disp": "**对照口径**",
+    "var": "**微调 CodeBERT + 全部组件**"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.133333,
+      "std": 0.23094,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.688889,
+      "std": 0.300617,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.558974,
+      "std": 0.084732,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.518792,
+      "std": 0.061217,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.382091,
+     "std": 0.077045,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.271427,
+     "std": 0.037994,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.3,
+     0.4528301886792453,
+     0.3934426229508196
+    ],
+    "macro_per_seed": [
+     0.23736263736263735,
+     0.3124018838304553,
+     0.2645161290322581
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.5833,
+      "per_seed": [
+       0.55,
+       0.5,
+       0.7
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.55,
+      "per_seed": [
+       0.55,
+       0.4,
+       0.7
+      ],
+      "range": 0.3
+     },
+     "dos": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.2,
+       0.35,
+       0.45
+      ],
+      "range": 0.25
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.7333,
+      "per_seed": [
+       0.75,
+       0.65,
+       0.8
+      ],
+      "range": 0.15
+     },
+     "time_manipulation": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "uncheck": {
+      "mean": 0.5667,
+      "per_seed": [
+       0.6,
+       0.6,
+       0.5
+      ],
+      "range": 0.1
+     }
+    },
+    "arm": "cb_frozen",
+    "layer": "**编码器层**<br>（输入表征来源）",
+    "arm_disp": "`cb_frozen`",
+    "var": "CodeBERT **冻结**（正典为微调）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.6,
+      "std": 0.24037,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.488889,
+      "std": 0.15396,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.896296,
+      "std": 0.100206,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.6,
+      "std": 0.52915,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.862037,
+      "std": 0.078584,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.804432,
+     "std": 0.047466,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.762302,
+     "std": 0.046729,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.8260869565217391,
+     0.75,
+     0.8372093023255814
+    ],
+    "macro_per_seed": [
+     0.8107142857142857,
+     0.7587301587301587,
+     0.7174603174603176
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.2833,
+      "per_seed": [
+       0.3,
+       0.2,
+       0.35
+      ],
+      "range": 0.15
+     },
+     "arithmetic": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.25,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "dos": {
+      "mean": 0.25,
+      "per_seed": [
+       0.2,
+       0.25,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "front_running": {
+      "mean": 0.25,
+      "per_seed": [
+       0.35,
+       0.2,
+       0.2
+      ],
+      "range": 0.15
+     },
+     "reentrancy": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "time_manipulation": {
+      "mean": 0.3,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.5
+      ],
+      "range": 0.3
+     },
+     "uncheck": {
+      "mean": 0.45,
+      "per_seed": [
+       0.2,
+       0.45,
+       0.7
+      ],
+      "range": 0.5
+     }
+    },
+    "arm": "ast_parent",
+    "layer": "**结构层**<br>（图边集）",
+    "arm_disp": "`ast_parent`",
+    "var": "去 AST_PARENT（关系 1+2，`--drop-ast`）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.666667,
+      "std": 0.288675,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.416667,
+      "std": 0.520416,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.840741,
+      "std": 0.044905,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.433333,
+      "std": 0.404145,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.84488,
+      "std": 0.079945,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.741068,
+     "std": 0.064492,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.676517,
+     "std": 0.096399,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7346938775510204,
+     0.68,
+     0.8085106382978723
+    ],
+    "macro_per_seed": [
+     0.6285714285714287,
+     0.6134920634920634,
+     0.7874883286647992
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3667,
+      "per_seed": [
+       0.4,
+       0.45,
+       0.25
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.4667,
+      "per_seed": [
+       0.7,
+       0.5,
+       0.2
+      ],
+      "range": 0.5
+     },
+     "dos": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.2,
+       0.6,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.4167,
+      "per_seed": [
+       0.4,
+       0.5,
+       0.35
+      ],
+      "range": 0.15
+     },
+     "time_manipulation": {
+      "mean": 0.25,
+      "per_seed": [
+       0.2,
+       0.3,
+       0.25
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5833,
+      "per_seed": [
+       0.8,
+       0.55,
+       0.4
+      ],
+      "range": 0.4
+     }
+    },
+    "arm": "cfg_flow",
+    "layer": "",
+    "arm_disp": "`cfg_flow`",
+    "var": "去 CFG_FLOW（物理关系 0）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.6,
+      "std": 0.24037,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.611111,
+      "std": 0.096225,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.650794,
+      "std": 0.357407,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.896296,
+      "std": 0.100206,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.722222,
+      "std": 0.254588,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.878063,
+      "std": 0.087001,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.795845,
+     "std": 0.077994,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.765498,
+     "std": 0.065532,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.8372093023255814,
+     0.7058823529411764,
+     0.8444444444444444
+    ],
+    "macro_per_seed": [
+     0.7985347985347985,
+     0.6900226757369614,
+     0.807936507936508
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.25,
+      "per_seed": [
+       0.25,
+       0.3,
+       0.2
+      ],
+      "range": 0.1
+     },
+     "arithmetic": {
+      "mean": 0.3,
+      "per_seed": [
+       0.2,
+       0.5,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "dos": {
+      "mean": 0.3,
+      "per_seed": [
+       0.2,
+       0.5,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.3833,
+      "per_seed": [
+       0.25,
+       0.5,
+       0.4
+      ],
+      "range": 0.25
+     },
+     "time_manipulation": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "uncheck": {
+      "mean": 0.3667,
+      "per_seed": [
+       0.35,
+       0.45,
+       0.3
+      ],
+      "range": 0.15
+     }
+    },
+    "arm": "dfg_dep",
+    "layer": "",
+    "arm_disp": "`dfg_dep`",
+    "var": "去 DFG_DEP（物理关系 3）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.433333,
+      "std": 0.057735,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.842593,
+      "std": 0.137025,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.783333,
+     "std": 0.028868,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.755195,
+     "std": 0.078326,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7999999999999999,
+     0.75,
+     0.7999999999999999
+    ],
+    "macro_per_seed": [
+     0.6774891774891775,
+     0.753968253968254,
+     0.8341269841269842
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.5,
+      "per_seed": [
+       0.35,
+       0.6,
+       0.55
+      ],
+      "range": 0.25
+     },
+     "time_manipulation": {
+      "mean": 0.25,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.35
+      ],
+      "range": 0.15
+     },
+     "uncheck": {
+      "mean": 0.3833,
+      "per_seed": [
+       0.5,
+       0.25,
+       0.4
+      ],
+      "range": 0.25
+     }
+    },
+    "arm": "callback_risk",
+    "layer": "",
+    "arm_disp": "`callback_risk`",
+    "var": "去 CALLBACK_RISK（物理关系 4）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.584127,
+      "std": 0.266893,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.933333,
+      "std": 0.11547,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.488889,
+      "std": 0.15396,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.555556,
+      "std": 0.509175,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.896296,
+      "std": 0.100206,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.266667,
+      "std": 0.46188,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.838207,
+      "std": 0.141604,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.748022,
+     "std": 0.064586,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.651868,
+     "std": 0.112235,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.8085106382978723,
+     0.7555555555555556,
+     0.68
+    ],
+    "macro_per_seed": [
+     0.745578231292517,
+     0.6825396825396826,
+     0.527485380116959
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3167,
+      "per_seed": [
+       0.2,
+       0.3,
+       0.45
+      ],
+      "range": 0.25
+     },
+     "arithmetic": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.3667,
+      "per_seed": [
+       0.5,
+       0.2,
+       0.4
+      ],
+      "range": 0.3
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.25,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "uncheck": {
+      "mean": 0.3833,
+      "per_seed": [
+       0.65,
+       0.2,
+       0.3
+      ],
+      "range": 0.45
+     }
+    },
+    "arm": "cb_rev",
+    "layer": "",
+    "arm_disp": "`cb_rev`",
+    "var": "**加**反向关系 CALLBACK_RISK_REV（关系数 5→6）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.433333,
+      "std": 0.057735,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.842593,
+      "std": 0.137025,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.777536,
+     "std": 0.025383,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.739322,
+     "std": 0.055966,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7999999999999999,
+     0.75,
+     0.782608695652174
+    ],
+    "macro_per_seed": [
+     0.6774891774891775,
+     0.753968253968254,
+     0.7865079365079366
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.5833,
+      "per_seed": [
+       0.4,
+       0.8,
+       0.55
+      ],
+      "range": 0.4
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5,
+      "per_seed": [
+       0.8,
+       0.25,
+       0.45
+      ],
+      "range": 0.55
+     }
+    },
+    "arm": "cb_unlimited",
+    "layer": "",
+    "arm_disp": "`cb_unlimited`",
+    "var": "CALLBACK_RISK 出边不设上限（正典 4）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.933333,
+      "std": 0.11547,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.488889,
+      "std": 0.15396,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.777778,
+      "std": 0.19245,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.933333,
+      "std": 0.11547,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.862037,
+      "std": 0.078584,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.80069,
+     "std": 0.040014,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.786544,
+     "std": 0.061527,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7916666666666667,
+     0.7659574468085107,
+     0.8444444444444444
+    ],
+    "macro_per_seed": [
+     0.7298701298701299,
+     0.7777777777777778,
+     0.8519841269841271
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3167,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.25
+      ],
+      "range": 0.15
+     },
+     "arithmetic": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "uncheck": {
+      "mean": 0.35,
+      "per_seed": [
+       0.2,
+       0.35,
+       0.5
+      ],
+      "range": 0.3
+     }
+    },
+    "arm": "dropedge02",
+    "layer": "",
+    "arm_disp": "`dropedge02`",
+    "var": "DropEdge 概率 0.2（正典 0.0＝关）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.7,
+      "std": 0.173205,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.933333,
+      "std": 0.11547,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.472222,
+      "std": 0.209718,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.560606,
+      "std": 0.412444,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.388889,
+      "std": 0.346944,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.83664,
+      "std": 0.051752,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.715019,
+     "std": 0.102985,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.679669,
+     "std": 0.094567,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.5964912280701755,
+     0.7659574468085107,
+     0.782608695652174
+    ],
+    "macro_per_seed": [
+     0.5711502782931355,
+     0.7444444444444445,
+     0.7234126984126984
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.5,
+      "per_seed": [
+       0.55,
+       0.5,
+       0.45
+      ],
+      "range": 0.1
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.55,
+       0.25,
+       0.2
+      ],
+      "range": 0.35
+     },
+     "dos": {
+      "mean": 0.3,
+      "per_seed": [
+       0.45,
+       0.25,
+       0.2
+      ],
+      "range": 0.25
+     },
+     "front_running": {
+      "mean": 0.2833,
+      "per_seed": [
+       0.45,
+       0.2,
+       0.2
+      ],
+      "range": 0.25
+     },
+     "reentrancy": {
+      "mean": 0.4833,
+      "per_seed": [
+       0.55,
+       0.5,
+       0.4
+      ],
+      "range": 0.15
+     },
+     "time_manipulation": {
+      "mean": 0.3,
+      "per_seed": [
+       0.5,
+       0.2,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "uncheck": {
+      "mean": 0.4167,
+      "per_seed": [
+       0.5,
+       0.4,
+       0.35
+      ],
+      "range": 0.15
+     }
+    },
+    "arm": "cb_func_only",
+    "layer": "**特征层**<br>（节点通道）",
+    "arm_disp": "`cb_func_only`",
+    "var": "去节点级 CodeBERT（只留函数级）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.628571,
+      "std": 0.296923,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.774603,
+      "std": 0.097745,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.214286,
+      "std": 0.257539,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.333333,
+      "std": 0.57735,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.860131,
+      "std": 0.063395,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.714456,
+     "std": 0.063194,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.596703,
+     "std": 0.007305,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7083333333333334,
+     0.7804878048780488,
+     0.6545454545454545
+    ],
+    "macro_per_seed": [
+     0.5978573247480811,
+     0.6033613445378151,
+     0.5888888888888888
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.5167,
+      "per_seed": [
+       0.4,
+       0.4,
+       0.75
+      ],
+      "range": 0.35
+     },
+     "arithmetic": {
+      "mean": 0.45,
+      "per_seed": [
+       0.7,
+       0.25,
+       0.4
+      ],
+      "range": 0.45
+     },
+     "dos": {
+      "mean": 0.3167,
+      "per_seed": [
+       0.2,
+       0.55,
+       0.2
+      ],
+      "range": 0.35
+     },
+     "front_running": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.3,
+       0.2,
+       0.2
+      ],
+      "range": 0.1
+     },
+     "reentrancy": {
+      "mean": 0.4333,
+      "per_seed": [
+       0.55,
+       0.2,
+       0.55
+      ],
+      "range": 0.35
+     },
+     "time_manipulation": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "uncheck": {
+      "mean": 0.5167,
+      "per_seed": [
+       0.45,
+       0.35,
+       0.75
+      ],
+      "range": 0.4
+     }
+    },
+    "arm": "cb_node_only",
+    "layer": "",
+    "arm_disp": "`cb_node_only`",
+    "var": "去函数级 CodeBERT（只留节点级）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.433333,
+      "std": 0.057735,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.842593,
+      "std": 0.137025,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.771739,
+     "std": 0.018827,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.739322,
+     "std": 0.055966,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.782608695652174,
+     0.75,
+     0.782608695652174
+    ],
+    "macro_per_seed": [
+     0.6774891774891775,
+     0.753968253968254,
+     0.7865079365079366
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.5667,
+      "per_seed": [
+       0.4,
+       0.75,
+       0.55
+      ],
+      "range": 0.35
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5167,
+      "per_seed": [
+       0.8,
+       0.3,
+       0.45
+      ],
+      "range": 0.5
+     }
+    },
+    "arm": "feat_base",
+    "layer": "",
+    "arm_disp": "`feat_base`",
+    "var": "结构特征分组 = base"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.488889,
+      "std": 0.15396,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.859259,
+      "std": 0.12239,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.789394,
+     "std": 0.035307,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.749639,
+     "std": 0.046328,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.8181818181818182,
+     0.75,
+     0.7999999999999999
+    ],
+    "macro_per_seed": [
+     0.7012987012987013,
+     0.753968253968254,
+     0.7936507936507937
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.5833,
+      "per_seed": [
+       0.4,
+       0.8,
+       0.55
+      ],
+      "range": 0.4
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5,
+      "per_seed": [
+       0.8,
+       0.25,
+       0.45
+      ],
+      "range": 0.55
+     }
+    },
+    "arm": "feat_base_sem",
+    "layer": "",
+    "arm_disp": "`feat_base_sem`",
+    "var": "结构特征分组 = base+sem"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.8,
+      "std": 0.34641,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.388889,
+      "std": 0.346944,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.896296,
+      "std": 0.100206,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.6,
+      "std": 0.52915,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.826211,
+      "std": 0.083889,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.797588,
+     "std": 0.04088,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.736549,
+     "std": 0.159876,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.8372093023255814,
+     0.7999999999999999,
+     0.7555555555555556
+    ],
+    "macro_per_seed": [
+     0.8175824175824176,
+     0.8396825396825396,
+     0.5523809523809524
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.35,
+       0.25,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "arithmetic": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "dos": {
+      "mean": 0.25,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.35
+      ],
+      "range": 0.15
+     },
+     "front_running": {
+      "mean": 0.25,
+      "per_seed": [
+       0.35,
+       0.2,
+       0.2
+      ],
+      "range": 0.15
+     },
+     "reentrancy": {
+      "mean": 0.4667,
+      "per_seed": [
+       0.2,
+       0.8,
+       0.4
+      ],
+      "range": 0.6
+     },
+     "time_manipulation": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "uncheck": {
+      "mean": 0.45,
+      "per_seed": [
+       0.75,
+       0.2,
+       0.4
+      ],
+      "range": 0.55
+     }
+    },
+    "arm": "meanpool",
+    "layer": "**模型层**<br>（聚合/深度/容量）",
+    "arm_disp": "`meanpool`",
+    "var": "meanpool 替换 $a_v$ 加权 readout"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.72381,
+      "std": 0.131966,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.933333,
+      "std": 0.11547,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.388889,
+      "std": 0.346944,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.486111,
+      "std": 0.312731,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.840741,
+      "std": 0.044905,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.433333,
+      "std": 0.404145,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.918954,
+      "std": 0.08911,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.749185,
+     "std": 0.134679,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.675024,
+     "std": 0.11034,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.8510638297872339,
+     0.5964912280701755,
+     0.7999999999999999
+    ],
+    "macro_per_seed": [
+     0.7952380952380952,
+     0.5783613445378152,
+     0.6514739229024943
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.35,
+      "per_seed": [
+       0.2,
+       0.55,
+       0.3
+      ],
+      "range": 0.35
+     },
+     "arithmetic": {
+      "mean": 0.4,
+      "per_seed": [
+       0.5,
+       0.5,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "dos": {
+      "mean": 0.3,
+      "per_seed": [
+       0.2,
+       0.35,
+       0.35
+      ],
+      "range": 0.15
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.45,
+      "per_seed": [
+       0.2,
+       0.55,
+       0.6
+      ],
+      "range": 0.4
+     },
+     "time_manipulation": {
+      "mean": 0.3,
+      "per_seed": [
+       0.2,
+       0.3,
+       0.4
+      ],
+      "range": 0.2
+     },
+     "uncheck": {
+      "mean": 0.65,
+      "per_seed": [
+       0.75,
+       0.5,
+       0.7
+      ],
+      "range": 0.25
+     }
+    },
+    "arm": "layers1",
+    "layer": "",
+    "arm_disp": "`layers1`",
+    "var": "RGCN 层数 L=1（正典 L=2）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.6,
+      "std": 0.173205,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.833333,
+      "std": 0.288675,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.333333,
+      "std": 0.333333,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.277778,
+      "std": 0.254588,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.811111,
+      "std": 0.019245,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.555556,
+      "std": 0.509175,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.804424,
+      "std": 0.129268,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.68599,
+     "std": 0.046588,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.602219,
+     "std": 0.101662,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.6521739130434783,
+     0.7391304347826089,
+     0.6666666666666666
+    ],
+    "macro_per_seed": [
+     0.489010989010989,
+     0.6319327731092438,
+     0.6857142857142858
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.35,
+      "per_seed": [
+       0.45,
+       0.3,
+       0.3
+      ],
+      "range": 0.15
+     },
+     "arithmetic": {
+      "mean": 0.4333,
+      "per_seed": [
+       0.5,
+       0.3,
+       0.5
+      ],
+      "range": 0.2
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.2667,
+      "per_seed": [
+       0.3,
+       0.25,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "time_manipulation": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.25
+      ],
+      "range": 0.05
+     },
+     "uncheck": {
+      "mean": 0.4667,
+      "per_seed": [
+       0.75,
+       0.45,
+       0.2
+      ],
+      "range": 0.55
+     }
+    },
+    "arm": "layers3",
+    "layer": "",
+    "arm_disp": "`layers3`",
+    "var": "RGCN 层数 L=3（正典 L=2）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.7,
+      "std": 0.173205,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.866667,
+      "std": 0.11547,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.555556,
+      "std": 0.509175,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.166667,
+      "std": 0.288675,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.896296,
+      "std": 0.100206,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.066667,
+      "std": 0.11547,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.873869,
+      "std": 0.049783,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.715817,
+     "std": 0.150222,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.589389,
+     "std": 0.093791,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.5454545454545455,
+     0.7727272727272727,
+     0.8292682926829269
+    ],
+    "macro_per_seed": [
+     0.489010989010989,
+     0.6747899159663866,
+     0.6043650793650794
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3167,
+      "per_seed": [
+       0.5,
+       0.25,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "arithmetic": {
+      "mean": 0.3,
+      "per_seed": [
+       0.5,
+       0.2,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "dos": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.2,
+       0.25,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.3167,
+      "per_seed": [
+       0.4,
+       0.2,
+       0.35
+      ],
+      "range": 0.2
+     },
+     "time_manipulation": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.2,
+       0.25,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "uncheck": {
+      "mean": 0.4833,
+      "per_seed": [
+       0.8,
+       0.2,
+       0.45
+      ],
+      "range": 0.6
+     }
+    },
+    "arm": "hid256",
+    "layer": "",
+    "arm_disp": "`hid256`",
+    "var": "隐藏维度 256（正典 128）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.466667,
+      "std": 0.057735,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.355556,
+      "std": 0.335548,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.111111,
+      "std": 0.19245,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.819373,
+      "std": 0.062137,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.190476,
+      "std": 0.329914,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.841176,
+      "std": 0.150777,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.689103,
+     "std": 0.021017,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.540623,
+     "std": 0.048972,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.6923076923076923,
+     0.6666666666666666,
+     0.7083333333333334
+    ],
+    "macro_per_seed": [
+     0.5915227629513343,
+     0.4938375350140056,
+     0.5365079365079365
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.4167,
+      "per_seed": [
+       0.35,
+       0.65,
+       0.25
+      ],
+      "range": 0.4
+     },
+     "arithmetic": {
+      "mean": 0.5333,
+      "per_seed": [
+       0.6,
+       0.6,
+       0.4
+      ],
+      "range": 0.2
+     },
+     "dos": {
+      "mean": 0.3667,
+      "per_seed": [
+       0.2,
+       0.5,
+       0.4
+      ],
+      "range": 0.3
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.4167,
+      "per_seed": [
+       0.2,
+       0.65,
+       0.4
+      ],
+      "range": 0.45
+     },
+     "time_manipulation": {
+      "mean": 0.2833,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.45
+      ],
+      "range": 0.25
+     },
+     "uncheck": {
+      "mean": 0.45,
+      "per_seed": [
+       0.65,
+       0.5,
+       0.2
+      ],
+      "range": 0.45
+     }
+    },
+    "arm": "numbases1",
+    "layer": "",
+    "arm_disp": "`numbases1`",
+    "var": "RGCN 基分解 num_bases=1（正典 5）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.6,
+      "std": 0.173205,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.790476,
+      "std": 0.214444,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.595238,
+      "std": 0.366543,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.355556,
+      "std": 0.335548,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.819373,
+      "std": 0.062137,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.266667,
+      "std": 0.46188,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.918954,
+      "std": 0.08911,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.726646,
+     "std": 0.068432,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.620895,
+     "std": 0.070534,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.6545454545454545,
+     0.7906976744186046,
+     0.7346938775510204
+    ],
+    "macro_per_seed": [
+     0.5609105180533752,
+     0.6985994397759103,
+     0.6031746031746031
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.4667,
+      "per_seed": [
+       0.55,
+       0.65,
+       0.2
+      ],
+      "range": 0.45
+     },
+     "arithmetic": {
+      "mean": 0.4,
+      "per_seed": [
+       0.35,
+       0.4,
+       0.45
+      ],
+      "range": 0.1
+     },
+     "dos": {
+      "mean": 0.2667,
+      "per_seed": [
+       0.2,
+       0.4,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.5,
+      "per_seed": [
+       0.2,
+       0.8,
+       0.5
+      ],
+      "range": 0.6
+     },
+     "time_manipulation": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "uncheck": {
+      "mean": 0.6,
+      "per_seed": [
+       0.7,
+       0.45,
+       0.65
+      ],
+      "range": 0.25
+     }
+    },
+    "arm": "numbases3",
+    "layer": "",
+    "arm_disp": "`numbases3`",
+    "var": "RGCN 基分解 num_bases=3（正典 5）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.655556,
+      "std": 0.150308,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 0.933333,
+      "std": 0.11547,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.688889,
+      "std": 0.300617,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.277778,
+      "std": 0.346944,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.840741,
+      "std": 0.044905,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.555556,
+      "std": 0.509175,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.782353,
+      "std": 0.07132,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.721597,
+     "std": 0.061122,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.676315,
+     "std": 0.133469,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7916666666666667,
+     0.6792452830188678,
+     0.6938775510204083
+    ],
+    "macro_per_seed": [
+     0.7557422969187675,
+     0.7509803921568627,
+     0.5222222222222223
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.35,
+      "per_seed": [
+       0.35,
+       0.5,
+       0.2
+      ],
+      "range": 0.3
+     },
+     "arithmetic": {
+      "mean": 0.4167,
+      "per_seed": [
+       0.25,
+       0.45,
+       0.55
+      ],
+      "range": 0.3
+     },
+     "dos": {
+      "mean": 0.2833,
+      "per_seed": [
+       0.25,
+       0.4,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.4167,
+      "per_seed": [
+       0.2,
+       0.6,
+       0.45
+      ],
+      "range": 0.4
+     },
+     "time_manipulation": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "uncheck": {
+      "mean": 0.35,
+      "per_seed": [
+       0.2,
+       0.55,
+       0.3
+      ],
+      "range": 0.35
+     }
+    },
+    "arm": "numbases4",
+    "layer": "",
+    "arm_disp": "`numbases4`",
+    "var": "RGCN 基分解 num_bases=4（正典 5）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.433333,
+      "std": 0.057735,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.842593,
+      "std": 0.137025,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.771739,
+     "std": 0.018827,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.739322,
+     "std": 0.055966,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.782608695652174,
+     0.75,
+     0.782608695652174
+    ],
+    "macro_per_seed": [
+     0.6774891774891775,
+     0.753968253968254,
+     0.7865079365079366
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "reentrancy": {
+      "mean": 0.5833,
+      "per_seed": [
+       0.4,
+       0.8,
+       0.55
+      ],
+      "range": 0.4
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5,
+      "per_seed": [
+       0.8,
+       0.25,
+       0.45
+      ],
+      "range": 0.55
+     }
+    },
+    "arm": "no_lvar",
+    "layer": "**训练目标/正则层**",
+    "arm_disp": "`no_lvar`",
+    "var": "关闭 $L_{var}$（方差正则）"
+   },
+   {
+    "n_seeds": 3,
+    "per_class_f1": {
+     "access_control": {
+      "mean": 0.644444,
+      "std": 0.26943,
+      "n": 3
+     },
+     "arithmetic": {
+      "mean": 1.0,
+      "std": 0.0,
+      "n": 3
+     },
+     "dos": {
+      "mean": 0.433333,
+      "std": 0.057735,
+      "n": 3
+     },
+     "front_running": {
+      "mean": 0.5,
+      "std": 0.5,
+      "n": 3
+     },
+     "reentrancy": {
+      "mean": 0.865993,
+      "std": 0.058038,
+      "n": 3
+     },
+     "time_manipulation": {
+      "mean": 0.888889,
+      "std": 0.19245,
+      "n": 3
+     },
+     "uncheck": {
+      "mean": 0.842593,
+      "std": 0.137025,
+      "n": 3
+     }
+    },
+    "micro": {
+     "mean": 0.777536,
+     "std": 0.025383,
+     "n": 3
+    },
+    "macro": {
+     "mean": 0.739322,
+     "std": 0.055966,
+     "n": 3
+    },
+    "micro_per_seed": [
+     0.7999999999999999,
+     0.75,
+     0.782608695652174
+    ],
+    "macro_per_seed": [
+     0.6774891774891775,
+     0.753968253968254,
+     0.7865079365079366
+    ],
+    "support": [
+     3.0,
+     2.3333333333333335,
+     1.0,
+     1.0,
+     5.333333333333333,
+     1.3333333333333333,
+     7.0
+    ],
+    "n_test": 46,
+    "thresholds": {
+     "access_control": {
+      "mean": 0.3,
+      "per_seed": [
+       0.4,
+       0.3,
+       0.2
+      ],
+      "range": 0.2
+     },
+     "arithmetic": {
+      "mean": 0.3333,
+      "per_seed": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "range": 0.4
+     },
+     "dos": {
+      "mean": 0.2,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.2
+      ],
+      "range": 0.0
+     },
+     "front_running": {
+      "mean": 0.2167,
+      "per_seed": [
+       0.25,
+       0.2,
+       0.2
+      ],
+      "range": 0.05
+     },
+     "reentrancy": {
+      "mean": 0.5667,
+      "per_seed": [
+       0.4,
+       0.75,
+       0.55
+      ],
+      "range": 0.35
+     },
+     "time_manipulation": {
+      "mean": 0.2333,
+      "per_seed": [
+       0.2,
+       0.2,
+       0.3
+      ],
+      "range": 0.1
+     },
+     "uncheck": {
+      "mean": 0.5,
+      "per_seed": [
+       0.8,
+       0.25,
+       0.45
+      ],
+      "range": 0.55
      }
     },
     "arm": "no_prior_drop",

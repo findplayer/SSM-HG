@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""任务 2 汇总卷：含 `buggy_*` 的新正典（池 497）——分数、训练时间、**以及涨分里有多少是标签假象**。
+"""正典（池 497）汇总卷：补回 `buggy_*` 后的口径——分数、训练时间、**以及涨分里有多少是标签假象**。
 
-为什么必须有这个脚本，而不是手抄几个数进文档：任务 2 同时改了三件事，其中一件
+为什么必须有这个脚本，而不是手抄几个数进文档：正典（池 497）口径同时改了三件事，其中一件
 （`buggy_*` 的标签绝大多数是**七类全 1**，`decisions.md` §18.4）会**系统性地抬高** macro/mAP
 而**不**代表检测能力提升。手抄数字时这个偏差会被无声地当成"补数据真的有用"。
 
 🔴 **本脚本的核心是 `clean_only` 口径**：把 test 里属于 `buggy_*` 项目的合约**剔掉**再算一遍。
-   - 新正典 test = 49 个合约，其中若干是 `buggy_*`（全 1 标签）；
+   - 正典（池 497）test = 49 个合约，其中若干是 `buggy_*`（全 1 标签）；
    - `clean_only` = 只留真实部署合约（非 `buggy_*`）的那部分；
    - **两个口径的差 = 标签假象的贡献**。这是唯一能把这句话变成数字的做法。
    ⚠ 它**不是**"更好的口径"——正典报的就是全 test；`clean_only` 是**诊断列**，
@@ -95,14 +95,14 @@ def calibers(probs, y, ids, thr: float) -> dict:
 
 
 def encoder_trajectory(runs_root: Path, old_encoder: Path, new_encoder: Path) -> list[str]:
-    """逐 epoch val macro-F1：旧划分（§37 正典）vs 新划分（含 buggy）。"""
+    """逐 epoch val macro-F1：旧划分（对照口径，池 453）vs 新划分（含 buggy）。"""
     old, new = _read(old_encoder), _read(new_encoder)
     if not old or not new:
         return []
     o = {e["epoch"]: e["val_macro_f1"] for e in old.get("epochs_log", [])}
     n = {e["epoch"]: e["val_macro_f1"] for e in new.get("epochs_log", [])}
     ks = sorted(set(o) | set(n))
-    L = ["| epoch | 旧划分（§37 正典，池 453） | 新划分（含 buggy，池 497） |", "| --- | --- | --- |"]
+    L = ["| epoch | 旧划分（对照口径，池 453） | 新划分（正典，池 497） |", "| --- | --- | --- |"]
     for k in ks:
         L.append(f"| {k} | {o.get(k, '—') if k in o else '—'} | {n.get(k, '—') if k in n else '—'} |")
     return L
@@ -113,7 +113,7 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--runs-dir", default="runs/buggy_canon")
     ap.add_argument("--split-dir", default="products/alldata/splits/withbuggy_snapshot")
-    # 🔴 2026-09-25 换代落地：任务 2 的编码器 16 轮 → **20 轮**，新编码器在 `runs/codebert_ft_buggy_p2`。
+    # 🔴 2026-09-25 换代落地：正典（池 497）的编码器 16 轮 → **20 轮**，新编码器在 `runs/codebert_ft_buggy_p2`。
     #   本节读的是**现行**编码器（§1 的时间表与 §2 的轨迹「新」侧）⇒ 必须指向 `_p2`；
     #   指向旧的 `runs/codebert_ft_buggy` 会把 16 轮档的数字贴到 20 轮档的 run 旁边，**不报错**。
     ap.add_argument("--encoder-root", default="runs/codebert_ft_buggy_p2",
@@ -131,19 +131,19 @@ def main() -> int:
     per_seed = {s: load_seed(runs_dir, s) for s in SEEDS}
     got = {s: v for s, v in per_seed.items() if v}
     if not got:
-        raise SystemExit(f"🔴 {runs_dir} 下没有 test_probs.pt —— 任务2 管道还没跑完？")
+        raise SystemExit(f"🔴 {runs_dir} 下没有 test_probs.pt —— 正典（池 497）管道还没跑完？")
     # 每个种子只算一次（`calibers` 要跑 mAP + 逐类，重复调用纯属浪费）
     cal = {s: calibers(v["probs"], v["labels"], v["ids"], v["thr"]) for s, v in got.items()}
 
-    doc = ["# 任务 2：补回 `buggy_*` 后的新正典（池 497）", "",
+    doc = ["# 正典（池 497）：补回 `buggy_*` 后的汇总", "",
            "> 程序生成（`scripts/collect_buggy_canon_summary.py`）。", "",
-           "🔴 **本臂相对 §37 正典同时改了三件事**，读任何一个数字前必须先分清是哪一件：",
+           "🔴 **本臂相对对照口径（池 453）同时改了三件事**，读任何一个数字前必须先分清是哪一件：",
            "1. **数据**：池 453 → **497**（补回去重后的 `buggy_*`）；",
            "2. **划分**：8:1:1 重划 ⇒ **test 集换了**（46 → 49）⇒ **新旧数字不可直接相减**；",
            "3. **编码器**：epoch 预算 5 → **20**（2026-09-25 与 ① 同步换代；"
            "初版曾取 16，依据 = epoch 探针，见 `improvement_round1_results.md` §1）。", "",
            "⚠ **第 3 件事的口径限制（2026-09-25 换代时写死）**：换代前两侧的 epoch 预算是 **16 vs 5** ⇒ "
-           "本臂与 §37 正典之间实际是**双变量**（池 **+** 训练量），不可分离；两侧都对齐到 20 轮后才只剩「池」"
+           "本臂与对照口径（池 453）之间实际是**双变量**（池 **+** 训练量），不可分离；两侧都对齐到 20 轮后才只剩「池」"
            "一个变量。**本卷仍报「池 + 训练量」的合计增量**，要单看「池」的净效应须看 §3b 与 "
            "`decisions.md` §55 的逐格对照。", "",
            "🔴 **`buggy_*` 的标签绝大多数是七类全 1**（`decisions.md` §18.4：上游按「每类各放一份」复制，"
@@ -212,7 +212,7 @@ def main() -> int:
             old[s] = {"micro": t.get("micro_f1"), "macro": t.get("macro_f1"),
                       "mAP": (r.get("mAP") or {}).get("mAP")}
     if old and got:
-        doc += ["", "## 3b. 与 §37 旧正典（**5 轮档**）的对照（**同规模，但不同合约 ⇒ 仅供量级参考**）", "",
+        doc += ["", "## 3b. 与对照口径（池 453，**5 轮档**）的对照（**同规模，但不同合约 ⇒ 仅供量级参考**）", "",
                 "🔴 **两边的 test 集不是同一批合约**（旧 46 / 新 49，且划分重划过）⇒ "
                 "**严格说不可相减**。可相减的理由只有一条：两者的**正样本量级相当**"
                 "（旧 test 21 个正 / 新 test 干净子集 20 个正），故列出来看**方向**是合理的，"
@@ -221,16 +221,16 @@ def main() -> int:
         om = [v["micro"] for v in old.values() if v["micro"] is not None]
         oM = [v["macro"] for v in old.values() if v["macro"] is not None]
         oa = [v["mAP"] for v in old.values() if v["mAP"] is not None]
-        doc.append(f"| **旧正典**（池 453，test 46，21 正） | {np.mean(om):.4f} | {np.mean(oM):.4f} | "
+        doc.append(f"| **对照口径**（池 453，test 46，21 正） | {np.mean(om):.4f} | {np.mean(oM):.4f} | "
                    f"{np.mean(oa):.4f} |")
-        for scope, label in (("all", "**新正典**（池 497，全 test 49）"),
-                             ("clean_only", "**新正典 · 剔 buggy**（42，20 正）")):
+        for scope, label in (("all", "**正典**（池 497，全 test 49）"),
+                             ("clean_only", "**正典 · 剔 buggy**（42，20 正）")):
             mic = [cal[s]["val_thr"][scope]["micro_f1"] for s in got]
             mac = [cal[s]["val_thr"][scope]["macro_f1"] for s in got]
             ap = [cal[s]["val_thr"][scope]["mAP"] for s in got]
             doc.append(f"| {label} | {np.mean(mic):.4f} | {np.mean(mac):.4f} | {np.mean(ap):.4f} |")
         doc.append("")
-        doc += ["🔴 **读法**：把 `buggy_*` 剔掉之后，新正典与旧正典**基本持平**"
+        doc += ["🔴 **读法**：把 `buggy_*` 剔掉之后，正典与对照口径**基本持平**"
                 "（差异落在种子间 std 0.0675 之内，且 test 集还换过）⇒ "
                 "**「补回 buggy 带来的涨分」绝大部分不是检测能力，而是那 7 个全 1 标签合约本身。**", ""]
 

@@ -55,7 +55,7 @@ from model import (CONV_TYPES, AblationConfig, NodeFuser, SSMHG,
                    sample_dropout_masks)
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
-DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
+DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits/withbuggy_snapshot"
 DEFAULT_OUT_DIR = f"{BASE}/runs"
 NUM_CLASSES = 7
 NUM_RELATIONS = 5

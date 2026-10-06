@@ -41,12 +41,36 @@ LABELS = {"slither": "Slither", "mythril": "Mythril", "manticore": "Manticore",
 SEEDS = (0, 1, 2)
 BASE = REPO / "eval_results" / "baseline"
 
+# 🔴 **2026-10-02：本报告改指现行正典（池 497，layout `buggy`）。**
+#    改前读的是池 453 的 `eval_results/baseline/<工具>_alldata{,.json}` 那一代（已随池 453 删除）。
+#    两个口径的产物根**命名规则不同**（Slither 是历史命名 `slither_buggy`，其余五个是
+#    `<工具>_alldata_buggy`）⇒ 这里**不另写一套拼接**，统一走 `collect_baseline_tables.trad_root()`
+#    这一唯一真源，避免两处路径规则漂移（本仓点名过的一类静默错）。
+LAYOUT = "buggy"
+
+
+def trad_root(tool: str):
+    """该传统工具的产物**目录**（= `BASE / <stem>`）。
+
+    惰性 import `collect_baseline_tables`：本模块被它**顶层** import，模块级反向引用会构成循环导入。
+    `BASE` 仍是模块级变量 ⇒ 测试 monkeypatch 它时本函数照常跟随。
+    """
+    import collect_baseline_tables as B
+    return BASE / Path(B.trad_root(tool, LAYOUT)).name
+
+
+def trad_json(tool: str):
+    """该工具的原始产物 JSON —— 与目录同名同处，只多一个 `.json`。"""
+    return trad_root(tool).with_suffix(".json")
+
+
 # 🔴 **Slither 的范围与其余五个不同**（2026-09-25 实测）：它是 2026-09-21 跑的，
 # 覆盖 `products/alldata/graphs` 的**全部 590 个**图；其余五个只在
-# 「三种子 val∪test 的并集 = 214 个合约」上跑（成本：六个工具的逐合约预算见下）。
+# 「三种子 val∪test 的并集 = 306 个合约」上跑（成本：六个工具的逐合约预算见下）。
 # 这不是疏漏而是成本决策，必须显式披露——否则覆盖率一栏看起来像"某工具更差"。
+# （2026-10-02 改指池 497：其余五个的并集由池 453 的 214 变为 306，Slither 范围不变。）
 SLITHER_SCOPE = "全量 590 图（`products/alldata/graphs`）"
-NEW_SCOPE = "三种子 val∪test 并集 214 个合约"
+NEW_SCOPE = "三种子 val∪test 并集 306 个合约"
 
 # 逐工具的调用口径要点（与 `scripts/static_tool_adapters.py` 的 `capability` 同源，
 # 这里只留"进论文行注"的那一句）。
@@ -86,7 +110,7 @@ def load_json(p: Path):
 def tool_names() -> list[str]:
     """有原始产物的工具（按大纲 5.3 的顺序）。"""
     order = ("slither", "mythril", "manticore", "smartcheck", "securify", "oyente")
-    return [t for t in order if (BASE / f"{t}_alldata.json").exists()]
+    return [t for t in order if (trad_json(t)).exists()]
 
 
 def fmt(vals: list[float]) -> str:
@@ -104,8 +128,8 @@ def section_scope(raw: dict[str, dict]) -> list[str]:
         "",
         "| 项 | 值 |",
         "| --- | --- |",
-        "| 语料 | §37 正典池 **453**（`products/alldata/graphs`，含 `buggy_*` 共 590 图） |",
-        "| 划分 | `products/alldata/splits/split_seed{0,1,2}.json`（8:1:1 覆盖约束校正） |",
+        "| 语料 | **正典**池 **497**（`products/alldata/graphs`，共 590 图；2026-10-01 起为正典） |",
+        "| 划分 | `products/alldata/splits/withbuggy_snapshot/split_seed{0,1,2}.json`（8:1:1 覆盖约束校正） |",
         "| 评测工作点 | **只有一个**：固定 0.5。传统工具是确定性规则，**没有阈值可搜**，"
         "故不存在 `@val_thr` 那一列 |",
         "| 指标 | `micro_f1` / `macro_f1` / `逐类 F1`，全部调 `scripts/metrics.py`（三个基线同一份实现） |",
@@ -158,7 +182,7 @@ def section_coverage(raw: dict[str, dict]) -> list[str]:
         label = d.get("tool_label") or LABELS.get(tool, tool)
         covers = []
         for s in SEEDS:
-            e = load_json(BASE / f"{tool}_alldata" / f"seed{s}_eval.json")
+            e = load_json(trad_root(tool) / f"seed{s}_eval.json")
             if e:
                 t = e["test"]
                 covers.append(f"{t['n_analyzed']}/{t['n_in_split']}")
@@ -183,9 +207,11 @@ def section_coverage(raw: dict[str, dict]) -> list[str]:
                          f"{'、'.join('`'+c+'`' for c in cs) if cs else '**（无——七类都有对应检测项）**'}")
         lines.append("")
         lines.append("> ⚠ **上表与「能分析几个合约」是两件事**：`Securify` 七类都有检测项，"
-                     "但它的**可分析合约只有 15%（pragma 0.5.x）** ⇒ 它的行是"
+                     "但它的**可分析合约只有 86/306 = 28.1%**"
+                     "（pragma 0.5.x 80/88、0.4.x 6/210、无 pragma 0/8；口径 2026-10-02 按池 497 实测重算）"
+                     " ⇒ 它的行是"
                      "「检测项齐全、但只在少数合约上跑得出来」；`Smartcheck` 反之"
-                     "（**全部 214 个合约都能分析**，但**没有 reentrancy 规则**）。"
+                     "（**全部 306 个合约都能分析**，但**没有 reentrancy 规则**）。"
                      "前者影响**分母**，后者影响**某一类恒为 0** —— 读表时必须分开看。")
     lines += ["", "> ⚠ **`front_running` 是重灾区**：Slither 0.11.5 的 100 个检测器里没有任何一个覆盖 "
               "SWC-114（Transaction Order Dependence）。凡该工具不提供此检测项，其 F1 恒为 0，"
@@ -205,13 +231,14 @@ def no_detector_idx(tool: str, raw_d: dict | None = None) -> set[int]:
       · support=0 = **这个切分里没有该类正样本**（换个划分就可能有了）。
     两者在表里都画 `—`，判据分别见「交叉表」与「支持度表」。
     """
-    d = raw_d if raw_d is not None else (load_json(BASE / f"{tool}_alldata.json") or {})
+    d = raw_d if raw_d is not None else (load_json(trad_json(tool)) or {})
     miss = set(spec_of(tool, d, "no_detector_classes") or [])
     return {i for i, n in enumerate(NAMES) if n in miss}
 
 
 GRAPH_DIR = REPO / "products" / "alldata" / "graphs"
-SPLIT_DIR = REPO / "products" / "alldata" / "splits"
+# 🔴 2026-10-02 改指池 497 正典的划分快照（池 453 的 `splits/split_seed*.json` 已删除）。
+SPLIT_DIR = REPO / "products" / "alldata" / "splits" / "withbuggy_snapshot"
 _INDEX_CACHE: dict = {}
 
 
@@ -239,7 +266,7 @@ def covered_metrics(tool: str, raw_d: dict | None = None) -> dict[int, dict]:
     否则说明标签对不齐 ⇒ **直接拒绝出数**（本仓"静默给个数"的教训已经够多）。
     """
     import numpy as np
-    d = raw_d if raw_d is not None else (load_json(BASE / f"{tool}_alldata.json") or {})
+    d = raw_d if raw_d is not None else (load_json(trad_json(tool)) or {})
     contracts = d.get("contracts") or {}
     miss = no_detector_idx(tool, d)
     keep = [i for i in range(len(NAMES)) if i not in miss]
@@ -247,7 +274,7 @@ def covered_metrics(tool: str, raw_d: dict | None = None) -> dict[int, dict]:
     out: dict[int, dict] = {}
     for s in SEEDS:
         sp, ev = load_json(SPLIT_DIR / f"split_seed{s}.json"), \
-            load_json(BASE / f"{tool}_alldata" / f"seed{s}_eval.json")
+            load_json(trad_root(tool) / f"seed{s}_eval.json")
         if not sp or not ev:
             continue
         rows = [(b, idx[b]) for b in sp["test"]
@@ -278,7 +305,7 @@ def no_eval_tools(raw: dict[str, dict]) -> list[str]:
     不点名就会把「没跑完」读成「工具不行」。
     """
     return [t for t in raw
-            if not any((BASE / f"{t}_alldata" / f"seed{s}_eval.json").exists() for s in SEEDS)]
+            if not any((trad_root(t) / f"seed{s}_eval.json").exists() for s in SEEDS)]
 
 
 def degenerate_tools(raw: dict[str, dict]) -> dict[str, str]:
@@ -293,7 +320,7 @@ def degenerate_tools(raw: dict[str, dict]) -> dict[str, str]:
     for tool in raw:
         sup: list[int] = []
         for s in SEEDS:
-            e = load_json(BASE / f"{tool}_alldata" / f"seed{s}_eval.json")
+            e = load_json(trad_root(tool) / f"seed{s}_eval.json")
             if e:
                 sup.append(sum(e["test"].get("per_class_support") or []))
         if sup and all(x == 0 for x in sup):
@@ -320,7 +347,7 @@ def section_metrics(raw: dict[str, dict]) -> list[str]:
         per = {n: [] for n in NAMES}
         micros, macros = [], []
         for s in SEEDS:
-            e = load_json(BASE / f"{tool}_alldata" / f"seed{s}_eval.json")
+            e = load_json(trad_root(tool) / f"seed{s}_eval.json")
             if not e:
                 continue
             t = e["test"]
@@ -362,7 +389,7 @@ def section_metrics(raw: dict[str, dict]) -> list[str]:
               "> - 带 † 的**只描述工具自身的覆盖范围**，它**系统性偏高**（分母小了），"
               "**不得**拿去和本文方法、三条基线的 micro/macro 横比——那是拿 5 类的分母比 7 类的分母。",
               "> ⚠ 覆盖 7/7 类的工具（Mythril、Securify）两列**必然逐位相同**；"
-              "Securify 两列都是 `—`（整行不可评估，见下）。"
+              "整行不可评估的工具（该切分逐类 support 全 0）两列同为 `—`（见下方 warning）。"
               "算法：从标签与原始预测切列重算（`covered_metrics()`），"
               "切列前的重算值与产物存档逐位对拍不符即**拒绝出数**。",
               "", "**交叉表：`✗` = 该工具**不提供**此检测项（**表中该格已画 `—`**）；"
@@ -410,8 +437,8 @@ def section_metrics(raw: dict[str, dict]) -> list[str]:
               "| --- | " + " | ".join("---" for _ in NAMES) + " |"]
     for tool in raw:
         d = raw[tool]
-        e = next((load_json(BASE / f"{tool}_alldata" / f"seed{s}_eval.json") for s in SEEDS
-                  if (BASE / f"{tool}_alldata" / f"seed{s}_eval.json").exists()), None)
+        e = next((load_json(trad_root(tool) / f"seed{s}_eval.json") for s in SEEDS
+                  if (trad_root(tool) / f"seed{s}_eval.json").exists()), None)
         if not e:
             continue
         sup = e["test"].get("per_class_support") or []
@@ -425,8 +452,9 @@ def section_missing_not_at_random(raw: dict[str, dict]) -> list[str]:
     为什么这是必读而不是花边：对比表里传统工具的行都带一个"分母不同"的脚注，读者容易以为
     缺失是**随机的**（随机缺失只影响精度、不影响无偏性）。实测不是：
 
-      · Securify 只吃 **pragma 0.5.x**；而本池**所有漏洞合约都在 0.4.x**（0.5.x 一个都没有）
-        ⇒ 它的可分析集**恰好全是干净合约** ⇒ test 上 support 恒为 0 ⇒ **那一行不可评估**；
+      · Securify 只吃 **pragma 0.5.x**；在旧池 453 里漏洞合约全在 0.4.x ⇒ 可分析集恰是干净合约、
+        test 上 support 恒 0、**那一行不可评估**。🔴 **改指池 497 后不成立**：池 497 并入了
+        `buggy_*`（0.5.x、100% 正例）⇒ Securify 的可分析集**首次含漏洞合约**、行可变；
       · Oyente 钉 **solc 0.4.19** ⇒ 可分析面**正好落在漏洞所在的 0.4.x** ⇒ 它是唯一有公平机会的。
 
     ⇒ 结论必须写成「**这几个工具的覆盖率与标签强相关，故其行不可与本文方法直接横比**」，
@@ -444,7 +472,7 @@ def section_missing_not_at_random(raw: dict[str, dict]) -> list[str]:
     # 🔴 编号必须与 `build()` 的拼装顺序一致（本节在「成本」之前拼）——2026-09-26 修：
     # 原先本节标题写 六、而拼在 五、成本 之前，成品里章节序为 四 → 六 → 五。
     lines = ["## 五、🔴 覆盖率**不是**随机缺失（读对比表前必读）", "",
-             "每个工具把**它自己跑动的合约集**（Slither = 590 全库；其余五个 = 214 并集）"
+             "每个工具把**它自己跑动的合约集**（Slither = 590 全库；其余五个 = 306 并集）"
              "切成「能分析 / 不能分析」两集，两集的**漏洞比例**：", "",
              "| 工具 | 能分析：合约数 / 含漏洞 | 不能分析：合约数 / 含漏洞 | 该工具的 pragma 面 |",
              "| --- | --- | --- | --- |"]
@@ -472,7 +500,8 @@ def section_missing_not_at_random(raw: dict[str, dict]) -> list[str]:
                      f"（{(vn / len(n) * 100) if n else 0:.0f}%） | {pm} |")
     # 漏洞与 pragma 的关系 —— 🔴 **必须分「真实池 / `buggy_*` 合成注入族」两栏**。
     # 不分栏会把两件相反的事混成一句错话：全库口径下 0.5.x 有 35% 含漏洞，
-    # 而**那 35% 全部是 `buggy_*`**（100% 正例的合成注入，且**不在池 453 的划分里**）。
+    # 而**那 35% 全部是 `buggy_*`**（100% 正例的合成注入；旧池 453 用 `dataset.exclude_buggy`
+    # 剔除了它们，**现行正典池 497 已把它们并入划分**）。
     # 真实池的口径才是本节要的那个事实：**自然语料里「有漏洞 ⟺ 0.4.x」是完美分离**。
     lines += ["", "**核心事实（全库 590 图，现算；🔴 必须分族看）**：", "",
               "| 族 | pragma 主版本 | 合约数 | 其中含漏洞 | 比例 |", "| --- | --- | --- | --- | --- |"]
@@ -497,12 +526,15 @@ def section_missing_not_at_random(raw: dict[str, dict]) -> list[str]:
     lines += ["", "🔴 **上表两族必须分开读，合起来会得出相反的结论**：",
               "· **真实池**：0.4.x 有 38% 含漏洞，**0.5.x 与无 pragma 的合约一个漏洞都没有** —— "
               "自然语料里「有漏洞 ⟺ 0.4.x」是**完美分离**（128 vs 0）；",
-              "· **`buggy_*`**：**100% 正例的合成注入族**（0.5.x 那 80 个 0.5 漏洞全在这里），"
-              "而它**不在池 453 的划分里**（`dataset.exclude_buggy`）⇒ 与 5.3 的对比表无关。",
+              "· **`buggy_*`**：**100% 正例的合成注入族**（0.5.x 那 80 个 0.5 漏洞全在这里）。"
+              "🔴 **2026-10-02 改指池 497 后，这一族已并入被测池的划分**（池 497 = 池 453 + `buggy_*`；"
+              "旧池 453 用 `dataset.exclude_buggy` 把它们剔除）⇒ 它**不再是「与 5.3 对比表无关」**，"
+              "而是池内正样本的一部分。",
               "",
-              "⇒ 对本报告涉及的工具，结论是：**Securify（只吃 0.5.x）的可分析集在真实池里"
-              "恰好全是干净合约 ⇒ 它的行在 test 上结构性不可评估；Oyente（钉 0.4.19）的可分析面"
-              "正好落在漏洞所在的 0.4.x ⇒ 它是唯一有公平机会的**。",
+              "⇒ 对本报告涉及的工具，结论是：**Securify（只吃 0.5.x）的可分析集在池 497 里"
+              "第一次包含了含漏洞的合约（`buggy_*` 恰是 0.5.x、100% 正例）⇒ 它在 test 上的行"
+              "**不再结构性不可评估**（这与池 453 时的结论相反）；Oyente（钉 0.4.19）的可分析面"
+              "仍正好落在漏洞所在的 0.4.x**。",
               "凡引用这几行，必须同时给出覆盖率与本节的分集漏洞率；"
               "**不能只写「分母不同」**（那会让读者以为缺失是随机的）。", ""]
     return lines
@@ -538,7 +570,7 @@ def _run_env_notes(raw: dict[str, dict]) -> list[str]:
     报告只留一句可核查的指针：manticore 那一行是在**加了内存上限**的条件下跑的。
     """
     for tool, d in raw.items():
-        env = load_json(BASE / f"{tool}_alldata" / "run_env.json")
+        env = load_json(trad_root(tool) / "run_env.json")
         if not env:
             continue
         label = d.get("tool_label") or LABELS.get(tool, tool)
@@ -552,7 +584,7 @@ def _run_env_notes(raw: dict[str, dict]) -> list[str]:
 
 
 def build() -> tuple[str, dict]:
-    raw = {t: (load_json(BASE / f"{t}_alldata.json") or {}) for t in tool_names()}
+    raw = {t: (load_json(trad_json(t)) or {}) for t in tool_names()}
     md: list[str] = [
         "# 5.3 六个传统工具的对比实验（程序生成，勿手改）",
         "",

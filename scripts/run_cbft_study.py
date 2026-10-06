@@ -58,7 +58,7 @@ import run_guard     # noqa: E402
 import run_study     # noqa: E402  （只借用其 argv_for_diagnose，避免两处各写一份）
 
 ROOT = REPO / "runs" / "cbft_study"
-BASE_CONFIG = REPO / "runs" / "seed0" / "config.json"      # ① 主库正典（当前口径）
+BASE_CONFIG = REPO / "runs" / "seed0" / "config.json"      # ① 对照口径（池 453）
 PAIRS = [(t, s) for t in (0, 1, 2) for s in (0, 1, 2)]     # n=9 同配对
 
 # 两条臂：`cfg` 名会进叶目录名，必须是 `paired_study_analysis.LEAF_RE` 认得的 `<cfg>_ts{T}_ss{S}`

@@ -226,7 +226,7 @@ class ToolSpec:
 
         🔴 2026-09-25 实测教训：原先这是手写字段，而我给 SmartCheck 写了空元组。
         退化检查（看工具"预测为 1 的比例"）才发现 **SmartCheck 的 40 条规则里根本没有
-        reentrancy 规则**，而 `reentrancy` 恰好是最大的漏洞类（本池 24 个正例）
+        reentrancy 规则**，而 `reentrancy` 恰好是最大的漏洞类（池 497 的 306 合约并集里 84 个正例）
         ⇒ 它那一格为 0 是**工具没这个检测项**，不是「在此类上 F1=0」。
         手写就会漏、会漂移；派生则**永远与映射表自洽**（有机检：
         `tests/test_static_tool_adapters.py::test_no_detector_classes_are_derived`）。
@@ -241,8 +241,9 @@ class ToolSpec:
 # 🔴 `max_attempts` **不是** Slither 的 8。理由是一条实测的成本账：
 # `pick_solc_candidates` 会给 8 个候选（pragma 命中 → 0.8 回退 → 低版本兜底），
 # Slither 单个合约只需几秒，8 次无所谓；而 Mythril/Manticore 的单合约预算是 180–300 s，
-# 8 次 = 24–40 min/合约，214 个合约就是 85–142 h —— **不可行**。
+# 8 次 = 24–40 min/合约，池 497 的 306 个合约就是 122–204 h（= 306 × 24–40 min）—— **不可行**。
 # 取 3：pragma 命中 + 0.8 回退 + 最低兜底，已覆盖 Slither 那批"47 个首轮失败"样本的救回路径。
+# （"47 个首轮失败"是池 453 时代对 590 图 Slither 跑动的实测；首轮失败数未存进产物，未在 497 上重测。）
 # ⚠ 代价（知情）：更边缘的版本组合救不回来，会被记成 `error`（= 不计入分母），
 # 该口径与 Slither 的 `error` 同源，必须在对比表行注里写明"重试上限不同"。
 
@@ -306,10 +307,12 @@ TOOLS: dict[str, ToolSpec] = {
         key="securify", label="Securify", detector_to_class=SECURIFY_MAP,
         solc_mode=SOLC_MODE_BINARY, timeout_default=180,
         capability=(
-            "🔴 **实测边界（2026-09-25，本池 214 个合约逐条验过；最终跑数）**："
-            "**47 个成功里 45 个是 0.5.x、2 个是 0.4.x**（后者语法恰好 0.5 兼容）。"
-            "按 pragma 分：**0.5.x 成功 45/46（98%）**、**0.4.x 成功 2/161（1.2%）**、"
-            "**无 pragma 成功 0/7** ⇒ 总覆盖 **47/214 = 22.0%**。"
+            "🔴 **实测边界（池 497，306 个合约逐条算过；2026-10-02 重算）**："
+            "**86 个成功里 80 个是 0.5.x、6 个是 0.4.x**（后者语法恰好 0.5 兼容）。"
+            "按 pragma 分：**0.5.x 成功 80/88（90.9%）**、**0.4.x 成功 6/210（2.9%）**、"
+            "**无 pragma 成功 0/8（0%）** ⇒ 总覆盖 **86/306 = 28.1%**。"
+            "（算法：读 `securify_alldata_buggy.json` 的 306 条 `contracts[*]`，`status=='ok'` 为成功；"
+            "pragma 家族由每条 `source` 路径经 `parse_pragma` 推出。）"
             "⚠ 措辞取「只能吃 0.5.x 的老合约」而非「只吃 ≥0.5.8」——实测成功的 0.5.x 里含 `^0.5.0`/`^0.5.4` 这类 <0.5.8 的。",
             "🔴 **两条失败路径都实测到了**（这是「真的不行」而非「参数没调对」的证据）："
             "① 给 pragma 匹配的 0.4.x solc ⇒ `Solc version X not supported by CFG compiler`"
@@ -342,8 +345,10 @@ TOOLS: dict[str, ToolSpec] = {
         solc_mode=SOLC_MODE_FIXED, timeout_default=180,
         capability=(
             "🔴 **solc 钉死 0.4.19**（源码内 tested 版本，env 内的 `solc` shim 保证）⇒ "
-            "**0.5.x/0.8.x 的合约一律编译失败**；本轮池里 214 个合约有 161 个是 0.4.x，"
-            "故 Oyente 的可分析面**结构性偏向老合约**，这个偏差必须写进行注。",
+            "**0.5.x/0.8.x 的合约一律编译失败**；本轮池里 306 个合约有 210 个是 0.4.x，"
+            "故 Oyente 的可分析面**结构性偏向老合约**（实测可分析 52 个：51 个 0.4.x + 1 个无 pragma；"
+            "88 个 0.5.x 全部失败），这个偏差必须写进行注。"
+            "（算法同 Securify 条：`oyente_alldata_buggy.json` 的 `status` + `source` 的 `parse_pragma`。）",
             "必须在 `~/tools/oyente/oyente` 目录内跑（源码用顶层 import）；"
             "`-s` **必须是绝对路径**（相对路径在 cd 后会解析失败）；`eval` 二进制由 `PATH` 提供。",
             "⚠ 启动时硬检查 `z3.z3util`，故 z3 钉 4.8.17。",
@@ -379,7 +384,8 @@ def contract_names(source: Path) -> list[str]:
 def stage_source(source: Path, work: Path, tag: str) -> Path:
     """把源码**复制**进 `work/`（只读源目录一个字节都不写）。
 
-    🔴 复制是安全的：本轮 test∪val 的 214 个合约里 **`import` 数为 0**（实测），
+    🔴 复制是安全的：池 497 的 test∪val 306 个合约里 **`import` 数为 0**
+    （2026-10-02 重算：对全部 306 条 `contracts[*].source` 跑正则 `^\\s*import\\s`，命中 0 个），
     故不存在"相对 import 需要同级兄弟文件"的情形。Slither 的 `--json` 原先写在
     `source.parent`（= `alldata(readonly)/…`）再删掉，瞬时也违规，本轮一并改到这里。
     """
@@ -477,8 +483,8 @@ def run_manticore(source: Path, work: Path, solc: Path | None, timeout: int) -> 
         remaining = timeout - elapsed
         if remaining < MIN_MC_BUDGET:
             # 🔴 **总预算必须在文件级封顶**，否则"单合约下限 × 文件内合约数"会突破它：
-            # 本仓实测**单文件最多 19 个** contract/library/interface（全池 719 个定义），
-            # 若按"每合约至少 30 s"算，一个文件最坏 570 s —— 是 214 个文件预算的灾难。
+            # 本仓实测**单文件最多 19 个** contract/library/interface（池 497 的 306 个文件共 1108 个定义），
+            # 若按"每合约至少 30 s"算，一个文件最坏 570 s —— 是 306 个文件预算的灾难。
             statuses.extend(["skipped"] * (len(names) - i))
             break
         left = len(names) - i

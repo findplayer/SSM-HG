@@ -2,6 +2,11 @@
 
 > 计划批准于 2026-09-22（用户裁定）；本文件是仓库内的落地版，随实现同步。
 > 交付物 = `experiments/baseline_three_caliber_tables.md`。
+>
+> 🔴 **2026-10-02 口径变动**：本计划原本按**对照口径（池 453）**实施；**池 453 的全部数据已于 2026-10-02 随磁盘清理删除**
+> （清单 `runs/_del453_manifest_20261002{,b}.txt`）。三条基线的**现行产物**为 `_buggy` 后缀（池 497）：
+> `products/alldata/baseline/<名>_buggy/`、`eval_results/baseline/<名>_buggy/seed{S}/`。下文中 453 覆盖率的
+> **具体数字为冻结值、不可复算**（仅作历史记录，不得据以复现）。
 
 ## 0. 为什么做
 
@@ -22,25 +27,28 @@ MVD-HG `Linear(8→1)`+`BCELoss` / MANDO-LLM `Linear(128→2)`+CE），
 1. **路线 2** —— MVD-HG **忠实复现**（驱动其原仓库代码建图）+ EGFL/MANDO-LLM **按论文重实现**；
    以「已跑通」为优先级。
 2. **不新建 conda 环境**，在 **base** 上改造。
-3. **对比实验喂「去除 `buggy_*` 的数据集」** = §37 正典本身；EGFL 走**原生字节码模态**。
+3. **对比实验喂「去除 `buggy_*` 的数据集」（池 453 = 对照口径）**；EGFL 走**原生字节码模态**。
+
+> ⚠ 上列裁定为 2026-09-22 原口径。**2026-10-02 池 453 数据整体删除后**，三条基线的现行产物一律带 `_buggy`
+> 后缀（池 497）；本节以下条目中的 453 路径均按此对应替换。
 
 ## 1. 数据口径（已被硬证据锁定）
 
 | 项 | 值 |
 |---|---|
-| 正典（2026-09-25 换代后） | `products/alldata/graphs_ft_p2/cb_ft_ss{S}` + `products/alldata/splits/split_seed{S}.json` |
-| 池 | **453**（train 362 / val 45 / test 46） |
+| 对照口径（池 453，2026-09-25 换代后） | `products/alldata/graphs_ft_p2/cb_ft_ss{S}` + `products/alldata/splits/split_seed{S}.json`（**两处路径均已于 2026-10-02 随 453 删除**；现行正典改用 `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}` + `products/alldata/splits/withbuggy_snapshot/split_seed{S}.json`） |
+| 池 | **453**（train 362 / val 45 / test 46）（**池 453 口径的冻结值，数据已于 2026-10-02 删除**） |
 | 「去除 `buggy_*`」 | 497（`withbuggy_snapshot`）删 44 个 `buggy_*` 后与 453 **集合级恒等**（双向差集 0），逐类正样本同为 `[17,15,6,4,31,5,50]` |
 
 🔴 **不得**用「`withbuggy_snapshot` 删掉 buggy 行」代替——那份在池 497 上**重新打乱**过，
-test 会变成另一批合约，与正典 test 46 不可比。
+test 会变成另一批合约，与对照口径（池 453）test 46 不可比（⚠ 池 453 的 test 46 数据已于 2026-10-02 删除）。
 
 **统一超参**（与 `train.parse_args()` 逐键相同）：
 `epochs=200, batch_size=32, lr=1e-4, weight_decay=1e-4, scheduler_patience=3,
 pos_weight_cap=20.0, dropout=0.3`；早停判据 = val micro-F1；阈值只在 val 搜（0.20–0.80 步长 0.05）。
 
-⚠ **一处有意偏离**：`early_stop_patience` 三基线用 **20**（不是正典的 5）。
-理由：正典的 5 是为 SSM-HG 调的，实测套到 MVD-HG 上会在 **loss 仍在下降**
+⚠ **一处有意偏离**：`early_stop_patience` 三基线用 **20**（不是对照口径（池 453）的 5）。
+理由：对照口径（池 453）的 5 是为 SSM-HG 调的，实测套到 MVD-HG 上会在 **loss 仍在下降**
 （2.20→0.64，val micro 仍在爬）时于第 14 轮截断，**系统性压低基线**。
 该偏离写在每个 run 的 `results.json::reconstruction_notes` 里，并在交付物抬头上声明。
 
@@ -54,19 +62,19 @@ scripts/
   baseline_mvdhg.py           MVD-HG 训练/评估
   baseline_egfl_build.py      EGFL 离线：solc --bin → 反汇编 → 基本块 CFG → 序列 + 图向量
   baseline_egfl.py            EGFL 训练/评估
-  baseline_mando.py           MANDO-LLM 训练/评估（无离线步，复用正典图）
+  baseline_mando.py           MANDO-LLM 训练/评估（无离线步，复用正典（池 497）图）
   run_baselines.py            ★ 跑批驱动（子进程 + preflight + 断点续跑）
   collect_baseline_tables.py  ★ 汇总（import 复用 collect_three_caliber_tables）
 tests/test_baseline_tables.py  契约守卫（20 条）
-products/alldata/baseline/<name>/          # 离线特征（大，不入库）
-eval_results/baseline/<name>/seed{S}/      # 模型产物（形制同 runs/seed{S}/）
+products/alldata/baseline/<name>_buggy/      # 离线特征（大，不入库；池 497 现行；453 的 <name>/ 已于 2026-10-02 删除）
+eval_results/baseline/<name>_buggy/seed{S}/  # 模型产物（形制同 runs/buggy_canon/seed{S}/；池 497 现行）
 experiments/baseline_three_caliber_tables.md
 ```
 
-**产物落 `eval_results/baseline/<name>/seed{S}/` 的理由**：
+**产物落 `eval_results/baseline/<name>_buggy/seed{S}/` 的理由**：
 `collect_three_caliber_tables.row_from_run(run_rel, seeds)` 内部就是
 `REPO/<run_rel>/seed{S}/test_probs.pt` 与 `thresholds.json` ⇒ 把 `run_rel` 设成
-`eval_results/baseline/<name>` 即可**零重实现**复用整条汇总链。
+`eval_results/baseline/<name>_buggy` 即可**零重实现**复用整条汇总链。
 
 ## 3. 三条基线的实现与偏离
 
@@ -76,7 +84,7 @@ experiments/baseline_three_caliber_tables.md
 四关系（AST/CFG/DFG）驱动 4 层 RGCN（300→64→32→16→8）。
 偏离：DFG 有它的 40 s/文件上限；词向量只用 train 划分拟合（原实现用全体）；
 dropout 保持它的 0.1；输出头 1→7。
-**覆盖率 448/453（98.9%）**——5 个合约在任何已装 solc（试过全部 101 个候选）下都编不出
+**覆盖率 448/453（98.9%）**（**池 453 口径的冻结值**，数据已于 2026-10-02 删除 ⇒ 不可复算）——5 个合约在任何已装 solc（试过全部 101 个候选）下都编不出
 compact AST，**全部落在 train**，test 一个没少。
 
 ### B. EGFL —— 按论文重实现（原生字节码模态）
@@ -87,7 +95,7 @@ compact AST，**全部落在 train**，test 一个没少。
 （`Weights_CFG_SimOp/` 为 0 字节目录，全仓无脚本产出），论文只写「BFS 展平成 linear node feature
 matrix」，切法不可考 ⇒ 本实现按「块内 opcode 词向量取平均 → BFS 前 k 块 concat」重建。
 **不得声称复现了作者原结果。**
-覆盖率 453/453（100%）。
+覆盖率 453/453（100%）（**池 453 口径的冻结值**，数据已于 2026-10-02 删除）。
 
 ### C. MANDO-LLM —— 按论文重实现（PyG `HGTConv` 替 dgl）
 2 层 HGT / hidden 128 / heads 8；合约向量 = 全图节点隐层均值。
@@ -105,6 +113,9 @@ matrix」，切法不可考 ⇒ 本实现按「块内 opcode 词向量取平均 
   `T.render_table`，support 走 `T.support_block`，薄支撑警告走 `T._thin_support_note`。
 
 ## 5. 实测到的坑（都已修，写在这里防复发）
+
+> ⚠ 下表「现象」列里的分母 **453** = 池 453 的样本数（如 `27/453`、`8/453`），是**池 453 口径的冻结数字**
+> （该口径数据已于 2026-10-02 删除）——数字保留原值、不作换算。
 
 | # | 现象 | 根因 | 修法 |
 |---|---|---|---|

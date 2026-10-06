@@ -87,7 +87,7 @@ def structure_fingerprint(pool: list[str]) -> str:
     🔴 **为什么必须去掉路径**（2026-09-23 实测踩到，2026-09-25 换代后路径名变更、论证不变）：
     `graphs_ft_p2/cb_ft_ss{S}` 与 `graphs_ft_buggy_p2/cb_ft_ss{S}` 的三种子变体**结构逐字节相同**（`_hetero.json` 同哈希、
     `_pyg.pt` 逐位相同、`_feat.pt::type_id` 逐位相同、全池词表同为 9×187），
-    只有 CodeBERT 通道 `_cb.pt` 不同。任务 2 的新正典要求 `cb_ft_ss{S}` 与 `--split-seed S`
+    只有 CodeBERT 通道 `_cb.pt` 不同。正典（池 497）要求 `cb_ft_ss{S}` 与 `--split-seed S`
     **配对**（`AGENTS.md` 语义锁死项），于是一份形态上完全正确的 metadata 会被
     path-based 的旧指纹判成「不同语料」而**硬失败**（实测：MANDO 的 seed1/seed2 在 2–3 s 内 rc=1）。
     旧口径之所以没暴露这个错，是因为 2026-09-25 换代前 canon37 段三种子**都用 `ss0`**

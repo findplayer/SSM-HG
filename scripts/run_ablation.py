@@ -126,7 +126,7 @@ PENDING_DECISION: list[tuple[str, str, str]] = [
 
 
 def canonical_args(base_config: Path) -> dict:
-    """基线的参数（`config.json::args`）。默认 `runs/seed0/`（① 主库正典）。
+    """基线的参数（`config.json::args`）。默认 `runs/seed0/`（① 对照口径，池 453）。
 
     ② 增强集传 `--base-config runs/augmentation/seed0/config.json`：两组结果集**各自独立完整**
     （`decisions.md` §23），故各用各的基线，**绝不混用**。
@@ -140,7 +140,7 @@ def canonical_args(base_config: Path) -> dict:
     #   否则**所有**开关臂都会停在 `ss0`，与 seed1/seed2 的划分对不上（dry-run 实测过）。
     #   ⚠ 模板化只对"正典是微调版"这一形态生效；冻结版正典（`products/<语料>/graphs`）不含
     #     `/ss<数字>` 后缀，正则不匹配 ⇒ 原样返回，行为与改动前逐字一致。
-    # 🔴 2026-09-21 补：**必须同时认 `cb_ft_ss{S}` 这一形态**。任务 2 的新正典（含 `buggy_*` 的池 497）
+    # 🔴 2026-09-21 补：**必须同时认 `cb_ft_ss{S}` 这一形态**。正典（池 497，含 `buggy_*`）
     #   编码器树落在 `products/alldata/graphs_ft_buggy/cb_ft_ss{S}`（`build_graph_variant` 的命名，
     #   见 `run_arch_baselines.graph_dir_for` 的两种兼容写法）。原正则只认 `/ss\d+`，
     #   对 `cb_ft_ss0` **不匹配** ⇒ `graph_dir` 被原样写死 ⇒ seed1/seed2 静默拿到 **ss0 的编码器**

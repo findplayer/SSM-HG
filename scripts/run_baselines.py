@@ -145,7 +145,7 @@ def run_step(name: str, script: str, argv: list[str], log: Path, dry: bool) -> i
 def main() -> int:
     ap = argparse.ArgumentParser(description="5.3 三基线跑批驱动")
     ap.add_argument("--layout", choices=sorted(B.LAYOUTS), default=B.DEFAULT_LAYOUT,
-                    help="正典：canon37 = §37 正典（池 453）；buggy = 任务 2 新正典（池 497）。"
+                    help="口径：canon37 = 对照口径（池 453）；buggy = 正典（池 497，默认）。"
                          "四条路径（图/划分/特征根/产物）由它**一起**决定。")
     ap.add_argument("--baselines", default=DEFAULT_BASELINES)
     ap.add_argument("--seeds", default="0,1,2")

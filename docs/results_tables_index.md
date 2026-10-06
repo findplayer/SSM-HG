@@ -3,8 +3,12 @@
 > **定位**：本文件是**索引**，不是数字来源。它回答「哪个文件里有哪张表、这张表回答什么问题、
 > 它是不是程序生成的、引用前必须知道什么」。**表里的数字一律以产物与 §1 的权威源为准。**
 >
-> 编制日期 **2026-09-26**。口径基准：① 主库 `alldata(readonly)` / ② 增强集 `alldata_augmentation`；
-> ① 现行正典 = **微调 CodeBERT 20 轮档**（`products/alldata/graphs_ft_p2/cb_ft_ss{S}`）。
+> 编制日期 **2026-09-26**（编制时口径基准 = 池 453）。口径基准：① 主库 `alldata(readonly)` / ② 增强集 `alldata_augmentation`。
+> 🔴 **2026-10-02 口径订正：池 453 的全部数据已随磁盘清理整体删除**（清单 `runs/_del453_manifest_20261002{,b}.txt`；
+> 文档快照 `docs/archive/caliber453_snapshot_20261002/`）⇒ **本文件正文中凡出现「对照口径（池 453）」的路径/表格，
+> 其数据均已删除，数字只能作冻结值读、不可复算**。现存只有两条口径：**正典（池 497）** = 含全部 `buggy_*`
+> （`runs/buggy_canon` / `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`）与 **② 增强集**（`runs/augmentation` 等）。
+> **编码器轴不变** —— 正典现行 = **微调 CodeBERT 20 轮档**（`graphs_ft_buggy_p2/cb_ft_ss{S}`），旧 16 轮档为 `graphs_ft_buggy/`。
 >
 > 收录口径：**含实验结果表格**的文档（含 `.md` 外的登记产物入口）。设计/规则/状态表
 > （`docs/M4_interface.md`、`论文开发手册.md`、`Todo_List.md` 等）**也列出但标注「非结果表」**，
@@ -17,7 +21,8 @@
 1. **①/② 两组结果集不可比、不可合并、不可相减**（`decisions.md` §23）。跨组比较是读表第一大坑。
 2. **n=3 只作描述性**。重跑抖动实测 ≈0.012，种子间 std ≈0.0675 ⇒ |Δ| < 0.012 **先天不可判定**；
    要下方向性结论须**同配对 ≥9 点**（`decisions.md` §26.7/§27.5）。
-3. **逐类 F1 必须与 support 同读**。① 主库 test 逐类正样本只有 1–7（`dos`/`front_running` 各 1），
+3. **逐类 F1 必须与 support 同读**。① 主库 test 逐类正样本只有 1–7（`dos`/`front_running` 各 1）——**这一句是池 453 口径的冻结值**
+   （该口径数据已于 2026-10-02 删除；正典（池 497）的逐类 support 见 `per_class_three_caliber_tables_buggy.md`）——
    单类 F1 一次翻转差 0.67 ⇒ support ≤2 的类**仅描述性呈现、不进方法间比较**（大纲 5.1/5.2）。
 
 ---
@@ -27,7 +32,7 @@
 | 权威源 | 权威性声明出处 | 生成方式 |
 | --- | --- | --- |
 | `研究点一细化大纲改II.docx` | `AGENTS.md`「权威文档（冲突时按此优先级）」第 1 位 = **最高权威** | 人写 |
-| **`experiments/canonical_ft_numbers.md`** | `项目组织架构.md`：「全仓新口径数字的**权威出处**」（2026-09-20） | ✅ `scripts/collect_canonical_numbers.py --write`。🔴 **缺 `runs/error_rates.json` 直接 `SystemExit`** |
+| **`experiments/canonical_ft_numbers.md`** | `项目组织架构.md`：「全仓新口径数字的**权威出处**」（2026-09-20） | ✅ `scripts/collect_canonical_numbers.py --write`。🔴 **缺 `runs/error_rates.json` 直接 `SystemExit`**。🔴 **该文件是池 453 口径（数据已于 2026-10-02 删除）——表内数字为冻结值、不可复算**；现行正典数字见 `buggy_canon_summary.md` / `per_class_three_caliber_tables_buggy.md` |
 | **`runs/error_rates.json`**（+ `runs/error_rates.md`） | `log.md`「两份权威源」；合约级 F1 / 误报率 / 漏报率的唯一出处 | ✅ `scripts/error_rates.py`（零重训；⚠ 见 §6-(3)） |
 | `experiments/decisions.md` | `项目组织架构.md`「决议与口径裁定（**权威**）」 | 人写（**含 120+ 张表，很多结果的原始落点**） |
 | `experiments/results.md` | `项目组织架构.md`「实验结果记录（**权威**；数字与产物冲突时以产物为准）」 | 人写 |
@@ -45,9 +50,9 @@
 | `results.md` | 1081 | ~33 | ❌ 手写 | — | ①② | M5 各阶段执行记录（命令/环境/超参/指标/计时），**数字权威但部分小节未随换代刷新** |
 | `canonical_ft_numbers.md` | 170 | 7 | ✅ | `collect_canonical_numbers.py` | ①② | **权威数字载体**：逐种子 / 逐类 / 消耗 |
 | `per_class_three_caliber_tables.md` | 656 | 13 | ✅ | `collect_three_caliber_tables.py` | ①②+DIVE | 逐类 F1 × 三口径（micro/buggy/macro）× 两工作点 |
-| `per_class_three_caliber_tables_buggy.md` | 374 | 13 | ✅ | 同上 | ① 池 497 | 同上，但正典 = `runs/buggy_canon`（含 `buggy_*`） |
-| `per_class_binary_thr_ablation.md` | 98 | 3 | ✅ | `collect_per_class_binary_thr.py --write` | ① 池 453 / 池 497 | **逐类 binary-F1 @逐类验证集阈值**：正典 + 21 个消融臂（两池各一表），末两列 micro/macro 同工作点 |
-| `baseline_three_caliber_tables.md` | 725 | **28+** | ✅ | `collect_baseline_tables.py` | ① 池 453 / 池 497 | **大纲 5.3 对比表主表**：本文方法 + 三论文基线 + 六传统工具 |
+| `per_class_three_caliber_tables_buggy.md` | 374 | 13 | ✅ | 同上 | ① 池 497 | 同上，但**现行正典（池 497）** = `runs/buggy_canon`（含 `buggy_*`） |
+| `per_class_binary_thr_ablation.md` | 98 | 3 | ✅ | `collect_per_class_binary_thr.py --write` | ① 池 453（**已删**）/ 池 497 | **逐类 binary-F1 @逐类验证集阈值**：对照口径（池 453）/ 正典（池 497） + 21 个消融臂（两池各一表），末两列 micro/macro 同工作点 |
+| `baseline_three_caliber_tables.md` | 725 | **28+** | ✅ | `collect_baseline_tables.py` | ① 池 453（**已删**）/ 池 497 | **大纲 5.3 对比表主表**：本文方法 + 三论文基线 + 六传统工具 |
 | `main_aug_f1_summary.md` | 151 | 7 | ✅ | `collect_main_aug_f1_summary.py`（`--check` 逐格对拍） | ①② | **两语料同表**：① 与 ② 各一行 + **`micro-F1` 与 `macro-F1` 两列并排**；② 上基线/工具的 `—` = **未跑**（§4 逐条点名） |
 | `confusion_counts.md` | 164 | 6 | ✅ | `audit_confusion_counts.py`（**自带对拍**） | ①② | **micro/macro 背后的 TP/FP/FN**：池化计数（表 A）+ ① ② 逐类计数（表 B/C，两工作点） |
 | `traditional_tools_results.md`（+`.json`） | 347 | 12 | ✅ | `collect_traditional_tools.py` | ① | 六工具的**读表前提**：检测项→七类映射、能力边界、覆盖率、成本 |
@@ -55,28 +60,28 @@
 | `ablation_n9_results.md` | 133 | 6 | ✅ | `collect_ablation_n9.py` | ⚠ **仅 ②** | 消融 **n=9 同配对**复核：哪些 n=3 读数翻了 |
 | `ablation_three_metric_table.md` | 364 | 13 | ✅ | `collect_ablation_three_metric.py --write` | ①② | 消融三口径（Micro/Buggy×2/Macro/mAP）四张主表 |
 | `dive_external_results.md` | 519 | ~17 | ❌ 手写（`collect_dive_comparison.py` 复算数） | — | ①→DIVE | DIVE 外部测试 + 三方并列，**整代表格仍是 5 轮档** |
-| `buggy_canon_summary.md` | 113 | 6 | ✅ | `collect_buggy_canon_summary.py` | ① 池 497 | 补回 `buggy_*` 后的新正典，含**标签假象**的 `clean_only` 诊断列 |
+| `buggy_canon_summary.md` | 113 | 6 | ✅ | `collect_buggy_canon_summary.py` | ① 池 497 | **现行正典（池 497）**（补回 `buggy_*` 后），含**标签假象**的 `clean_only` 诊断列 |
 | `gcn_baseline_and_per_class_f1.md` | 221 | 5 | ❌ 手写（数据源程序生成） | `collect_per_class_f1.py --check` | ①② | 逐类 F1 三工作点 + 关系盲 GCN 基线（负面结果） |
-| `perclass_arm_results.md` | 82 | 4 | ✅ | `collect_perclass_arm.py` | ① | 7 个独立二分类器 vs 七维共享：**共享是否压制稀有类** |
-| `p1_gains.md` | 78 | 3 | ✅ | `collect_p1_gains.py` | ① | P1 三笔零重训头寸：替代工作点 / 多种子集成 / bootstrap CI |
+| `perclass_arm_results.md` | 82 | 4 | ✅ | `collect_perclass_arm.py` | ① | 7 个独立二分类器 vs 七维共享：**共享是否压制稀有类**（⚠ 源 run `runs/perclass_arm/` 已随 453 于 2026-10-02 删除） |
+| `p1_gains.md` | 78 | 3 | ✅ | `collect_p1_gains.py` | ① | P1 三笔零重训头寸：替代工作点 / 多种子集成 / bootstrap CI（⚠ 读 `eval_results/calibration/summary.json` 与池 453 的 `runs/seed*`，**均已随 453 于 2026-10-02 删除；表内数字为冻结值、不可复算**） |
 | `improvement_proposals.md` | 236 | 9 | ❌ 手写 | — | ① | 诊断与建议（含「建议是否高于噪声底线」判定） |
 | `improvement_round1_results.md` | 245 | 9 | ❌ 手写 | — | ① | 上表的**执行记录**（含 epoch 探针、Slither 实测） |
 | `report_conclusions.md` | 1206 | ~25 | ❌ 手写 | — | ①② | **结论卷**（分析建议，非决议）：该关哪些实验线 |
 | `report_data.md` | 711 | ~18 | ❌ 手写 | — | ①② | **数据卷**（非权威汇编） |
-| `cb_unlimited_reach.md` | 94 | 4 | ✅ | `audit_cb_unlimited_reach.py` | ① | `cb_unlimited` 干预触达审计（效应量为 0 的证据） |
-| `encoder_promotion_gate.md` | 61 | 4 | ✅ ⚠ **缺「程序生成」抬头** | `check_encoder_promotion.py --out` | ① | 编码器换代闸门：5 轮 vs 20 轮逐种子配对 |
+| `cb_unlimited_reach.md` | 94 | 4 | ✅ | `audit_cb_unlimited_reach.py` | ① | `cb_unlimited` 干预触达审计（效应量为 0 的证据）（⚠ 源 run `runs/ablation_callback/cb_unlimited`、`runs/ablation/` **均已随 453 于 2026-10-02 删除；表内数字为冻结值、不可复算**） |
+| `encoder_promotion_gate.md` | 61 | 4 | ✅ ⚠ **缺「程序生成」抬头** | `check_encoder_promotion.py --out` | ① | 编码器换代闸门：5 轮 vs 20 轮逐种子配对（⚠ **池 453 口径，源 run `runs/codebert_ft{,_p2}/`、`runs/seed*/` 已随 453 于 2026-10-02 删除——数字为冻结值**） |
 | `decisions.md` | 4758 | **120+** | ❌ 手写 | — | ①② | **决议卷**：口径裁定；⚠ **含大量真实结果表**（许多结果的原始落点） |
 | `ablation_plan.md` | 722 | ~10 | ❌ 手写 | — | — | 消融**计划**（**非结果表**，仅状态/开关矩阵） |
 
-### `eval_results/`（5 份**全部**程序生成）
+### `eval_results/`（程序生成；🔴 **池 453 口径的 `ablation/`、`ensemble/` 已随 453 于 2026-10-02 删除**）
 
 | 文件 | 行数 | 表数 | 生成脚本 | 一句话用途 |
 | --- | --- | --- | --- | --- |
-| `ablation/collected.md` | 270 | 6 | `collect_ablation_results.py` | 消融汇总 ①（**第一代 n=3**，最佳种子 + 3 种子 + Δ + 配对 t + 逐类） |
-| `ablation/collected_aug.md` | 270 | 6 | 同上 | 同构，语料 = ② 增强集 |
+| `ablation/collected.md`（**已删除**） | 270 | 6 | `collect_ablation_results.py` | 消融汇总 ①（**第一代 n=3**，最佳种子 + 3 种子 + Δ + 配对 t + 逐类）；🔴 池 453 口径，数据已删 |
+| `ablation/collected_aug.md`（**已删除**） | 270 | 6 | 同上 | 同构，语料 = ② 增强集 |
 | `bootstrap/main.md` | 16 | 1 | `oof_bootstrap.py` | 合约级 bootstrap 95% CI + 按 support 加权 macro |
 | `dive/comparison.md` | 277 | ~12 | `collect_dive_comparison.py` | 三方并列（①内测/②内测/DIVE(①)/DIVE(②)），**DIVE 两列永久停在 5 轮档** |
-| `ensemble/cbft_study_cbft.md` | 14 | 1 | `ensemble_eval.py` | 同划分多种子概率集成（结论：未获益） |
+| `ensemble/cbft_study_cbft.md`（**已删除**） | 14 | 1 | `ensemble_eval.py` | 同划分多种子概率集成（结论：未获益）；🔴 源 run `runs/cbft_study/` 已随 453 删除 |
 
 ### `docs/`
 
@@ -102,7 +107,7 @@
 | `项目组织架构.md` | 497 | **0** | **无表**，但是「哪些文件是程序生成」的索引入口 |
 | `runs/error_rates.md` | 47 | 3 | **权威源之一**：L3 合约级二分类 / L1 标签对级 micro / L2 逐类 FPR-FNR |
 | `runs/error_rates_ablation_aug.md` | 108 | 3 | ② 与消融臂的同三层口径表 |
-| `runs/prior_*/README.md`（6 个） | 27–58 | 小表 | 各**作废/归档口径**说明 + 位置对照（`prior_badmetric`/`dropout80`/`frozen`/`canon37`/`buggy16`/`probes`） |
+| `runs/prior_buggy16/README.md` | 27–58 | 小表 | 现存唯一的**归档口径**说明 + 位置对照（池 497 的 16 轮档前代）。🔴 其余 `prior_*`（`prior_badmetric`/`dropout80`/`frozen`/`canon37`/`probes`/`448pool` 等）已随 453 于 2026-10-02 删除 |
 
 ---
 
@@ -124,9 +129,9 @@
 - 三口径 = `micro`（全测试集标签对级）/ `buggy`（仅 `y.any()` 合约子集）/ `macro`（7 类未加权平均）。
 - 🔴 **表 1–6 = 最佳种子（① seed1 / ② seed1）单种子、无方差**；表 7–12 才是 3 种子 mean±std。
 - 🔴 **`macro` 表与 `micro` 表的逐类格逐位相同** —— macro 就是那 7 个数的平均，**恒等不是重复**。
-- 🔴 `buggy` 段的池是 **497**（test 49），与 ① 的 46 **不是同一测试集**，两边数字**不可相减**。
+- 🔴 `buggy` 段的池是 **497**（test 49），与 ① 的 46 **不是同一测试集**，两边数字**不可相减**（① 的 46 = 池 453 的 test，**该口径数据已于 2026-10-02 删除**）。
 - **`per_class_binary_thr_ablation.md`**（2026-09-27 新增）= **逐类阈值工作点**的消融版：
-  正典 + 21 臂 ×（池 453 / 池 497）。它与 `ablation_three_metric_table.md` 的**行名、层名、臂集合完全相同**，
+  对照口径（池 453，**已删**）/ 正典（池 497） + 21 臂 ×（池 453 / 池 497）。它与 `ablation_three_metric_table.md` 的**行名、层名、臂集合完全相同**，
   唯一差别是**工作点**（那张表 = 七类共享一个 `val_threshold`；本表 = 阈值逐类各一）⇒
   两表数字**不得互相替代**；本表的 micro/macro **不是**任何单点工作点的读数。两条机检见该文末。
 
@@ -134,8 +139,8 @@
 
 | 代 | 产物 | 报告 | n | 能回答什么 |
 | --- | --- | --- | --- | --- |
-| 第一代 | `runs/ablation{,_aug}/` → `eval_results/ablation/collected{,_aug}.{json,md}` | `ablation_results.md` | 3 | 只作历史留痕 |
-| 第二代 | `runs/ablation_n9{,_aug}/` | `ablation_n9_results.md` | **9** | 哪些 n=3 结论翻了（**实测 6 个臂符号翻转**） |
+| 第一代 | `runs/ablation{,_aug}/` → `eval_results/ablation/collected{,_aug}.{json,md}`（🔴 ① 主库的 `ablation/` 与 `eval_results/ablation/` **已随 453 于 2026-10-02 删除**；② 侧 `ablation_aug/` 保留） | `ablation_results.md` | 3 | 只作历史留痕 |
+| 第二代 | `runs/ablation_n9{,_aug}/`（🔴 ① 主库的 `ablation_n9/` **已随 453 删除**；② 侧 `ablation_n9_aug/` 保留） | `ablation_n9_results.md` | **9** | 哪些 n=3 结论翻了（**实测 6 个臂符号翻转**） |
 | 第三代 | `runs/ablation_buggy/` | `per_class_three_caliber_tables_buggy.md` | 3 | 池 497 上的消融（**含标签假象**） |
 
 - `ablation_three_metric_table.md` 是**独立于上述三代**的三口径复算，含 §1.3「本测试集对大多数
@@ -144,9 +149,10 @@
 
 ### D. 5.3 对比实验
 
-- **主表 = `baseline_three_caliber_tables.md`**（两段两个正典：§一 池 453 / §三 池 497）。
-  含：逐类 support、图与特征来源、训练成本、**合约级二分类口径（含平凡下限与净技能）**、
-  表 1–14（§一）、表 15–28（§三）。口径声明与逐行声明**全部在文末「附」**。
+- **主表 = `baseline_three_caliber_tables.md`**（正典段与对照段：**§一/§二 = 正典（池 497）；§三/三之一/三之二 = 对照口径（池 453）**）。含：逐类 support、图与特征来源、训练成本、**合约级二分类口径（含平凡下限与净技能）**、
+  表 1–14（§一/§二）、表 15–28（§三）。口径声明与逐行声明**全部在文末「附」**。
+  🔴 **2026-10-02 订正：本行原写「§一 池 453 / §三 池 497」，写反了。**已核对生成物本体：§一/§二 的数据行 support 形如 `11/16/17 / 49`（**test 49 = 池 497**），§三 的抬头字面即 `# 三、对照口径：仅正常合约的池 453`（test 46）。`论文开发手册.md` 与 `Todo_List.md` 两处是正确的那一版。
+  ⚠ **§三（池 453 对照段）的数据已于 2026-10-02 删除，表内数字为冻结值、不可复算**；§一/§二（池 497）仍有效。两段 test 集不同（49 vs 46）⇒ **跨段数字不可相减**。
 - **`traditional_tools_results.md`** = 六工具的**读表前提**（映射尺 / 能力边界 / 覆盖率 / 成本），
   数字本身在主表的六行里。
 - 🔴 报告口径里 **GCN / CodeBERT 文本基线已作废**（大纲 5.3 表里既无 CodeBERT、也无 GCN/GAT）。
@@ -179,8 +185,8 @@
 
 ### H. 归档与草稿区（**不入库**）
 
-- `runs/prior_*/`：六代作废/归档口径的产物与 README（**完整保留、可审计**，`aggregate_results.py`
-  按 `prior_` 前缀自动排除）。
+- `runs/prior_buggy16/`：池 497 的 16 轮档归档产物与 README（**保留、可审计**，`aggregate_results.py`
+  按 `prior_` 前缀自动排除）。🔴 其余 `prior_*`（`prior_canon37`/`frozen`/`badmetric`/`dropout{80,study}`/`448pool`/`probes`）**已随池 453 于 2026-10-02 删除**。
 - `runs/_snap/`：分析中途的临时件（换代前后对照快照、事实清单等），`.gitignore` 第 64 行排除。
 - `runs/_tools_work/`：传统工具的源码副本与中间产物，`.gitignore` 第 70 行排除。
 
@@ -190,12 +196,12 @@
 
 | 陷阱 | 涉及文件 | 要点 |
 | --- | --- | --- |
-| **换代横幅（5 轮 → 20 轮，2026-09-25）** | `results.md`、`report_data.md`、`ablation_results.md`、`dive_external_results.md`、`论文开发手册.md`、`docs/M5_dev_plan.md` | 只有 `canonical_ft_numbers.md` + `runs/error_rates.json` 是现行；其余多数仍是旧代 |
-| **四代作废口径** | 全部 | 448 池 / dropout-80 语义 / 坏指标 `.ravel()` / 冻结编码器 —— 各代归档见 `runs/prior_*` |
+| **换代横幅（5 轮 → 20 轮，2026-09-25）** | `results.md`、`report_data.md`、`ablation_results.md`、`dive_external_results.md`、`论文开发手册.md`、`docs/M5_dev_plan.md` | 只有 `runs/error_rates.json`（+ 正典（池 497）报告）是现行；其余多数仍是旧代。⚠ `canonical_ft_numbers.md` 是**池 453 口径（数据已于 2026-10-02 删除）**，其数字为冻结值 |
+| **四代作废口径** | 全部 | 448 池 / dropout-80 语义 / 坏指标 `.ravel()` / 冻结编码器 —— 归档见 `runs/prior_buggy16/`（**其余 `prior_*` 已随池 453 于 2026-10-02 删除**） |
 | **单种子无方差** | `per_class_*` 表 1–6、`baseline_*` 表 1–8、`dive_external_results.md` | 最佳种子口径**不得**据以下「某干预有效」结论 |
-| **跨段/跨列不可相减** | `baseline_three_caliber_tables.md`（池 453 vs 497）、`per_class_*_buggy.md`（46 vs 49）、`dive/comparison.md`（四列四种条件） | 可比的只有**同列/同段内的 Δ** |
+| **跨段/跨列不可相减** | `baseline_three_caliber_tables.md`（池 453 vs 497）、`per_class_*_buggy.md`（46 vs 49）、`dive/comparison.md`（四列四种条件） | 可比的只有**同列/同段内的 Δ**。⚠ 池 453 段数据已于 2026-10-02 删除 ⇒ 其数字为冻结值 |
 | **标签假象** | `buggy_canon_summary.md`、`per_class_three_caliber_tables_buggy.md`、`report_conclusions.md` | `buggy_*` 标签绝大多数七类全 1 ⇒ 全报有漏洞即可满分 |
-| **逐类阈值是「并列口径」不是主口径** | `per_class_binary_thr_ablation.md`、`baseline_three_caliber_tables.md`（表 1/15）、`gcn_baseline_and_per_class_f1.md`、`p1_gains.md`、`perclass_arm_results.md` | 换逐类阈值后 **macro 升、micro 降**；① 主库 val 每类仅 1–3 正样本（`dos` 阈值三种子极差 0.55）⇒ 其 std 含**阈值抖动**、不得读成纯模型方差 |
+| **逐类阈值是「并列口径」不是主口径** | `per_class_binary_thr_ablation.md`、`baseline_three_caliber_tables.md`（表 1/15）、`gcn_baseline_and_per_class_f1.md`、`p1_gains.md`、`perclass_arm_results.md` | 换逐类阈值后 **macro 升、micro 降**；① 主库 val 每类仅 1–3 正样本（`dos` 阈值三种子极差 0.55；**该 1–3 / 0.55 为池 453 口径的冻结值**）⇒ 其 std 含**阈值抖动**、不得读成纯模型方差 |
 | **`—` 有三种成因** | `traditional_tools_results.md`、`baseline_three_caliber_tables.md`、`main_aug_f1_summary.md` | (a) 工具不提供该检测项；(b) 整行不可评估；(c) **尚未评测**。**真实 0 一律保留**。⚠ `main_aug_f1_summary.md` 的 `—` **只有 (c) 一种**（② 上基线/工具整块未跑，§4 逐条点名）⇒ 两张表的 `—` **不可互相套用读法** |
 | **覆盖率不是随机缺失** | `traditional_tools_results.md`、`log.md` | 真实池 0.4.x 38% 含漏洞 / 0.5.x **0%** ⇒ Securify 可分析集恰好全是干净合约 |
 | **程序生成 ≠ 可重跑** | 见 §6-(1) | 五个 `collect_*.py` 的 `--out` 默认空串（只打印），两个还要 `--write` |
@@ -227,12 +233,9 @@
 
 ## 6. 三处已核实的不一致 / 待办（供作者裁定）
 
-1. ⚠ **`ablation_n9_results.md` 只渲染了 ②，① 的表没进报告**（本次实测）：
-   `eval_results/ablation/n9_main.json` 存在且完好（`group='main'`、9 对齐全、31 臂、
-   `baseline_missing=[]`），而报告正文只有「## ② 增强集」一节；报告 mtime（2026-09-25 17:07:59）
-   与 `n9_summary.json`（`group='aug'`）**同一时刻**、而 `n9_main.json` mtime 是 2026-09-21
-   ⇒ 极可能是上次按 `--group aug` 跑的。补法：`python scripts/collect_ablation_n9.py --group both`
-   （⚠ 会**同时改写** `--out` 与 `--json-out` 两个默认目标，重跑前先确认）。
+1. ~~⚠ **`ablation_n9_results.md` 只渲染了 ②，① 的表没进报告**~~ **（已随 453 删除而关闭）**：
+   ① 主库的 `eval_results/ablation/n9_main.json`、`n9_summary.json` 已于 2026-10-02 删除 ⇒ 该项待办自然作废，
+   现仅 ② 增强集的 n=9 报告仍有效（原记录：`n9_main.json` 存在且完好、报告正文只有「## ② 增强集」一节）。
 2. ⚠ **`runs/error_rates.md` / `error_rates_ablation_aug.md` 没有脚本落盘点**（本次实测）：
    `scripts/error_rates.py` 只 `print()` markdown、`--out` 只写 `.json`；`runs/_p5_collect.sh`
    也只调 json ⇒ 这两份 `.md` 是 **stdout 重定向**的产物，**与 json 无自动同步保证**。

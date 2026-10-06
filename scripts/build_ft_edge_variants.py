@@ -30,9 +30,9 @@
   python scripts/build_ft_edge_variants.py --dataset alldata --dry-run
   python scripts/build_ft_edge_variants.py --dataset alldata
   python scripts/build_ft_edge_variants.py --dataset augmentation
-  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy   # 任务 2 旧正典（16 轮档）的配套变体
+  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy   # 正典（池 497）旧档（16 轮编码器档）的配套变体
   python scripts/build_ft_edge_variants.py --dataset alldata --layout canon_p2    # ① 现行正典（20 轮档）
-  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy_p2    # 任务 2 现行正典（20 轮档）
+  python scripts/build_ft_edge_variants.py --dataset alldata --layout buggy_p2    # 正典（池 497）现行档（20 轮档）
 
 🔴 **产物一律落在"与该 layout 的微调基座同级的 `graph_variants/`"下**，与
 `run_ablation.variants_root_of()` 从该 layout 正典 `graph_dir` 推导出的路径一致 ——
@@ -71,13 +71,13 @@ def paths(ds: str, layout: str = "canon") -> dict[str, Path]:
     不得按语料各取各的（那会造出两个可能漂移的来源，`AGENTS.md`「数据边界」）。
 
     `layout` 四种：
-      - `canon`：§37 正典（**5 轮编码器档**，2026-09-25 起降为消融档）。
+      - `canon`：对照口径（池 453）的 5 轮编码器档输入树（2026-09-25 起降为消融档）。
         微调基座 `products/<语料>/graphs_ft/ss{S}`，编码器 `runs/codebert_ft/<语料>/ss{S}/encoder`。
       - `canon_p2`：**① 现行正典**（20 轮编码器档）。微调基座 `products/alldata/graphs_ft_p2/cb_ft_ss{S}`，
         编码器 `runs/codebert_ft_p2/ss{S}/encoder`。
-      - `buggy`：任务 2 的**旧**正典（池 497，16 轮编码器档）。
+      - `buggy`：正典（池 497）的**旧**档（16 轮编码器档）。
         微调基座 `products/alldata/graphs_ft_buggy/cb_ft_ss{S}`，编码器 `runs/codebert_ft_buggy/ss{S}/encoder`。
-      - `buggy_p2`：**任务 2 现行正典**（池 497，20 轮编码器档，2026-09-25 换代）。
+      - `buggy_p2`：**正典（池 497）现行档**（20 轮编码器档，2026-09-25 换代）。
         微调基座 `products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`，
         编码器 `runs/codebert_ft_buggy_p2/ss{S}/encoder`。
 
@@ -279,10 +279,10 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dataset", required=True, choices=["alldata", "augmentation"])
     ap.add_argument("--layout", default="canon", choices=["canon", "canon_p2", "buggy", "buggy_p2"],
-                    help="微调基座布局。`canon`=§37 正典（graphs_ft/ss{S}，5 轮档）；"
+                    help="微调基座布局。`canon`=对照口径（池 453）的 5 轮档输入树（graphs_ft/ss{S}）；"
                          "`canon_p2`=① 现行正典（graphs_ft_p2/cb_ft_ss{S}，20 轮档）；"
-                         "`buggy`=任务 2 旧正典（graphs_ft_buggy/cb_ft_ss{S}，16 轮档）；"
-                         "`buggy_p2`=任务 2 现行正典（graphs_ft_buggy_p2/cb_ft_ss{S}，20 轮档）。"
+                         "`buggy`=正典（池 497）旧档（graphs_ft_buggy/cb_ft_ss{S}，16 轮编码器档）；"
+                         "`buggy_p2`=正典（池 497）现行档（graphs_ft_buggy_p2/cb_ft_ss{S}，20 轮编码器档）。"
                          "默认 canon ⇒ 既有调用行为逐字不变。")
     ap.add_argument("--dry-run", action="store_true", help="只断言 + 分流 + 打印将要建的目录。")
     args = ap.parse_args()

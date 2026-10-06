@@ -35,7 +35,7 @@ from dataset import (DEFAULT_GRAPH_DIR, ENV_LABEL_FILE, ENV_LABEL_KEY_MODE, Abla
 from model import AblationConfig, NodeFuser, SSMHG
 
 BASE = "/home/saumarez/projects/deep-learning/SSM-HG"
-DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits"
+DEFAULT_SPLIT_DIR = f"{BASE}/products/alldata/splits/withbuggy_snapshot"
 DEFAULT_RUNS_DIR = f"{BASE}/runs"
 NUM_RELATIONS = 5
 
@@ -301,11 +301,12 @@ def _provenance(runs_dir: Path, seeds: list) -> dict:
     """**口径戳**：summary 描述的是哪一套正典（编码器树 / 划分种子 / 每种子阈值）。
 
     只读各 seed 的 `config.json`，**不加载权重**。取不到就记 null，**不猜**。
-    `graph_dir` 是判定的唯一依据。2026-09-25 编码器换代后共六种形态：
-      - `…/graphs_ft_buggy_p2/cb_ft_ss{S}` = 任务 2 **现行**正典（20 轮档）
-      - `…/graphs_ft_buggy/cb_ft_ss{S}`    = 任务 2 旧正典（16 轮档，池 497）
-      - `…/graphs_ft_p2/cb_ft_ss{S}`       = ① **现行**正典（20 轮档，§37 谱系）
-      - `…/graphs_ft/ss{S}`                = ① 旧正典（5 轮档；其 run 归档于 runs/prior_canon37）
+    `graph_dir` 是判定的唯一依据。2026-09-25 编码器换代后共六种形态。
+    ⚠ **2026-10-01 口径对调**：池 497 升为正典、池 453 降为对照口径，下表已按新角色标注：
+      - `…/graphs_ft_buggy_p2/cb_ft_ss{S}` = **正典 现行**（20 轮档，池 497）
+      - `…/graphs_ft_buggy/cb_ft_ss{S}`    = 正典 旧档（16 轮档，池 497）
+      - `…/graphs_ft_p2/cb_ft_ss{S}`       = **对照口径 现行**（20 轮档，池 453；原名「§37 正典」）
+      - `…/graphs_ft/ss{S}`                = 对照口径 旧档（5 轮档；其 run 归档于 runs/prior_canon37）
       - `…/graphs`                         = 冻结编码器树（现仅 `cb_frozen` 类消融臂）
       - 其余按原样记录
     """
@@ -330,15 +331,15 @@ def _provenance(runs_dir: Path, seeds: list) -> dict:
     #   `graphs_ft_buggy_p2` ⊃ `graphs_ft_buggy` ⊃ `graphs_ft`，`graphs_ft_p2` ⊃ `graphs_ft`
     #   —— 顺序写错会让新臂被口径戳写成旧档，那正是口径戳要防的事（自己认错自己）。
     elif all("graphs_ft_buggy_p2" in g for g in graph_dirs):
-        encoding = "fine-tuned CodeBERT（**20 轮档**；含 buggy_* 的池 497 划分；任务2 现行正典）"
+        encoding = "fine-tuned CodeBERT（**20 轮档**；含 buggy_* 的池 497 划分；**正典 现行**）"
     elif all("graphs_ft_buggy" in g for g in graph_dirs):
-        encoding = "fine-tuned CodeBERT（**16 轮档**；含 buggy_* 的池 497 划分；任务2 旧正典）"
+        encoding = "fine-tuned CodeBERT（**16 轮档**；含 buggy_* 的池 497 划分；正典 旧档）"
     elif all("graphs_ft_p2" in g for g in graph_dirs):
-        encoding = "fine-tuned CodeBERT（**20 轮档**；① 现行正典，§37 谱系）"
+        encoding = "fine-tuned CodeBERT（**20 轮档**；**对照口径 现行**，池 453）"
     elif all("graphs_ft" in g for g in graph_dirs):
-        encoding = "fine-tuned CodeBERT（**5 轮档**；§37 旧正典，run 已归档于 runs/prior_canon37）"
+        encoding = "fine-tuned CodeBERT（**5 轮档**；对照口径 旧档，池 453，run 已归档于 runs/prior_canon37）"
     elif all(Path(g).name == "graphs" for g in graph_dirs):
-        encoding = "frozen CodeBERT（§37 前正典；现仅消融臂 cb_frozen）"
+        encoding = "frozen CodeBERT（冻结档；现仅消融臂 cb_frozen）"
     else:
         encoding = "混合（⚠ 同一次聚合里出现了不同的编码器树，结果不可解读）"
     return {"n_configs": n, "encoder": encoding,

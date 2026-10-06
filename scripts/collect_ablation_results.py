@@ -6,7 +6,9 @@
   - 表 B **Δ 相对正典**（★ = |Δ| 超过正典种子间 std）：这个差比种子间噪声大吗；
   - 表 C **同配对 t**：在**同一划分、同一数据**下，这个差稳定同号吗。
 `paired_t()` 能成立是因为 `run_ablation.build_args` 把 `split_seed` 绑成等于 `seed`，
-故臂的 `seed{s}` 与正典 `runs/seed{s}` 是天然配对。
+故 ① 组臂的 `seed{s}` 与**对照口径** `runs/seed{s}` 是天然配对（② 组则与本组正典配对）。
+🔴 **2026-10-01 口径对调**：① 组（`runs/`）是**池 453**，其角色由「正典」降为**对照口径**；
+   ② 组（`runs/augmentation/`）不受影响，仍是正典。两组的行标签由 `GROUPS[*]["canon_word"]` 给出。
 
 **为什么要有它**：`evaluate.py --summarize` 只汇总 `test` 的 micro/macro，而本项要看的
 「精确匹配（subset accuracy）」「mAP」「训练消耗」分散在 `results.json` 与 `config.json::timing` 里；
@@ -31,7 +33,10 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
-# 组 → (正典 runs 目录模板, 消融根, 显示名, **应有臂集合**)
+# 组 → (基线 run 目录模板, 消融根, 显示名, **应有臂集合**)
+#
+# `canon_word`：该组基线行的**角色名**。① 组跑在池 453 上（2026-10-01 起为**对照口径**），
+# ② 组跑在增强集上（仍是**正典**）。渲染时用它拼行标签，故两组各说各的、不串味。
 #
 # 🔴 `expect` 不是装饰：只比对"目录里有什么"的话，**一个目录都还没建的臂会被当成不存在**
 # （既不是"丢弃"也不是"缺失"，连警告都没有）——② 的 `cb_ft` 就是这样：
@@ -53,13 +58,15 @@ GROUPS = {
     "main": {
         "canon": "runs/seed{s}",
         "arms": "runs/ablation",
-        "title": "① 主库 alldata(readonly)",
+        "title": "① 对照口径（池 453）alldata(readonly)",
+        "canon_word": "对照口径",                 # 池 453：2026-10-01 由「正典」降为对照口径
         "expect": SWITCH_16 + PRODUCT_5,          # 21 臂
     },
     "aug": {
         "canon": "runs/augmentation/seed{s}",
         "arms": "runs/ablation_aug",
         "title": "② 增强集 alldata_augmentation",
+        "canon_word": "正典",                     # 增强集：池对调不影响它
         # ⚠ 2026-09-19（§37）起 ② 与 ① **同为 21 臂**：原先只跑产物层 5 臂是当时的设计
         #   （"前 16 项只在 ① 上跑"），本次重跑把开关类 16 项一并补上，两组语料从此**逐臂对齐**。
         "expect": SWITCH_16 + PRODUCT_5,         # 21 臂
@@ -223,7 +230,7 @@ def collect(group: str) -> dict:
     cfg = GROUPS[group]
     canon = _canon_metrics(cfg["canon"])
     if canon is not None:
-        # 微调是**正典**的一部分（§37）：挂到正典行，否则这段成本在表里无处安放
+        # 微调是**主方案配置**的一部分（§37 起）：挂到该组的基线行，否则这段成本在表里无处安放
         canon["ft_cost"] = ft_cost_of(group)
     arms, dropped = {}, []
     for arm_dir in sorted((REPO / cfg["arms"]).glob("*")):
@@ -252,13 +259,15 @@ def collect(group: str) -> dict:
         print(f"⚠ [{group}] 以下臂**尚未产出**（目录都不存在）：{missing}\n"
               f"   → 本表按设计应有 {len(cfg['expect'])} 臂，现只有 {len(arms)} 臂。", flush=True)
     return {"title": cfg["title"], "canon": canon, "arms": arms,
+            "canon_word": cfg["canon_word"],
             "dropped_arms": dropped, "missing_arms": missing,
             "n_expected": len(cfg["expect"])}
 
 
 def _canon_metrics(pattern: str) -> dict | None:
-    """正典臂的目录布局是 `runs/seed{s}`（**seed 目录直接在根下**），与消融的
-    `<arm>/seed{s}` 不同，故单列一个入口。"""
+    """基线（① 对照口径 / ② 正典）臂的目录布局是 `runs/seed{s}` 或
+    `runs/augmentation/seed{s}`（**seed 目录直接在根下**），与消融的 `<arm>/seed{s}`
+    不同，故单列一个入口。"""
     per_seed, pcs = {}, []
     for s in SEEDS:
         rp = REPO / pattern.format(s=s) / "results.json"
@@ -293,8 +302,9 @@ def paired_t(arm: dict, canon: dict, key: str) -> dict | None:
     """同配对 Δ 与配对 t。
 
     **为什么消融臂可以直接配对**：`run_ablation.py` 把 `split_seed` 绑成等于 `seed`
-    （`build_args` 里 `args["split_seed"] = seed`），故臂的 `seed{s}` 与正典的 `runs/seed{s}`
-    **同划分、同数据**——配对比较消掉划分方差，这正是 §26.7/§27.5 要求的做法。
+    （`build_args` 里 `args["split_seed"] = seed`），故臂的 `seed{s}` 与该组基线行
+    （① 对照口径 `runs/seed{s}` / ② 正典 `runs/augmentation/seed{s}`）**同划分、同数据**
+    ——配对比较消掉划分方差，这正是 §26.7/§27.5 要求的做法。
 
     ⚠ n=3 时 df=2，`|t| > 4.303` 才是 p<0.05；但**本仓规范是"判方向须 n≥9"**
     （噪声 ±0.05–0.07 量级，n=3 的表面模式不可信）。故 t 只作**描述性**呈现，
@@ -317,7 +327,7 @@ def paired_t(arm: dict, canon: dict, key: str) -> dict | None:
 
 
 def mark(value, thresh) -> str:
-    """超出正典种子间 std 的差值标 ★（**只表示"值得复核"，n=3 不足以判定方向**）。"""
+    """超出该组基线行种子间 std 的差值标 ★（**只表示"值得复核"，n=3 不足以判定方向**）。"""
     if value is None or thresh is None:
         return ""
     return "★" if abs(value) > thresh else ""
@@ -325,12 +335,13 @@ def mark(value, thresh) -> str:
 
 # ------------------------------------------------------------------ 最佳种子口径（2026-09-20 用户裁定）
 def best_seed_of(canon: dict) -> str:
-    """「效果最好的种子」= **正典**在**主指标 micro-F1@val_thr** 上最高的那个种子。
+    """「效果最好的种子」= 该组基线行（① 对照口径 / ② 正典）在**主指标 micro-F1@val_thr**
+    上最高的那个种子。
 
     🔴 两条口径，缺一不可：
       1. **按论文主指标选**（micro-F1@val_thr）——若用 mAP 去挑种子、却拿它报 F1，
          就是口径错配（同一件事本仓已在 `.ravel()` 与 dropout 语义上栽过两次）；
-      2. **只从正典选一个，然后全部臂共用它** —— 若每个臂各挑自己的最佳种子，
+      2. **只从基线行选一个，然后全部臂共用它** —— 若每个臂各挑自己的最佳种子，
          得到的其实是「best-of-3」，**臂间不再可比**，且会系统性虚高。
 
     ⚠ 已知代价（论文须披露）：本仓实测**重跑抖动 ≈0.012，约为种子间 std 的 40%**
@@ -341,23 +352,24 @@ def best_seed_of(canon: dict) -> str:
     return max(canon["per_seed"], key=lambda s: canon["per_seed"][s]["micro_thr"])
 
 
-def render_best_seed(canon: dict, arms: dict, k: str, names: list[str]) -> list[str]:
+def render_best_seed(canon: dict, arms: dict, k: str, names: list[str],
+                     cw: str = "正典") -> list[str]:
     """按**单一最佳种子**出表（用户 2026-09-20 裁定为主口径）。"""
-    out = [f"> 🔴 **本节按「最佳种子」口径**：第 **{k}** 号种子（判据 = **正典**在 "
+    out = [f"> 🔴 **本节按「最佳种子」口径**：第 **{k}** 号种子（判据 = **{cw}** 在 "
            f"micro-F1@val_thr 上最高，即 {canon['per_seed'][k]['micro_thr']:.4f}）。",
-           f"> **正典与全部 {len(arms)} 个臂一律取该种子**，故表内可比。",
+           f"> **{cw}与全部 {len(arms)} 个臂一律取该种子**，故表内可比。",
            "> ⚠ 单种子**无方差**可言，且重跑抖动 ≈0.012（约为种子间 std 的 40%，`decisions.md` §36.4）",
            "> ⇒ **不得**据此下「某干预有效/无效」的结论；mean±std 与同配对 t 见**附录**。", ""]
     out += [f"## 表 A′：绝对值（**最佳种子 seed{k}**）", "",
             "| 臂 | " + " | ".join(names) + " |", "| --- | " + " | ".join("---" for _ in METRICS) + " |"]
-    for label, arm in [("**正典**", canon)] + sorted(arms.items()):
+    for label, arm in [(f"**{cw}**", canon)] + sorted(arms.items()):
         ps = arm["per_seed"].get(k)
         if not ps:
             out.append(f"| {label} | " + " | ".join("—" for _ in METRICS) + " |")
             continue
         out.append(f"| {label} | " + " | ".join(f"{ps[key]:.4f}" for key in METRICS) + " |")
     cps = canon["per_seed"].get(k, {})
-    out += ["", f"## 表 B′：Δ 相对正典（**最佳种子 seed{k}**）", "",
+    out += ["", f"## 表 B′：Δ 相对{cw}（**最佳种子 seed{k}**）", "",
             "| 臂 | " + " | ".join(f"Δ{n}" for n in names) + " |",
             "| --- | " + " | ".join("---" for _ in METRICS) + " |"]
     for label, arm in sorted(arms.items()):
@@ -371,12 +383,15 @@ def render_best_seed(canon: dict, arms: dict, k: str, names: list[str]) -> list[
 
 
 def render_markdown(group: str, data: dict) -> str:
-    """两张表：**绝对值**（各臂 mean±std）与 **Δ**（相对正典，超 std 标 ★）。
+    """两张表：**绝对值**（各臂 mean±std）与 **Δ**（相对该组基线行，超 std 标 ★）。
 
-    拆开是因为混在一张表里时，正典行填的是绝对值、其余行填的是 Δ，同一列两种语义——
+    拆开是因为混在一张表里时，基线行填的是绝对值、其余行填的是 Δ，同一列两种语义——
     读者极易把 "+0.03" 当成绝对值。本仓对"口径混用"的教训已经够多。
+
+    ⚠ 基线行的**角色名**逐组不同（① 对照口径 / ② 正典），取自 `data["canon_word"]`。
     """
     canon = data["canon"]
+    cw = data.get("canon_word", "正典")
     names = [n for _, n in METRICS.values()]
     lines = [f"# 消融结果汇总：{data['title']}", ""]
     # 产物不全的臂要**写在产物自己身上**：汇总 md 会被单独传阅/引用，
@@ -395,18 +410,18 @@ def render_markdown(group: str, data: dict) -> str:
         parts.append("> ⚠ 缺的臂**不是「该项不存在」**。**引用本表前请先补齐并重跑本脚本。**")
         lines += parts + [""]
     if canon is None:
-        return "\n".join(lines + ["⚠ 正典基线缺失，无法出表。"])
+        return "\n".join(lines + [f"⚠ {cw}基线缺失，无法出表。"])
     k = best_seed_of(canon)
     lines += ["---", "", "# 主口径：最佳种子（用户 2026-09-20 裁定）", ""]
-    lines += render_best_seed(canon, data["arms"], k, names)
+    lines += render_best_seed(canon, data["arms"], k, names, cw)
     lines += ["---", "", "# 附录：3 种子 mean±std（保留——单种子无方差，见上）", ""]
     lines += ["## 表 A：绝对值（3 种子 mean±std）", "",
               "| 臂 | " + " | ".join(names) + " | 训练 wall(s) | epoch 数 | 参数量 |",
               "| --- | " + " | ".join("---" for _ in METRICS) + " | --- | --- | --- |"]
-    for label, arm in [("**正典**", canon)] + sorted(data["arms"].items()):
+    for label, arm in [(f"**{cw}**", canon)] + sorted(data["arms"].items()):
         cells = [fmt(arm["stats"][k]["mean"], arm["stats"][k]["std"]) for k in METRICS]
         cost, pr = arm.get("cost") or {}, arm.get("params") or {}
-        # 正典是**两段式**（§37 起）：GNN 那段 wall 之外还要单列微调段，
+        # 该组基线行是**两段式**（§37 起）：GNN 那段 wall 之外还要单列微调段，
         # 否则整套方法的成本被低估一个数量级（微调小时级 vs GNN 秒级）
         ft = arm.get("ft_cost") or {}
         wall = cost.get("wall_s_mean", "—")
@@ -415,7 +430,7 @@ def render_markdown(group: str, data: dict) -> str:
         lines.append(f"| {label} | " + " | ".join(cells)
                      + f" | {wall} | {cost.get('epochs_mean', '—')} "
                        f"| {pr.get('total_params', '—')} |")
-    lines += ["", "## 表 B：Δ 相对正典（★ = |Δ| 超过正典的种子间 std）", "",
+    lines += ["", f"## 表 B：Δ 相对{cw}（★ = |Δ| 超过{cw}的种子间 std）", "",
               "| 臂 | " + " | ".join(f"Δ{n}" for n in names) + " |",
               "| --- | " + " | ".join("---" for _ in METRICS) + " |"]
     stds = {k: canon["stats"][k]["std"] for k in METRICS}
@@ -432,7 +447,7 @@ def render_markdown(group: str, data: dict) -> str:
     # 与表 B 分开呈现，因为两者回答**不同的问题**：表 B 问"这个差比种子间噪声大吗"，
     # 表 C 问"在**同一划分、同一初始化**下，这个差稳定同号吗"。混在一张表里最容易
     # 让读者把 t 值当成效应量——故只列 t，Δ 的数值一律回表 B 看。
-    lines += ["", "## 表 C：同配对 t（臂 seed{s} ↔ 正典 runs/seed{s}，同划分同数据）", "",
+    lines += ["", f"## 表 C：同配对 t（臂 seed{{s}} ↔ {cw}的 run（见该组 canon 目录），同划分同数据）", "",
               "| 臂 | " + " | ".join(f"t({n})" for n in names) + " |",
               "| --- | " + " | ".join("---" for _ in METRICS) + " |"]
     for name, arm in ordered:
@@ -449,7 +464,7 @@ def render_markdown(group: str, data: dict) -> str:
     for wp, wname in (("fixed_0.5", "@0.5"), ("val_threshold", "@val_thr")):
         blk = canon_pc.get(wp)
         if not blk:
-            lines += ["", f"⚠ 表 D-{wname} 缺失：正典无 `per_class` 数据。"]
+            lines += ["", f"⚠ 表 D-{wname} 缺失：{cw}无 `per_class` 数据。"]
             continue
         names_c, sup = blk["names"], blk["per_seed_support"]
         lines += ["", f"## 表 D-{wname}：逐类 F1（test，3 种子 mean±std）", "",
@@ -458,7 +473,7 @@ def render_markdown(group: str, data: dict) -> str:
                               for i, c in enumerate(names_c)), "",
                   "| 臂 | " + " | ".join(names_c) + " |",
                   "| --- | " + " | ".join("---" for _ in names_c) + " |"]
-        for label, arm in [("**正典**", canon)] + ordered:
+        for label, arm in [(f"**{cw}**", canon)] + ordered:
             b = ((arm or {}).get("per_class") or {}).get(wp)
             cells = ["—"] * len(names_c) if not b else \
                 [fmt(b["f1"][c]["mean"], b["f1"][c]["std"]) for c in names_c]
@@ -472,7 +487,7 @@ def render_markdown(group: str, data: dict) -> str:
             lines += [f"**{mname}**", "",
                       "| 臂 | " + " | ".join(names_c) + " |",
                       "| --- | " + " | ".join("---" for _ in names_c) + " |"]
-            for label, arm in [("**正典**", canon)] + ordered:
+            for label, arm in [(f"**{cw}**", canon)] + ordered:
                 b = ((arm or {}).get("per_class") or {}).get("val_threshold")
                 cells = ["—"] * len(names_c) if not b else \
                     [fmt(b[m][c]["mean"], b[m][c]["std"]) for c in names_c]
@@ -488,10 +503,10 @@ def render_markdown(group: str, data: dict) -> str:
               "**判方向须 n≥9 同配对**（噪声 ±0.05–0.07 量级，n=3 的表面模式不可信，"
               "`decisions.md` §26.7/§27.5）。故 t 与 ★ 同级——**值得复核，不是结论**。"
               "⚠ t 无定义（`—`）= 三个配对差完全相同且为 0，或样本不足 2。", ""]
-    lines += ["", "**正典的种子间 std（判 ★ 的阈值）**：" + "；".join(
+    lines += ["", f"**{cw}的种子间 std（判 ★ 的阈值）**：" + "；".join(
         f"{name} ±{stds[k]:.4f}" for k, name in
         [(k, n) for k, (_, n) in METRICS.items()] if stds[k] is not None), "",
-        "⚠ 全部为 **n=3 描述性**读数：正典 micro-F1@0.5 的 std 达 ±0.03 量级，"
+        f"⚠ 全部为 **n=3 描述性**读数：{cw} micro-F1@0.5 的 std 达 ±0.03 量级，"
         "3 种子**判不了** ±0.05 的效应；下「干预有效/无效」的结论须另做同配对 ≥9 点"
         "（`decisions.md` §26.7/§27.5）。★ 只表示**值得复核**，不是效应。", ""]
     return "\n".join(lines)

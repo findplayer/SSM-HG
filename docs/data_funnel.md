@@ -1,5 +1,14 @@
 # 数据口径追溯（由 `scripts/audit_data_funnel.py` 生成，勿手改）
 
+> 🔴🔴 **2026-10-02：本文件整体仍是池 453 口径，且已无法重跑。**
+> —— 池 453 的数据已于 2026-10-02 随磁盘清理整体删除（清单 `runs/_del453_manifest_20261002{,b}.txt`），
+> 本文件所依赖的输入 `products/alldata/splits/{split_seed{0,1,2}.json, split_report.json, unmatched_contracts.txt}` 亦在其中。
+> ⇒ **下表全部为冻结值，不可复算**；`python scripts/audit_data_funnel.py` 现在会失败。
+> **现行正典 = 池 497**（590 图 → 两级去重丢 93 → 497，含 `buggy_*`；train/val/test = 398/50/49），
+> 见 `products/alldata/splits/withbuggy_snapshot/`。⚠ 两池 test 集不同（46 vs 49）⇒ 跨池数字不可相减。
+> 改写本文件需要先重新推导 `audit_data_funnel.py` 的守恒不变量（它定义在**非 buggy 池**上，497 下语义改变），
+> 见 `experiments/decisions.md` §59.7。
+
 > 生成时间（UTC）：2026-09-23T12:13:50+00:00；运行方式：`python scripts/audit_data_funnel.py`
 > 论文里出现的每个样本/标签数字都应能在下表中找到出处；下表未列出的数字不得写进论文。
 

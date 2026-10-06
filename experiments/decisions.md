@@ -516,6 +516,8 @@ M5 v5 完成标准：主 split 由经 API 校验的迭代分层生成；单图�
 
 ## 18. 过滤规则修订 + buggy_* 对照臂（2026-09-14）
 
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（当时所称"正典"= 今**对照口径（池 453）**；当时把 `buggy_*` 列为"对照臂"= 今**正典（池 497）**）。本节为历史决议，正文按其当时口径保留。
+
 > 触发：审查数据过滤链时发现 `delegatecall` 规则是**与标签相关的选择偏差**（非随机丢弃）。
 > 本节记录改动、证据与两个口径的对照结果。**本节的裁定属"大纲之外的后处理"，已同步大纲与开发手册。**
 
@@ -936,7 +938,7 @@ time_manipulation 5，池级），导致 4 个类在三种子上 F1 恒为 0、m
 
 | 臂 | 产物 | 用途 | 为何不进正表 |
 | --- | --- | --- | --- |
-| 主库·零泄漏 | `runs/neardup/` | 量化泄漏抬升（@0.5 −3.9 点） | 与 ① 只差划分口径，二者取一即可；① 为现行正典 |
+| 主库·零泄漏 | `runs/neardup/` | 量化泄漏抬升（@0.5 −3.9 点） | 与 ① 只差划分口径，二者取一即可；① 为**对照口径（池 453）**（2026-10-01 起，见 §58） |
 | 主库·含 buggy | `runs/withbuggy/` | 量化全 1 标签的支撑效应 | macro/mAP 跳升是**度量假象**（micro 反降） |
 | 增强集·近重复去重 | `runs/augmentation_dedup/` | 验证泄漏控制方式不改变结论（差 0.4 点） | 与 ② 只差泄漏控制口径；② 为保留全量者 |
 
@@ -1139,7 +1141,7 @@ micro-F1（双阈值）、macro-F1、`mAP`、逐类 AP 数组、逐类 support�
 `loss_focal`、`loss_asl`、`pw_unclamped`。
 `runs/prior_448pool/`（更早的 448 池存档）同样带此口径，一并作废。
 
-### 26.5 重跑结果（丢弃率 0.2 口径，现行正典）
+### 26.5 重跑结果（丢弃率 0.2 口径，当时正典；今为**对照口径（池 453）**，见 §58）
 
 重跑方式：**逐字复用归档 config 的原始参数**（只让代码语义变），覆盖 8 个臂 × 3 种子。
 
@@ -2300,6 +2302,8 @@ RGCN 的 scatter/index_add 在 GPU 上归约顺序不定，`loss` 从 **epoch 0*
 
 ## §37 裁定：**微调 CodeBERT 升为主设计**，冻结降为消融/对比（2026-09-19）
 
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（当时所称"§37 正典"= 今**对照口径（池 453）**）。本节裁定的是**编码器**轴（微调 vs 冻结），该轴不受 §58 影响；但其"正典"落在池 453 上，故按新口径归入**对照段**。本节为历史决议，正文按其当时口径保留。
+
 ### 37.1 裁定与依据
 
 用户裁定：**「微调 CodeBERT」改为主设计，「冻结 CodeBERT」降为消融/对比，①②两组语料同步改。**
@@ -2626,6 +2630,8 @@ A 产出的是"看起来正常的数字"，B 会在下游报一句"标签没匹�
 ---
 
 ## §39 正典同步（2026-09-20）：文档与派生产物全面切换到微调 CodeBERT
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"新正典/正典"落在池 453 上 = 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 ### 39.1 裁定与范围
 
@@ -3124,11 +3130,11 @@ SolidiFI 是**语法级注入**，$s_v$ 在多数情况下会直接命中注入�
 | --- | --- |
 | `buggy_*` 怎么补 | **进池并重划 8:1:1**（不是"只进 train 划分"） |
 | 9 个对比方法（5 个传统工具在本机不可运行） | **能跑就跑 + 诚实标注 + 同图 DL 基线族** |
-| P2（编码器全量重微调，≈1.5 h）放哪 | **挪到任务 2 之后**——编码器训练集 = train+val，任务 2 改训练集会作废它 |
+| P2（编码器全量重微调，≈1.5 h）放哪 | **挪到池 497 正典之后**——编码器训练集 = train+val，池 497 正典改训练集会作废它 |
 
 **实测数据全部落在 `experiments/improvement_round1_results.md`**（本文只记裁定与教训）。
 
-### 42.1 已完成（零/低成本，不被任务 2 作废）
+### 42.1 已完成（零/低成本，不被池 497 正典作废）
 
 | 项 | 结果 | 产物 |
 | --- | --- | --- |
@@ -3169,7 +3175,7 @@ Slither 0.11.5 的 100 个检测器**没有任何一个覆盖 SWC-114**（Transa
 | --- | --- | --- |
 | `scripts/baseline_static_tools.py` | **新增**：Slither 驱动 + 检测器映射 + 逐划分评测 | 只调 `metrics`，不重实现指标 |
 | `scripts/ensemble_eval.py` | **新增**：多种子概率集成，**按 `sample_ids` 逐个断言对齐** | 按行序平均会静默混错合约 |
-| `scripts/run_buggy_canon.py` | **新增**：任务 2 管道（变体→训练→评测→聚合），含 4 条硬前置检查 | 见 §43 |
+| `scripts/run_buggy_canon.py` | **新增**：池 497 正典管道（变体→训练→评测→聚合），含 4 条硬前置检查 | 见 §43 |
 | `scripts/train.py` | `set_deterministic()` 补齐 CUDA 四条开关 | 无既有 run 用过该开关 ⇒ 零作废 |
 | `scripts/model.py` | `CONV_TYPES` 扩到 `(rgcn, gcn, gat, sage)`；**只有 rgcn 关系感知** | 见 §42.5 |
 | `scripts/run_ablation.py` | 新增 `DOSE_ARMS`（L_var 剂量），**默认不并入正典臂表** | 见 §42.6 |
@@ -3234,7 +3240,9 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 
 ---
 
-## §43 任务 2：把 `buggy_*` 补回池并重划（2026-09-21 用户裁定）
+## §43 池 497 正典：把 `buggy_*` 补回池并重划（2026-09-21 用户裁定；原「任务 2」）
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"新正典 / 任务 2 正典"= 今**正典（池 497）**；本节所称"§37 旧正典"= 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 **用户裁定**（`AskUserQuestion`，2026-09-21）：补法 = **进池并重划 8:1:1**（不是"只进 train 划分"）。
 原话：「把所有被错误删去的 `buggy_*` 补回训练集！！！不要找借口」。
@@ -3313,7 +3321,7 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 
 | 文件 | 改动 |
 | --- | --- |
-| `scripts/run_buggy_canon.py` | **新增**：任务2 管道（变体→训练→评测→**diagnose**→聚合）+ 4 条硬前置检查 |
+| `scripts/run_buggy_canon.py` | **新增**：池 497 正典管道（变体→训练→评测→**diagnose**→聚合）+ 4 条硬前置检查 |
 | `scripts/collect_buggy_canon_summary.py` | **新增**：汇总卷，核心是 `clean_only` 诊断口径 |
 | `scripts/collect_three_caliber_tables.py` | 新增 `--canon-only-runs`；**薄支撑样板句改为从数据推导**（原句硬编码"support 低到 1"，换正典后失真——见 §40.7 第 5 条同类问题） |
 | `scripts/build_graph_variant.py` | 新增 `--variants-root` |
@@ -3352,6 +3360,8 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 
 ## §44 消融 n=9 同配对复核 + 三处静默错误修复 + 两代记录并存（2026-09-21）
 
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"buggy 新正典 / buggy 正典"= 今**正典（池 497）**；本节所称"§37 正典 / 正典"落在池 453 上 = 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
+
 ### 44.1 用户裁定（原文）
 
 > 「消融按新跑的来，但原来的结果不要删，且同步记录到组织架构中。三个论文基线在别的会话做，本对话只做消融实验并记录结果。」
@@ -3369,7 +3379,7 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 | D | **L_var 剂量-反应臂**（大纲之外的后处理，单独列、不进正典表） | `runs/ablation_n9/lvar_dose_*` |
 | E | **`cb_unlimited` 干预触达审计**（§12.4 第 2 项收尾） | `experiments/cb_unlimited_reach.md` |
 | F | **修掉三处静默错误**（见 44.4） | 代码 + 回归锁 |
-| G | **buggy 新正典上的 21 臂 × 3 种子** | `runs/ablation_buggy/`（见 §45） |
+| G | **池 497 正典上的 21 臂 × 3 种子** | `runs/ablation_buggy/`（见 §45） |
 
 **复用口径（这是"只补 6 对"的依据）**：对角 3 对复用 `runs/ablation{,_aug}/<item>/seed{S}`；
 ① 的 9 对基线复用 `runs/cbft_study/cbft_ts{T}_ss{S}`（论文正典 `runs/seed{S}` 正是由其对角
@@ -3449,7 +3459,7 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 ### 44.4 途中修掉的三处**静默错误**（都不报错，只会产出无意义的数字）
 
 1. 🔴 **逐种子路径模板化正则只认一种命名形态**（`scripts/run_ablation.py::canonical_args`）。
-   原正则 `(.+)/ss\d+` 对任务 2 的新正典 `products/alldata/graphs_ft_buggy/cb_ft_ss0`
+   原正则 `(.+)/ss\d+` 对池 497 正典的 `products/alldata/graphs_ft_buggy/cb_ft_ss0`
    **不匹配**（该段是 `cb_ft_ss0`、不含字面 `/ss`）⇒ `graph_dir` 原样写死 ⇒ 逐种子展开后
    **seed1/seed2 静默拿到 ss0 的编码器**，与划分种子错配。这正是 `AGENTS.md` 点名的
    「本仓第三次全量作废的根因」**同一形态**。
@@ -3498,7 +3508,7 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 |---|---|---|---|
 | 第一代 | `runs/ablation{,_aug}/` | `experiments/ablation_results.md`、`eval_results/ablation/collected{,_aug}.{json,md}` | 3 |
 | 第二代 | `runs/ablation_n9{,_aug}/`、`runs/arch_n9/` | `experiments/ablation_n9_results.md`、`eval_results/ablation/n9_*.json` | 9 |
-| 第三代（buggy 正典） | `runs/ablation_buggy/` | `experiments/per_class_three_caliber_tables_buggy.md` | 3 |
+| 第三代（池 497 正典） | `runs/ablation_buggy/` | `experiments/per_class_three_caliber_tables_buggy.md` | 3 |
 
 **为什么不删第一代**：第二代的价值有一半在于**「和第一代比，哪些结论翻了」**；
 删掉 n=3 就等于删掉对照臂本身。**两代之间也不打架**——第二代的对角 3 对**就是第一代的同一份
@@ -3517,7 +3527,9 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 
 ---
 
-## §45 buggy 新正典上的 21 臂消融（填充 `per_class_three_caliber_tables_buggy.md`）（2026-09-21）
+## §45 池 497 正典（原「buggy 新正典」）上的 21 臂消融（填充 `per_class_three_caliber_tables_buggy.md`）（2026-09-21）
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"buggy 新正典"= 今**正典（池 497）**；本节所称"§37 正典"= 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 ### 45.1 用户裁定
 
@@ -3577,7 +3589,7 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 
 1. **只有 `cb_frozen` 有实质效应**（−0.22，四个指标同向且量级一致），**方向与 ① 的 n=9
    结论一致**（① n=9 为 −0.3077，判据 `|t|=10.13`）⇒ 这是**跨正典的独立复现**，
-   是本表最可信的一条。⚠ 但**量级不可直接比**（两个正典的 test 集不同）。
+   是本表最可信的一条。⚠ 但**量级不可直接比**（正典段与对照段的 test 集不同）。
 2. **其余 20 臂全部落在 ±0.03 以内**，而本表正典的**种子间 std 是 ±0.0552**
    ⇒ **这些臂在这个正典上不可分辨**。**这不是"这些组件都不重要"**——见第 3 条。
 3. 🔴🔴 **本表整体处在「标签假象」区间，对消融几乎没有分辨力**。`buggy_canon_summary.md` §3 已量化：
@@ -3603,6 +3615,8 @@ message passing」。**该理由站不住**：`gcn` 同样是关系盲，拒绝 
 ---
 
 ## §46 5.3 三条论文基线（EGFL / MVD-HG / MANDO-LLM）接入（2026-09-22）
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"§37 正典 / 去除 `buggy_*` 的数据集"= 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 ### 46.1 为什么必须重训而不是"跑原仓库"
 
@@ -3729,6 +3743,8 @@ wrapper 内限定 `LD_LIBRARY_PATH` 隔离，**不污染系统库**。
 ---
 
 ## §48 三条基线读数为何远低于各自论文的「90 多」（2026-09-23）
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"§37 正典"= 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 **问题（用户提出）**：EGFL / MVD-HG / MANDO-LLM 在本仓 5.3 表里 `micro-F1` 只有 0.07–0.41，
 而三篇论文（各项目根目录下的 PDF）都报到 **90 多**。要么提升，要么解释清楚。
@@ -4056,6 +4072,8 @@ MANDO：PyG `HGTConv` 替 dgl + 图取我方 CFG 中心异构图而非原版 sli
 
 ## §51 口径澄清：上游类别文件夹「88–190」是记录数，不是正例数（2026-09-23）
 
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"§37 正典"落在池 453 上 = 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
+
 ### 51.1 缘起
 
 用户提问：**「为什么 MVD-HG 单类数据集的正例数（88–190），经我们改造为多标签数据集后，
@@ -4187,7 +4205,9 @@ line-level 的表头跨度）在该摘录中**被标注为可能有错位**。�
 
 ---
 
-## §52 三条论文基线在**含 `buggy_*` 的新正典**（池 497）上的补跑（2026-09-23）
+## §52 三条论文基线在**正典（池 497）**（原「含 `buggy_*` 的新正典」）上的补跑（2026-09-23）
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"含 `buggy_*` 的新正典"= 今**正典（池 497）**；本节所称"§37 正典 / canon37 段"= 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 ### 52.1 用户裁定：§51.6.2 的「不可行」被推翻，改判为「跑」
 
@@ -4196,7 +4216,7 @@ line-level 的表头跨度）在该摘录中**被标注为可能有错位**。�
 + 其 lr 敏感性臂 `egfl_ownlr` + Slither 一行）**，不含另外 5 个尚未接入的传统工具
 （`Todo_List.md` §12.7.1 的「剩余工作 = 接入」那一格）。
 
-⇒ **本文方法侧零重跑**：`runs/buggy_canon/seed{0,1,2}` 早已存在（任务 2）。
+⇒ **本文方法侧零重跑**：`runs/buggy_canon/seed{0,1,2}` 早已存在（池 497 正典）。
 本次只补基线侧。§51.6.2 的两条**理由仍然成立**——它们不是在论证"不该跑"，
 而是在论证"跑了也**不能**据此说补数据有用"。那两条警告因此**原样进新段的表头**：
 
@@ -4261,7 +4281,7 @@ MANDO 行、以及 EGFL/MVD-HG 的**图目录来源**（后者只用于取源码
    但属于同一类「守卫/读取指错根」，一并改成由调用方传根。
 3. **`run_baselines.py --only-missing` 硬编码正典 `out_dir`** ⇒ `--layout buggy --only-missing`
    会**全部跳过**然后打印「全部成功」（静默空跑）。已改为按 layout 取 `out_dir`。
-4. **日志文件按臂名命名 ⇒ 两个正典的命令行会追加进同一个日志**（`run_step` 用 `"a"`）。
+4. **日志文件按臂名命名 ⇒ 正典段与对照段的命令行会追加进同一个日志**（`run_step` 用 `"a"`）。
    本次实测已经发生过一次（`baseline_egfl_seed0.log` 里是 `egfl_ownlr` 的命令行）。
    已改为 `products/alldata/raw/logs/baseline_<layout>/`（canon37 仍在原处，路径不变）。
 5. **`collect_baseline_tables.slither_row()` 的根目录硬编码 `slither_alldata`**、
@@ -4270,7 +4290,7 @@ MANDO 行、以及 EGFL/MVD-HG 的**图目录来源**（后者只用于取源码
    已逐条参数化，并把两处读法句（平凡下限 0.62/0.12、分母 46）改成**从数据算**。
 6. 🔴 **MANDO 的 `hgt_metadata.json` 守卫把「目录路径」当成了「语料」**（实测踩到，
    MANDO 的 **seed1/seed2 在 2–3 秒内 rc=1**）。`pool_fingerprint` 把 `graph_dir` 的解析路径
-   也哈希进去，而任务 2 要求 `cb_ft_ss{S}` 与 `--split-seed S` **配对** ⇒ 一份**形态上完全正确**
+   也哈希进去，而池 497 正典要求 `cb_ft_ss{S}` 与 `--split-seed S` **配对** ⇒ 一份**形态上完全正确**
    的词表被判成「不同语料」。实测三份 `cb_ft_ss{S}` 的**结构逐字节相同**（`_hetero.json` 同哈希、
    `_pyg.pt` 逐位相同、`_feat.pt::type_id` 逐位相同、全池词表同为 **9×187**），只有 CodeBERT 通道
    `_cb.pt` 不同 ⇒ 一份词表对三种子**本就正确**。
@@ -4434,6 +4454,8 @@ MVD-HG 167→278 s、EGFL 238→467 s、MANDO-LLM 2273→2840 s ⇒ **本段普�
 
 ## §54 编码器换代闸门**通过**：20 轮预算升为正典，5 轮下沉为消融档（2026-09-24）
 
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"现行正典"落在池 453 上 = 今**对照口径（池 453）**）。⚠ 但本节所裁的是**编码器预算轴**（20 轮 vs 5 轮），该轴与 §58 的**池**轴正交、不受影响——池 497 正典同样用 20 轮档（`graphs_ft_buggy_p2`）。本节为历史决议，正文按其当时口径保留。
+
 **用户裁定（原话）**：「如果确实上升就提升为正典，旧的作为消融实验，并同步修改大纲设计。」
 
 ### 54.1 闸门结果：三道门全过
@@ -4452,7 +4474,7 @@ MVD-HG 167→278 s、EGFL 238→467 s、MANDO-LLM 2273→2840 s ⇒ **本段普�
 > `python scripts/check_encoder_promotion.py`（默认值已指向 `--old-runs-root runs/prior_canon37`、
 > `--new-runs-root runs`）。另：表中 `--swa-start 16` **实际一次都没触发**
 > （实测三种子 `n_averaged = 0/0/2`、`selection` 全为 `best_epoch`）
-> ⇒ **此处增益来自 epoch 预算，不是 SWA**；`_buggy` 换代据此**不加** `--swa-start`（§55）。
+> ⇒ **此处增益来自 epoch 预算，不是 SWA**；`_buggy` 换代据此**不加** `--swa-start`（§54）。
 
 | 种子 | mAP 旧→新 | macro@val_thr | micro@val_thr | macro@0.5 |
 |---|---|---|---|---|
@@ -4549,7 +4571,7 @@ M1/M2 主构建**在本仓无任何机器可读计时记录**，不得引用为�
 > （其 `config.json::args.graph_dir = …/graphs_ft/ss{S}`，三种子逐条实测）。
 > **不造臂的理由**：加臂会打破「21 臂」的硬引用（`tests/test_collect_ablation.py` 与多张表的行数、
 > `n/21` 计数断言）。**改口径后的正确读法**：三档阶梯 = 冻结（`cb_frozen` 臂）/
-> 5 轮（**旧正典，跨代对照**，`check_encoder_promotion.py`）/ 20 轮（现行正典），
+> 5 轮（**旧正典，跨代对照**，`check_encoder_promotion.py`）/ 20 轮（**正典编码器档**），
 > **不是**同一张消融表里的三行。全仓文案已于同日逐处改写（23 处，逐条断言命中数 == 1）。
 
 **待用户裁定的两点**：
@@ -4787,7 +4809,9 @@ cgroup 用量 **90 秒内 0.53 → 3.08 → 4.11 GB**，会顶穿 5 GB。
 
 ---
 
-## §57 五工具在含 `buggy_*` 主库（池 497）上的补跑（2026-09-28）
+## §57 五工具在正典（池 497）主库（原「含 `buggy_*` 主库」）上的补跑（2026-09-28）
+
+> ⚠ **本节口径已于 2026-10-01 被 §58 取代**（本节所称"含 `buggy_*` 主库（池 497）"= 今**正典（池 497）**；本节所称"canon37 段"= 今**对照口径（池 453）**）。本节为历史决议，正文按其当时口径保留。
 
 起因：`baseline_three_caliber_tables.md` 的「三、」段此前**只有 Slither 一行**（其余五工具未跑）。
 本轮补齐后该段六工具齐全，报告已用 `collect_baseline_tables.py --with-buggy` **重新生成**
@@ -4826,3 +4850,140 @@ cgroup 用量 **90 秒内 0.53 → 3.08 → 4.11 GB**，会顶穿 5 GB。
 **还有一处 `—` 的成因要分清**：Oyente 的 `front_running` / `time_manipulation` 在池 497 上
 support = 0/0/0 ⇒ 画 `—` 是**零支撑剔除**，**不是**"工具不提供该检测项"（canon37 上它的
 `front_running` 是有数的 0.4889±0.1540）。同一行里两种成因并存，报告已分别标注。
+
+---
+
+## §58 口径对调：池 497 升为正典、池 453 降为对照（2026-10-01 用户裁定）
+
+**用户裁定（原话）**：「池 497（含全部 `buggy_*`）升为正典（默认口径），池 453（已剔除 `buggy_*`）降为对照口径。」
+
+### 58.1 改了什么
+
+| 项 | 改前（2026-10-01 之前） | 改后（本裁定） |
+|---|---|---|
+| 默认正典池 | 453（剔除 `buggy_*`） | **497（含全部 `buggy_*`）** |
+| 池 453 的地位 | 正典（旧文称「§37 正典 / §37 谱系正典 / 现行正典」） | **对照口径（池 453）** |
+| 池 497 的地位 | 「含 `buggy_*` 的新正典 / 任务 2 正典 / buggy 新正典」（对照性质） | **正典（池 497）/ 现行正典（默认）** |
+| 默认方法侧产物 | `runs/seed{S}` | **`runs/buggy_canon/seed{S}`** |
+| 默认划分 | `products/alldata/splits/split_seed{S}.json`（362/45/46） | **`products/alldata/splits/withbuggy_snapshot/split_seed{S}.json`（398/50/49）** |
+| 默认基线产物 | `eval_results/baseline/<臂>` | **`eval_results/baseline/<臂>_buggy`** |
+
+**术语对照（本文件自此统一）**：旧文里**指池 453** 的「正典 / §37 正典 / §37 谱系正典 / 现行正典」= 今**对照口径（池 453）**；旧文里**指池 497** 的「新正典 / 任务 2 正典 / buggy 新正典」= 今**正典（池 497）/ 现行正典**；旧文的「两段正典 / 两个正典」= 今「**正典段与对照段**」；旧文的「任务 2」= 今「**池 497 正典口径**」。2026-10-01 之前的各节为**历史决议，按其当时口径保留**，并在标题处加 ⚠ 指向本节。
+
+### 58.2 路径一律不改（口径与产物绑定）
+
+本裁定**只改口径与文档措辞，不改任何路径、不改任何数字**。两侧路径原样保留：
+
+- **池 497（今正典）**：`runs/buggy_canon/`、`products/alldata/graphs_ft_buggy_p2/cb_ft_ss{S}`（原 `graphs_ft_buggy/` 为 5 轮档）、`eval_results/baseline/<臂>_buggy`、`products/alldata/splits/withbuggy_snapshot/`。
+- **池 453（今对照口径）**：`runs/seed{S}`、`products/alldata/graphs_ft_p2/cb_ft_ss{S}`（20 轮档）、`products/alldata/graphs_ft/ss{S}`（5 轮档）、`eval_results/baseline/<臂>`、`products/alldata/splits/`。
+- **历史归档**：`runs/prior_canon37/seed{S}`、`runs/prior_448pool/`、`runs/prior_frozen/` 等，只用于追溯。
+
+**为什么路径不改**：正典与对照两套产物**已按旧名冻结落盘**，且被多处硬编码（`baseline_common.LAYOUTS`、`run_ablation.variants_root_of()`、`evaluate.py` 的口径戳分支等）。改名/搬迁会同时作废全部下游派生产物与已发布报告的数字绑定，代价远大于收益。⇒ 口径由文档与 `AGENTS.md` 的语义锁死项表达，**不靠目录名**。
+
+### 58.3 后果与限制（引用前必读）
+
+1. 🔴 **该池（497）的多标签主要来自 `buggy_*` 注入假象**：`buggy_*` 的标签绝大多数是**七类全 1**（§18.4 已量化的上游「文件夹归属」产物，不是注入特征的真实标注）⇒ 池 497 上的 **macro-F1 / mAP 主要来自该假象**（§43.3）。**引用 macro/mAP 时必须同时给出 `clean_only`（剔 `buggy_*`）诊断列**，且**不得**据此声称「补数据提升了检测能力」（§43.4）。
+2. 🔴 **两段 test 集不是同一批合约（池 453 的 test 46 vs 池 497 的 test 49，且池 497 重新打过乱）⇒ 跨段数字不可相减**（§45.2、§52.1）。可比的只有方向与量级，不是小数位。
+3. **特征配对方式**：池 497 侧一律用与 `--split-seed S` 配对的 `cb_ft_ss{S}`（§52.3、§52.5 决议 6）；池 453 侧历史产物仍带「三种子都用 `ss0`」的既存不对称（§52.3），本次未改。
+4. **编码器换代轴不受本节影响**：§54 的「20 轮升正典 / 5 轮降消融」是**编码器预算**轴，与本节**池**轴正交；池 497 正典同样用 20 轮档（`graphs_ft_buggy_p2`）。
+
+### 58.4 需要重跑 / 尚未重跑的生成物
+
+| 项 | 状态 |
+|---|---|
+| 方法侧主实验（`runs/buggy_canon/seed{S}`） | 已存在（§43），**无需重跑** |
+| 三条论文基线（EGFL / MVD-HG / MANDO-LLM）在池 497 | 已跑完（§52），**无需重跑** |
+| 六个传统工具在池 497 | 已跑完（§57），**无需重跑** |
+| 池 497 上的 21 臂消融（第三代） | 已跑完（§45），**无需重跑** |
+| 池 453 侧的 n=9 两代消融、逐类臂、DIVE、SolidiFi、`calibration`、`error_rates` 等 | 仍为**对照口径（池 453）**，**未按新正典重跑**；§39.6 / §44.6 的开口清单在新口径下依然有效 |
+| `experiments/canonical_ft_numbers.md`、`runs/summary.json`、各交付表抬头 | **需同步改写抬头口径**（把池 453 标为对照口径、池 497 标为正典）；**数字不动** |
+
+⚠ **哪些下游交付物要迁到池 497、哪些保留为对照段，属迁移范围问题，须作者后续裁定**；本节只落实「口径对调」本身与其文书后果，不代作者决定迁移范围。
+
+---
+
+## §59 池 453 数据整体删除（2026-10-02 用户裁定）
+
+**由来**：2026-10-02 用户以「磁盘没有空间了，清除项目中的冗余数据」起，经确认后裁定「**删掉 453 版本的所有数据，只留 497 和增强集**」，范围 = **全删 9.72 GB**（含 453 主表本体）。随后两道收尾指令：「1. 改指 497　2. 重建」与「文档同步」。
+
+### 59.1 背景：§58.2 的前提被推翻
+
+§58 的裁定前提是「**路径一律不改、两侧产物原地保留**」（§58.2）。**本节推翻该前提**：C 盘可用空间一度降到 9.6 GB（`AGENTS.md` 硬规则要求 > 8 GB），而 `ext4.vhdx` 非稀疏、WSL 内删文件不释放 C 盘 ⇒ 用户裁定以删数据换取空间。🔴 **§58.2「两侧路径原样保留」自本节起作废。**
+
+### 59.2 删了什么
+
+清单：`runs/_del453_manifest_20261002.txt`（第一批，主体）与 `runs/_del453_manifest_20261002b.txt`（第二批，残留）。
+
+- **`runs/`**：`seed{0,1,2}/` + `summary.json`（§37 微调正典主表本体）、`ablation/`、`ablation_n9/`、`arch_n9/`、`binary_arm/`、`perclass_arm/`、`cbft_study/`、`neardup/`、`codebert_ft/`、`codebert_ft_p2/`、`prior_canon37/`、`prior_frozen/`、`prior_badmetric/`、`prior_dropout{80,study}/`、`prior_448pool/`、`prior_probes/`、`loss_{focal,asl}/`、`pw_unclamped/`、`loss_study/`
+- **`products/alldata/`**：`graphs_ft/`（5 轮档）、`graphs_ft_p2/`（20 轮档）、`baseline/{mvdhg,egfl,mando}/`、`splits/` 根下的划分文件（`split_seed*.json`、`splits.csv`、`split_report.json`、`data_funnel.json`、`random_snapshot/`、`neardup_snapshot/` 等）
+- **`eval_results/`**：`ablation/`、`calibration/`、`baseline/{mvdhg,egfl,egfl_ownlr,mando}/`、`baseline/slither_alldata/`、`baseline/{工具}_alldata/`（评测目录）
+
+**保留**：池 497 全部产物、增强集 ②、DIVE、SolidiFI，以及两池共用的 `products/alldata/{graphs,raw}/`。
+
+### 59.3 刻意保留的一项（勿再当残留删除）
+
+`eval_results/baseline/{mythril,manticore,oyente,securify,smartcheck,slither}_alldata.json` —— 这六个文件**没有删**，理由是它们**与池无关**：内容是跑遍**全 590 图**的逐合约原始检测项（`graph_dir = products/alldata/graphs`、`n_contracts = 590`），只是 453 侧的表在读它。它们是将来在别处重评这些工具的唯一来源，而重跑符号执行工具是小时—天级成本；合计仅约 1 MB，无回收价值。
+
+同理保留（经核实与池无关）：
+- `products/alldata/splits/cb_func_gap{,_after}.json` + `docs/cb_func_gap{,_after}.md` —— 图级 CodeBERT 通道缺口审计，读 `products/alldata/graphs`。⚠ **这一对是「修复前基线 / 修复后快照」两份并存的历史物证，不可重生成、不可互相覆盖**。2026-10-02 曾误重跑 `audit_cb_func_gap.py` 把 `cb_func_gap.md`（2026-09-12 修复前：581 图 / 495 图有缺口 / 37.6%）覆盖成修复后数据，**当日已从 git 恢复**；`.json` 侧上一批清理时已发生过同一事故并同样恢复。两者的 `created_utc` 现均为 `2026-09-12T10:03:50+00:00`。
+- `products/alldata/perclass_labels/`（7 个 `cls_<类名>.json`，1.5 MB）—— 虽被误列入本批删除清单，但**盘上仍在且应当保留**：内容是 **2002 条**（= 全量合约级标签的长度，见 `alldata(readonly)/contract_labels.json`）**逐类二值标签，与池无关**；`run_perclass_arm.py:89` 会 `mkdir` 并重建它（可重建缓存）。**保留。**
+- `products/alldata/graph_variants/`（`callback_rev/`、`callback_unlimited/`）—— 同样被列入删除清单，但它是**重建边变体的必要输入**，当日已用 `build_graph_variant.py` 重建（见 §59.6）。**保留，且不可再删。**
+
+### 59.4 本节推翻 / 收口的既有条目
+
+| 条目 | 原文要点 | 现状 |
+|---|---|---|
+| **§58.2** | 「只改口径与文档措辞，**不改任何路径**……两侧路径**原样保留**」 | 🔴 **作废**：所列 453 路径已全部删除 |
+| **§58.4** 末两行 | 「池 453 侧……仍为对照口径、未按新正典重跑」「各交付表抬头需同步改写，**数字不动**」 | 🔴 **失效**：其产物已删；抬头已改写，且新增「不可复算」标注 |
+| **§44.6** | 「两代记录并存……**不得互相覆盖**」「删掉 n=3 就等于删掉对照臂本身」 | ⚠ **①主库侧的物理对象已消失**（`ablation/`、`ablation_n9/` 已删）；**②增强集侧仍成立**（`ablation_aug/` ↔ `ablation_n9_aug/` 俱在） |
+| **§54.5** 待裁定第 1 点 | 「方案 B = 原地保留为『旧正典下的 n=9』对照臂」 | 🔴 **保留对象已不存在** |
+| **§37 / §39 / §54** 的 453 落点 | `graphs_ft/ss{S}`、`graphs_ft_p2/cb_ft_ss{S}`、`runs/seed{S}` | 🔴 均已删除 |
+
+⚠ **注**：§44.6 保护的是 **n=3 vs n=9 消融**这一轴，**不是池 453 vs 497**；该轴本身未被推翻，只是它在 ① 主库一侧的物理对象没了。**改写时不要把这两轴混为一谈。**
+
+### 59.5 悬空引用修正
+
+全文多处引用的「**§55**」**在本文件中没有对应标题**（编号从 §54 直跳 §56）。经查，被引用的实际内容有二：
+
+- 「两代并存、旧的一律不删」的**用户裁定原文**在 **§44.6**；
+- **编码器换代闸门**（20 轮升正典、5 轮下沉）在 **§54**。
+
+⇒ 凡见「§55」，按上下文改指 **§44.6**（两代并存）或 **§54**（编码器换代）。
+
+### 59.6 代码与测试的同步（同日完成）
+
+- `baseline_common.DEFAULT_LAYOUT` 已是 `buggy`（§58 时改的）。
+- 🔴 **`run_ablation_n9.GROUPS["main"]` 改挂 497**：原指 `runs/seed{S}` / `runs/ablation` / `runs/cbft_study`（三者随 453 删除后该脚本**完全失效**），现改为 `runs/buggy_canon/seed{S}` + `runs/ablation_buggy`，走「对角复用 + 非对角新跑」。
+- **`DEFAULT_SPLIT_DIR` 改指**（`train.py` / `evaluate.py` / `diagnose.py` / `calibrate.py` / `finetune_codebert.py`）：`products/alldata/splits` → `products/alldata/splits/withbuggy_snapshot`。
+- **边变体源重建**：`products/alldata/graph_variants/{callback_rev,callback_unlimited}/` 曾于 2026-09-30 被清理，导致 497 正典树里 **8850 条断链**（恰好是定义该消融臂的 `_hetero.json` / `_pyg.pt`）。用 `build_graph_variant.py` 重建（各约 80 s）⇒ 断链归零。
+- **测试**：清理后曾 12 failed（全部读已删的 453 路径，**非代码回归**），改指后 **409 passed / 10 skipped / 0 failed**。其中 4 个 skip 是 453 专属产物的守卫。
+
+### 59.7 未闭合事项
+
+**A. Phase 3 已闭环的 A 类（改指 497 + 重跑，5/6）**
+
+`collect_traditional_tools.py`、`audit_confusion_counts.py`、`collect_ablation_three_metric.py`、`collect_main_aug_f1_summary.py`、`audit_cb_unlimited_reach.py` —— 均已改指 497 并重跑成功。**注意这几份报告里的数字已从 453 实测值换成 497 实测值**（这是用户裁定的方案 ③），改动前快照在 `runs/_pre_phase3_backup_20261002/`。
+
+- 🔴 **`static_tool_adapters.py` 的能力边界计数已按池 497 实测重算**（2026-10-02）：Securify 可分析 **86/306 = 28.1%**（0.5.x 80/88 + 0.4.x 6/210 + 无 pragma 0/8）、Oyente 306 里 210 个 0.4.x、Manticore 单文件最多 19 个合约定义 / 306 文件共 1108 个定义……算法均为「读 `eval_results/baseline/<工具>_alldata_buggy.json` 的 `contracts[*]`，按 `status=='ok'` 与 `parse_pragma(source)` 分组」。**唯一保留旧值的是 Slither「47 个首轮失败」**——产物里只有最终 `status`、没有首次尝试记录，无法重算，已就地标注「池 453 时代实测、未在 497 上重测」。
+- ⚠ **Manticore ① micro 由 0.4055 跌到 0.1080，经独立复核判定为数据性质而非 bug**：全库 306 合约里只有 **26 个**有任何类命中，`dos`/`front_running`/`time_manipulation` **整库零命中**，91.5% 的合约 `checks` 为空。检测器覆盖本就窄，叠加池 497 的 `buggy_*` 密集正例 ⇒ 必然塌陷。
+- **Securify 不再是「整行 `—`」**：池 497 首次并入 0.5.x 正例（Securify 只能吃 0.5.x）⇒ 原「结构性不可评估」的结论与对应测试断言已按新数据重写。
+- `tests/test_collect_traditional_tools.py` 的期望已按重跑实测重写（含新增 `_stem()` helper 派生 `*_alldata_buggy`/`slither_buggy` 名）。测试 **410 passed / 9 skipped / 0 failed**。
+
+**B. 改不动 / 仍需跟进的**
+
+1. 🔴 **`collect_dive_comparison.py` 未改、未跑 —— 真阻塞，非遗漏。** 它的 ① 主库内测列读 `eval_results/ablation/collected.json`（② 读 `collected_aug.json`），两者已随 453 删除，而**497 侧不存在任何等价的内测汇总**（`eval_results/ablation_buggy/` 不存在；全仓 `find -name 'collected*.json'` 为空）。硬改只会把现存 ①/② 内测列**全部降级成 `—`**。⇒ 要闭环须先让上游在 497 上产出内测汇总（给 `collect_ablation_results.py` 增 layout 支持，或另写生成器），再改 `INTERNAL["main"]` 指向它。⚠ **`runs/_pre_phase3_backup_20261002/dive_comparison.md` 是当前磁盘上唯一还保有内测列的地方，不要清理。**
+2. 🔴 **`scripts/audit_data_funnel.py` 仍硬编码 453 路径与不变量**，且**`docs/data_funnel.md` 现无法重跑**（输入 `products/alldata/splits/split_seed*.json` 已删）。其核心不变量（`only_neg | pos_nonbuggy == nonbuggy`、`pos_nonbuggy == pool_pos`）**定义在非 buggy 池上**，改指 497 后语义改变，需重新推导。
+3. ⚠ **`collect_main_aug_f1_summary.py --check` 守卫漂移**：`_pool453_section_start` / `REF_BASELINE` / `REF_PERCLASS` 仍指向池 453 段，而 ① 已是 497 ⇒ 该守卫若运行会报**假不一致**。本次未动（无测试覆盖、且依赖的两份参照文件尚未定稿）。
+4. **其余仍为 453 口径的生成器**（B/C 类，本次未动，各有 497 姊妹件或无 497 侧数据）：`collect_canonical_numbers.py`、`collect_three_caliber_tables.py`、`collect_per_class_binary_thr.py`、`collect_buggy_canon_summary.py`、`collect_ablation_n9.py`、`check_encoder_promotion.py`、`collect_p1_gains.py`、`collect_perclass_arm.py`。
+5. 若将来要在池 497 上重评六个传统工具，**不必重跑工具本身**——原始产物 `{工具}_alldata.json` 已保留（§59.3），只需重跑评测。
+
+### 59.8 文档同步的执行口径（同日）
+
+按用户裁定的三条口径执行：**① 冻结报告 → 453 段落重写为「已删除」；② 现行指引 → 删掉 453 条目；③ 程序生成的报告 → 改生成脚本改指 497 后重跑**。
+
+- **归档（先行）**：改写前把全部 453 口径文档逐字快照到 `docs/archive/caliber453_snapshot_20261002/`（32 份 + `README.md`），使「453 曾经存在」在仓库里**有明文可查**，而非只能靠 git 考古。
+- **现行指引类**（删条目 / 改指 497）：`项目组织架构.md`、`论文开发手册.md` §3.2、`Todo_List.md`、`docs/{results_tables_index,baseline_dev_plan,M5_dev_plan,M3_frontend_design,residual_gaps}.md`，以及 `AGENTS.md` 新增的一条边界约定。
+- **冻结报告类**（453 段落标注「数据已于 2026-10-02 删除，数字为冻结值、不可复算」）：`experiments/` 下各报告。**指标数字一律未改**——改数字等于伪造历史。
+- **程序生成类**：按数据可得性分三类处置（A 改指重跑 / B 已有 497 姊妹故退役 / C 497 侧无数据跑不了），详见 `docs/archive/caliber453_snapshot_20261002/README.md`。
+
+⚠ **本节只落实「删除 + 文书同步」**；「哪些下游交付物迁到池 497、哪些保留为对照段」仍属迁移范围问题，须作者后续裁定。
