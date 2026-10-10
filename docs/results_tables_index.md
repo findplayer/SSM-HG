@@ -52,7 +52,7 @@
 | `per_class_three_caliber_tables.md` | 656 | 13 | ✅ | `collect_three_caliber_tables.py` | ①②+DIVE | 逐类 F1 × 三口径（micro/buggy/macro）× 两工作点 |
 | `per_class_three_caliber_tables_buggy.md` | 374 | 13 | ✅ | 同上 | ① 池 497 | 同上，但**现行正典（池 497）** = `runs/buggy_canon`（含 `buggy_*`） |
 | `per_class_binary_thr_ablation.md` | 98 | 3 | ✅ | `collect_per_class_binary_thr.py --write` | ① 池 453（**已删**）/ 池 497 | **逐类 binary-F1 @逐类验证集阈值**：对照口径（池 453）/ 正典（池 497） + 21 个消融臂（两池各一表），末两列 micro/macro 同工作点 |
-| `baseline_three_caliber_tables.md` | 725 | **28+** | ✅ | `collect_baseline_tables.py` | ① 池 453（**已删**）/ 池 497 | **大纲 5.3 对比表主表**：本文方法 + 三论文基线 + 六传统工具 |
+| `baseline_three_caliber_tables.md` | 823 | **28+** | ✅ | `collect_baseline_tables.py` | ① 池 453（**已删**）/ 池 497 | **大纲 5.3 对比表主表**：本文方法 + 三论文基线 + 六传统工具。🔴 **本文件当前无法用生成器整体重跑**（见 §6-4）；`mAP` 列的「六工具 = `—`」是**不可定义**而非缺数 |
 | `main_aug_f1_summary.md` | 151 | 7 | ✅ | `collect_main_aug_f1_summary.py`（`--check` 逐格对拍） | ①② | **两语料同表**：① 与 ② 各一行 + **`micro-F1` 与 `macro-F1` 两列并排**；② 上基线/工具的 `—` = **未跑**（§4 逐条点名） |
 | `confusion_counts.md` | 164 | 6 | ✅ | `audit_confusion_counts.py`（**自带对拍**） | ①② | **micro/macro 背后的 TP/FP/FN**：池化计数（表 A）+ ① ② 逐类计数（表 B/C，两工作点） |
 | `traditional_tools_results.md`（+`.json`） | 347 | 12 | ✅ | `collect_traditional_tools.py` | ① | 六工具的**读表前提**：检测项→七类映射、能力边界、覆盖率、成本 |
@@ -82,6 +82,7 @@
 | `bootstrap/main.md` | 16 | 1 | `oof_bootstrap.py` | 合约级 bootstrap 95% CI + 按 support 加权 macro |
 | `dive/comparison.md` | 277 | ~12 | `collect_dive_comparison.py` | 三方并列（①内测/②内测/DIVE(①)/DIVE(②)），**DIVE 两列永久停在 5 轮档** |
 | `ensemble/cbft_study_cbft.md`（**已删除**） | 14 | 1 | `ensemble_eval.py` | 同划分多种子概率集成（结论：未获益）；🔴 源 run `runs/cbft_study/` 已随 453 删除 |
+| `figures/pr_micro_buggy.{png,pdf}`<br>`figures/pr_per_class_buggy.{png,pdf}`<br>`figures/pr_curves.json` | — | 图 2 张 | `plot_pr_curves.py` | **正典 vs 三基线的 PR 曲线**（2026-10-10 新增）：micro-average 一张 + 逐类网格一张（行=方法、列=类）。🔴 **三种子是三个独立划分，图中每方法画 3 条种子曲线、不做平均**；`pr_curves.json` 的 AP 与主表 mAP 列**同源**（`metrics.mean_average_precision`）。**六传统工具不进图**（二值输出，无分数） |
 
 ### `docs/`
 
@@ -155,6 +156,10 @@
   ⚠ **§三（池 453 对照段）的数据已于 2026-10-02 删除，表内数字为冻结值、不可复算**；§一/§二（池 497）仍有效。两段 test 集不同（49 vs 46）⇒ **跨段数字不可相减**。
 - **`traditional_tools_results.md`** = 六工具的**读表前提**（映射尺 / 能力边界 / 覆盖率 / 成本），
   数字本身在主表的六行里。
+- **`eval_results/figures/pr_*.png|pdf`**（2026-10-10）= 主表 **mAP 列的可视化底图**：mAP 是七类
+  排序能力压成的一个数，PR 曲线是它的完整形状（能看出「差距落在哪个召回区间」——实测正典与
+  MVD-HG 的差距集中在 recall > 0.8，而 EGFL/MANDO 从 recall ≈ 0.1 就崩）。🔴 图上的 **micro-AP
+  与表里的 mAP 不是同一个数**（前者标签对级、后者逐类平均），两者都合法但**不可互引**。
 - 🔴 报告口径里 **GCN / CodeBERT 文本基线已作废**（大纲 5.3 表里既无 CodeBERT、也无 GCN/GAT）。
 
 ### E. DIVE 外部测试
@@ -229,9 +234,13 @@
 另有两份文档曾**长期自称「程序生成」实为手写**（`canonical_ft_numbers.md`、`ablation_three_metric_table.md`），
 2026-09-25 才补上生成脚本 ⇒ **换代后必须重跑这两个脚本**。
 
+> 反之，**`plot_pr_curves.py`（2026-10-10 新增）默认就落盘**：`--out-dir` 默认
+> `eval_results/figures/`，复现命令 `python scripts/plot_pr_curves.py`（可选 `--with-egfl-ownlr`）。
+> 与上表相反的原因很简单——它出的是**图**，只打印到 stdout 没有意义。
+
 ---
 
-## 6. 三处已核实的不一致 / 待办（供作者裁定）
+## 6. 四处已核实的不一致 / 待办（供作者裁定）
 
 1. ~~⚠ **`ablation_n9_results.md` 只渲染了 ②，① 的表没进报告**~~ **（已随 453 删除而关闭）**：
    ① 主库的 `eval_results/ablation/n9_main.json`、`n9_summary.json` 已于 2026-10-02 删除 ⇒ 该项待办自然作废，
@@ -242,6 +251,15 @@
    引用一律以 `runs/error_rates.json` 为准。
 3. ⚠ **`canonical_ft_numbers.md` 的「C. 训练消耗」是项目符号而非表格**（§A/§B/§D 都是表格）。
    是否有意为之**未确认** —— 若要求「程序生成」格式统一，此处格式不齐。
+4. 🔴🔴 **`collect_baseline_tables.py` 已无法整体重生成 `baseline_three_caliber_tables.md`**
+   （2026-10-10 实测发现，**这是删池 453 的一个未预料副作用**）：池 453 的源产物
+   （`runs/seed*/`、`eval_results/baseline/<臂>/`）已于 2026-10-02 删除 ⇒ 生成器**造不出对照段**。
+   直接重跑 `--out experiments/baseline_three_caliber_tables.md` 会**静默删掉「三、对照口径」整段**
+   （表 15–28 + 附-A/B/C，实测 444 行），并把 §2b 的池 453 冻结值改成 `—`。
+   **已落盘文件才是完整的**（冻结段按 `AGENTS.md` 只能引用、不可再算）。
+   ⇒ 在生成器补上「保留冻结段」的逻辑之前，**不要整体重跑本脚本**；要更新正典段时逐处定点改。
+   本次（补 mAP 判据注 + 传统工具为何无 mAP）即按此方式处理，注文本已与生成器输出**逐字核对一致**。
+   （⚠ 附带一条：本文件的「行数」列会过期——`results.md` 记 1081、实测 1091。）
 
 ---
 

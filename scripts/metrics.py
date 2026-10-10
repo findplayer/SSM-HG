@@ -38,6 +38,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 from sklearn.metrics import (average_precision_score, f1_score,
+                             precision_recall_curve as _sk_pr_curve,
                              precision_recall_fscore_support)
 
 # 标签顺序固定（锁死；与 dataset.VULN_NAMES / model num_classes=7 一致，不得重排）
@@ -166,6 +167,46 @@ def mean_average_precision(probs, y, names=VULN_NAMES) -> dict:
     used_values = [v for v in ap if v is not None]
     mAP = float(np.mean(used_values)) if used_values else 0.0
     return {"mAP": mAP, "ap": ap, "ap_classes_used": used, "skipped": skipped}
+
+
+def pr_curve(probs, y, names=VULN_NAMES) -> dict:
+    """逐类 PR 曲线的**绘图点**（`sklearn.precision_recall_curve` 的薄封装）。
+
+    🔴 **本函数不是新指标**：它只是把 `mean_average_precision` 已经在用的那条曲线
+    `(precision, recall)` 取出来给绘图层。AP 一栏**直接调 `mean_average_precision`**，
+    保证「图上标的 AP」与「表里写的 mAP」是同一个数（本仓「同一语义两处实现」的教训）。
+
+    返回 {"classes": {名: {"precision": [...], "recall": [...], "ap": float,
+    "support": int, "prevalence": float}}, "skipped": [名],
+    "micro": {"precision","recall","ap","prevalence"}}。
+    `prevalence` = 正类占比，即**随机分类器在 PR 空间里的水平基线**（PR 的随机基线是水平线，
+    **不是**对角线——对角线是 ROC 的随机基线），绘图时画它才有参照意义。
+
+    · **逐类**：support=0 的类**跳过并记入 `skipped`**（PR 曲线无定义，不返回空数组冒充）；
+    · **micro**：把所有 `(样本, 类)` 标签对**展平后**按分数排序算全局 P/R —— 这与主指标
+      micro-F1 同口径（标签对级），是把多条曲线压成一条的**唯一**不失真的做法。
+      ⚠ 展平仅在此处正确：`f1_score(average=)` 下展平会改变 `type_of_target`（见模块 docstring），
+      但 `precision_recall_curve` 本就是按标签对算的，展平即其定义。
+    · 参数顺序 `(probs, y)` 与 `mean_average_precision` 一致（**不是** sklearn 的 `(y, score)`）。
+    """
+    y_np = _as_2d_multilabel(y, "pr_curve")
+    p_np = _as_2d_multilabel(probs, "pr_curve")
+    ap_all = mean_average_precision(p_np, y_np, names=names)
+    classes: dict[str, dict] = {}
+    for c, n in enumerate(names):
+        yc = y_np[:, c].astype(int)
+        if int(yc.sum()) == 0:
+            continue
+        pr, rc, _ = _sk_pr_curve(yc, p_np[:, c])
+        classes[n] = {"precision": [float(v) for v in pr], "recall": [float(v) for v in rc],
+                      "ap": ap_all["ap"][c], "support": int(yc.sum()),
+                      "prevalence": float(yc.mean())}
+    y_flat, p_flat = y_np.ravel().astype(int), p_np.ravel()
+    pr_m, rc_m, _ = _sk_pr_curve(y_flat, p_flat)
+    return {"classes": classes, "skipped": list(ap_all["skipped"]),
+            "micro": {"precision": [float(v) for v in pr_m], "recall": [float(v) for v in rc_m],
+                      "ap": float(average_precision_score(y_flat, p_flat)),
+                      "prevalence": float(y_flat.mean())}}
 
 
 def subset_accuracy(y, p) -> float:

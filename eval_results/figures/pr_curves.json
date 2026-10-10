@@ -1,0 +1,187 @@
+{
+ "layout": "buggy",
+ "title": "canonical pool 497 (incl. buggy_*)",
+ "note": "AP 由 metrics.mean_average_precision 给出（经 metrics.pr_curve），与 experiments/baseline_three_caliber_tables.md 表 2 的 mAP 列同源；三种子是三个独立划分，**不做平均**，图中每方法 3 条曲线。",
+ "methods": {
+  "Ours (SSM-HG)": {
+   "per_seed": {
+    "0": {
+     "micro_ap": 0.9564681947028293,
+     "access_control": 0.898589065255732,
+     "arithmetic": 0.9028589993502274,
+     "dos": 0.9682539682539681,
+     "front_running": 0.8603603603603603,
+     "reentrancy": 1.0,
+     "time_manipulation": 1.0,
+     "uncheck": 1.0,
+     "skipped": []
+    },
+    "1": {
+     "micro_ap": 0.9859515765765766,
+     "access_control": 1.0,
+     "arithmetic": 0.9388888888888889,
+     "dos": 1.0,
+     "front_running": 1.0,
+     "reentrancy": 0.9617224880382776,
+     "time_manipulation": 1.0,
+     "uncheck": 1.0,
+     "skipped": []
+    },
+    "2": {
+     "micro_ap": 0.9768597279914941,
+     "access_control": 0.9226190476190477,
+     "arithmetic": 0.9211469534050178,
+     "dos": 1.0,
+     "front_running": 1.0,
+     "reentrancy": 0.9999999999999999,
+     "time_manipulation": 1.0,
+     "uncheck": 1.0,
+     "skipped": []
+    }
+   },
+   "micro_ap_mean": 0.9730931664236332,
+   "micro_ap_std": 0.015098267821563755,
+   "mAP_mean_over_seeds": 0.9702114176748342,
+   "seeds": [
+    0,
+    1,
+    2
+   ]
+  },
+  "MVD-HG": {
+   "per_seed": {
+    "0": {
+     "micro_ap": 0.8395070132410372,
+     "access_control": 0.7925222925222926,
+     "arithmetic": 0.7052240411508146,
+     "dos": 0.8333333333333333,
+     "front_running": 0.8655913978494624,
+     "reentrancy": 0.9797979797979799,
+     "time_manipulation": 1.0,
+     "uncheck": 0.8690484327702372,
+     "skipped": []
+    },
+    "1": {
+     "micro_ap": 0.9561191753508257,
+     "access_control": 0.863343253968254,
+     "arithmetic": 0.9191919191919191,
+     "dos": 1.0,
+     "front_running": 1.0,
+     "reentrancy": 0.9299242424242424,
+     "time_manipulation": 1.0,
+     "uncheck": 1.0,
+     "skipped": []
+    },
+    "2": {
+     "micro_ap": 0.8842869382726435,
+     "access_control": 0.8650793650793651,
+     "arithmetic": 0.900352733686067,
+     "dos": 0.8529251700680271,
+     "front_running": 0.9761904761904762,
+     "reentrancy": 0.8880698617830971,
+     "time_manipulation": 1.0,
+     "uncheck": 0.8966695585116637,
+     "skipped": []
+    }
+   },
+   "micro_ap_mean": 0.8933043756215021,
+   "micro_ap_std": 0.05882673474055264,
+   "mAP_mean_over_seeds": 0.911298288491773,
+   "seeds": [
+    0,
+    1,
+    2
+   ]
+  },
+  "EGFL": {
+   "per_seed": {
+    "0": {
+     "micro_ap": 0.22799818832228785,
+     "access_control": 0.28785910638829226,
+     "arithmetic": 0.263215994084256,
+     "dos": 0.40065917840004217,
+     "front_running": 0.4263874207188161,
+     "reentrancy": 0.39930561325910163,
+     "time_manipulation": 0.4692065973676292,
+     "uncheck": 0.5524052336552336,
+     "skipped": []
+    },
+    "1": {
+     "micro_ap": 0.46525886882912304,
+     "access_control": 0.4552161654135338,
+     "arithmetic": 0.5979042562375896,
+     "dos": 0.4432546177227028,
+     "front_running": 0.43776583011909026,
+     "reentrancy": 0.36295407452144723,
+     "time_manipulation": 0.45546928916494134,
+     "uncheck": 0.4614150074533654,
+     "skipped": []
+    },
+    "2": {
+     "micro_ap": 0.2763171822631546,
+     "access_control": 0.2519508317984638,
+     "arithmetic": 0.24370221828842942,
+     "dos": 0.7839285714285713,
+     "front_running": 0.8734126984126983,
+     "reentrancy": 0.6731394806798282,
+     "time_manipulation": 0.7197278911564626,
+     "uncheck": 0.6975069909386679,
+     "skipped": []
+    }
+   },
+   "micro_ap_mean": 0.3231914131381885,
+   "micro_ap_std": 0.12538362241032963,
+   "mAP_mean_over_seeds": 0.48839938415281725,
+   "seeds": [
+    0,
+    1,
+    2
+   ]
+  },
+  "MANDO-LLM": {
+   "per_seed": {
+    "0": {
+     "micro_ap": 0.2851006328147522,
+     "access_control": 0.5081425428965474,
+     "arithmetic": 0.2135008344237735,
+     "dos": 0.3819249209981475,
+     "front_running": 0.24092443785648654,
+     "reentrancy": 0.34759361009361006,
+     "time_manipulation": 0.2833895655036208,
+     "uncheck": 0.36770985961020664,
+     "skipped": []
+    },
+    "1": {
+     "micro_ap": 0.19226025487909976,
+     "access_control": 0.2531120994163915,
+     "arithmetic": 0.2369997105291223,
+     "dos": 0.16639057774042607,
+     "front_running": 0.15474604760319047,
+     "reentrancy": 0.28602106629621504,
+     "time_manipulation": 0.2345845988913907,
+     "uncheck": 0.3250706152026027,
+     "skipped": []
+    },
+    "2": {
+     "micro_ap": 0.19198879424938556,
+     "access_control": 0.16282264483483996,
+     "arithmetic": 0.21447621194071498,
+     "dos": 0.12502973046629534,
+     "front_running": 0.12326886626547068,
+     "reentrancy": 0.4101736770854418,
+     "time_manipulation": 0.21262156145706484,
+     "uncheck": 0.2773733582720644,
+     "skipped": []
+    }
+   },
+   "micro_ap_mean": 0.22311656064774585,
+   "micro_ap_std": 0.05367995272466118,
+   "mAP_mean_over_seeds": 0.2631369779706487,
+   "seeds": [
+    0,
+    1,
+    2
+   ]
+  }
+ }
+}
