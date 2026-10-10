@@ -6,15 +6,19 @@
 PR 曲线是 mAP 的**完整底图**，两者必须同源：本脚本的 AP **直接调 `metrics.pr_curve`**
 （其 `ap` 字段来自 `metrics.mean_average_precision`），与表里那一列逐位相同，不是第二份实现。
 
-🔴 **三个必须随图读的口径**：
- 1. **三种子是三个独立划分**（`products/alldata/splits/withbuggy_snapshot/split_seed{0,1,2}.json`）
-    ⇒ 三种子的 test 集**不是同一批合约**（实测 seed0 与 seed1 的 test 无交集，各自 49 个）。
-    因此**不画「三种子平均曲线」**——那等于在三个不同测试集上求平均，是伪精度。
-    图里每个方法画 **3 条种子曲线**（同色、透明度区分），图例给 AP 的 mean±std。
+🔴 **四个必须随图读的口径**：
+ 1. **每个方法一条曲线 = 三种子的平均曲线**（2026-10-10 按用户要求由「3 条种子线」改为平均）。
+    ⚠ **代价必须知情**：三种子是**三个独立划分**（
+    `products/alldata/splits/withbuggy_snapshot/split_seed{0,1,2}.json`），test 集**不是同一批合约**
+    （实测 seed0 与 seed1 的 test 无交集，各自 49 个）。因此这条「平均曲线」是在**统一 recall 网格
+    上对各条曲线线性插值后再平均**得到的 —— 它**不是**任何一次真实运行的结果，只作趋势对照用；
+    要引用单次实验的精确 P/R，须回 `eval_results/figures/pr_curves.json` 的逐种子曲线。
+    图例的 AP = **三个种子 AP 的算术平均**（不含 ±，按用户要求）。
  2. **micro 曲线 = 标签对级**：把全部 `(样本, 类)` 对展平后按分数排序算全局 P/R，
     与主指标 **micro-F1 同口径**，是把多条曲线压成一条的**唯一**不失真做法。
- 3. **参考线是「水平」的**：PR 空间的随机基线 = 正类占比（prevalence），**不是**对角线
-    ——对角线是 ROC 的随机基线。图上那条点线就是它。
+ 3. **不画随机基线**（2026-10-10 按用户要求移除）。如需参照：PR 空间的随机基线是
+    **正类占比的水平线**（不是对角线——对角线是 ROC 的基线），逐类/整体的 prevalence
+    仍保留在 `pr_curves.json` 里。
  4. **本图只含「有连续分数」的方法**。六个传统工具的产物是**逐合约二值规则命中**
     （`classes` ∈ {0,1}⁷，工具自带的 `checks` 只有检测项名、无置信度）⇒ 没有可排序的分数，
     PR 曲线**退化成一个工作点、AUC 无定义**，故**不进本图**（判据见
@@ -41,7 +45,6 @@ import torch
 import matplotlib
 matplotlib.use("Agg")                                            # 无头：本机没有 DISPLAY
 import matplotlib.pyplot as plt                                  # noqa: E402
-from matplotlib.lines import Line2D                              # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "scripts"))
@@ -70,7 +73,9 @@ METHODS = (
 )
 OPTIONAL = (("EGFL (own lr)", "egfl_ownlr", "#9467bd"),)
 
-SEED_ALPHA = (0.30, 0.55, 0.90)      # 三个种子各一条：用透明度区分，**不平均**
+# 平均曲线用的统一 recall 网格。🔴 因为三种子的 test 集不同，**不能**直接对概率取平均；
+# 唯一可行的做法是各自算 PR 再在公共 recall 轴上插值后平均（口径已在模块 docstring 声明）。
+GRID = np.linspace(0.0, 1.0, 201)
 
 
 # ------------------------------------------------------------------ 读取层
@@ -107,36 +112,47 @@ def ap_stats(cv: dict[int, dict], cls: str | None) -> tuple[float, float, int]:
             float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0, len(vals))
 
 
-def prevalence(cvs: list[dict[int, dict]], cls: str | None) -> float:
-    """随机分类器的 PR 基线 = 正类占比（跨方法跨种子平均，只作一条参考线）。"""
-    vals = [d["prevalence"] for cv in cvs for c in cv.values()
-            if (d := _curve_of(c, cls)) is not None]
-    return float(np.mean(vals)) if vals else float("nan")
+def mean_curve(cv: dict[int, dict], cls: str | None) -> dict | None:
+    """三种子 PR 曲线的**平均曲线**（在公共 recall 网格 `GRID` 上插值后平均）。
+
+    ⚠ 三种子的 test 集**不是同一批合约** ⇒ 这条线不是任何一次真实运行的结果，
+    只作趋势对照；精确的逐种子 P/R 见 `pr_curves.json`。
+
+    实现要点：sklearn 的 `precision_recall_curve` 返回的 recall **递减**，先翻成递增；
+    同一 recall 上取**最大 precision**（PR 曲线的标准包络，与 `average_precision_score`
+    的阶梯积分同思路），再线性插值到公共网格。
+    """
+    pcs = []
+    for c in cv.values():
+        d = _curve_of(c, cls)
+        if d is None:
+            continue
+        r = np.asarray(d["recall"])[::-1]
+        p = np.asarray(d["precision"])[::-1]
+        ur, idx = np.unique(r, return_inverse=True)
+        up = np.full(ur.shape, -np.inf)
+        np.maximum.at(up, idx, p)
+        pcs.append(np.interp(GRID, ur, up))
+    if not pcs:
+        return None
+    return {"recall": GRID, "precision": np.mean(pcs, axis=0), "n_seeds": len(pcs)}
 
 
 # ------------------------------------------------------------------ 绘图层
 def _panel(ax, methods, layout, cls, cvs_cache, *, legend=False,
            ylabel=False, xlabel=False, title=None):
-    """一个面板：每个方法画其 3 条种子曲线；画随机基线。"""
+    """一个面板：每个方法画**一条**三种子平均曲线（不画随机基线）。"""
     for label, key, color in methods:
         cv = cvs_cache[key]
-        if not cv:
+        d = mean_curve(cv, cls) if cv else None
+        if d is None:
             ax.text(0.5, 0.5, "no artifact", ha="center", va="center",
                     transform=ax.transAxes, fontsize=8, color="0.5", rotation=30)
             continue
-        for i, s in enumerate(sorted(cv)):
-            d = _curve_of(cv[s], cls)
-            if d is None:
-                continue
-            ax.plot(d["recall"], d["precision"], color=color,
-                    alpha=SEED_ALPHA[i % len(SEED_ALPHA)], lw=1.2, zorder=3)
-        m, sd, n = ap_stats(cv, cls)
+        ax.plot(d["recall"], d["precision"], color=color, lw=1.6, zorder=3)
+        m, _sd, n = ap_stats(cv, cls)
         if n:
-            ax.plot([], [], color=color, lw=2.2,
-                    label=(f"{label}  AP {m:.3f}±{sd:.3f}" if n > 1 else f"{label}  AP {m:.3f}"))
-    pv = prevalence([cvs_cache[k] for _l, k, _c in methods], cls)
-    if np.isfinite(pv):
-        ax.axhline(pv, color="0.55", ls=":", lw=1.0, zorder=1)
+            ax.plot([], [], color=color, lw=2.2, label=f"{label}  AP {m:.3f}")
     if title:
         ax.set_title(title, fontsize=9.5)
     ax.set_xlim(-0.02, 1.02)
@@ -148,17 +164,14 @@ def _panel(ax, methods, layout, cls, cvs_cache, *, legend=False,
     if ylabel:
         ax.set_ylabel("Precision", fontsize=8.5)
     if legend:
-        h, lb = ax.get_legend_handles_labels()
-        if np.isfinite(pv):
-            h.append(Line2D([], [], color="0.55", ls=":", lw=1.0))
-            lb.append(f"Random (prevalence {pv:.2f})")
-        ax.legend(h, lb, fontsize=8, loc="lower left", framealpha=0.92)
+        ax.legend(fontsize=8, loc="lower left", framealpha=0.92)
 
 
 def fig_micro(methods, layout, cvs_cache) -> plt.Figure:
     fig, ax = plt.subplots(figsize=(6.6, 5.2))
     _panel(ax, methods, layout, None, cvs_cache, legend=True, ylabel=True, xlabel=True,
-           title=f"Micro-average PR (label-pair level)\n{LAYOUTS[layout]['title']}")
+           title=f"Micro-average PR (label-pair level), 3-seed mean curve\n"
+                 f"{LAYOUTS[layout]['title']}")
     fig.tight_layout()
     return fig
 
@@ -176,12 +189,11 @@ def fig_per_class(methods, layout, cvs_cache) -> plt.Figure:
             _panel(ax, [(label, key, color)], layout, cls, cvs_cache,
                    ylabel=(c == 0), xlabel=(r == nrow - 1),
                    title=ptitle if r == 0 else None)
-        m, sd, n = ap_stats(cvs_cache[key], None)
-        fig.text(0.012, 1 - (r + 0.55) / nrow, f"{label}\nmicro-AP {m:.3f}±{sd:.3f}",
+        m, _sd, n = ap_stats(cvs_cache[key], None)      # 只取均值（用户要求不显示波动值）
+        fig.text(0.012, 1 - (r + 0.55) / nrow, f"{label}\nmicro-AP {m:.3f}",
                  rotation=90, va="center", ha="center", fontsize=9.5, color=color, weight="bold")
-    fig.suptitle(f"Per-class PR curves — {LAYOUTS[layout]['title']}\n"
-                 f"rows = method, columns = vulnerability class; each panel shows 3 seed curves "
-                 f"(dotted = random baseline)", fontsize=12, y=0.998)
+    fig.suptitle(f"Per-class PR curves (3-seed mean curve per method) — {LAYOUTS[layout]['title']}\n"
+                 f"rows = method, columns = vulnerability class", fontsize=12, y=0.998)
     fig.tight_layout(rect=(0.032, 0, 1, 0.955))
     return fig
 
@@ -219,7 +231,11 @@ def main() -> int:
     rec = {"layout": args.layout, "title": LAYOUTS[args.layout]["title"],
            "note": "AP 由 metrics.mean_average_precision 给出（经 metrics.pr_curve），"
                    "与 experiments/baseline_three_caliber_tables.md 表 2 的 mAP 列同源；"
-                   "三种子是三个独立划分，**不做平均**，图中每方法 3 条曲线。",
+                   "**图例的 AP = 三种子 AP 的算术平均**（无 ±）。⚠ 三种子是三个独立划分"
+                   "（test 集不是同一批合约）⇒ 图上的单条曲线是三种子曲线在公共 recall 网格上"
+                   "插值后平均得到，**不是任何一次真实运行的结果**；下方 per_seed 存逐种子 AP。"
+                   "曲线本身是确定性的、可重算：`metrics.pr_curve(...)` 取逐种子点，"
+                   "再经 `plot_pr_curves.mean_curve(...)` 平均（无需重训）。",
            "methods": {}}
     for label, key, _c in methods:
         cv = cvs_cache[key]

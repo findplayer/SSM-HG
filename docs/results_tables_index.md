@@ -82,7 +82,7 @@
 | `bootstrap/main.md` | 16 | 1 | `oof_bootstrap.py` | 合约级 bootstrap 95% CI + 按 support 加权 macro |
 | `dive/comparison.md` | 277 | ~12 | `collect_dive_comparison.py` | 三方并列（①内测/②内测/DIVE(①)/DIVE(②)），**DIVE 两列永久停在 5 轮档** |
 | `ensemble/cbft_study_cbft.md`（**已删除**） | 14 | 1 | `ensemble_eval.py` | 同划分多种子概率集成（结论：未获益）；🔴 源 run `runs/cbft_study/` 已随 453 删除 |
-| `figures/pr_micro_buggy.{png,pdf}`<br>`figures/pr_per_class_buggy.{png,pdf}`<br>`figures/pr_curves.json` | — | 图 2 张 | `plot_pr_curves.py` | **正典 vs 三基线的 PR 曲线**（2026-10-10 新增）：micro-average 一张 + 逐类网格一张（行=方法、列=类）。🔴 **三种子是三个独立划分，图中每方法画 3 条种子曲线、不做平均**；`pr_curves.json` 的 AP 与主表 mAP 列**同源**（`metrics.mean_average_precision`）。**六传统工具不进图**（二值输出，无分数） |
+| `figures/pr_micro_buggy.{png,pdf}`<br>`figures/pr_per_class_buggy.{png,pdf}`<br>`figures/pr_curves.json` | — | 图 2 张 | `plot_pr_curves.py` | **正典 vs 三基线的 PR 曲线**（2026-10-10 新增）：micro-average 一张 + 逐类网格一张（行=方法、列=类）。🔴 **每方法一条「3 种子平均曲线」**（图例只给平均 AP、无 ±，用户指定）。⚠ **三种子是三个独立划分，test 集不是同一批合约 ⇒ 该曲线是在公共 recall 网格上插值后平均，不是任何一次真实运行的结果**（逐种子 AP 在 `pr_curves.json`）。`pr_curves.json` 的 AP 与主表 mAP 列**同源**（`metrics.mean_average_precision`）。**六传统工具不进图**（二值输出，无分数）。无随机基线线（用户指定移除） |
 
 ### `docs/`
 

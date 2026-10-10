@@ -1,7 +1,7 @@
 {
  "layout": "buggy",
  "title": "canonical pool 497 (incl. buggy_*)",
- "note": "AP 由 metrics.mean_average_precision 给出（经 metrics.pr_curve），与 experiments/baseline_three_caliber_tables.md 表 2 的 mAP 列同源；三种子是三个独立划分，**不做平均**，图中每方法 3 条曲线。",
+ "note": "AP 由 metrics.mean_average_precision 给出（经 metrics.pr_curve），与 experiments/baseline_three_caliber_tables.md 表 2 的 mAP 列同源；**图例的 AP = 三种子 AP 的算术平均**（无 ±）。⚠ 三种子是三个独立划分（test 集不是同一批合约）⇒ 图上的单条曲线是三种子曲线在公共 recall 网格上插值后平均得到，**不是任何一次真实运行的结果**；下方 per_seed 存逐种子 AP。曲线本身是确定性的、可重算：`metrics.pr_curve(...)` 取逐种子点，再经 `plot_pr_curves.mean_curve(...)` 平均（无需重训）。",
  "methods": {
   "Ours (SSM-HG)": {
    "per_seed": {

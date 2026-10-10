@@ -94,6 +94,35 @@ def test_prevalence_is_horizontal_baseline():
         assert d["prevalence"] == pytest.approx(float(y[:, i].mean()), abs=1e-12)
 
 
+def test_mean_curve_interpolates_on_common_grid():
+    """⑥ 平均曲线 = 各种子在公共 recall 网格上插值后平均；support=0 的类返回 None。
+
+    ⚠ 这条曲线的**合法前提**必须一起测出来：三种子 test 集不同，故它只能在 recall 轴上
+    平均（不能在概率上平均）。这里用「单种子 ⇒ 平均曲线 = 该种子曲线重采样」来锁住口径。
+    """
+    p, y = _toy(5)
+    c = metrics.pr_curve(p, y, names=NAMES)
+    mc = P.mean_curve({0: c}, None)
+    assert mc["n_seeds"] == 1
+    assert mc["recall"] is P.GRID and len(mc["precision"]) == len(P.GRID)
+    assert mc["recall"][0] == 0.0 and mc["recall"][-1] == 1.0
+    assert np.all((mc["precision"] >= 0) & (mc["precision"] <= 1))
+    # 单种子 ⇒ 平均值就是插值本身：恰好落在网格点上时须与原始曲线一致（同 recall 取最大 P）
+    for gr, gp in zip(mc["recall"], mc["precision"]):
+        hit = [(r, q) for r, q in zip(c["micro"]["recall"], c["micro"]["precision"])
+               if abs(r - gr) < 1e-12]
+        if hit:
+            assert gp == pytest.approx(max(q for _r, q in hit), abs=1e-12)
+    # support=0 的类没有曲线 ⇒ None（不返回全零数组冒充）
+    assert P.mean_curve({0: c}, NAMES[6]) is None
+    assert P.mean_curve({}, None) is None
+    # 两种子 ⇒ 逐点等于两条插值曲线的算术平均
+    c2 = metrics.pr_curve(*_toy(6), names=NAMES)
+    a, b = P.mean_curve({0: c}, None), P.mean_curve({1: c2}, None)
+    both = P.mean_curve({0: c, 1: c2}, None)
+    assert np.allclose(both["precision"], (a["precision"] + b["precision"]) / 2, atol=1e-12)
+
+
 def test_path_of_renders_both_placeholders():
     """⑤ 路径模板：`{seed}` 与 `{arm}` 同时存在于 base 模板 ⇒ 必须一次 format。"""
     for layout, canon_prefix, base_prefix in (("buggy", "runs/buggy_canon/seed2",
